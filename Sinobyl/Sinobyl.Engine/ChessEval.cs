@@ -399,8 +399,8 @@ namespace Sinobyl.Engine
 
 				foreach (ChessPosition pos in whitePawns)
 				{
-					ChessFile f = Chess.PositionToFile(pos);
-					ChessRank r = Chess.PositionToRank(pos);
+					ChessFile f = pos.GetFile();
+					ChessRank r = pos.GetRank();
 
 					WhiteFileCount[(int)f]++;
 
@@ -408,8 +408,8 @@ namespace Sinobyl.Engine
 
 				foreach (ChessPosition pos in blackPawns)
 				{
-					ChessFile f = Chess.PositionToFile(pos);
-					ChessRank r = Chess.PositionToRank(pos);
+                    ChessFile f = pos.GetFile();
+                    ChessRank r = pos.GetRank();
 
 					if (BlackFurthestNorthOnFile[(int)f] == ChessRank.EMPTY || r > BlackFurthestNorthOnFile[(int)f])
 					{
@@ -419,8 +419,8 @@ namespace Sinobyl.Engine
 
 				foreach (ChessPosition pos in whitePawns)
 				{
-					ChessFile f = Chess.PositionToFile(pos);
-					ChessRank r = Chess.PositionToRank(pos);
+					ChessFile f = pos.GetFile();
+                    ChessRank r = pos.GetRank();
 
 					//substract doubled score
 					if (WhiteFileCount[(int)f] > 1)

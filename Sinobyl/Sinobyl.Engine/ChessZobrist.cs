@@ -135,7 +135,7 @@ namespace Sinobyl.Engine
 			{
 				retval ^= ChessZobrist.CastleBL();
 			}
-			if (Chess.InBounds(board.EnPassant))
+			if (board.EnPassant.IsInBounds())
 			{
 				retval ^= ChessZobrist.Enpassant(board.EnPassant);
 			}

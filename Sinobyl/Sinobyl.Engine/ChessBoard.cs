@@ -269,7 +269,7 @@ namespace Sinobyl.Engine
 
 				for (int i = 0; i < 120; i++)
 				{
-					if (Chess.InBounds((ChessPosition)i) && value.pieceat[i]!=ChessPiece.EMPTY)
+					if (((ChessPosition)i).IsInBounds() && value.pieceat[i]!=ChessPiece.EMPTY)
 					{
 						this.PieceAdd((ChessPosition)i,value.pieceat[i]);
 					}
@@ -383,10 +383,10 @@ namespace Sinobyl.Engine
 			ChessPiece piece = this.PieceAt(from);
 			ChessPiece capture = this.PieceAt(to);
 			ChessPiece promote = move.Promote;
-			ChessRank fromrank = Chess.PositionToRank(from);
-			ChessRank torank = Chess.PositionToRank(to);
-			ChessFile fromfile = Chess.PositionToFile(from);
-			ChessFile tofile = Chess.PositionToFile(to);
+            ChessRank fromrank = from.GetRank();
+			ChessRank torank = to.GetRank();
+			ChessFile fromfile = from.GetFile();
+			ChessFile tofile = to.GetFile();
 
 			ChessMoveHistory histobj = new ChessMoveHistory(from, to, piece, promote, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove,_movesSinceNull, _zob, _zobPawn);
 			_hist.Add(histobj);
@@ -478,15 +478,15 @@ namespace Sinobyl.Engine
 			//if enpassant move then remove captured pawn
 			if (piece == ChessPiece.WPawn && to == this._enpassant)
 			{
-				this.PieceRemove(Chess.FileRankToPos(tofile, ChessRank.Rank5),ChessPiece.BPawn);
+				this.PieceRemove(tofile.ToPosition(ChessRank.Rank5), ChessPiece.BPawn);
 			}
 			if (piece == ChessPiece.BPawn && to == this._enpassant)
 			{
-				this.PieceRemove(Chess.FileRankToPos(tofile, ChessRank.Rank4),ChessPiece.WPawn);
+				this.PieceRemove(tofile.ToPosition(ChessRank.Rank4), ChessPiece.WPawn);
 			}
 
 			//unmark enpassant sq
-			if (Chess.InBounds(_enpassant))
+			if (_enpassant.IsInBounds())
 			{
 				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
 				_enpassant = (ChessPosition)0;
@@ -495,12 +495,12 @@ namespace Sinobyl.Engine
 			//mark enpassant sq if pawn double jump
 			if (piece == ChessPiece.WPawn && fromrank == ChessRank.Rank2 && torank == ChessRank.Rank4)
 			{
-				_enpassant = Chess.FileRankToPos(fromfile, ChessRank.Rank3);
+				_enpassant = fromfile.ToPosition(ChessRank.Rank3);
 				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
 			}
 			else if (piece == ChessPiece.BPawn && fromrank == ChessRank.Rank7 && torank == ChessRank.Rank5)
 			{
-				_enpassant = Chess.FileRankToPos(fromfile, ChessRank.Rank6);
+				_enpassant = fromfile.ToPosition(ChessRank.Rank6);
 				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
 			}
 			
@@ -592,13 +592,13 @@ namespace Sinobyl.Engine
 			//put back pawn if enpassant capture
 			if (movehist.PieceMoved == ChessPiece.WPawn && movehist.To == movehist.Enpassant)
 			{
-				ChessFile tofile = Chess.PositionToFile(movehist.To);
-				PieceAdd(Chess.FileRankToPos(tofile, ChessRank.Rank5), ChessPiece.BPawn);
+                ChessFile tofile = movehist.To.GetFile();
+				PieceAdd(tofile.ToPosition(ChessRank.Rank5), ChessPiece.BPawn);
 			}
 			if (movehist.PieceMoved == ChessPiece.BPawn && movehist.To == movehist.Enpassant)
 			{
-				ChessFile tofile = Chess.PositionToFile(movehist.To);
-				PieceAdd(Chess.FileRankToPos(tofile, ChessRank.Rank4), ChessPiece.WPawn);
+				ChessFile tofile = movehist.To.GetFile();
+				PieceAdd(tofile.ToPosition(ChessRank.Rank4), ChessPiece.WPawn);
 			}
 
 			_castleWS = movehist.CastleWS;
@@ -630,7 +630,7 @@ namespace Sinobyl.Engine
 			_movesSinceNull = 0;
 
 			//unmark enpassant sq
-			if (Chess.InBounds(_enpassant))
+			if (_enpassant.IsInBounds())
 			{
 				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
 				_enpassant = (ChessPosition)0;
@@ -685,7 +685,7 @@ namespace Sinobyl.Engine
 			ChessPiece piece;
 			pos = Chess.PositionInDirection(from, dir);
 			dist = 1;
-			while (Chess.InBounds(pos))
+			while (pos.IsInBounds())
 			{
 				piece = this.PieceAt(pos);
 				if (piece != ChessPiece.EMPTY) { return piece; }

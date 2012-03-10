@@ -36,17 +36,18 @@ namespace Sinobyl.Engine
 		private ChessFEN(ChessFEN fenOrig, bool reverse)
 		{
 			if (!reverse) { throw new Exception("this contructor only meant to do FEN reverse positions"); }
-			for (int pos = 0; pos < 120; pos++)
+			for (int ipos = 0; ipos < 120; ipos++)
 			{
-				if (Chess.InBounds((ChessPosition)pos))
+                ChessPosition pos = (ChessPosition)ipos;
+				if (pos.IsInBounds())
 				{
-					ChessPosition posRev = Chess.PositionReverse((ChessPosition)pos);
-					ChessPiece pieceRev = Chess.PieceReverse(fenOrig.pieceat[pos]);
+					ChessPosition posRev = Chess.PositionReverse(pos);
+                    ChessPiece pieceRev = fenOrig.pieceat[ipos].ToOppositePlayer();
 					pieceat[(int)posRev] = pieceRev;
 				}
 				else
 				{
-					pieceat[pos] = ChessPiece.OOB;
+					pieceat[ipos] = ChessPiece.OOB;
 				}
 			}
 			this.whosturn = Chess.PlayerOther(fenOrig.whosturn);
@@ -56,7 +57,7 @@ namespace Sinobyl.Engine
 			this.castleWL = fenOrig.castleBL;
 			this.castleBS = fenOrig.castleWS;
 			this.castleBL = fenOrig.castleWL;
-			if (Chess.InBounds(fenOrig.enpassant))
+			if (fenOrig.enpassant.IsInBounds())
 			{
 				this.enpassant = Chess.PositionReverse(fenOrig.enpassant);
 			}
@@ -135,7 +136,7 @@ namespace Sinobyl.Engine
 					}
 					else
 					{
-						pieceat[(int)Chess.FileRankToPos(Chess.AllFiles[ifile], rank)] = Chess.CharToPiece(c);
+						pieceat[(int)Chess.AllFiles[ifile].ToPosition(rank)] = c.ParseAsPiece();
 						ifile++;
 					}
 				}
@@ -181,7 +182,7 @@ namespace Sinobyl.Engine
 			this.enpassant = (ChessPosition)0;
 			if (sEnpassant != "-")
 			{
-				enpassant = Chess.StrToPosition(sEnpassant);
+				enpassant = sEnpassant.ParseAsPosition();
 			}
 
 			//set fifty move count
@@ -215,7 +216,7 @@ namespace Sinobyl.Engine
 				{
 					ChessRank rank = Chess.AllRanks[irank];
 					ChessFile file = Chess.AllFiles[ifile];
-					ChessPiece piece = pieceat[(int)Chess.FileRankToPos(file, rank)];
+					ChessPiece piece = pieceat[(int)file.ToPosition(rank)];
 
 					if (piece == ChessPiece.EMPTY)
 					{
@@ -263,7 +264,7 @@ namespace Sinobyl.Engine
 			}
 
 			//enpassant
-			if (Chess.InBounds(enpassant))
+			if (enpassant.IsInBounds())
 			{
 				sb.Append(" " + Chess.PositionToString(enpassant));
 			}

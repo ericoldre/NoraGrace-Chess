@@ -97,7 +97,7 @@ namespace Sinobyl.Engine
 		}
 	}
 
-	public class Chess
+	public static class Chess
 	{
 
 		public static readonly string FENStart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -170,65 +170,8 @@ namespace Sinobyl.Engine
 		private static readonly int[] _directionrankinc = new int[] { 1, 0, -1, 0,/*diag*/1, -1, -1, 1,/*knight*/2, 1, -1, -2, -2, -1, 1, 2 };
 		private static readonly int[] _directionfileinc = new int[] { 0, 1, 0, -1,/*diag*/1, 1, -1, -1,/*knight*/1, 2, 2, 1, -1, -2, -2, -1 };
 
-		#region IsValidFunctions
 
-
-		//public static bool IsValidPosition(ChessPosition pos)
-		//{
-		//    return ((int)pos >= -1 && (int)pos <= 63);
-		//}
-		//public static bool IsValidPlayer(ChessPlayer player)
-		//{
-		//    return ((int)player == -1 || (int)player == 0 || (int)player == 1);
-		//}
-		//public static bool IsValidPiece(ChessPiece piece)
-		//{
-		//    return ((int)piece >= -1 && (int)piece <= 11);
-		//}
-		//public static bool IsValidFile(ChessFile file)
-		//{
-		//    return ((int)file >= 0 && (int)file <= 7);
-		//}
-		//public static bool IsValidRank(ChessRank rank)
-		//{
-		//    return ((int)rank >= 0 && (int)rank <= 7);
-		//}
-		//public static bool IsValidDirection(ChessDirection dir)
-		//{
-		//    return ((int)dir >= 0 && (int)dir <= 15);
-		//}
-		#endregion
-
-		#region AssertFunctions
-
-		//public static void AssertPosition(ChessPosition pos)
-		//{
-		//    if (!IsValidPosition(pos)) { throw new Exception(pos.ToString() + " is not a valid position"); }
-		//}
-		//public static void AssertPlayer(ChessPlayer player)
-		//{
-		//    if (!IsValidPlayer(player)) { throw new Exception(player.ToString() + " is not a valid player"); }
-		//}
-		//public static void AssertPiece(ChessPiece piece)
-		//{
-		//    if (!IsValidPiece(piece)) { throw new Exception(piece.ToString() + " is not a valid piece"); }
-		//}
-		//public static void AssertFile(ChessFile file)
-		//{
-		//    if (!IsValidFile(file)) { throw new Exception(file.ToString() + " is not a valid file"); }
-		//}
-		//public static void AssertRank(ChessRank rank)
-		//{
-		//    if (!IsValidRank(rank)) { throw new Exception(rank.ToString() + " is not a valid rank"); }
-		//}
-		//public static void AssertDirection(ChessDirection dir)
-		//{
-		//    if (!IsValidDirection(dir)) { throw new Exception(dir.ToString() + " is not a valid direction"); }
-		//}
-
-		#endregion
-
-		public static bool InBounds(ChessPosition pos)
+		public static bool IsInBounds(this ChessPosition pos)
 		{
 			return PositionInBounds[(int)pos];
 			////AssertPosition(pos);
@@ -238,38 +181,38 @@ namespace Sinobyl.Engine
 		{
 			return 30000 - ply; //private static readonly int VALCHECKMATE = 30000;
 		}
-		public static ChessPosition FileRankToPos(ChessFile file, ChessRank rank)
+		public static ChessPosition ToPosition(this ChessFile file, ChessRank rank)
 		{
 			//if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
 			//if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
 			return (ChessPosition)((int)rank * 10) + (int)file;
 		}
-		public static ChessRank PositionToRank(ChessPosition pos)
+        public static ChessPosition ToPosition(this ChessRank rank, ChessFile file)
+        {
+            //if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
+            //if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
+            return (ChessPosition)((int)rank * 10) + (int)file;
+        }
+		public static ChessRank GetRank(this ChessPosition pos)
 		{
 			//AssertPosition(pos);
 			return (ChessRank)(((int)pos / 10));
 		}
-		public static ChessFile PositionToFile(ChessPosition pos)
+		public static ChessFile GetFile(this ChessPosition pos)
 		{
 			//AssertPosition(pos);
 			return (ChessFile)((int)pos % 10);
 		}
-		//public static bool PositionIsDarkColor(ChessPosition pos)
-		//{
-		//    //AssertPosition(pos);
-		//    ChessRank rank = PositionToRank(pos);
-		//    return ((int)pos % 2 + (int)rank % 2) % 2 == 0;
-		//}
 
-		public static ChessPiece CharToPiece(char c)
+		public static ChessPiece ParseAsPiece(this char c)
 		{
 			int idx = _piecedesclookup.IndexOf(c);
 			if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid piece"); }
 			return (ChessPiece)idx;
 		}
-		public static ChessPiece CharToPiecePlayer(char c, ChessPlayer player)
+		public static ChessPiece ParseAsPiece(this char c, ChessPlayer player)
 		{
-			ChessPiece tmppiece = CharToPiece(c.ToString().ToUpper()[0]);
+			ChessPiece tmppiece = c.ToString().ToUpper()[0].ParseAsPiece();
 			if (player == ChessPlayer.White)
 			{
 				return tmppiece;
@@ -279,24 +222,24 @@ namespace Sinobyl.Engine
 				return (ChessPiece)((int)tmppiece + 6);
 			}
 		}
-		public static ChessRank CharToRank(char c)
+		public static ChessRank ParseAsRank(this char c)
 		{
 			int idx = _rankdesclookup.IndexOf(c);
 			if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid rank"); }
 			return (ChessRank)idx;
 		}
-		public static ChessFile CharToFile(char c)
+		public static ChessFile ParseAsFile(this char c)
 		{
 			int idx = _filedesclookup.IndexOf(c.ToString().ToLower());
 			if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid file"); }
 			return (ChessFile)idx;
 		}
-		public static ChessPosition StrToPosition(string s)
+		public static ChessPosition ParseAsPosition(this string s)
 		{
 			if (s.Length != 2) { throw new ChessException(s + " is not a valid position"); }
-			ChessFile file = Chess.CharToFile(s.ToCharArray()[0]);
-			ChessRank rank = Chess.CharToRank(s.ToCharArray()[1]);
-			return FileRankToPos(file, rank);
+            ChessFile file = s.ToCharArray()[0].ParseAsFile();
+            ChessRank rank = s.ToCharArray()[1].ParseAsRank();
+			return file.ToPosition(rank);
 		}
 		public static string RankToString(ChessRank rank)
 		{
@@ -308,20 +251,17 @@ namespace Sinobyl.Engine
 			//AssertFile(file);
 			return _filedesclookup.Substring((int)file, 1);
 		}
-		public static string PositionToString(ChessPosition pos)
+		public static string PositionToString(this ChessPosition pos)
 		{
-			//AssertPosition(pos);
-			ChessFile file = PositionToFile(pos);
-			ChessRank rank = PositionToRank(pos);
-			return FileToString(file) + RankToString(rank);
+			return FileToString(pos.GetFile()) + RankToString(pos.GetRank());
 		}
-		public static string PieceToString(ChessPiece piece)
+		public static string PieceToString(this ChessPiece piece)
 		{
 			//AssertPiece(piece);
 			return _piecedesclookup.Substring((int)piece, 1);
 		}
 
-		public static int PieceValBasic(ChessPiece piece)
+		public static int PieceValBasic(this ChessPiece piece)
 		{
 			switch (piece)
 			{
@@ -347,7 +287,7 @@ namespace Sinobyl.Engine
 					return 0;
 			}
 		}
-		public static ChessPiece PieceReverse(ChessPiece piece)
+		public static ChessPiece ToOppositePlayer(this ChessPiece piece)
 		{
 			switch (piece)
 			{
@@ -426,10 +366,10 @@ namespace Sinobyl.Engine
 			{
 				return retval;
 			}
-			ChessRank rankfrom = Chess.PositionToRank(from);
-			ChessFile filefrom = Chess.PositionToFile(from);
-			ChessRank rankto = Chess.PositionToRank(to);
-			ChessFile fileto = Chess.PositionToFile(to);
+			ChessRank rankfrom = from.GetRank();
+			ChessFile filefrom = from.GetFile();
+			ChessRank rankto = to.GetRank();
+			ChessFile fileto = to.GetFile();
 
 			if (fileto == filefrom)
 			{
@@ -467,8 +407,8 @@ namespace Sinobyl.Engine
 		}
 		public static ChessPosition PositionReverse(ChessPosition pos)
 		{
-			ChessRank r = PositionToRank(pos);
-			ChessFile f = PositionToFile(pos);
+			ChessRank r = pos.GetRank();
+			ChessFile f = pos.GetFile();
 			ChessRank newrank = ChessRank.EMPTY;
 			switch(r)
 			{
@@ -497,7 +437,7 @@ namespace Sinobyl.Engine
 					newrank = ChessRank.Rank1;
 					break;
 			}
-			return Chess.FileRankToPos(f, newrank);
+			return f.ToPosition(newrank);
 		}
 		public static ChessPlayer PlayerOther(ChessPlayer player)
 		{

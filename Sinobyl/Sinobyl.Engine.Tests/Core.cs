@@ -207,6 +207,51 @@ namespace Sinobyl.Engine.Tests
 			Assert.AreEqual<ChessPosition>(ChessPosition.D7, Chess.PositionInDirection(ChessPosition.E5, ChessDirection.DirNNW));
 
 		}
+
+        [TestMethod]
+        public void BitboardTests()
+        {
+            foreach (var pos1 in Chess.AllPositions)
+            {
+                foreach (var pos2 in Chess.AllPositions)
+                {
+                    foreach (var pos3 in Chess.AllPositions)
+                    {
+                        //if we have 3 unique positions
+                        if (pos1 != pos2 && pos1 != pos3 && pos2 != pos3)
+                        {
+                            ChessBitboard bb1 = pos1.Bitboard();
+                            ChessBitboard bb2 = pos2.Bitboard();
+                            ChessBitboard bb3 = pos3.Bitboard();
+
+                            Assert.AreNotEqual<ChessBitboard>(bb1, bb2);
+                            Assert.AreNotEqual<ChessBitboard>(bb1, bb3);
+                            Assert.AreNotEqual<ChessBitboard>(bb2, bb3);
+
+                            var posArray = new ChessPosition[] { pos1, pos2, pos3 };
+                            var bbAll = posArray.ToBitboard();
+
+                            //verifiy created bitboard contains all three positions.
+                            Assert.IsTrue(!(bbAll & bb1).Empty());
+                            Assert.IsTrue(!(bbAll & bb2).Empty());
+                            Assert.IsTrue(!(bbAll & bb3).Empty());
+
+                            //verify bitboard does not contain any other positions
+                            foreach (var posOther in Chess.AllPositions.Where(posO=>!posArray.Any(posE=>posO==posE)))
+                            {
+                                var bbOther = posOther.Bitboard();
+                                Assert.IsTrue((bbOther & bbAll).Empty());    
+                            }
+
+                            //verify that bitboard when positions are enumerated is returns all 3 positions.
+                            var posFromBitboards = bbAll.ToPositions().ToArray();
+                            var bbRemade = posFromBitboards.ToBitboard();
+                            Assert.IsTrue(bbRemade == bbAll);
+                        }
+                    }
+                }
+            }
+        }
 		[TestMethod]
 		public void FileAndRankTests()
 		{

@@ -16,7 +16,7 @@ namespace Sinobyl.Engine
         private static readonly ChessBitboard[] _attacks_from_wpawn_lu = new ChessBitboard[65];
         private static readonly ChessBitboard[] _attacks_from_bpawn_lu = new ChessBitboard[65];
 
-        public static int[] _attacks_from_horiz_offset = {
+        private static int[] _attacks_from_horiz_offset = {
 	        1, 1, 1, 1, 1, 1, 1, 1,
 	        9, 9, 9, 9, 9, 9, 9, 9,
 	        17,17,17,17,17,17,17,17,
@@ -27,7 +27,7 @@ namespace Sinobyl.Engine
 	        57,57,57,57,57,57,57,57
         };
 
-        public static int[] _attacks_from_vert_offset = {
+        private static int[] _attacks_from_vert_offset = {
 	        1, 9, 17, 25, 33, 41, 49, 57,
 	        1, 9, 17, 25, 33, 41, 49, 57,
 	        1, 9, 17, 25, 33, 41, 49, 57,
@@ -38,7 +38,7 @@ namespace Sinobyl.Engine
 	        1, 9, 17, 25, 33, 41, 49, 57
         };
 
-        public static int[] _attacks_from_diaga8_offset = {
+        private static int[] _attacks_from_diaga8_offset = {
 	         1,  2,  4,  7, 11, 16, 22, 29,
 	         2,  4,  7, 11, 16, 22, 29, 37,
 	         4,  7, 11, 16, 22, 29, 37, 44,
@@ -49,7 +49,7 @@ namespace Sinobyl.Engine
 	        29, 37, 44, 50, 55, 59, 62, 64
         };
 
-        public static int[] _attacks_from_diagh8_offset = {
+        private static int[] _attacks_from_diagh8_offset = {
 	        29, 22, 16, 11,  7,  4,  2,  1,
 	        37, 29, 22, 16, 11,  7,  4,  2,
 	        44, 37, 29, 22, 16, 11,  7,  4,
@@ -60,7 +60,7 @@ namespace Sinobyl.Engine
 	        64, 62, 59, 55, 50, 44, 37, 29
         };
 
-        public static int[] _position_translate_vert = {
+        private static int[] _position_translate_vert = {
 	        0, 8,  16, 24, 32, 40, 48, 56,
 	        1, 9,  17, 25, 33, 41, 49, 57,
 	        2, 10, 18, 26, 34, 42, 50, 58,
@@ -71,7 +71,7 @@ namespace Sinobyl.Engine
 	        7, 15, 23, 31, 39, 47, 55, 63,
 	        64};
 
-        public static int[] _position_translate_diaga8 =
+        private static int[] _position_translate_diaga8 =
         {
 	        0,   1,  3,  6, 10, 15, 21, 28, 
 	        2,   4,  7, 11, 16, 22, 29, 36,
@@ -84,7 +84,7 @@ namespace Sinobyl.Engine
 	        64
         };
 
-        public static int[] _position_translate_diagh8 = {
+        private static int[] _position_translate_diagh8 = {
 	        28, 21, 15, 10,  6,  3,  1,  0, 
 	        36, 29, 22, 16, 11,  7,  4,  2,
 	        43, 37, 30, 23, 17, 12,  8,  5, 
@@ -248,6 +248,11 @@ namespace Sinobyl.Engine
             return _attacks_from_diaga8_lu[posIdx, (int)pattern];
         }
 
+        public static ChessBitboardRotatedVert RotateVert(ChessPosition position)
+        {
+            return (ChessBitboardRotatedVert)Chess.AllPositions[_position_translate_vert[position.GetIndex64()]].Bitboard();
+        }
+
         public static ChessBitboardRotatedVert RotateVert(ChessBitboard bitboard)
         {
             ChessBitboard retval = 0;
@@ -275,6 +280,11 @@ namespace Sinobyl.Engine
             return retval;
         }
 
+        public static ChessBitboardRotatedA1H8 RotateA1H8(ChessPosition position)
+        {
+            return (ChessBitboardRotatedA1H8)Chess.AllPositions[_position_translate_diagh8[position.GetIndex64()]].Bitboard();
+        }
+
         public static ChessBitboardRotatedA1H8 RotateDiagA1H8(ChessBitboard bitboard)
         {
             ChessBitboard retval = 0;
@@ -299,6 +309,11 @@ namespace Sinobyl.Engine
                 retval |= Chess.AllPositions[posidx].Bitboard();
             }
             return retval;
+        }
+
+        public static ChessBitboardRotatedH1A8 RotateH1A8(ChessPosition position)
+        {
+            return (ChessBitboardRotatedH1A8)Chess.AllPositions[_position_translate_diaga8[position.GetIndex64()]].Bitboard();
         }
 
         public static ChessBitboardRotatedH1A8 RotateDiagH1A8(ChessBitboard bitboard)

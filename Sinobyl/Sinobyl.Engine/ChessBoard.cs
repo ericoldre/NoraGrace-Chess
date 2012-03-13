@@ -62,6 +62,13 @@ namespace Sinobyl.Engine
 		private int[] _pieceCount = new int[12];
 		private ChessPosition[] _kingpos = new ChessPosition[2];
 
+        private ChessBitboard[] _pieces = new ChessBitboard[12];
+        private ChessBitboard[] _playerBoards = new ChessBitboard[2];
+        private ChessBitboard _allPieces = 0;
+        private Attacks.ChessBitboardRotatedVert _allPiecesVert = 0;
+        private Attacks.ChessBitboardRotatedA1H8 _allPiecesA1H8 = 0;
+        private Attacks.ChessBitboardRotatedH1A8 _allPiecesH1A8 = 0;
+
 		private ChessPlayer _whosturn;
 		private bool _castleWS;
 		private bool _castleWL;
@@ -113,7 +120,14 @@ namespace Sinobyl.Engine
 			for (int i = 0; i < 12; i++)
 			{
 				_pieceCount[i] = 0;
+                _pieces[i] = 0;
 			}
+            _playerBoards[0] = 0;
+            _playerBoards[1] = 0;
+            _allPieces = 0;
+            _allPiecesVert = 0;
+            _allPiecesA1H8 = 0;
+            _allPiecesH1A8 = 0;
 			
 		}
 
@@ -141,9 +155,16 @@ namespace Sinobyl.Engine
 
 		private void PieceAdd(ChessPosition pos, ChessPiece piece)
 		{
-			_pieceat[(int)pos] = piece;
+            
+            _pieceat[(int)pos] = piece;
 			_zob ^= ChessZobrist._piecepos[(int)piece, (int)pos];
 			_pieceCount[(int)piece]++;
+
+            _pieces[(int)piece] |= pos.Bitboard();
+            _allPieces |= pos.Bitboard();
+            _allPiecesVert |= Attacks.RotateVert(pos);
+            _allPiecesA1H8 |= Attacks.RotateA1H8(pos);
+            _allPiecesH1A8 |= Attacks.RotateH1A8(pos);
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
@@ -163,6 +184,12 @@ namespace Sinobyl.Engine
 			_pieceat[(int)pos] = ChessPiece.EMPTY;
 			_zob ^= ChessZobrist._piecepos[(int)piece, (int)pos];
 			_pieceCount[(int)piece]--;
+
+            _pieces[(int)piece] &= ~pos.Bitboard();
+            _allPieces &= ~pos.Bitboard();
+            _allPiecesVert &= ~Attacks.RotateVert(pos);
+            _allPiecesA1H8 &= ~Attacks.RotateA1H8(pos);
+            _allPiecesH1A8 &= ~Attacks.RotateH1A8(pos);
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
@@ -312,7 +339,45 @@ namespace Sinobyl.Engine
 				return _zobPawn;
 			}
 		}
-		public ChessPiece PieceAt(ChessPosition pos)
+        public ChessBitboard PieceLocations(ChessPiece piece)
+        {
+            return _pieces[(int)piece];
+        }
+        public ChessBitboard PlayerLocations(ChessPlayer player)
+        {
+            return _playerBoards[(int)player];
+        }
+        public ChessBitboard PieceLocationsAll
+        {
+            get
+            {
+                return _allPieces;
+            }
+        }
+        public Attacks.ChessBitboardRotatedVert PieceLocationsAllVert
+        {
+            get
+            {
+                return _allPiecesVert;
+            }
+        }
+        public Attacks.ChessBitboardRotatedA1H8 PieceLocationsAllA1H8
+        {
+            get
+            {
+                return _allPiecesA1H8;
+            }
+        }
+
+        public Attacks.ChessBitboardRotatedH1A8 PieceLocationsAllH1A8
+        {
+            get
+            {
+                return _allPiecesH1A8;
+            }
+        }
+        
+        public ChessPiece PieceAt(ChessPosition pos)
 		{
 			return _pieceat[(int)pos];
 		}

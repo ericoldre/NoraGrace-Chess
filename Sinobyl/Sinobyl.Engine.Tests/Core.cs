@@ -211,6 +211,17 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void BitboardTests()
         {
+            foreach (var pos in Chess.AllPositions)
+            {
+                foreach (var dir in Chess.AllDirections)
+                {
+                    var posnew = Chess.PositionInDirection(pos, dir);
+                    if (!posnew.IsInBounds())
+                    {
+                        Assert.IsTrue(posnew.Bitboard().Empty());
+                    }
+                }
+            }
             foreach (var pos1 in Chess.AllPositions)
             {
                 foreach (var pos2 in Chess.AllPositions)

@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attacks.cs" />
     <Compile Include="Chess.cs" />
     <Compile Include="ChessBoard.cs" />
     <Compile Include="ChessBook.cs" />

@@ -162,6 +162,7 @@ namespace Sinobyl.Engine
 
             _pieces[(int)piece] |= pos.Bitboard();
             _allPieces |= pos.Bitboard();
+            _playerBoards[(int)Chess.PieceToPlayer(piece)] |= pos.Bitboard();
             _allPiecesVert |= Attacks.RotateVert(pos);
             _allPiecesA1H8 |= Attacks.RotateA1H8(pos);
             _allPiecesH1A8 |= Attacks.RotateH1A8(pos);
@@ -187,6 +188,7 @@ namespace Sinobyl.Engine
 
             _pieces[(int)piece] &= ~pos.Bitboard();
             _allPieces &= ~pos.Bitboard();
+            _playerBoards[(int)Chess.PieceToPlayer(piece)] &= ~pos.Bitboard();
             _allPiecesVert &= ~Attacks.RotateVert(pos);
             _allPiecesA1H8 &= ~Attacks.RotateA1H8(pos);
             _allPiecesH1A8 &= ~Attacks.RotateH1A8(pos);

@@ -199,13 +199,13 @@ namespace Sinobyl.Engine
                 board |= Chess.PositionInDirection(sq, ChessDirection.DirNW).Bitboard();
                 _attacks_from_wpawn_lu[sq.GetIndex64()] = board;
             }
-            //wpawn attacks
+            //bpawn attacks
             foreach (var sq in Chess.AllPositions)
             {
                 ChessBitboard board = 0;
                 board |= Chess.PositionInDirection(sq, ChessDirection.DirSE).Bitboard();
                 board |= Chess.PositionInDirection(sq, ChessDirection.DirSW).Bitboard();
-                _attacks_from_wpawn_lu[sq.GetIndex64()] = board;
+                _attacks_from_bpawn_lu[sq.GetIndex64()] = board;
             }
         }
 
@@ -247,6 +247,51 @@ namespace Sinobyl.Engine
             ulong pattern = ((((ulong)rotatedBoard) >> shift) & 63);
             return _attacks_from_diaga8_lu[posIdx, (int)pattern];
         }
+
+        public static ChessBitboard KnightAttacks(ChessPosition from)
+        {
+            return _attacks_from_knight_lu[from.GetIndex64()];
+        }
+        public static ChessBitboard BishopAttacks(ChessPosition from, ChessBitboardRotatedA1H8 a1h8, ChessBitboardRotatedH1A8 h1a8)
+        {
+            return DiagA1H8Attacks(from, a1h8) | DiagH1A8Attacks(from, h1a8);
+        }
+        public static ChessBitboard RookAttacks(ChessPosition from, ChessBitboard allPieceLocations, ChessBitboardRotatedVert allPieceLocationsRotatedVert)
+        {
+            return HorizAttacks(from, allPieceLocations) | VertAttacks(from, allPieceLocationsRotatedVert);
+        }
+        public static ChessBitboard QueenAttacks(ChessPosition from, ChessBitboard norm, ChessBitboardRotatedVert vert, ChessBitboardRotatedA1H8 a1h8, ChessBitboardRotatedH1A8 h1a8)
+        {
+            return HorizAttacks(from, norm) | VertAttacks(from, vert) | DiagA1H8Attacks(from, a1h8) | DiagH1A8Attacks(from, h1a8);
+        }
+        public static ChessBitboard KingAttacks(ChessPosition from)
+        {
+            return _attacks_from_king_lu[from.GetIndex64()];
+        }
+        public static ChessBitboard PawnAttacksWhite(ChessPosition from)
+        {
+            return _attacks_from_wpawn_lu[from.GetIndex64()];
+        }
+        public static ChessBitboard PawnAttacksBlack(ChessPosition from)
+        {
+            return _attacks_from_bpawn_lu[from.GetIndex64()];
+        }
+        public static ChessBitboard PawnAttacks(ChessPosition from, ChessPlayer who)
+        {
+            if (who == ChessPlayer.White)
+            {
+                return _attacks_from_wpawn_lu[from.GetIndex64()];
+            }
+            else if (who == ChessPlayer.Black)
+            {
+                return _attacks_from_bpawn_lu[from.GetIndex64()];
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
 
         public static ChessBitboardRotatedVert RotateVert(ChessPosition position)
         {

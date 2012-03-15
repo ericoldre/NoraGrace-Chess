@@ -80,7 +80,7 @@ namespace Sinobyl.Engine.Tests
 				return;
 			}
 
-			List<ChessMove> moves = ChessMove.GenMoves(board);
+			List<ChessMove> moves = ChessMove.GenMoves(board, false);
 
 			foreach (ChessMove move in moves)
 			{
@@ -161,8 +161,19 @@ namespace Sinobyl.Engine.Tests
 				{
 					board.MoveApply(move);
 
-					List<ChessMove> allmoves = ChessMove.GenMoves(board);
+                    var allmoves = ChessMove.GenMoves(board).OrderBy(m => m.From).ThenBy(m => m.To).ToArray();
+                    var allmovesBB = ChessMove.GenMovesBitboards(board, false).OrderBy(m => m.From).ThenBy(m => m.To).ToArray();
+
 					List<ChessMove> capmoves = ChessMove.GenMoves(board,true);
+                    var capmovesBB = ChessMove.GenMovesBitboards(board, true);
+
+                    //not in allmoves
+                    //var notInAllMoves = allmoves.Where(m => !allmovesBB.Any(bbm => bbm.From == m.From && bbm.To == m.To && bbm.Promote == m.Promote)).ToArray();
+                   // var notInBBMoves = allmovesBB.Where(m => !allmoves.Any(bbm => bbm.From == m.From && bbm.To == m.To && bbm.Promote == m.Promote)).ToArray();
+
+                    Assert.AreEqual<int>(allmoves.Count(), allmovesBB.Count());
+                    Assert.AreEqual<int>(capmoves.Count(), capmovesBB.Count());
+
 
 					//make sure every cap more really is a cap
 					foreach (ChessMove capmove in capmoves)

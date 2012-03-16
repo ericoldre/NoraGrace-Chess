@@ -161,11 +161,11 @@ namespace Sinobyl.Engine.Tests
 				{
 					board.MoveApply(move);
 
-                    var allmoves = ChessMove.GenMoves(board).OrderBy(m => m.From).ThenBy(m => m.To).ToArray();
-                    var allmovesBB = ChessMove.GenMovesBitboards(board, false).OrderBy(m => m.From).ThenBy(m => m.To).ToArray();
+                    var allmoves = ChessMove.GenMovesOld(board, false).OrderBy(m => m.From).ThenBy(m => m.To).ToArray();
+                    var allmovesBB = ChessMove.GenMoves(board, false).OrderBy(m => m.From).ThenBy(m => m.To).ToArray();
 
-					List<ChessMove> capmoves = ChessMove.GenMoves(board,true);
-                    var capmovesBB = ChessMove.GenMovesBitboards(board, true);
+					List<ChessMove> capmoves = ChessMove.GenMovesOld(board,true);
+                    var capmovesBB = ChessMove.GenMoves(board, true);
 
                     //not in allmoves
                     //var notInAllMoves = allmoves.Where(m => !allmovesBB.Any(bbm => bbm.From == m.From && bbm.To == m.To && bbm.Promote == m.Promote)).ToArray();

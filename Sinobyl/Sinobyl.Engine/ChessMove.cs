@@ -475,7 +475,7 @@ namespace Sinobyl.Engine
 		{
 			return GenMoves(board, false);
 		}
-		public static ChessMoves GenMoves(ChessBoard board, bool CapsOnly)
+		public static ChessMoves GenMovesOld(ChessBoard board, bool CapsOnly)
 		{
 			ChessMoves retval = new ChessMoves();
 
@@ -697,7 +697,7 @@ namespace Sinobyl.Engine
 		}
 
 
-        public static ChessMoves GenMovesBitboards(ChessBoard board, bool CapsOnly)
+        public static ChessMoves GenMoves(ChessBoard board, bool CapsOnly)
         {
             ChessMoves retval = new ChessMoves();
 

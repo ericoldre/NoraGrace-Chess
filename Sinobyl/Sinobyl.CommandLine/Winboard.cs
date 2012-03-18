@@ -137,6 +137,7 @@ namespace Sinobyl.CommandLine
 					break;
 				case "new":
 					board.FEN = new ChessFEN(ChessFEN.FENStart);
+                    myplayer = ChessPlayer.Black;
 					break;
 				case "force":
 					myplayer = ChessPlayer.None;

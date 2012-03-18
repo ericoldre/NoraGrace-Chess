@@ -13,6 +13,7 @@ namespace Sinobyl.CommandLine
 		private static readonly BackgroundWorker bwReadInput = new BackgroundWorker();
 		private static Winboard winboard = new Winboard();
 		private static StreamWriter logger;
+        private static object loggerLock = new object();
 		public static string[] commandArgs;
 
 		static bool KeepGoing = true;
@@ -20,9 +21,9 @@ namespace Sinobyl.CommandLine
 		{
 			commandArgs = args;
 
-			Console.WriteLine("Murderhole II");
+            Console.WriteLine("Sinobyl");
 			string startDateTime = DateTime.Now.ToString("yyyyMMddHHmmss");
-			logger = File.AppendText(string.Format("MurderholeII.{0}.log", startDateTime));
+			logger = File.AppendText(string.Format("Sinobyl.{0}.log", startDateTime));
 
 			foreach (string arg in args)
 			{
@@ -33,7 +34,6 @@ namespace Sinobyl.CommandLine
 			
 
 			bwReadInput.DoWork += new DoWorkEventHandler(bwReadInput_DoWork);
-			bwReadInput.ProgressChanged += new ProgressChangedEventHandler(bwReadInput_ProgressChanged);
 			bwReadInput.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwReadInput_RunWorkerCompleted);
 			bwReadInput.WorkerReportsProgress = true;
 			bwReadInput.RunWorkerAsync();
@@ -73,18 +73,6 @@ namespace Sinobyl.CommandLine
 			KeepGoing = false;
 		}
 
-		static void bwReadInput_ProgressChanged(object sender, ProgressChangedEventArgs e)
-		{
-			//try
-			//{
-				winboard.ProcessCmd(e.UserState.ToString());
-			//}
-			//catch (Exception ex)
-			//{
-				//LogException(ex);
-			//}
-		}
-
 		static void bwReadInput_DoWork(object sender, DoWorkEventArgs e)
 		{
 			try
@@ -110,7 +98,8 @@ namespace Sinobyl.CommandLine
                     }
                     else
                     {
-                        bwReadInput.ReportProgress(0, input);
+                        winboard.ProcessCmd(input);
+                        //bwReadInput.ReportProgress(0, input);
                     }
 				}
 			}
@@ -122,24 +111,39 @@ namespace Sinobyl.CommandLine
 		}
 		public static void ConsoleWriteline(string output)
 		{
-			logger.WriteLine("out\t" + output);
-			logger.Flush();
+            lock (loggerLock)
+            {
+                logger.WriteLine("out\t" + output);
+                logger.Flush();
+            }
+			
 			Console.WriteLine(output);
 		}
 		public static void LogInfo(string type, string message)
 		{
-			logger.WriteLine(type+"\t"+message);
-			logger.Flush();
+            lock (loggerLock)
+            {
+                logger.WriteLine(type + "\t" + message);
+                logger.Flush();
+            }
 		}
 		public static void LogException(Exception ex)
-		{
-			logger.WriteLine("Exception\t" + ex.Message + "---Source:" + ex.Source);
-			while (ex.InnerException != null)
-			{
-				ex = ex.InnerException;
-				logger.WriteLine("Exception\t" + ex.Message + "---Source:" + ex.Source);
-			}
-			logger.Flush();
+		{ 
+            lock (loggerLock)
+            {
+                while (ex != null)
+                {
+                    logger.WriteLine("Exception: " + ex.Message + "\tSource: " + ex.Source);
+                    foreach (var st in ex.StackTrace)
+                    {
+                        logger.WriteLine("\t\t" + st.ToString());
+                    }
+                    ex = ex.InnerException;
+                }
+
+                logger.Flush();
+            }
+
 			KeepGoing = false;
 		}
 

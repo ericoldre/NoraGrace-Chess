@@ -180,7 +180,7 @@ namespace Sinobyl.Engine
 
 		public readonly int[,] PawnPassedValueStartEnd = new int[120,2];
 		public readonly int[,,] PieceSquareStartEndVals = new int[12,120,2];
-		public readonly int[] PieceValue = new int[12];
+		public readonly int[] PieceValue = new int[12]; 
 
 
 		public ChessEval()
@@ -312,7 +312,7 @@ namespace Sinobyl.Engine
 				return retval;
 			}
 			//not in the hash
-			retval = new PawnInfo(board.ZobristPawn, board.PieceList(ChessPiece.WPawn), board.PieceList(ChessPiece.BPawn), this);
+			retval = new PawnInfo(board.ZobristPawn, board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), this);
 			pawnHash[idx] = retval;
 			return retval;
 		}
@@ -325,127 +325,90 @@ namespace Sinobyl.Engine
 			public readonly int StartVal;
 			public readonly int EndVal;
 
-			public PawnInfo(Int64 zob, List<ChessPosition> whitePawns, List<ChessPosition> blackPawns, ChessEval eval)
+            public PawnInfo(Int64 zob, ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval)
 			{
 				PawnZobrist = zob;
 				EvalAllPawns(whitePawns, blackPawns, eval, ref StartVal, ref EndVal);
 
 			}
-			public static void EvalAllPawns(List<ChessPosition> whitePawns, List<ChessPosition> blackPawns, ChessEval eval, ref int StartVal, ref int EndVal)
+            public static void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval, ref int StartVal, ref int EndVal)
 			{
-				EvalAllPawns(whitePawns, blackPawns, eval, ref StartVal, ref EndVal, new List<ChessPosition>(),new List<ChessPosition>(), new List<ChessPosition>());
+                ChessBitboard doubled = ChessBitboard.Empty;
+                ChessBitboard passed = ChessBitboard.Empty;
+                ChessBitboard isolated = ChessBitboard.Empty;
+				EvalAllPawns(whitePawns, blackPawns, eval, ref StartVal, ref EndVal, out passed, out doubled, out isolated);
 			}
-			public static void EvalAllPawns(List<ChessPosition> whitePawns, List<ChessPosition> blackPawns, ChessEval eval, ref int StartVal, ref int EndVal, List<ChessPosition> passed, List<ChessPosition> doubled, List<ChessPosition> isolated)
+            public static void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated)
 			{
 				//eval for white
-				passed.Clear();
-				doubled.Clear();
-				isolated.Clear();
+                doubled = ChessBitboard.Empty;
+                passed = ChessBitboard.Empty;
+                isolated = ChessBitboard.Empty;
 
 				int WStartVal = 0;
 				int WEndVal = 0;
 				
-				EvalWhitePawns(whitePawns, blackPawns, eval, ref WStartVal, ref WEndVal, passed, doubled, isolated);
+				EvalWhitePawns(whitePawns, blackPawns, eval, ref WStartVal, ref WEndVal, out passed, out doubled, out isolated);
 				
 				//create inverse situation
-				List<ChessPosition> bpassed = new List<ChessPosition>();
-				List<ChessPosition> bdoubled = new List<ChessPosition>();
-				List<ChessPosition> bisolated = new List<ChessPosition>();
+                ChessBitboard bpassed = ChessBitboard.Empty;
+                ChessBitboard bdoubled = ChessBitboard.Empty;
+                ChessBitboard bisolated = ChessBitboard.Empty;
 
-				List<ChessPosition> blackRev = new List<ChessPosition>();
-				List<ChessPosition> whiteRev = new List<ChessPosition>();
-				foreach (ChessPosition pos in whitePawns)
-				{
-					whiteRev.Add(Chess.PositionReverse(pos));
-				}
-				foreach (ChessPosition pos in blackPawns)
-				{
-					blackRev.Add(Chess.PositionReverse(pos));
-				}
+                ChessBitboard blackRev = blackPawns.Reverse();
+                ChessBitboard whiteRev = whitePawns.Reverse();
+
 				int BStartVal = 0;
 				int BEndVal = 0;
 
 				//actually passing in the black pawns from their own perspective
-				EvalWhitePawns(blackRev, whiteRev, eval, ref BStartVal, ref BEndVal, bpassed, bdoubled, bisolated);
+				EvalWhitePawns(blackRev, whiteRev, eval, ref BStartVal, ref BEndVal, out bpassed, out bdoubled, out bisolated);
 
-				//add black lists into white lists
-				foreach (ChessPosition pos in bpassed)
-				{
-					passed.Add(Chess.PositionReverse(pos));
-				}
-				foreach (ChessPosition pos in bisolated)
-				{
-					isolated.Add(Chess.PositionReverse(pos));
-				}
-				foreach (ChessPosition pos in bdoubled)
-				{
-					doubled.Add(Chess.PositionReverse(pos));
-				}
+                doubled |= bdoubled.Reverse();
+                passed |= bpassed.Reverse();
+                isolated |= bisolated.Reverse();
 
 				//set return values;
 				StartVal = WStartVal - BStartVal;
 				EndVal = WEndVal - BEndVal;
 
 			}
-			private static void EvalWhitePawns(List<ChessPosition> whitePawns, List<ChessPosition> blackPawns, ChessEval eval, ref int StartVal, ref int EndVal, List<ChessPosition> passed, List<ChessPosition> doubled, List<ChessPosition> isolated)
+            private static void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated)
 			{
-				ChessRank[] BlackFurthestNorthOnFile = new ChessRank[10];
-				int[] WhiteFileCount = new int[10];
+                passed = ChessBitboard.Empty;
+                doubled = ChessBitboard.Empty;
+                isolated = ChessBitboard.Empty;
 
-				for(int i = 0; i<10; i++)
-				{
-					BlackFurthestNorthOnFile[i] = ChessRank.EMPTY;
-				}
-
-				foreach (ChessPosition pos in whitePawns)
-				{
-					ChessFile f = pos.GetFile();
-					ChessRank r = pos.GetRank();
-
-					WhiteFileCount[(int)f]++;
-
-				}
-
-				foreach (ChessPosition pos in blackPawns)
-				{
-                    ChessFile f = pos.GetFile();
-                    ChessRank r = pos.GetRank();
-
-					if (BlackFurthestNorthOnFile[(int)f] == ChessRank.EMPTY || r > BlackFurthestNorthOnFile[(int)f])
-					{
-						BlackFurthestNorthOnFile[(int)f] = r;
-					}
-				}
-
-				foreach (ChessPosition pos in whitePawns)
+				foreach (ChessPosition pos in whitePawns.ToPositions())
 				{
 					ChessFile f = pos.GetFile();
                     ChessRank r = pos.GetRank();
+                    ChessBitboard bbFile = pos.GetFile().Bitboard();
+                    ChessBitboard bbFile2E = bbFile.ShiftDirE();
+                    ChessBitboard bbFile2W = bbFile.ShiftDirW();
 
 					//substract doubled score
-					if (WhiteFileCount[(int)f] > 1)
-					{
-						StartVal -= ChessEval.PawnDoubledStart;
-						EndVal -= ChessEval.PawnDoubledEnd;
-						doubled.Add(pos);
-					}
-					//substract isolated score
-					if (WhiteFileCount[(int)f + 1] == 0 && WhiteFileCount[(int)f - 1] == 0)
-					{
-						StartVal -= ChessEval.PawnIsoStart;
-						EndVal -= ChessEval.PawnIsoEnd;
-						isolated.Add(pos);
-					}
-					if (!(BlackFurthestNorthOnFile[(int)f] > r))
-					{
-						if (!(BlackFurthestNorthOnFile[(int)f + 1] > r) && !(BlackFurthestNorthOnFile[(int)f - 1] > r))
-						{
-							StartVal += eval.PawnPassedValueStartEnd[(int)pos, 0];
-							EndVal += eval.PawnPassedValueStartEnd[(int)pos, 1];
-							passed.Add(pos);
-						}
-					}
+                    if (!(bbFile & ~pos.Bitboard() & whitePawns).Empty())
+                    {
+                        StartVal -= ChessEval.PawnDoubledStart;
+                        EndVal -= ChessEval.PawnDoubledEnd;
+                        doubled |= pos.Bitboard();
+                    }
 
+                    if ((bbFile2E & whitePawns).Empty() && (bbFile2W & whitePawns).Empty())
+                    {
+                        StartVal -= ChessEval.PawnIsoStart;
+                        EndVal -= ChessEval.PawnIsoEnd;
+                        isolated |= pos.Bitboard();
+                    }
+
+                    ChessBitboard blockPositions = (bbFile | bbFile2E | bbFile2W) & pos.GetRank().BitboardAllNorth().ShiftDirN();
+                    if ((blockPositions & blackPawns).Empty())
+                    {
+                        StartVal += eval.PawnPassedValueStartEnd[(int)pos, 0];
+                        EndVal += eval.PawnPassedValueStartEnd[(int)pos, 1];
+                        passed |= pos.Bitboard();
+                    }
 				}
 
 			}

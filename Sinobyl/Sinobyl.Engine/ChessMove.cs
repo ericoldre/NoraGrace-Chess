@@ -80,8 +80,8 @@ namespace Sinobyl.Engine
 		public ChessMove()
 		{
 			this.Promote = ChessPiece.EMPTY;
-			this.From = (ChessPosition)0;
-			this.To = (ChessPosition)0;
+			this.From = (ChessPosition.OUTOFBOUNDS);
+			this.To = (ChessPosition.OUTOFBOUNDS);
 			this.EstScore = null;
 		}
 		public ChessMove(ChessPosition from, ChessPosition to)
@@ -101,8 +101,8 @@ namespace Sinobyl.Engine
 		public ChessMove(ChessBoard board, string movetext)
 		{
 			this.Promote = ChessPiece.EMPTY;//unless changed below
-			this.From = (ChessPosition)0;
-			this.To = (ChessPosition)0;
+			this.From = (ChessPosition.OUTOFBOUNDS);
+			this.To = (ChessPosition.OUTOFBOUNDS);
 			this.EstScore = null;
 			Regex regex = new Regex("");
 
@@ -261,53 +261,47 @@ namespace Sinobyl.Engine
 		}
 		private ChessPosition filter(ChessBoard board, ChessPosition attackto, ChessPiece piece, ChessFile file, ChessRank rank)
 		{
-			List<ChessPosition> attlist = board.AttacksTo(attackto, board.WhosTurn);
-
-			for (int i = 0; i < attlist.Count; i++)
+            List<ChessPosition> fits = new List<ChessPosition>();
+            var attacksTo = board.AttacksTo(attackto, board.WhosTurn);
+			foreach(ChessPosition pos in attacksTo.ToPositions())
 			{
-				ChessPosition pos = attlist[i];
-				bool isfit = true;
 				if (piece != ChessPiece.EMPTY && piece != board.PieceAt(pos))
 				{
-					isfit = false;
+                    continue;
 				}
 				if (rank != ChessRank.EMPTY && rank != pos.GetRank())
 				{
-					isfit = false;
+                    continue;
 				}
 				if (file != ChessFile.EMPTY && file != pos.GetFile())
 				{
-					isfit = false;
+                    continue;
 				}
-				if (!isfit)
-				{
-					attlist.RemoveAt(i);
-					i--; //subtract the counter so it doesn't skip one.
-				}
+                fits.Add(pos);
 			}
 
-			if (attlist.Count > 1)
+            if (fits.Count > 1)
 			{
 				//ambigous moves, one is probably illegal, check against legal move list
 				ChessMoves allLegal = ChessMove.GenMovesLegal(board);
-				attlist.Clear();
+                fits.Clear();
 				foreach (ChessMove move in allLegal)
 				{
 					if (move.To != attackto) { continue; }
 					if (board.PieceAt(move.From) != piece) { continue; }
 					if (file != ChessFile.EMPTY && move.From.GetFile() != file) { continue; }
 					if (rank != ChessRank.EMPTY && move.From.GetRank() != rank) { continue; }
-					attlist.Add(move.From);
+                    fits.Add(move.From);
 				}
 			}
 
-			if (attlist.Count != 1)
+            if (fits.Count != 1)
 			{
 				throw new ChessException("invalid move input");
 				
 			}
 
-			return attlist[0];
+            return fits[0];
 		}
 
 		public override string ToString()
@@ -396,8 +390,7 @@ namespace Sinobyl.Engine
 				bool pieceunique = true;
 				bool fileunique = true;
 				bool rankunique = true;
-				List<ChessPosition> attacks = board.AttacksTo(this.To, Chess.PieceToPlayer(piece));
-				foreach (ChessPosition pos in attacks)
+				foreach (ChessPosition pos in  board.AttacksTo(this.To, Chess.PieceToPlayer(piece)).ToPositions())
 				{
 					if (pos == this.From) { continue; }
 
@@ -1022,8 +1015,8 @@ namespace Sinobyl.Engine
 				{
 					retval += Chess.PieceValBasic(taken);
 					//do see
-					List<ChessPosition> attacks = board.AttacksTo(move.To);
-					attacks.Remove(move.From);
+					var attacks = board.AttacksTo(move.To);
+                    attacks &= ~move.From.Bitboard();
 					retval -= attackswap(board, attacks, Chess.PlayerOther(me), move.To, Chess.PieceValBasic(mover));
 
 
@@ -1034,7 +1027,7 @@ namespace Sinobyl.Engine
 
 
 			}
-			static int attackswap(ChessBoard board, List<ChessPosition> attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
+			static int attackswap(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
 			{
 				int nextAttackPieceVal = 0;
 				ChessPosition nextAttackPos = 0;
@@ -1054,7 +1047,7 @@ namespace Sinobyl.Engine
 				}
 			}
 
-			static bool attackpop(ChessBoard board, List<ChessPosition> attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
+			static bool attackpop(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
 			{
 
 
@@ -1068,7 +1061,7 @@ namespace Sinobyl.Engine
 
 				if (player == ChessPlayer.White)
 				{
-					foreach (ChessPosition attackPos in attacks)
+					foreach (ChessPosition attackPos in attacks.ToPositions())
 					{
 						ChessPiece attackPiece = board.PieceAt(attackPos);
 						switch (attackPiece)
@@ -1090,7 +1083,7 @@ namespace Sinobyl.Engine
 				}
 				else
 				{
-					foreach (ChessPosition attackPos in attacks)
+					foreach (ChessPosition attackPos in attacks.ToPositions())
 					{
 						ChessPiece attackPiece = board.PieceAt(attackPos);
 						switch (attackPiece)
@@ -1111,7 +1104,7 @@ namespace Sinobyl.Engine
 					}
 				}
 
-				OutFrom = 0;
+				OutFrom = (ChessPosition)(int)-1;
 				OutPieceVal = 0;
 
 				if (mypawn != 0)
@@ -1157,14 +1150,14 @@ namespace Sinobyl.Engine
 					ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
 					if (Chess.IsDirectionRook(addAttackFrom) && Chess.PieceIsSliderRook(AddPiece))
 					{
-						attacks.Add(AddPosition);
+                        attacks |= AddPosition.Bitboard();
 					}
 					else if (Chess.IsDirectionBishop(addAttackFrom) && Chess.PieceIsSliderBishop(AddPiece))
 					{
-						attacks.Add(AddPosition);
+                        attacks |= AddPosition.Bitboard();
 					}
 				}
-				attacks.Remove(OutFrom);
+                attacks &= ~OutFrom.Bitboard();
 				return true;
 
 			}

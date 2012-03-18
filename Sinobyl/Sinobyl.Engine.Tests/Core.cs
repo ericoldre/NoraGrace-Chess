@@ -111,24 +111,30 @@ namespace Sinobyl.Engine.Tests
 								posCurr = Chess.PositionInDirection(posCurr,dirTry);
 							}
 						}
-						continue; 
+                        foreach (ChessDirection dirTry in Chess.AllDirectionsKnight)
+                        {
+                            posCurr = Chess.PositionInDirection(posFrom, dirTry);
+                            Assert.IsFalse(posCurr == posTo);
+                        }
 					}
-					if (Chess.IsDirectionKnight(dirFromTo))
-					{
-						Assert.AreEqual<ChessPosition>(posTo, (ChessPosition)((int)posFrom + (int)dirFromTo));
-					}
-					bool FoundTo = false;
-					posCurr = posFrom;
-					while (posCurr.IsInBounds())
-					{
-						posCurr = Chess.PositionInDirection(posCurr, dirFromTo);
-						if (posCurr == posTo) { FoundTo = true; }
-					}
-					if (!FoundTo)
-					{
-						Assert.IsTrue(FoundTo);
-					}
-					
+                    else if (Chess.IsDirectionKnight(dirFromTo))
+                    {
+                        Assert.AreEqual<ChessPosition>(posTo, Chess.PositionInDirection(posFrom, dirFromTo));
+                    }
+                    else
+                    {
+                        bool FoundTo = false;
+                        posCurr = posFrom;
+                        while (posCurr.IsInBounds())
+                        {
+                            posCurr = Chess.PositionInDirection(posCurr, dirFromTo);
+                            if (posCurr == posTo) { FoundTo = true; }
+                        }
+                        if (!FoundTo)
+                        {
+                            Assert.IsTrue(FoundTo);
+                        }
+                    }
 				}
 			}
 
@@ -209,6 +215,86 @@ namespace Sinobyl.Engine.Tests
 		}
 
         [TestMethod]
+        public void BitboardReverse()
+        {
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank8, ChessBitboard.Rank1.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank7, ChessBitboard.Rank2.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank6, ChessBitboard.Rank3.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank5, ChessBitboard.Rank4.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank4, ChessBitboard.Rank5.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank3, ChessBitboard.Rank6.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank2, ChessBitboard.Rank7.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank1, ChessBitboard.Rank8.Reverse());
+
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileA, ChessBitboard.FileA.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileB, ChessBitboard.FileB.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileC, ChessBitboard.FileC.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileD, ChessBitboard.FileD.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileE, ChessBitboard.FileE.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileF, ChessBitboard.FileF.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileG, ChessBitboard.FileG.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.FileH, ChessBitboard.FileH.Reverse());
+
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Full, ChessBitboard.Full.Reverse());
+            Assert.AreEqual<ChessBitboard>(ChessBitboard.Empty, ChessBitboard.Empty.Reverse());
+            
+
+            
+        }
+
+        [TestMethod]
+        public void BitboardShiftTests()
+        {
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank1, ChessBitboard.Full.ShiftDirN());
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.FileA, ChessBitboard.Full.ShiftDirE());
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank8, ChessBitboard.Full.ShiftDirS());
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.FileH, ChessBitboard.Full.ShiftDirW());
+
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank1 & ~ChessBitboard.FileA, ChessBitboard.Full.ShiftDirNE());
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank8 & ~ChessBitboard.FileA, ChessBitboard.Full.ShiftDirSE());
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank8 & ~ChessBitboard.FileH, ChessBitboard.Full.ShiftDirSW());
+            Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank1 & ~ChessBitboard.FileH, ChessBitboard.Full.ShiftDirNW());
+
+            foreach (ChessPosition pos in Chess.AllPositions)
+            {
+                foreach (ChessDirection dir in Chess.AllDirectionsQueen)
+                {
+                    ChessPosition posEnd = Chess.PositionInDirection(pos, dir);
+                    ChessBitboard bb = 0;
+                    switch (dir)
+                    {
+                        case ChessDirection.DirN:
+                            bb = pos.Bitboard().ShiftDirN();
+                            break;
+                        case ChessDirection.DirNE:
+                            bb = pos.Bitboard().ShiftDirNE();
+                            break;
+                        case ChessDirection.DirE:
+                            bb = pos.Bitboard().ShiftDirE();
+                            break;
+                        case ChessDirection.DirSE:
+                            bb = pos.Bitboard().ShiftDirSE();
+                            break;
+                        case ChessDirection.DirS:
+                            bb = pos.Bitboard().ShiftDirS();
+                            break;
+                        case ChessDirection.DirSW:
+                            bb = pos.Bitboard().ShiftDirSW();
+                            break;
+                        case ChessDirection.DirW:
+                            bb = pos.Bitboard().ShiftDirW();
+                            break;
+                        case ChessDirection.DirNW:
+                            bb = pos.Bitboard().ShiftDirNW();
+                            break;
+                    }
+                    Assert.AreEqual<ChessBitboard>(posEnd.Bitboard(), bb);
+                }
+            }
+
+        }
+
+        [TestMethod]
         public void BitboardTests()
         {
             foreach (var pos in Chess.AllPositions)
@@ -220,46 +306,45 @@ namespace Sinobyl.Engine.Tests
                     {
                         Assert.IsTrue(posnew.Bitboard().Empty());
                     }
+                    else
+                    {
+                        Assert.IsTrue(posnew.Bitboard().ToPositions().Count() == 1);
+                    }
                 }
             }
             foreach (var pos1 in Chess.AllPositions)
             {
                 foreach (var pos2 in Chess.AllPositions)
                 {
-                    foreach (var pos3 in Chess.AllPositions)
+
+                    //if we have 3 unique positions
+                    if (pos1 != pos2)
                     {
-                        //if we have 3 unique positions
-                        if (pos1 != pos2 && pos1 != pos3 && pos2 != pos3)
+                        ChessBitboard bb1 = pos1.Bitboard();
+                        ChessBitboard bb2 = pos2.Bitboard();
+
+                        Assert.AreNotEqual<ChessBitboard>(bb1, bb2);
+
+                        var posArray = new ChessPosition[] { pos1, pos2 };
+                        var bbAll = posArray.ToBitboard();
+
+                        //verifiy created bitboard contains all three positions.
+                        Assert.IsTrue(!(bbAll & bb1).Empty());
+                        Assert.IsTrue(!(bbAll & bb2).Empty());
+
+                        //verify bitboard does not contain any other positions
+                        foreach (var posOther in Chess.AllPositions.Where(posO=>!posArray.Any(posE=>posO==posE)))
                         {
-                            ChessBitboard bb1 = pos1.Bitboard();
-                            ChessBitboard bb2 = pos2.Bitboard();
-                            ChessBitboard bb3 = pos3.Bitboard();
-
-                            Assert.AreNotEqual<ChessBitboard>(bb1, bb2);
-                            Assert.AreNotEqual<ChessBitboard>(bb1, bb3);
-                            Assert.AreNotEqual<ChessBitboard>(bb2, bb3);
-
-                            var posArray = new ChessPosition[] { pos1, pos2, pos3 };
-                            var bbAll = posArray.ToBitboard();
-
-                            //verifiy created bitboard contains all three positions.
-                            Assert.IsTrue(!(bbAll & bb1).Empty());
-                            Assert.IsTrue(!(bbAll & bb2).Empty());
-                            Assert.IsTrue(!(bbAll & bb3).Empty());
-
-                            //verify bitboard does not contain any other positions
-                            foreach (var posOther in Chess.AllPositions.Where(posO=>!posArray.Any(posE=>posO==posE)))
-                            {
-                                var bbOther = posOther.Bitboard();
-                                Assert.IsTrue((bbOther & bbAll).Empty());    
-                            }
-
-                            //verify that bitboard when positions are enumerated is returns all 3 positions.
-                            var posFromBitboards = bbAll.ToPositions().ToArray();
-                            var bbRemade = posFromBitboards.ToBitboard();
-                            Assert.IsTrue(bbRemade == bbAll);
+                            var bbOther = posOther.Bitboard();
+                            Assert.IsTrue((bbOther & bbAll).Empty());    
                         }
+
+                        //verify that bitboard when positions are enumerated is returns all 3 positions.
+                        var posFromBitboards = bbAll.ToPositions().ToArray();
+                        var bbRemade = posFromBitboards.ToBitboard();
+                        Assert.IsTrue(bbRemade == bbAll);
                     }
+                    
                 }
             }
         }

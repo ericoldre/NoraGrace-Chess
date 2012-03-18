@@ -8,7 +8,7 @@ namespace Sinobyl.Engine
 {
 	public class ChessFEN
 	{
-		public readonly ChessPiece[] pieceat = new ChessPiece[120];
+		public readonly ChessPiece[] pieceat = new ChessPiece[64];
 		public readonly ChessPlayer whosturn;
 		public readonly bool castleWS;
 		public readonly bool castleWL;
@@ -20,7 +20,7 @@ namespace Sinobyl.Engine
 
 		public ChessFEN(ChessBoard board)
 		{
-			for (int pos = 0; pos < 120; pos++)
+			for (int pos = 0; pos < 64; pos++)
 			{
 				pieceat[pos] = board.PieceAt((ChessPosition)pos);
 			}
@@ -36,7 +36,7 @@ namespace Sinobyl.Engine
 		private ChessFEN(ChessFEN fenOrig, bool reverse)
 		{
 			if (!reverse) { throw new Exception("this contructor only meant to do FEN reverse positions"); }
-			for (int ipos = 0; ipos < 120; ipos++)
+			for (int ipos = 0; ipos < 64; ipos++)
 			{
                 ChessPosition pos = (ChessPosition)ipos;
 				if (pos.IsInBounds())
@@ -44,10 +44,6 @@ namespace Sinobyl.Engine
 					ChessPosition posRev = Chess.PositionReverse(pos);
                     ChessPiece pieceRev = fenOrig.pieceat[ipos].ToOppositePlayer();
 					pieceat[(int)posRev] = pieceRev;
-				}
-				else
-				{
-					pieceat[ipos] = ChessPiece.OOB;
 				}
 			}
 			this.whosturn = Chess.PlayerOther(fenOrig.whosturn);
@@ -63,7 +59,7 @@ namespace Sinobyl.Engine
 			}
 			else
 			{
-				this.enpassant = (ChessPosition)0;
+				this.enpassant = (ChessPosition.OUTOFBOUNDS);
 			}
 
 		}
@@ -111,11 +107,6 @@ namespace Sinobyl.Engine
 
 			//parse the string values into usable formats
 
-			//init board piece positions
-			for (int i = 0; i < 120; i++)
-			{
-				pieceat[i] = ChessPiece.OOB;
-			}
 			foreach (ChessPosition pos in Chess.AllPositions)
 			{
 				pieceat[(int)pos] = ChessPiece.EMPTY;
@@ -179,7 +170,7 @@ namespace Sinobyl.Engine
 			}
 
 			//set enpassent location
-			this.enpassant = (ChessPosition)0;
+			this.enpassant = (ChessPosition.OUTOFBOUNDS);
 			if (sEnpassant != "-")
 			{
 				enpassant = sEnpassant.ParseAsPosition();

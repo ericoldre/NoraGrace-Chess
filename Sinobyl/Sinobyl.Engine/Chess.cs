@@ -36,14 +36,15 @@ namespace Sinobyl.Engine
 
 	public enum ChessPosition
 	{
-		A8 = 91, B8 = 92, C8 = 93, D8 = 94, E8 = 95, F8 = 96, G8 = 97, H8 = 98,
-		A7 = 81, B7 = 82, C7 = 83, D7 = 84, E7 = 85, F7 = 86, G7 = 87, H7 = 88,
-		A6 = 71, B6 = 72, C6 = 73, D6 = 74, E6 = 75, F6 = 76, G6 = 77, H6 = 78,
-		A5 = 61, B5 = 62, C5 = 63, D5 = 64, E5 = 65, F5 = 66, G5 = 67, H5 = 68,
-		A4 = 51, B4 = 52, C4 = 53, D4 = 54, E4 = 55, F4 = 56, G4 = 57, H4 = 58,
-		A3 = 41, B3 = 42, C3 = 43, D3 = 44, E3 = 45, F3 = 46, G3 = 47, H3 = 48,
-		A2 = 31, B2 = 32, C2 = 33, D2 = 34, E2 = 35, F2 = 36, G2 = 37, H2 = 38,
-		A1 = 21, B1 = 22, C1 = 23, D1 = 24, E1 = 25, F1 = 26, G1 = 27, H1 = 28
+		A8 = 56, B8 = 57, C8 = 58, D8 = 59, E8 = 60, F8 = 61, G8 = 62, H8 = 63,
+		A7 = 48, B7 = 49, C7 = 50, D7 = 51, E7 = 52, F7 = 53, G7 = 54, H7 = 55,
+		A6 = 40, B6 = 41, C6 = 42, D6 = 43, E6 = 44, F6 = 45, G6 = 46, H6 = 47,
+		A5 = 32, B5 = 33, C5 = 34, D5 = 35, E5 = 36, F5 = 37, G5 = 38, H5 = 39,
+		A4 = 24, B4 = 25, C4 = 26, D4 = 27, E4 = 28, F4 = 29, G4 = 30, H4 = 31,
+		A3 = 16, B3 = 17, C3 = 18, D3 = 19, E3 = 20, F3 = 21, G3 = 22, H3 = 23,
+		A2 = 8, B2 = 9, C2 = 10, D2 = 11, E2 = 12, F2 = 13, G2 = 14, H2 = 15,
+		A1 = 0, B1 = 1, C1 = 2, D1 = 3, E1 = 4, F1 = 5, G1 = 6, H1 = 7, 
+        OUTOFBOUNDS = 64
 	}
 	public enum ChessPlayer
 	{
@@ -60,19 +61,20 @@ namespace Sinobyl.Engine
 	public enum ChessFile
 	{
 		EMPTY = -1,
-		FileA = 1, FileB = 2, FileC = 3, FileD = 4, FileE = 5, FileF = 6, FileG = 7, FileH = 8
+		FileA = 0, FileB = 1, FileC = 2, FileD = 3, FileE = 4, FileF = 5, FileG = 6, FileH = 7
 	}
 	public enum ChessRank
 	{
 		EMPTY = -1,
-		Rank1 = 2, Rank2 = 3, Rank3 = 4, Rank4 = 5, Rank5 = 6, Rank6 = 7, Rank7 = 8, Rank8 = 9
+		Rank1 = 0, Rank2 = 1, Rank3 = 2, Rank4 = 3, Rank5 = 4, Rank6 = 5, Rank7 = 6, Rank8 = 7
 	}
 	
 
 	public enum ChessDirection
 	{
-		DirN = 10, DirE = 1, DirS = -10, DirW = -1, DirNE = 11, DirSE = -9, DirSW = -11, DirNW = 9,
-		DirNNE = 21, DirEEN = 12, DirEES = -8, DirSSE = -19, DirSSW = -21, DirWWS = -12, DirWWN = 8, DirNNW = 19
+		DirN = 8, DirE = 1, DirS = -8, DirW = -1, 
+        DirNE = DirN+DirE, DirSE = DirS+DirE, DirSW = DirS+DirW, DirNW = DirN+DirW,
+		DirNNE = DirN+DirNE, DirEEN = DirE+DirNE, DirEES = DirE+DirSE, DirSSE = DirS+DirSE, DirSSW = DirS+DirSW, DirWWS = DirW+DirSW, DirWWN = DirW+DirNW, DirNNW = DirN+DirNW
 	}
 
     [Flags]
@@ -101,7 +103,9 @@ namespace Sinobyl.Engine
         FileE = E1 | E2 | E3 | E4 | E5 | E6 | E7 | E8,
         FileF = F1 | F2 | F3 | F4 | F5 | F6 | F7 | F8,
         FileG = G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8,
-        FileH = H1 | H2 | H3 | H4 | H5 | H6 | H7 | H8
+        FileH = H1 | H2 | H3 | H4 | H5 | H6 | H7 | H8,
+        Empty = 0,
+        Full = Rank1 | Rank2 | Rank3 | Rank4 | Rank5 | Rank6 | Rank7 | Rank8
     }
 
 	public enum ChessResult
@@ -140,15 +144,6 @@ namespace Sinobyl.Engine
 			ChessPiece.WPawn, ChessPiece.WKnight, ChessPiece.WBishop, ChessPiece.WRook, ChessPiece.WQueen, ChessPiece.WKing,
 			ChessPiece.BPawn, ChessPiece.BKnight, ChessPiece.BBishop, ChessPiece.BRook, ChessPiece.BQueen, ChessPiece.BKing};
 
-		//public static readonly ChessPosition[] AllPositions = new ChessPosition[]{
-		//    ChessPosition.A1,ChessPosition.B1,ChessPosition.C1,ChessPosition.D1,ChessPosition.E1,ChessPosition.F1,ChessPosition.G1,ChessPosition.H1,
-		//    ChessPosition.A2,ChessPosition.B2,ChessPosition.C2,ChessPosition.D2,ChessPosition.E2,ChessPosition.F2,ChessPosition.G2,ChessPosition.H2,
-		//    ChessPosition.A3,ChessPosition.B3,ChessPosition.C3,ChessPosition.D3,ChessPosition.E3,ChessPosition.F3,ChessPosition.G3,ChessPosition.H3,
-		//    ChessPosition.A4,ChessPosition.B4,ChessPosition.C4,ChessPosition.D4,ChessPosition.E4,ChessPosition.F4,ChessPosition.G4,ChessPosition.H4,
-		//    ChessPosition.A5,ChessPosition.B5,ChessPosition.C5,ChessPosition.D5,ChessPosition.E5,ChessPosition.F5,ChessPosition.G5,ChessPosition.H5,
-		//    ChessPosition.A6,ChessPosition.B6,ChessPosition.C6,ChessPosition.D6,ChessPosition.E6,ChessPosition.F6,ChessPosition.G6,ChessPosition.H6,
-		//    ChessPosition.A7,ChessPosition.B7,ChessPosition.C7,ChessPosition.D7,ChessPosition.E7,ChessPosition.F7,ChessPosition.G7,ChessPosition.H7,
-		//    ChessPosition.A8,ChessPosition.B8,ChessPosition.C8,ChessPosition.D8,ChessPosition.E8,ChessPosition.F8,ChessPosition.G8,ChessPosition.H8};
 
 		public static readonly ChessPosition[] AllPositions = new ChessPosition[]{
 		    ChessPosition.A1,ChessPosition.B1,ChessPosition.C1,ChessPosition.D1,ChessPosition.E1,ChessPosition.F1,ChessPosition.G1,ChessPosition.H1,
@@ -178,23 +173,10 @@ namespace Sinobyl.Engine
 		public static readonly ChessDirection[] AllDirectionsQueen = new ChessDirection[]{
 			ChessDirection.DirN, ChessDirection.DirE, ChessDirection.DirS, ChessDirection.DirW, ChessDirection.DirNE, ChessDirection.DirSE, ChessDirection.DirSW, ChessDirection.DirNW};
 
-		private static readonly bool[] PositionInBounds = new bool[]{
-			false, false, false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false, false, false,
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false, //rank 1
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false,
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false,
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false,
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false,
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false,
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false,
-			false, true,  true,  true,  true,  true,  true,  true,  true,  false, //rank 8
-			false, false, false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false, false, false};
 
 		//private lookup arrays
-		private static readonly string _filedesclookup = " abcdefgh";
-		private static readonly string _rankdesclookup = "  12345678";
+		private static readonly string _filedesclookup = "abcdefgh";
+		private static readonly string _rankdesclookup = "12345678";
 		private static readonly string _piecedesclookup = "PNBRQKpnbrqk";
 		private static readonly int[] _directionrankinc = new int[] { 1, 0, -1, 0,/*diag*/1, -1, -1, 1,/*knight*/2, 1, -1, -2, -2, -1, 1, 2 };
 		private static readonly int[] _directionfileinc = new int[] { 0, 1, 0, -1,/*diag*/1, 1, -1, -1,/*knight*/1, 2, 2, 1, -1, -2, -2, -1 };
@@ -202,7 +184,8 @@ namespace Sinobyl.Engine
 
 		public static bool IsInBounds(this ChessPosition pos)
 		{
-			return PositionInBounds[(int)pos];
+            return (int)pos >= 0 && (int)pos <= 63;
+			
 			////AssertPosition(pos);
 			//return (pos != ChessPosition.OUTOFBOUNDS);
 		}
@@ -214,13 +197,13 @@ namespace Sinobyl.Engine
 		{
 			//if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
 			//if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
-			return (ChessPosition)((int)rank * 10) + (int)file;
+			return (ChessPosition)((int)rank * 8) + (int)file;
 		}
         public static ChessPosition ToPosition(this ChessRank rank, ChessFile file)
         {
             //if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
             //if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
-            return (ChessPosition)((int)rank * 10) + (int)file;
+            return (ChessPosition)((int)rank * 8) + (int)file;
         }
         public static ChessBitboard Bitboard(this ChessRank rank)
         {
@@ -240,6 +223,41 @@ namespace Sinobyl.Engine
                     return ChessBitboard.Rank6;
                 case ChessRank.Rank7:
                     return ChessBitboard.Rank7;
+                case ChessRank.Rank8:
+                    return ChessBitboard.Rank8;
+                default:
+                    return 0;
+            }
+        }
+        public static ChessBitboard Reverse(this ChessBitboard bits)
+        {
+            return (ChessBitboard)(((ulong)(bits & ChessBitboard.Rank8) >> 56)
+                | ((ulong)(bits & ChessBitboard.Rank7) >> 40)
+                | ((ulong)(bits & ChessBitboard.Rank6) >> 24)
+                | ((ulong)(bits & ChessBitboard.Rank5) >> 8)
+                | ((ulong)(bits & ChessBitboard.Rank4) << 8)
+                | ((ulong)(bits & ChessBitboard.Rank3) << 24)
+                | ((ulong)(bits & ChessBitboard.Rank2) << 40)
+                | ((ulong)(bits & ChessBitboard.Rank1) << 56));
+        }
+        public static ChessBitboard BitboardAllNorth(this ChessRank rank)
+        {
+            switch (rank)
+            {
+                case ChessRank.Rank1:
+                    return ChessBitboard.Full;
+                case ChessRank.Rank2:
+                    return ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
+                case ChessRank.Rank3:
+                    return ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
+                case ChessRank.Rank4:
+                    return  ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
+                case ChessRank.Rank5:
+                    return  ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
+                case ChessRank.Rank6:
+                    return  ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
+                case ChessRank.Rank7:
+                    return ChessBitboard.Rank7 | ChessBitboard.Rank8;
                 case ChessRank.Rank8:
                     return ChessBitboard.Rank8;
                 default:
@@ -273,12 +291,12 @@ namespace Sinobyl.Engine
 		public static ChessRank GetRank(this ChessPosition pos)
 		{
 			//AssertPosition(pos);
-			return (ChessRank)(((int)pos / 10));
+			return (ChessRank)(((int)pos / 8));
 		}
 		public static ChessFile GetFile(this ChessPosition pos)
 		{
 			//AssertPosition(pos);
-			return (ChessFile)((int)pos % 10);
+			return (ChessFile)((int)pos % 8);
 		}
 
 		public static ChessPiece ParseAsPiece(this char c)
@@ -365,6 +383,41 @@ namespace Sinobyl.Engine
             return AllPositions[lsb];
         }
 
+        public static ChessBitboard ShiftDirN(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8) << 8);
+        }
+        public static ChessBitboard ShiftDirE(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.FileH) << 1);
+        }
+        public static ChessBitboard ShiftDirS(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1) >> 8);
+        }
+        public static ChessBitboard ShiftDirW(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.FileA) >> 1);
+        }
+        public static ChessBitboard ShiftDirNE(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileH ) << 9);
+        }
+        public static ChessBitboard ShiftDirSE(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileH) >> 7);
+        }
+        public static ChessBitboard ShiftDirSW(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileA) >> 9);
+        }
+        public static ChessBitboard ShiftDirNW(this ChessBitboard bits)
+        {
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileA) << 7);
+        }
+        
+
+
         public static bool Empty(this ChessBitboard bitboard)
         {
             return bitboard == 0;
@@ -387,15 +440,13 @@ namespace Sinobyl.Engine
             }
             else
             {
-                return (ChessBitboard)0;
+                return (ChessBitboard.Empty);
             }
         }
 
         public static int GetIndex64(this ChessPosition position)
         {
-            int rankidx = ((int)position.GetRank() - 2) * 8;
-            int fileidx = ((int)position.GetFile() - 1);
-            return rankidx + fileidx;
+            return (int)position;
         }
 
         public static ChessBitboard ToBitboard(this IEnumerable<ChessPosition> positions)
@@ -506,51 +557,127 @@ namespace Sinobyl.Engine
 					return false;
 			}
 		}
-		public static ChessDirection DirectionFromTo(ChessPosition from, ChessPosition to)
-		{
-			ChessDirection retval = (ChessDirection)((int)to - (int)from);
-			if(Chess.IsDirectionKnight(retval))
-			{
-				return retval;
-			}
-			ChessRank rankfrom = from.GetRank();
-			ChessFile filefrom = from.GetFile();
-			ChessRank rankto = to.GetRank();
-			ChessFile fileto = to.GetFile();
+        public static ChessDirection DirectionFromTo(ChessPosition from, ChessPosition to)
+        {
+            
+            ChessRank rankfrom = from.GetRank();
+            ChessFile filefrom = from.GetFile();
+            ChessRank rankto = to.GetRank();
+            ChessFile fileto = to.GetFile();
 
-			if (fileto == filefrom)
-			{
-				if (rankfrom > rankto) { return ChessDirection.DirS; }
-				return ChessDirection.DirN;
-			}
-			else if (rankfrom == rankto)
-			{
-				if (filefrom > fileto) { return ChessDirection.DirW; }
-				return ChessDirection.DirE;
-			}
-			int rankchange = rankto - rankfrom;
-			int filechange = fileto - filefrom;
-			int rankchangeabs = rankchange > 0 ? rankchange : -rankchange;
-			int filechangeabs = filechange > 0 ? filechange : -filechange;
-			if (rankchangeabs != filechangeabs)
-			{
-				return 0;
-			}
-			if (rankchange > 0)
-			{
-				if (filechange > 0) { return ChessDirection.DirNE; }
-				return ChessDirection.DirNW;
-			}
-			else
-			{
-				if (filechange > 0) { return ChessDirection.DirSE; }
-				return ChessDirection.DirSW;
-			}
+            if (fileto == filefrom)
+            {
+                if (rankfrom > rankto) { return ChessDirection.DirS; }
+                return ChessDirection.DirN;
+            }
+            else if (rankfrom == rankto)
+            {
+                if (filefrom > fileto) { return ChessDirection.DirW; }
+                return ChessDirection.DirE;
+            }
+            int rankchange = rankto - rankfrom;
+            int filechange = fileto - filefrom;
+            int rankchangeabs = rankchange > 0 ? rankchange : -rankchange;
+            int filechangeabs = filechange > 0 ? filechange : -filechange;
+            if ((rankchangeabs == 1 && filechangeabs == 2) || (rankchangeabs == 2 && filechangeabs == 1))
+            {
+                //knight direction
+                return (ChessDirection)((int)rankchange * 8) + (int)filechange;
+            }
+            else if (rankchangeabs != filechangeabs)
+            {
+                return 0;
+            }
+            if (rankchange > 0)
+            {
+                if (filechange > 0) { return ChessDirection.DirNE; }
+                return ChessDirection.DirNW;
+            }
+            else
+            {
+                if (filechange > 0) { return ChessDirection.DirSE; }
+                return ChessDirection.DirSW;
+            }
 
-		}
+        }
+
+        public static bool IsInBounds(this ChessFile file)
+        {
+            return (int)file >= 0 && (int)file <= 7;
+        }
+        public static bool IsInBounds(this ChessRank rank)
+        {
+            return (int)rank >= 0 && (int)rank <= 7;
+        }
+
 		public static ChessPosition PositionInDirection(ChessPosition pos, ChessDirection dir)
 		{
-			return (ChessPosition)((int)pos + (int)dir);
+            ChessFile file = pos.GetFile();
+            ChessRank rank = pos.GetRank();
+            switch (dir)
+            {
+                case ChessDirection.DirN:
+                    rank += 1;
+                    break;
+                case ChessDirection.DirE:
+                    file += 1;
+                    break;
+                case ChessDirection.DirS:
+                    rank -= 1;
+                    break;
+                case ChessDirection.DirW:
+                    file -= 1;
+                    break;
+                case ChessDirection.DirNE:
+                    rank += 1; file+=1;
+                    break;
+                case ChessDirection.DirSE:
+                    rank -= 1; file += 1;
+                    break;
+                case ChessDirection.DirSW:
+                    rank -= 1; file -= 1;
+                    break;
+                case ChessDirection.DirNW:
+                    rank += 1; file -= 1;
+                    break;
+
+                case ChessDirection.DirNNE:
+                    rank += 2; file += 1;
+                    break;
+                case ChessDirection.DirEEN:
+                    rank += 1; file += 2;
+                    break;
+                case ChessDirection.DirEES:
+                    rank -= 1; file += 2;
+                    break;
+                case ChessDirection.DirSSE:
+                    rank -= 2; file += 1;
+                    break;
+
+                case ChessDirection.DirSSW:
+                    rank -= 2; file -= 1;
+                    break;
+                case ChessDirection.DirWWS:
+                    rank -= 1; file -= 2;
+                    break;
+                case ChessDirection.DirWWN:
+                    rank += 1; file -= 2;
+                    break;
+                case ChessDirection.DirNNW:
+                    rank += 2; file -= 1;
+                    break;
+                default:
+                    return (ChessPosition.OUTOFBOUNDS);
+            }
+            if (rank.IsInBounds() && file.IsInBounds())
+            {
+                return rank.ToPosition(file);
+            }
+            else
+            {
+                return (ChessPosition.OUTOFBOUNDS);
+            }
+
 		}
 		public static ChessPosition PositionReverse(ChessPosition pos)
 		{

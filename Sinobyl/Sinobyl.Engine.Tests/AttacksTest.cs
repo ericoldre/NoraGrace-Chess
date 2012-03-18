@@ -36,7 +36,7 @@ namespace Sinobyl.Engine.Tests
             }
             return retval;
         }
-        
+
         [TestMethod]
         public void AttacksHoriz()
         {
@@ -73,7 +73,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void AttacksDiagA1H8()
         {
-            foreach(var position in Chess.AllPositions)
+            foreach (var position in Chess.AllPositions)
             {
                 var original = position.Bitboard();
                 var rotated = Attacks.RotateDiagA1H8(original);
@@ -149,7 +149,7 @@ namespace Sinobyl.Engine.Tests
                     Assert.AreEqual<ChessBitboard>(allpieces, Attacks.RotateVertReverse(board.PieceLocationsAllVert));
                     Assert.AreEqual<ChessBitboard>(allpieces, Attacks.RotateDiagA1H8Reverse(board.PieceLocationsAllA1H8));
                     Assert.AreEqual<ChessBitboard>(allpieces, Attacks.RotateDiagH1A8Reverse(board.PieceLocationsAllH1A8));
-                    
+
                 }
 
                 while (board.HistoryCount > 0)
@@ -176,5 +176,5 @@ namespace Sinobyl.Engine.Tests
 
         }
 
-    } 
+    }
 }

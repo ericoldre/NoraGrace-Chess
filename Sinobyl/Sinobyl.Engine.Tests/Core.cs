@@ -88,6 +88,23 @@ namespace Sinobyl.Engine.Tests
 			Assert.IsFalse(board.LastTwoMovesNull());
 		}
 
+        [TestMethod]
+        public void PositionInDirectionUnsafeTest()
+        {
+            foreach (ChessPosition pos in Chess.AllPositions)
+            {
+                foreach (ChessDirection dir in Chess.AllDirections)
+                {
+                    var correctResult = pos.PositionInDirection(dir);
+                    if (correctResult.IsInBounds())
+                    {
+                        var result = pos.PositionInDirectionUnsafe(dir);
+                        Assert.AreEqual<ChessPosition>(correctResult, result);
+                    }
+                }
+            }
+        }
+
 		[TestMethod]
 		public void DirectionFromToTest()
 		{
@@ -257,38 +274,12 @@ namespace Sinobyl.Engine.Tests
 
             foreach (ChessPosition pos in Chess.AllPositions)
             {
-                foreach (ChessDirection dir in Chess.AllDirectionsQueen)
+                foreach (ChessDirection dir in Chess.AllDirections)
                 {
                     ChessPosition posEnd = Chess.PositionInDirection(pos, dir);
-                    ChessBitboard bb = 0;
-                    switch (dir)
-                    {
-                        case ChessDirection.DirN:
-                            bb = pos.Bitboard().ShiftDirN();
-                            break;
-                        case ChessDirection.DirNE:
-                            bb = pos.Bitboard().ShiftDirNE();
-                            break;
-                        case ChessDirection.DirE:
-                            bb = pos.Bitboard().ShiftDirE();
-                            break;
-                        case ChessDirection.DirSE:
-                            bb = pos.Bitboard().ShiftDirSE();
-                            break;
-                        case ChessDirection.DirS:
-                            bb = pos.Bitboard().ShiftDirS();
-                            break;
-                        case ChessDirection.DirSW:
-                            bb = pos.Bitboard().ShiftDirSW();
-                            break;
-                        case ChessDirection.DirW:
-                            bb = pos.Bitboard().ShiftDirW();
-                            break;
-                        case ChessDirection.DirNW:
-                            bb = pos.Bitboard().ShiftDirNW();
-                            break;
-                    }
-                    Assert.AreEqual<ChessBitboard>(posEnd.Bitboard(), bb);
+                    ChessBitboard shifted = pos.Bitboard().Shift(dir);
+                    Assert.AreEqual<bool>(posEnd.IsInBounds(), shifted.ToPositions().Count() == 1);
+                    Assert.AreEqual<ChessBitboard>(posEnd.Bitboard(), shifted);
                 }
             }
 

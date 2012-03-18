@@ -383,6 +383,47 @@ namespace Sinobyl.Engine
             return AllPositions[lsb];
         }
 
+        public static ChessBitboard Shift(this ChessBitboard bits, ChessDirection dir)
+        {
+            switch (dir)
+            {
+                case ChessDirection.DirN:
+                    return bits.ShiftDirN();
+                case ChessDirection.DirE:
+                    return bits.ShiftDirE();
+                case ChessDirection.DirS:
+                    return bits.ShiftDirS();
+                case ChessDirection.DirW:
+                    return bits.ShiftDirW();
+                case ChessDirection.DirNE:
+                    return bits.ShiftDirNE();
+                case ChessDirection.DirSE:
+                    return bits.ShiftDirSE();
+                case ChessDirection.DirSW:
+                    return bits.ShiftDirSW();
+                case ChessDirection.DirNW:
+                    return bits.ShiftDirNW();
+                case ChessDirection.DirNNE:
+                    return bits.ShiftDirNE().ShiftDirN();
+                case ChessDirection.DirEEN:
+                    return bits.ShiftDirNE().ShiftDirE();
+                case ChessDirection.DirEES:
+                    return bits.ShiftDirSE().ShiftDirE();
+                case ChessDirection.DirSSE:
+                    return bits.ShiftDirSE().ShiftDirS();
+                case ChessDirection.DirSSW:
+                    return bits.ShiftDirSW().ShiftDirS();
+                case ChessDirection.DirWWS:
+                    return bits.ShiftDirSW().ShiftDirW();
+                case ChessDirection.DirWWN:
+                    return bits.ShiftDirNW().ShiftDirW();
+                case ChessDirection.DirNNW:
+                    return bits.ShiftDirNW().ShiftDirN();
+                default:
+                    return ChessBitboard.Empty;
+            }
+
+        }
         public static ChessBitboard ShiftDirN(this ChessBitboard bits)
         {
             return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8) << 8);
@@ -609,8 +650,11 @@ namespace Sinobyl.Engine
         {
             return (int)rank >= 0 && (int)rank <= 7;
         }
-
-		public static ChessPosition PositionInDirection(ChessPosition pos, ChessDirection dir)
+        public static ChessPosition PositionInDirectionUnsafe(this ChessPosition pos, ChessDirection dir)
+        {
+            return (ChessPosition)((int)pos + (int)dir);
+        }
+		public static ChessPosition PositionInDirection(this ChessPosition pos, ChessDirection dir)
 		{
             ChessFile file = pos.GetFile();
             ChessRank rank = pos.GetRank();
@@ -765,6 +809,11 @@ namespace Sinobyl.Engine
 					return false;
 			}
 		}
+
+        public static ChessDirection Opposite(this ChessDirection dir)
+        {
+            return (ChessDirection)(-(int)dir);
+        }
 
 
 		/// <summary>

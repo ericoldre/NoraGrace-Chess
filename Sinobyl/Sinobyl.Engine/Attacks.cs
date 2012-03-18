@@ -175,7 +175,7 @@ namespace Sinobyl.Engine
                 ChessBitboard board = 0;
                 foreach (var dir in Chess.AllDirectionsKnight)
                 {
-                    board |= Chess.PositionInDirection(sq, dir).Bitboard();
+                    board |= sq.PositionInDirection(dir).Bitboard();
                 }
                 _attacks_from_knight_lu[sq.GetIndex64()] = board;
             }
@@ -186,7 +186,7 @@ namespace Sinobyl.Engine
                 ChessBitboard board = 0;
                 foreach (var dir in Chess.AllDirectionsQueen)
                 {
-                    board |= Chess.PositionInDirection(sq, dir).Bitboard();
+                    board |= sq.PositionInDirection(dir).Bitboard();
                 }
                 _attacks_from_king_lu[sq.GetIndex64()] = board;
             }
@@ -195,16 +195,16 @@ namespace Sinobyl.Engine
             foreach (var sq in Chess.AllPositions)
             {
                 ChessBitboard board = 0;
-                board |= Chess.PositionInDirection(sq, ChessDirection.DirNE).Bitboard();
-                board |= Chess.PositionInDirection(sq, ChessDirection.DirNW).Bitboard();
+                board |= sq.PositionInDirection(ChessDirection.DirNE).Bitboard();
+                board |= sq.PositionInDirection(ChessDirection.DirNW).Bitboard();
                 _attacks_from_wpawn_lu[sq.GetIndex64()] = board;
             }
             //bpawn attacks
             foreach (var sq in Chess.AllPositions)
             {
                 ChessBitboard board = 0;
-                board |= Chess.PositionInDirection(sq, ChessDirection.DirSE).Bitboard();
-                board |= Chess.PositionInDirection(sq, ChessDirection.DirSW).Bitboard();
+                board |= sq.PositionInDirection(ChessDirection.DirSE).Bitboard();
+                board |= sq.PositionInDirection(ChessDirection.DirSW).Bitboard();
                 _attacks_from_bpawn_lu[sq.GetIndex64()] = board;
             }
         }
@@ -215,7 +215,7 @@ namespace Sinobyl.Engine
             ChessBitboard retval = 0;
             for (; ; )
             {
-                position = Chess.PositionInDirection(position, dir);
+                position = position.PositionInDirection(dir);
                 if (!position.IsInBounds()) { break; }
                 retval |= position.Bitboard();
                 if (!(piecelocations & position.Bitboard()).Empty()) { break; }

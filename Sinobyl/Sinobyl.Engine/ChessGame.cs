@@ -114,7 +114,7 @@ namespace Sinobyl.Engine
 		private ChessTimeControl _timecontrol = ChessTimeControl.Blitz(1,0);
 		private bool _timeControlEnforced = true;
 		private ReadOnlyCollection<ChessMove> _startMoves = new ReadOnlyCollection<ChessMove>(new ChessMoves());
-		private ChessFEN _startFEN = new ChessFEN(Chess.FENStart);
+		private ChessFEN _startFEN = new ChessFEN(ChessFEN.FENStart);
 
 		private bool _started = false;
 		private readonly ChessBoard _board = new ChessBoard();

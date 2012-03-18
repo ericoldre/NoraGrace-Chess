@@ -71,7 +71,7 @@ namespace Sinobyl.CommandLine
             {
                 board.MoveApply(move);
 
-                if (!board.IsCheck(Chess.PlayerOther(board.WhosTurn)))
+                if (!board.IsCheck(board.WhosTurn.PlayerOther()))
                 {
                     PerftSearch(board, depth_remaining - 1, nodeCount, ref nodesDone);
                 }

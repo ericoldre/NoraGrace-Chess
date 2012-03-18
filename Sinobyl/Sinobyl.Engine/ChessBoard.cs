@@ -85,7 +85,7 @@ namespace Sinobyl.Engine
 		public ChessBoard()
 		{
 			initPieceAtArray();
-			this.FEN = new ChessFEN(Chess.FENStart);
+            this.FEN = new ChessFEN(ChessFEN.FENStart);
 		}
 		public ChessBoard(string fen)
 		{
@@ -146,7 +146,7 @@ namespace Sinobyl.Engine
 		public bool IsCheck(ChessPlayer kingplayer)
 		{
 			ChessPosition kingpos = KingPosition(kingplayer);
-			return PositionAttacked(kingpos, Chess.PlayerOther(kingplayer));
+            return PositionAttacked(kingpos, kingplayer.PlayerOther());
 		}
 
 		private void PieceAdd(ChessPosition pos, ChessPiece piece)
@@ -158,7 +158,7 @@ namespace Sinobyl.Engine
 
             _pieces[(int)piece] |= pos.Bitboard();
             _allPieces |= pos.Bitboard();
-            _playerBoards[(int)Chess.PieceToPlayer(piece)] |= pos.Bitboard();
+            _playerBoards[(int)piece.PieceToPlayer()] |= pos.Bitboard();
             _allPiecesVert |= Attacks.RotateVert(pos);
             _allPiecesA1H8 |= Attacks.RotateA1H8(pos);
             _allPiecesH1A8 |= Attacks.RotateH1A8(pos);
@@ -184,7 +184,7 @@ namespace Sinobyl.Engine
 
             _pieces[(int)piece] &= ~pos.Bitboard();
             _allPieces &= ~pos.Bitboard();
-            _playerBoards[(int)Chess.PieceToPlayer(piece)] &= ~pos.Bitboard();
+            _playerBoards[(int)piece.PieceToPlayer()] &= ~pos.Bitboard();
             _allPiecesVert &= ~Attacks.RotateVert(pos);
             _allPiecesA1H8 &= ~Attacks.RotateA1H8(pos);
             _allPiecesH1A8 &= ~Attacks.RotateH1A8(pos);
@@ -584,7 +584,7 @@ namespace Sinobyl.Engine
 			}
 
 			//switch whos turn
-			_whosturn = Chess.PlayerOther(_whosturn);
+            _whosturn = _whosturn.PlayerOther();
 			_zob ^= ChessZobrist._player;
 		}
 
@@ -677,7 +677,7 @@ namespace Sinobyl.Engine
 				_fullmove--;
 			}
 
-			_whosturn = Chess.PlayerOther(_whosturn);
+            _whosturn = _whosturn.PlayerOther();
 			_zob = movehist.Zobrist;
 			_zobPawn = movehist.ZobristPawn;
 
@@ -700,7 +700,7 @@ namespace Sinobyl.Engine
 			}
 
 			//switch whos turn
-			_whosturn = Chess.PlayerOther(_whosturn);
+            _whosturn = _whosturn.PlayerOther();
 			_zob ^= ChessZobrist._player;
 
 		}
@@ -716,8 +716,8 @@ namespace Sinobyl.Engine
 			this._enpassant = movehist.Enpassant;
 			this._fiftymove = movehist.FiftyCount;
 			this._movesSinceNull = movehist.MovesSinceNull;
-		
-			_whosturn = Chess.PlayerOther(_whosturn);
+
+            _whosturn = _whosturn.PlayerOther();
 			_zob = movehist.Zobrist;
 			_zobPawn = movehist.ZobristPawn;
 
@@ -746,7 +746,7 @@ namespace Sinobyl.Engine
 		{
 
 			ChessPiece piece;
-			pos = Chess.PositionInDirection(from, dir);
+            pos = from.PositionInDirection(dir);
 			dist = 1;
 			while (pos.IsInBounds())
 			{
@@ -754,13 +754,13 @@ namespace Sinobyl.Engine
 				if (piece != ChessPiece.EMPTY) { return piece; }
 
 				dist++;
-				if (Chess.IsDirectionKnight(dir))
+				if (dir.IsDirectionKnight())
 				{
 					break;
 				}
 				else
 				{
-					pos = Chess.PositionInDirection(pos, dir);
+                    pos = pos.PositionInDirection(dir);
 				}
 			}
 			return ChessPiece.EMPTY;

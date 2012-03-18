@@ -8,6 +8,8 @@ namespace Sinobyl.Engine
 {
 	public class ChessFEN
 	{
+        public static readonly string FENStart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 		public readonly ChessPiece[] pieceat = new ChessPiece[64];
 		public readonly ChessPlayer whosturn;
 		public readonly bool castleWS;
@@ -41,12 +43,12 @@ namespace Sinobyl.Engine
                 ChessPosition pos = (ChessPosition)ipos;
 				if (pos.IsInBounds())
 				{
-					ChessPosition posRev = Chess.PositionReverse(pos);
+                    ChessPosition posRev = pos.Reverse();
                     ChessPiece pieceRev = fenOrig.pieceat[ipos].ToOppositePlayer();
 					pieceat[(int)posRev] = pieceRev;
 				}
 			}
-			this.whosturn = Chess.PlayerOther(fenOrig.whosturn);
+			this.whosturn = fenOrig.whosturn.PlayerOther();
 			this.fullmove = fenOrig.fullmove;
 			this.fiftymove = fenOrig.fiftymove;
 			this.castleWS = fenOrig.castleBS;
@@ -55,7 +57,7 @@ namespace Sinobyl.Engine
 			this.castleBL = fenOrig.castleWL;
 			if (fenOrig.enpassant.IsInBounds())
 			{
-				this.enpassant = Chess.PositionReverse(fenOrig.enpassant);
+				this.enpassant = fenOrig.enpassant.Reverse();
 			}
 			else
 			{
@@ -96,7 +98,7 @@ namespace Sinobyl.Engine
 			string[] sRanks = new string[8];
 			foreach (ChessRank rank in Chess.AllRanks)
 			{
-				sRanks[int.Parse(Chess.RankToString(rank)) - 1] = match.Groups["R" + Chess.RankToString(rank)].Value;
+                sRanks[int.Parse(rank.RankToString()) - 1] = match.Groups["R" + rank.RankToString()].Value;
 			}
 
 			string sPlayer = match.Groups["Player"].Value;
@@ -115,11 +117,11 @@ namespace Sinobyl.Engine
 			//set board piece positions
 			foreach (ChessRank rank in Chess.AllRanks)
 			{
-				string srank = sRanks[int.Parse(Chess.RankToString(rank)) - 1];
+                string srank = sRanks[int.Parse(rank.RankToString()) - 1];
 				int ifile = 0;
 				foreach (char c in srank.ToCharArray())
 				{
-					if (ifile > 7) { throw new ChessException("too many pieces in rank " + Chess.RankToString(rank)); }
+                    if (ifile > 7) { throw new ChessException("too many pieces in rank " + rank.RankToString()); }
 
 					if ("1234567890".IndexOf(c) >= 0)
 					{
@@ -220,7 +222,7 @@ namespace Sinobyl.Engine
 							sb.Append(emptycount.ToString());
 							emptycount = 0;
 						}
-						sb.Append(Chess.PieceToString(piece));
+                        sb.Append(piece.PieceToString());
 					}
 				}
 				if (emptycount > 0)
@@ -257,7 +259,7 @@ namespace Sinobyl.Engine
 			//enpassant
 			if (enpassant.IsInBounds())
 			{
-				sb.Append(" " + Chess.PositionToString(enpassant));
+				sb.Append(" " + enpassant.PositionToString());
 			}
 			else
 			{

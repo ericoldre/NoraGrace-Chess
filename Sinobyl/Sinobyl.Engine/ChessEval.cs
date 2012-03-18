@@ -223,7 +223,7 @@ namespace Sinobyl.Engine
 				PieceSquareStartEndVals[(int)ChessPiece.WQueen, (int)wpos, 1] = ChessEval.QueenEnd64[ipos];
 				PieceSquareStartEndVals[(int)ChessPiece.WKing, (int)wpos, 1] = ChessEval.KingEnd64[ipos];
 
-				ChessPosition bpos = Chess.PositionReverse(wpos);
+				ChessPosition bpos = wpos.Reverse();
 
 				//value of black at start
 				PieceSquareStartEndVals[(int)ChessPiece.BPawn, (int)bpos, 0] = -ChessEval.PawnStart64[ipos];

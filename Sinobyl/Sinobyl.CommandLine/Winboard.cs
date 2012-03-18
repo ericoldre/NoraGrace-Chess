@@ -136,7 +136,7 @@ namespace Sinobyl.CommandLine
 					Program.ConsoleWriteline("feature done=1");
 					break;
 				case "new":
-					board.FEN = new ChessFEN(Chess.FENStart);
+					board.FEN = new ChessFEN(ChessFEN.FENStart);
 					break;
 				case "force":
 					myplayer = ChessPlayer.None;

@@ -181,7 +181,7 @@ namespace Sinobyl.Engine
 
 			public Args()
 			{
-				GameStartPosition = new ChessFEN(Chess.FENStart);
+                GameStartPosition = new ChessFEN(ChessFEN.FENStart);
 				GameMoves = new ChessMoves();
 				StopAtTime = DateTime.Now.AddSeconds(1);
 				MaxDepth = int.MaxValue;
@@ -542,7 +542,7 @@ namespace Sinobyl.Engine
 
 				
 				//check for illegal check
-				if (board.IsCheck(Chess.PlayerOther(board.WhosTurn)))
+                if (board.IsCheck(board.WhosTurn.PlayerOther()))
 				{
 					board.MoveUndo();
 					continue;
@@ -657,7 +657,7 @@ namespace Sinobyl.Engine
 
 				board.MoveApply(move);
 
-				if (board.IsCheck(Chess.PlayerOther(board.WhosTurn)))
+                if (board.IsCheck(board.WhosTurn.PlayerOther()))
 				{
 					board.MoveUndo();
 					continue;

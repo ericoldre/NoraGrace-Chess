@@ -200,7 +200,7 @@ namespace Sinobyl.Engine
 			get
 			{
 				string retval = this.HeaderValue("FEN");
-				if (retval == "") { retval = Chess.FENStart; }
+                if (retval == "") { retval = ChessFEN.FENStart; }
 				return retval;
 			}
 		}

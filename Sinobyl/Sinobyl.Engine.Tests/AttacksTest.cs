@@ -16,7 +16,7 @@ namespace Sinobyl.Engine.Tests
             ChessBitboard retval = 0;
             for (; ; )
             {
-                position = Chess.PositionInDirection(position, dir);
+                position = position.PositionInDirection(dir);
                 if (!position.IsInBounds()) { break; }
                 retval |= position.Bitboard();
                 if (!(piecelocations & position.Bitboard()).Empty()) { break; }

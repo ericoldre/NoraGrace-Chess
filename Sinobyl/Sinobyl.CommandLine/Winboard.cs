@@ -41,32 +41,36 @@ namespace Sinobyl.CommandLine
 
 		void player_OnKibitz(object sender, ChessSearch.Progress progress)
 		{
-			try
-			{
-				string pvstring = new ChessMoves(progress.PrincipleVariation).ToString(board, true);
-				string output = string.Format("{0} {1} {2} {3} {4}",progress.Depth, progress.Score, Math.Round(progress.Time.TotalMilliseconds/10), progress.Nodes, pvstring);
-				Program.ConsoleWriteline(output);
-			}
-			catch (Exception ex)
-			{
-				Program.LogException(ex);
-			}
+            
+            try
+            {
+                string pvstring = new ChessMoves(progress.PrincipleVariation).ToString(new ChessBoard(progress.FEN), true);
+                string output = string.Format("{0} {1} {2} {3} {4}", progress.Depth, progress.Score, Math.Round(progress.Time.TotalMilliseconds / 10), progress.Nodes, pvstring);
+                Program.ConsoleWriteline(output);
+            }
+            catch (Exception ex)
+            {
+                Program.LogException(ex);
+            }
+            
 		}
 
 		void player_OnMove(object sender, object moveObj)
 		{
-			try
-			{
-				ChessMove move = (ChessMove)moveObj;
-				Program.ConsoleWriteline(string.Format("move {0}", move.ToString()));
-				board.MoveApply(move);
-				GameDoneAnnounce();
+            
+            try
+            {
+                ChessMove move = (ChessMove)moveObj;
+                Program.ConsoleWriteline(string.Format("move {0}", move.ToString()));
+                board.MoveApply(move);
+                GameDoneAnnounce();
 
-			}
-			catch (Exception ex)
-			{
-				Program.LogException(ex);
-			}
+            }
+            catch (Exception ex)
+            {
+                Program.LogException(ex);
+            }
+            
 			
 		}
 		public bool GameDoneAnnounce()
@@ -103,105 +107,107 @@ namespace Sinobyl.CommandLine
 
 		public void ProcessCmd(string input)
 		{
+            
+            //if getting only move switch to usermove format
+            if (input.Length >= 4
+                && string.Format("abcdefgh").IndexOf(input.Substring(0, 1)) >= 0
+                && string.Format("12345678").IndexOf(input.Substring(1, 1)) >= 0
+                && string.Format("abcdefgh").IndexOf(input.Substring(2, 1)) >= 0
+                && string.Format("12345678").IndexOf(input.Substring(3, 1)) >= 0)
+            {
+                input = "usermove " + input;
+            }
 
-			//if getting only move switch to usermove format
-			if(input.Length >= 4
-				&& string.Format("abcdefgh").IndexOf(input.Substring(0, 1)) >= 0
-				&& string.Format("12345678").IndexOf(input.Substring(1, 1)) >= 0
-				&& string.Format("abcdefgh").IndexOf(input.Substring(2, 1)) >= 0
-				&& string.Format("12345678").IndexOf(input.Substring(3, 1)) >= 0)
-			{
-				input = "usermove "+input;
-			}
+            string command = input;
+            string argument = "";
 
-			string command = input;
-			string argument = "";
-			
-			int spaceIdx = input.IndexOf(' ');
-			if (spaceIdx >= 0)
-			{
-				command = input.Substring(0, spaceIdx);
-				argument = input.Substring(spaceIdx+1);
-			}
-			command = command.ToLower();
+            int spaceIdx = input.IndexOf(' ');
+            if (spaceIdx >= 0)
+            {
+                command = input.Substring(0, spaceIdx);
+                argument = input.Substring(spaceIdx + 1);
+            }
+            command = command.ToLower();
 
-			Program.LogInfo("COMMAND", input);
+            Program.LogInfo("COMMAND", input);
 
-			switch (command)
-			{
-				case "protover":
-					Program.ConsoleWriteline("feature usermove=1");
-					Program.ConsoleWriteline("feature setboard=1");
-					Program.ConsoleWriteline("feature analyze=1");
-					Program.ConsoleWriteline("feature done=1");
-					break;
-				case "new":
-					board.FEN = new ChessFEN(ChessFEN.FENStart);
+            switch (command)
+            {
+                case "protover":
+                    Program.ConsoleWriteline("feature usermove=1");
+                    Program.ConsoleWriteline("feature setboard=1");
+                    Program.ConsoleWriteline("feature analyze=1");
+                    Program.ConsoleWriteline("feature done=1");
+                    break;
+                case "new":
+                    board.FEN = new ChessFEN(ChessFEN.FENStart);
                     myplayer = ChessPlayer.Black;
-					break;
-				case "force":
-					myplayer = ChessPlayer.None;
-					break;
-				case "go":
-					myplayer = board.WhosTurn;
-					StartThinking();
-					break;
-				case "time":
-					timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);
-					break;
-				case "usermove":
-					ChessMove usermove = new ChessMove(board, argument);
-					board.MoveApply(usermove);
-					bool done = GameDoneAnnounce();
-					if (!done && board.WhosTurn == myplayer)
-					{
-						StartThinking();
-					}
-					break;
-				case "?":
-					//implement later
-					//Move now. If your engine is thinking, it should move immediately; otherwise, the command should be ignored (treated as a no-op).
-					break;
-				case "draw":
-				//The engine's opponent offers the engine a draw. To accept the draw, send "offer draw". To decline, ignore the offer (that is, send nothing). 
-				//If you're playing on ICS, it's possible for the draw offer to have been withdrawn by the time you accept it, so don't assume the game is over because you accept a draw offer. Continue playing until xboard tells you the game is over. See also "offer draw" below.
-					break;
-				case "setboard":
-					board.FEN = new ChessFEN(argument);
-					break;
-				case "undo":
-					board.MoveUndo();
-					break;
-				case "remove":
-					board.MoveUndo();
-					board.MoveUndo();
-					break;
-				case "level":
-					string[] args = argument.Split(' ');
-					timeControl = new ChessTimeControl();
-					timeControl.BonusEveryXMoves = int.Parse(args[0]);
-					timeControl.InitialTime = TimeSpan.FromMinutes(int.Parse(args[1]));
-					timeControl.BonusAmount = TimeSpan.FromSeconds(int.Parse(args[2]));
-					if (timeControl.BonusAmount.TotalSeconds > 0) { timeControl.BonusEveryXMoves = 1; }
-					break;
-
-				//custom stuff for my debugging
-				case "setpos1":
-					board.FEN = new ChessFEN("3k4/1PR5/8/P7/7P/4K3/2P2P2/6NR w - - 1 48");
-					break;
-				case "eval":
-					ChessEval eval = new ChessEval();
-					int e = eval.EvalFor(board,board.WhosTurn);
-					break;
-				case "nodecounttest":
-					NodeCountTest();
-					break;
-				case "seetest":
-					SeeTest();
-					break;
-			}
-
-			
+                    break;
+                case "force":
+                    myplayer = ChessPlayer.None;
+                    break;
+                case "go":
+                    myplayer = board.WhosTurn;
+                    StartThinking();
+                    break;
+                case "time":
+                    timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);
+                    break;
+                case "usermove":
+                    ChessMove usermove = new ChessMove(board, argument);
+                    board.MoveApply(usermove);
+                    bool done = GameDoneAnnounce();
+                    if (!done && board.WhosTurn == myplayer)
+                    {
+                        StartThinking();
+                    }
+                    break;
+                case "?":
+                    //implement later
+                    //player.ForceMove();
+                    //Move now. If your engine is thinking, it should move immediately; otherwise, the command should be ignored (treated as a no-op).
+                    break;
+                case "draw":
+                    //The engine's opponent offers the engine a draw. To accept the draw, send "offer draw". To decline, ignore the offer (that is, send nothing). 
+                    //If you're playing on ICS, it's possible for the draw offer to have been withdrawn by the time you accept it, so don't assume the game is over because you accept a draw offer. Continue playing until xboard tells you the game is over. See also "offer draw" below.
+                    break;
+                case "setboard":
+                    board.FEN = new ChessFEN(argument);
+                    break;
+                case "undo":
+                    board.MoveUndo();
+                    break;
+                case "remove":
+                    board.MoveUndo();
+                    board.MoveUndo();
+                    break;
+                case "level":
+                    string[] args = argument.Split(' ');
+                    timeControl = new ChessTimeControl();
+                    timeControl.BonusEveryXMoves = int.Parse(args[0]);
+                    timeControl.InitialTime = TimeSpan.FromMinutes(int.Parse(args[1]));
+                    timeControl.BonusAmount = TimeSpan.FromSeconds(int.Parse(args[2]));
+                    if (timeControl.BonusAmount.TotalSeconds > 0) { timeControl.BonusEveryXMoves = 1; }
+                    break;
+                case "analyze":
+                    player.YourTurn(board, new ChessTimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));
+                    break;
+                //custom stuff for my debugging
+                case "setpos1":
+                    board.FEN = new ChessFEN("3k4/1PR5/8/P7/7P/4K3/2P2P2/6NR w - - 1 48");
+                    break;
+                case "eval":
+                    ChessEval eval = new ChessEval();
+                    int e = eval.EvalFor(board, board.WhosTurn);
+                    break;
+                case "nodecounttest":
+                    NodeCountTest();
+                    break;
+                case "seetest":
+                    SeeTest();
+                    break;
+            }
+            
 		}
 		public void SimulateUsermove(string usermoveTxt)
 		{

@@ -106,14 +106,15 @@ namespace Sinobyl.Engine
 			public readonly int Score;
 			public readonly TimeSpan Time;
 			public readonly ReadOnlyCollection<ChessMove> PrincipleVariation;
-
-			public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, ChessMoves a_pv)
+            public readonly ChessFEN FEN;
+			public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, ChessMoves a_pv, ChessFEN a_fen)
 			{
 				Depth = a_depth;
 				Nodes = a_nodes;
 				Score = a_score;
 				Time = a_time;
 				PrincipleVariation = new ReadOnlyCollection<ChessMove>(a_pv);
+                FEN = a_fen;
 			}
 		}
 
@@ -279,7 +280,7 @@ namespace Sinobyl.Engine
 			//return progress
 			if (_returnBestResult)
 			{
-				Progress progress = new Progress(depth, CountAIValSearch, _bestvariationscore, DateTime.Now - _starttime, _bestvariation);
+				Progress progress = new Progress(depth, CountAIValSearch, _bestvariationscore, DateTime.Now - _starttime, _bestvariation, this.board.FEN);
 				return progress;
 			}
 			else
@@ -366,7 +367,7 @@ namespace Sinobyl.Engine
 					SearchArgs.TransTable.Store(board, depth, ChessTrans.EntryType.Exactly, alpha, move);
 
 					//announce new best line if not trivial
-					ChessSearch.Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), pv);
+					ChessSearch.Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), pv, this.board.FEN);
 					if (depth > 1 && this.OnProgress != null)
 					{
 						this.OnProgress(this, prog);

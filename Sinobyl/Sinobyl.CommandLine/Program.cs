@@ -111,13 +111,8 @@ namespace Sinobyl.CommandLine
 		}
 		public static void ConsoleWriteline(string output)
 		{
-            lock (loggerLock)
-            {
-                logger.WriteLine("out\t" + output);
-                logger.Flush();
-            }
-			
-			Console.WriteLine(output);
+            LogInfo("OUT", output);
+            Console.WriteLine(output);
 		}
 		public static void LogInfo(string type, string message)
 		{
@@ -134,7 +129,8 @@ namespace Sinobyl.CommandLine
                 while (ex != null)
                 {
                     logger.WriteLine("Exception: " + ex.Message + "\tSource: " + ex.Source);
-                    foreach (var st in ex.StackTrace)
+                    
+                    foreach (var st in ex.StackTrace.Split('\n'))
                     {
                         logger.WriteLine("\t\t" + st.ToString());
                     }

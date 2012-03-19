@@ -205,6 +205,7 @@ namespace Sinobyl.Engine.Tests
             Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.H8, ChessDirection.DirE).IsInBounds());
             Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.H8, ChessDirection.DirN).IsInBounds());
 
+            
 
             Assert.AreEqual<ChessPosition>(ChessPosition.D5, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirN));
             Assert.AreEqual<ChessPosition>(ChessPosition.D3, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirS));

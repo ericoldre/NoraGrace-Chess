@@ -81,6 +81,7 @@ namespace Sinobyl.Engine.Tests
             }
 
             List<ChessMove> moves = ChessMove.GenMoves(board, false);
+
             //var oldBoard = new Murderhole.ChessBoard(board.FEN.ToString());
             //var oldMoves = Murderhole.ChessMove.GenMoves(oldBoard);
             //if (moves.Count != oldMoves.Count)
@@ -182,7 +183,7 @@ namespace Sinobyl.Engine.Tests
             PerftTest(fen, 2, 400, 420);
             PerftTest(fen, 3, 8902, 9322);
             PerftTest(fen, 4, 197281, 206603);
-            PerftTest(fen, 5, 4865609, 5072212);
+            //PerftTest(fen, 5, 4865609, 5072212);
             //PerftTest(fen, 6, 119060324, 124132536);
         }
 
@@ -196,8 +197,8 @@ namespace Sinobyl.Engine.Tests
             PerftTest(fen, 1, 48, 48);
             PerftTest(fen, 2, 2039, 2087);
             PerftTest(fen, 3, 97862, 99949);
-            PerftTest(fen, 4, 4085603, 4185552);
-            PerftTest(fen, 5, 193690690, 197876242);
+            //PerftTest(fen, 4, 4085603, 4185552);
+            //PerftTest(fen, 5, 193690690, 197876242);
 
         }
 
@@ -211,8 +212,8 @@ namespace Sinobyl.Engine.Tests
             PerftTest(fen, 2, 290, 308);
             PerftTest(fen, 3, 5044, 5352);
             PerftTest(fen, 4, 89363, 94715);
-            PerftTest(fen, 5, 1745545, 1840260);
-            PerftTest(fen, 6, 34336777, 36177037);
+            //PerftTest(fen, 5, 1745545, 1840260);
+           // PerftTest(fen, 6, 34336777, 36177037);
 
 
         }
@@ -227,7 +228,7 @@ namespace Sinobyl.Engine.Tests
             PerftTest(fen, 2, 191, 205);
             PerftTest(fen, 3, 2812, 3017);
             PerftTest(fen, 4, 43238, 46255);
-            PerftTest(fen, 5, 674624, 720879);
+            //PerftTest(fen, 5, 674624, 720879);
 
         }
 

@@ -293,11 +293,11 @@ namespace Sinobyl.Engine
 				this._hist.Clear();
 				initPieceAtArray();
 
-				for (int i = 0; i < 120; i++)
+				foreach(var pos in Chess.AllPositions)
 				{
-					if (((ChessPosition)i).IsInBounds() && value.pieceat[i]!=ChessPiece.EMPTY)
+                    if (value.pieceat[pos.GetIndex64()] != ChessPiece.EMPTY)
 					{
-						this.PieceAdd((ChessPosition)i,value.pieceat[i]);
+						this.PieceAdd(pos,value.pieceat[pos.GetIndex64()]);
 					}
 					//_pieceat[i] = value.pieceat[i];
 				}

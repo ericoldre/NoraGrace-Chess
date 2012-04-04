@@ -61,7 +61,7 @@ namespace Sinobyl.Engine.Tests
             Assert.AreEqual<int>(0, norm);
             Assert.AreEqual<int>(0, rev);
 
-            
+
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace Sinobyl.Engine.Tests
 
             int StartVal = 0;
             int EndVal = 0;
-            
+
             ChessEval.PawnInfo.EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), eval, ref StartVal, ref EndVal, out passed, out doubled, out isolated);
 
 

@@ -202,7 +202,7 @@ namespace Sinobyl.Engine
 		public override string ToString()
 		{
 			System.Text.StringBuilder sb = new StringBuilder(50);
-			for (int irank = 7; irank >= 0; irank--)
+			for (int irank = 0; irank <= 7; irank++)
 			{
 				int emptycount = 0;
 				for (int ifile = 0; ifile <= 7; ifile++)
@@ -230,7 +230,7 @@ namespace Sinobyl.Engine
 					sb.Append(emptycount.ToString());
 					emptycount = 0;
 				}
-				if (irank > 0) { sb.Append("/"); }
+				if (irank < 7) { sb.Append("/"); }
 			}
 
 			//player

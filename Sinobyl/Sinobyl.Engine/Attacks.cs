@@ -38,7 +38,7 @@ namespace Sinobyl.Engine
 	        1, 9, 17, 25, 33, 41, 49, 57
         };
 
-        private static int[] _attacks_from_diaga8_offset = {
+        private static int[] _attacks_from_diagh8_offset = {
 	         1,  2,  4,  7, 11, 16, 22, 29,
 	         2,  4,  7, 11, 16, 22, 29, 37,
 	         4,  7, 11, 16, 22, 29, 37, 44,
@@ -49,7 +49,7 @@ namespace Sinobyl.Engine
 	        29, 37, 44, 50, 55, 59, 62, 64
         };
 
-        private static int[] _attacks_from_diagh8_offset = {
+        private static int[] _attacks_from_diaga8_offset = {
 	        29, 22, 16, 11,  7,  4,  2,  1,
 	        37, 29, 22, 16, 11,  7,  4,  2,
 	        44, 37, 29, 22, 16, 11,  7,  4,
@@ -71,7 +71,7 @@ namespace Sinobyl.Engine
 	        7, 15, 23, 31, 39, 47, 55, 63,
 	        64};
 
-        private static int[] _position_translate_diaga8 =
+        private static int[] _position_translate_diagh8 =
         {
 	        0,   1,  3,  6, 10, 15, 21, 28, 
 	        2,   4,  7, 11, 16, 22, 29, 36,
@@ -84,7 +84,7 @@ namespace Sinobyl.Engine
 	        64
         };
 
-        private static int[] _position_translate_diagh8 = {
+        private static int[] _position_translate_diaga8 = {
 	        28, 21, 15, 10,  6,  3,  1,  0, 
 	        36, 29, 22, 16, 11,  7,  4,  2,
 	        43, 37, 30, 23, 17, 12,  8,  5, 

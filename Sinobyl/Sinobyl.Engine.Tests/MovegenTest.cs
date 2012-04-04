@@ -99,7 +99,7 @@ namespace Sinobyl.Engine.Tests
             //}
 
             //var fen = board.FEN;
-            
+
             foreach (ChessMove move in moves)
             {
                 board.MoveApply(move);
@@ -130,7 +130,7 @@ namespace Sinobyl.Engine.Tests
                     expectedPieces[(int)board.PieceAt(pos)] |= pos.Bitboard();
                 }
             }
-            
+
             foreach (var piece in Chess.AllPieces)
             {
                 Assert.AreEqual<ChessBitboard>(expectedPieces[(int)piece], board.PieceLocations(piece));
@@ -190,7 +190,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void MoveGenPerft2()
         {
-        
+
 
             string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 
@@ -213,7 +213,7 @@ namespace Sinobyl.Engine.Tests
             PerftTest(fen, 3, 5044, 5352);
             PerftTest(fen, 4, 89363, 94715);
             //PerftTest(fen, 5, 1745545, 1840260);
-           // PerftTest(fen, 6, 34336777, 36177037);
+            // PerftTest(fen, 6, 34336777, 36177037);
 
 
         }

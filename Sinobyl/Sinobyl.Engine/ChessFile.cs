@@ -35,8 +35,6 @@ namespace Sinobyl.Engine
 
         public static ChessPosition ToPosition(this ChessFile file, ChessRank rank)
         {
-            //if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
-            //if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
             return (ChessPosition)((int)rank * 8) + (int)file;
         }
         public static ChessBitboard Bitboard(this ChessFile file)

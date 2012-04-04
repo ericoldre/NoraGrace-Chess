@@ -8,14 +8,14 @@ namespace Sinobyl.Engine
     [Flags]
     public enum ChessBitboard : ulong
     {
-        A8 = (ulong)1 << 56, B8 = (ulong)1 << 57, C8 = (ulong)1 << 58, D8 = (ulong)1 << 59, E8 = (ulong)1 << 60, F8 = (ulong)1 << 61, G8 = (ulong)1 << 62, H8 = (ulong)1 << 63,
-        A7 = (ulong)1 << 48, B7 = (ulong)1 << 49, C7 = (ulong)1 << 50, D7 = (ulong)1 << 51, E7 = (ulong)1 << 52, F7 = (ulong)1 << 53, G7 = (ulong)1 << 54, H7 = (ulong)1 << 55,
-        A6 = (ulong)1 << 40, B6 = (ulong)1 << 41, C6 = (ulong)1 << 42, D6 = (ulong)1 << 43, E6 = (ulong)1 << 44, F6 = (ulong)1 << 45, G6 = (ulong)1 << 46, H6 = (ulong)1 << 47,
-        A5 = (ulong)1 << 32, B5 = (ulong)1 << 33, C5 = (ulong)1 << 34, D5 = (ulong)1 << 35, E5 = (ulong)1 << 36, F5 = (ulong)1 << 37, G5 = (ulong)1 << 38, H5 = (ulong)1 << 39,
-        A4 = (ulong)1 << 24, B4 = (ulong)1 << 25, C4 = (ulong)1 << 26, D4 = (ulong)1 << 27, E4 = (ulong)1 << 28, F4 = (ulong)1 << 29, G4 = (ulong)1 << 30, H4 = (ulong)1 << 31,
-        A3 = (ulong)1 << 16, B3 = (ulong)1 << 17, C3 = (ulong)1 << 18, D3 = (ulong)1 << 19, E3 = (ulong)1 << 20, F3 = (ulong)1 << 21, G3 = (ulong)1 << 22, H3 = (ulong)1 << 23,
-        A2 = (ulong)1 << 8, B2 = (ulong)1 << 9, C2 = (ulong)1 << 10, D2 = (ulong)1 << 11, E2 = (ulong)1 << 12, F2 = (ulong)1 << 13, G2 = (ulong)1 << 14, H2 = (ulong)1 << 15,
-        A1 = (ulong)1 << 0, B1 = (ulong)1 << 1, C1 = (ulong)1 << 2, D1 = (ulong)1 << 3, E1 = (ulong)1 << 4, F1 = (ulong)1 << 5, G1 = (ulong)1 << 6, H1 = (ulong)1 << 7,
+        A8 = (ulong)1 << 0, B8 = (ulong)1 << 1, C8 = (ulong)1 << 2, D8 = (ulong)1 << 3, E8 = (ulong)1 << 4, F8 = (ulong)1 << 5, G8 = (ulong)1 << 6, H8 = (ulong)1 << 7,
+        A7 = (ulong)1 << 8, B7 = (ulong)1 << 9, C7 = (ulong)1 << 10, D7 = (ulong)1 << 11, E7 = (ulong)1 << 12, F7 = (ulong)1 << 13, G7 = (ulong)1 << 14, H7 = (ulong)1 << 15,
+        A6 = (ulong)1 << 16, B6 = (ulong)1 << 17, C6 = (ulong)1 << 18, D6 = (ulong)1 << 19, E6 = (ulong)1 << 20, F6 = (ulong)1 << 21, G6 = (ulong)1 << 22, H6 = (ulong)1 << 23,
+        A5 = (ulong)1 << 24, B5 = (ulong)1 << 25, C5 = (ulong)1 << 26, D5 = (ulong)1 << 27, E5 = (ulong)1 << 28, F5 = (ulong)1 << 29, G5 = (ulong)1 << 30, H5 = (ulong)1 << 31,
+        A4 = (ulong)1 << 32, B4 = (ulong)1 << 33, C4 = (ulong)1 << 34, D4 = (ulong)1 << 35, E4 = (ulong)1 << 36, F4 = (ulong)1 << 37, G4 = (ulong)1 << 38, H4 = (ulong)1 << 39,
+        A3 = (ulong)1 << 40, B3 = (ulong)1 << 41, C3 = (ulong)1 << 42, D3 = (ulong)1 << 43, E3 = (ulong)1 << 44, F3 = (ulong)1 << 45, G3 = (ulong)1 << 46, H3 = (ulong)1 << 47,
+        A2 = (ulong)1 << 48, B2 = (ulong)1 << 49, C2 = (ulong)1 << 50, D2 = (ulong)1 << 51, E2 = (ulong)1 << 52, F2 = (ulong)1 << 53, G2 = (ulong)1 << 54, H2 = (ulong)1 << 55,
+        A1 = (ulong)1 << 56, B1 = (ulong)1 << 57, C1 = (ulong)1 << 58, D1 = (ulong)1 << 59, E1 = (ulong)1 << 60, F1 = (ulong)1 << 61, G1 = (ulong)1 << 62, H1 = (ulong)1 << 63,
         Rank1 = A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1,
         Rank2 = A2 | B2 | C2 | D2 | E2 | F2 | G2 | H2,
         Rank3 = A3 | B3 | C3 | D3 | E3 | F3 | G3 | H3,
@@ -69,14 +69,14 @@ namespace Sinobyl.Engine
 
         public static ChessBitboard Reverse(this ChessBitboard bits)
         {
-            return (ChessBitboard)(((ulong)(bits & ChessBitboard.Rank8) >> 56)
-                | ((ulong)(bits & ChessBitboard.Rank7) >> 40)
-                | ((ulong)(bits & ChessBitboard.Rank6) >> 24)
-                | ((ulong)(bits & ChessBitboard.Rank5) >> 8)
-                | ((ulong)(bits & ChessBitboard.Rank4) << 8)
-                | ((ulong)(bits & ChessBitboard.Rank3) << 24)
-                | ((ulong)(bits & ChessBitboard.Rank2) << 40)
-                | ((ulong)(bits & ChessBitboard.Rank1) << 56));
+            return (ChessBitboard)(((ulong)(bits & ChessBitboard.Rank1) >> 56)
+                | ((ulong)(bits & ChessBitboard.Rank2) >> 40)
+                | ((ulong)(bits & ChessBitboard.Rank3) >> 24)
+                | ((ulong)(bits & ChessBitboard.Rank4) >> 8)
+                | ((ulong)(bits & ChessBitboard.Rank5) << 8)
+                | ((ulong)(bits & ChessBitboard.Rank6) << 24)
+                | ((ulong)(bits & ChessBitboard.Rank7) << 40)
+                | ((ulong)(bits & ChessBitboard.Rank8) << 56));
         }
 
         public static ChessBitboard Shift(this ChessBitboard bits, ChessDirection dir)
@@ -123,7 +123,7 @@ namespace Sinobyl.Engine
 
         public static ChessBitboard ShiftDirN(this ChessBitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8) << 8);
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8) >> 8);
         }
         public static ChessBitboard ShiftDirE(this ChessBitboard bits)
         {
@@ -131,7 +131,7 @@ namespace Sinobyl.Engine
         }
         public static ChessBitboard ShiftDirS(this ChessBitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1) >> 8);
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1) << 8);
         }
         public static ChessBitboard ShiftDirW(this ChessBitboard bits)
         {
@@ -139,19 +139,19 @@ namespace Sinobyl.Engine
         }
         public static ChessBitboard ShiftDirNE(this ChessBitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileH) << 9);
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileH) >> 7);
         }
         public static ChessBitboard ShiftDirSE(this ChessBitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileH) >> 7);
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileH) << 9);
         }
         public static ChessBitboard ShiftDirSW(this ChessBitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileA) >> 9);
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileA) << 7);
         }
         public static ChessBitboard ShiftDirNW(this ChessBitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileA) << 7);
+            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileA) >> 9);
         }
 
 

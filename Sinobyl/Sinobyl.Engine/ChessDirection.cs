@@ -7,7 +7,7 @@ namespace Sinobyl.Engine
 {
     public enum ChessDirection
     {
-        DirN = 8, DirE = 1, DirS = -8, DirW = -1,
+        DirN = -8, DirE = 1, DirS = 8, DirW = -1,
         DirNE = DirN + DirE, DirSE = DirS + DirE, DirSW = DirS + DirW, DirNW = DirN + DirW,
         DirNNE = DirN + DirNE, DirEEN = DirE + DirNE, DirEES = DirE + DirSE, DirSSE = DirS + DirSE, DirSSW = DirS + DirSW, DirWWS = DirW + DirSW, DirWWN = DirW + DirNW, DirNNW = DirN + DirNW
     }

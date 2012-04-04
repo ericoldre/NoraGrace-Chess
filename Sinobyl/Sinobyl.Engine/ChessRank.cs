@@ -8,12 +8,19 @@ namespace Sinobyl.Engine
     public enum ChessRank
     {
         EMPTY = -1,
-        Rank1 = 0, Rank2 = 1, Rank3 = 2, Rank4 = 3, Rank5 = 4, Rank6 = 5, Rank7 = 6, Rank8 = 7
+        Rank8 = 0, 
+        Rank7 = 1, 
+        Rank6 = 2, 
+        Rank5 = 3, 
+        Rank4 = 4, 
+        Rank3 = 5, 
+        Rank2 = 6, 
+        Rank1 = 7
     }
 
     public static class ExtensionsChessRank
     {
-        private static readonly string _rankdesclookup = "12345678";
+        private static readonly string _rankdesclookup = "87654321";
 
         public static ChessRank ParseAsRank(this char c)
         {

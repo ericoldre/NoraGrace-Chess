@@ -233,6 +233,18 @@ namespace Sinobyl.Engine
     {
         private T[] _values = new T[64];
 
+        public ChessPositionDictionary()
+        {
+
+        }
+
+        public ChessPositionDictionary(params T[] initVals)
+        {
+            for (int i = 0; i < 63; i++)
+            {
+                _values[i] = initVals[i];
+            }
+        }
 
         public T this[ChessPosition pos]
         {

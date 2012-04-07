@@ -12,7 +12,7 @@ namespace Sinobyl.Engine
 
     public class ChessPieceTypeDictionary<T>
     {
-        public T[] _values = new T[5];
+        public T[] _values = new T[6];
 
         public T this[ChessPieceType piecetype]
         {

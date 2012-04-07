@@ -228,4 +228,110 @@ namespace Sinobyl.Engine
         }
 
     }
+
+    public class ChessPositionDictionary<T>
+    {
+        private T[] _values = new T[64];
+
+
+        public T this[ChessPosition pos]
+        {
+            get
+            {
+                return _values[pos.GetIndex64()];
+            }
+            set
+            {
+                _values[pos.GetIndex64()] = value;
+            }
+        }
+
+        public T A1 { get { return this[ChessPosition.A1]; } set { this[ChessPosition.A1] = value; } }
+        public T A2 { get { return this[ChessPosition.A2]; } set { this[ChessPosition.A2] = value; } }
+        public T A3 { get { return this[ChessPosition.A3]; } set { this[ChessPosition.A3] = value; } }
+        public T A4 { get { return this[ChessPosition.A4]; } set { this[ChessPosition.A4] = value; } }
+        public T A5 { get { return this[ChessPosition.A5]; } set { this[ChessPosition.A5] = value; } }
+        public T A6 { get { return this[ChessPosition.A6]; } set { this[ChessPosition.A6] = value; } }
+        public T A7 { get { return this[ChessPosition.A7]; } set { this[ChessPosition.A7] = value; } }
+        public T A8 { get { return this[ChessPosition.A8]; } set { this[ChessPosition.A8] = value; } }
+
+        public T B1 { get { return this[ChessPosition.B1]; } set { this[ChessPosition.B1] = value; } }
+        public T B2 { get { return this[ChessPosition.B2]; } set { this[ChessPosition.B2] = value; } }
+        public T B3 { get { return this[ChessPosition.B3]; } set { this[ChessPosition.B3] = value; } }
+        public T B4 { get { return this[ChessPosition.B4]; } set { this[ChessPosition.B4] = value; } }
+        public T B5 { get { return this[ChessPosition.B5]; } set { this[ChessPosition.B5] = value; } }
+        public T B6 { get { return this[ChessPosition.B6]; } set { this[ChessPosition.B6] = value; } }
+        public T B7 { get { return this[ChessPosition.B7]; } set { this[ChessPosition.B7] = value; } }
+        public T B8 { get { return this[ChessPosition.B8]; } set { this[ChessPosition.B8] = value; } }
+
+        public T C1 { get { return this[ChessPosition.C1]; } set { this[ChessPosition.C1] = value; } }
+        public T C2 { get { return this[ChessPosition.C2]; } set { this[ChessPosition.C2] = value; } }
+        public T C3 { get { return this[ChessPosition.C3]; } set { this[ChessPosition.C3] = value; } }
+        public T C4 { get { return this[ChessPosition.C4]; } set { this[ChessPosition.C4] = value; } }
+        public T C5 { get { return this[ChessPosition.C5]; } set { this[ChessPosition.C5] = value; } }
+        public T C6 { get { return this[ChessPosition.C6]; } set { this[ChessPosition.C6] = value; } }
+        public T C7 { get { return this[ChessPosition.C7]; } set { this[ChessPosition.C7] = value; } }
+        public T C8 { get { return this[ChessPosition.C8]; } set { this[ChessPosition.C8] = value; } }
+
+        public T D1 { get { return this[ChessPosition.D1]; } set { this[ChessPosition.D1] = value; } }
+        public T D2 { get { return this[ChessPosition.D2]; } set { this[ChessPosition.D2] = value; } }
+        public T D3 { get { return this[ChessPosition.D3]; } set { this[ChessPosition.D3] = value; } }
+        public T D4 { get { return this[ChessPosition.D4]; } set { this[ChessPosition.D4] = value; } }
+        public T D5 { get { return this[ChessPosition.D5]; } set { this[ChessPosition.D5] = value; } }
+        public T D6 { get { return this[ChessPosition.D6]; } set { this[ChessPosition.D6] = value; } }
+        public T D7 { get { return this[ChessPosition.D7]; } set { this[ChessPosition.D7] = value; } }
+        public T D8 { get { return this[ChessPosition.D8]; } set { this[ChessPosition.D8] = value; } }
+
+        public T E1 { get { return this[ChessPosition.E1]; } set { this[ChessPosition.E1] = value; } }
+        public T E2 { get { return this[ChessPosition.E2]; } set { this[ChessPosition.E2] = value; } }
+        public T E3 { get { return this[ChessPosition.E3]; } set { this[ChessPosition.E3] = value; } }
+        public T E4 { get { return this[ChessPosition.E4]; } set { this[ChessPosition.E4] = value; } }
+        public T E5 { get { return this[ChessPosition.E5]; } set { this[ChessPosition.E5] = value; } }
+        public T E6 { get { return this[ChessPosition.E6]; } set { this[ChessPosition.E6] = value; } }
+        public T E7 { get { return this[ChessPosition.E7]; } set { this[ChessPosition.E7] = value; } }
+        public T E8 { get { return this[ChessPosition.E8]; } set { this[ChessPosition.E8] = value; } }
+
+        public T F1 { get { return this[ChessPosition.F1]; } set { this[ChessPosition.F1] = value; } }
+        public T F2 { get { return this[ChessPosition.F2]; } set { this[ChessPosition.F2] = value; } }
+        public T F3 { get { return this[ChessPosition.F3]; } set { this[ChessPosition.F3] = value; } }
+        public T F4 { get { return this[ChessPosition.F4]; } set { this[ChessPosition.F4] = value; } }
+        public T F5 { get { return this[ChessPosition.F5]; } set { this[ChessPosition.F5] = value; } }
+        public T F6 { get { return this[ChessPosition.F6]; } set { this[ChessPosition.F6] = value; } }
+        public T F7 { get { return this[ChessPosition.F7]; } set { this[ChessPosition.F7] = value; } }
+        public T F8 { get { return this[ChessPosition.F8]; } set { this[ChessPosition.F8] = value; } }
+
+        public T G1 { get { return this[ChessPosition.G1]; } set { this[ChessPosition.G1] = value; } }
+        public T G2 { get { return this[ChessPosition.G2]; } set { this[ChessPosition.G2] = value; } }
+        public T G3 { get { return this[ChessPosition.G3]; } set { this[ChessPosition.G3] = value; } }
+        public T G4 { get { return this[ChessPosition.G4]; } set { this[ChessPosition.G4] = value; } }
+        public T G5 { get { return this[ChessPosition.G5]; } set { this[ChessPosition.G5] = value; } }
+        public T G6 { get { return this[ChessPosition.G6]; } set { this[ChessPosition.G6] = value; } }
+        public T G7 { get { return this[ChessPosition.G7]; } set { this[ChessPosition.G7] = value; } }
+        public T G8 { get { return this[ChessPosition.G8]; } set { this[ChessPosition.G8] = value; } }
+
+        public T H1 { get { return this[ChessPosition.H1]; } set { this[ChessPosition.H1] = value; } }
+        public T H2 { get { return this[ChessPosition.H2]; } set { this[ChessPosition.H2] = value; } }
+        public T H3 { get { return this[ChessPosition.H3]; } set { this[ChessPosition.H3] = value; } }
+        public T H4 { get { return this[ChessPosition.H4]; } set { this[ChessPosition.H4] = value; } }
+        public T H5 { get { return this[ChessPosition.H5]; } set { this[ChessPosition.H5] = value; } }
+        public T H6 { get { return this[ChessPosition.H6]; } set { this[ChessPosition.H6] = value; } }
+        public T H7 { get { return this[ChessPosition.H7]; } set { this[ChessPosition.H7] = value; } }
+        public T H8 { get { return this[ChessPosition.H8]; } set { this[ChessPosition.H8] = value; } }
+
+        public override bool Equals(object obj)
+        {
+            ChessPositionDictionary<T> other = obj as ChessPositionDictionary<T>;
+            if (other == null) { return false; }
+
+            foreach (ChessPosition pos in Chess.AllPositions)
+            {
+                if (!this[pos].Equals(other[pos]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    }
 }

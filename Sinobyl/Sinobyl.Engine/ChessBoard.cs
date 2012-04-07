@@ -57,13 +57,22 @@ namespace Sinobyl.Engine
 		//public event msgVoid OnMoveUndo;
 		//public event msgVoid OnReset;
 
+        private ChessPositionDictionary<ChessPiece> _pieceat = new ChessPositionDictionary<ChessPiece>();
+		//private ChessPiece[] _pieceat = new ChessPiece[65];
 
-		private ChessPiece[] _pieceat = new ChessPiece[65];
-		private int[] _pieceCount = new int[12];
-		private ChessPosition[] _kingpos = new ChessPosition[2];
+        private ChessPieceDictionary<int> _pieceCount = new ChessPieceDictionary<int>();
+		//private int[] _pieceCount = new int[12];
 
-        private ChessBitboard[] _pieces = new ChessBitboard[12];
-        private ChessBitboard[] _playerBoards = new ChessBitboard[2];
+        private ChessPlayerDictionary<ChessPosition> _kingpos = new ChessPlayerDictionary<ChessPosition>();
+
+        //private ChessPosition[] _kingpos = new ChessPosition[2];
+
+        private ChessPieceDictionary<ChessBitboard> _pieces = new ChessPieceDictionary<ChessBitboard>();
+        //private ChessBitboard[] _pieces = new ChessBitboard[12];
+
+        private ChessPlayerDictionary<ChessBitboard> _playerBoards = new ChessPlayerDictionary<ChessBitboard>();
+        //private ChessBitboard[] _playerBoards = new ChessBitboard[2];
+        
         private ChessBitboard _allPieces = 0;
         private Attacks.ChessBitboardRotatedVert _allPiecesVert = 0;
         private Attacks.ChessBitboardRotatedA1H8 _allPiecesA1H8 = 0;
@@ -111,15 +120,15 @@ namespace Sinobyl.Engine
 		{
 			foreach (ChessPosition pos in Chess.AllPositions)
 			{
-				_pieceat[(int)pos] = ChessPiece.EMPTY;
+				_pieceat[pos] = ChessPiece.EMPTY;
 			}
-			for (int i = 0; i < 12; i++)
+			foreach(ChessPiece piece in Chess.AllPieces)
 			{
-				_pieceCount[i] = 0;
-                _pieces[i] = 0;
+                _pieceCount[piece] = 0;
+                _pieces[piece] = 0;
 			}
-            _playerBoards[0] = 0;
-            _playerBoards[1] = 0;
+            _playerBoards[ChessPlayer.White] = 0;
+            _playerBoards[ChessPlayer.Black] = 0;
             _allPieces = 0;
             _allPiecesVert = 0;
             _allPiecesA1H8 = 0;
@@ -137,7 +146,7 @@ namespace Sinobyl.Engine
 
 		public ChessPosition KingPosition(ChessPlayer kingplayer)
 		{
-			return _kingpos[(int)kingplayer];
+			return _kingpos[kingplayer];
 		}
 		public bool IsCheck()
 		{
@@ -152,13 +161,13 @@ namespace Sinobyl.Engine
 		private void PieceAdd(ChessPosition pos, ChessPiece piece)
 		{
             
-            _pieceat[(int)pos] = piece;
+            _pieceat[pos] = piece;
 			_zob ^= ChessZobrist._piecepos[(int)piece, (int)pos];
-			_pieceCount[(int)piece]++;
+			_pieceCount[piece]++;
 
-            _pieces[(int)piece] |= pos.Bitboard();
+            _pieces[piece] |= pos.Bitboard();
             _allPieces |= pos.Bitboard();
-            _playerBoards[(int)piece.PieceToPlayer()] |= pos.Bitboard();
+            _playerBoards[piece.PieceToPlayer()] |= pos.Bitboard();
             _allPiecesVert |= Attacks.RotateVert(pos);
             _allPiecesA1H8 |= Attacks.RotateA1H8(pos);
             _allPiecesH1A8 |= Attacks.RotateH1A8(pos);
@@ -169,23 +178,23 @@ namespace Sinobyl.Engine
 			}
 			else if (piece == ChessPiece.WKing)
 			{
-				_kingpos[(int)ChessPlayer.White] = pos;
+				_kingpos[ChessPlayer.White] = pos;
 			}
 			else if (piece == ChessPiece.BKing)
 			{
-				_kingpos[(int)ChessPlayer.Black] = pos;
+				_kingpos[ChessPlayer.Black] = pos;
 			}
 		}
 		private void PieceRemove(ChessPosition pos)
 		{
             ChessPiece piece = PieceAt(pos);
-			_pieceat[(int)pos] = ChessPiece.EMPTY;
+			_pieceat[pos] = ChessPiece.EMPTY;
 			_zob ^= ChessZobrist._piecepos[(int)piece, (int)pos];
-			_pieceCount[(int)piece]--;
+			_pieceCount[piece]--;
 
-            _pieces[(int)piece] &= ~pos.Bitboard();
+            _pieces[piece] &= ~pos.Bitboard();
             _allPieces &= ~pos.Bitboard();
-            _playerBoards[(int)piece.PieceToPlayer()] &= ~pos.Bitboard();
+            _playerBoards[piece.PieceToPlayer()] &= ~pos.Bitboard();
             _allPiecesVert &= ~Attacks.RotateVert(pos);
             _allPiecesA1H8 &= ~Attacks.RotateA1H8(pos);
             _allPiecesH1A8 &= ~Attacks.RotateH1A8(pos);
@@ -197,7 +206,7 @@ namespace Sinobyl.Engine
 		}
 		public int PieceCount(ChessPiece piece)
 		{
-			return _pieceCount[(int)piece];
+			return _pieceCount[piece];
 		}
 
 		public bool IsMate()
@@ -340,11 +349,11 @@ namespace Sinobyl.Engine
 		}
         public ChessBitboard PieceLocations(ChessPiece piece)
         {
-            return _pieces[(int)piece];
+            return _pieces[piece];
         }
         public ChessBitboard PlayerLocations(ChessPlayer player)
         {
-            return _playerBoards[(int)player];
+            return _playerBoards[player];
         }
         public ChessBitboard PieceLocationsAll
         {
@@ -378,13 +387,13 @@ namespace Sinobyl.Engine
         
         public ChessPiece PieceAt(ChessPosition pos)
 		{
-			return _pieceat[(int)pos];
+			return _pieceat[pos];
 		}
 		private void Reset()
 		{
 			foreach (ChessPosition pos in Chess.AllPositions)
 			{
-				_pieceat[(int)pos] = ChessPiece.EMPTY;
+				_pieceat[pos] = ChessPiece.EMPTY;
 			}
 			_whosturn = ChessPlayer.White;
 			_castleWS = false;

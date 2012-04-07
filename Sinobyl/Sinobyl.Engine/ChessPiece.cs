@@ -14,6 +14,52 @@ namespace Sinobyl.Engine
         OOB = 12
     }
 
+    public class ChessPieceDictionary<T>
+    {
+        public T[] _values = new T[12];
+
+        public T this[ChessPiece piece]
+        {
+            get
+            {
+                return _values[(int)piece];
+            }
+            set
+            {
+                _values[(int)piece] = value;
+            }
+        }
+
+        public T WPawn { get { return this[ChessPiece.WPawn]; } set { this[ChessPiece.WPawn] = value; } }
+        public T WKnight { get { return this[ChessPiece.WKnight]; } set { this[ChessPiece.WKnight] = value; } }
+        public T WBishop { get { return this[ChessPiece.WBishop]; } set { this[ChessPiece.WBishop] = value; } }
+        public T WRook { get { return this[ChessPiece.WRook]; } set { this[ChessPiece.WRook] = value; } }
+        public T WQueen { get { return this[ChessPiece.WQueen]; } set { this[ChessPiece.WQueen] = value; } }
+        public T WKing { get { return this[ChessPiece.WKing]; } set { this[ChessPiece.WKing] = value; } }
+
+        public T BPawn { get { return this[ChessPiece.BPawn]; } set { this[ChessPiece.BPawn] = value; } }
+        public T BKnight { get { return this[ChessPiece.BKnight]; } set { this[ChessPiece.BKnight] = value; } }
+        public T BBishop { get { return this[ChessPiece.BBishop]; } set { this[ChessPiece.BBishop] = value; } }
+        public T BRook { get { return this[ChessPiece.BRook]; } set { this[ChessPiece.BRook] = value; } }
+        public T BQueen { get { return this[ChessPiece.BQueen]; } set { this[ChessPiece.BQueen] = value; } }
+        public T BKing { get { return this[ChessPiece.BKing]; } set { this[ChessPiece.BKing] = value; } }
+
+        public override bool Equals(object obj)
+        {
+            ChessPieceDictionary<T> other = obj as ChessPieceDictionary<T>;
+            if (other == null) { return false; }
+
+            foreach (ChessPiece pos in Chess.AllPieces)
+            {
+                if (!this[pos].Equals(other[pos]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     public static class ExtensionsChessPiece
     {
         private static readonly string _piecedesclookup = "PNBRQKpnbrqk";
@@ -71,6 +117,34 @@ namespace Sinobyl.Engine
                     return 0;
             }
         }
+
+        public static ChessPieceType ToPieceType(this ChessPiece piece)
+        {
+            switch (piece)
+            {
+                case ChessPiece.WPawn:
+                case ChessPiece.BPawn:
+                    return ChessPieceType.Pawn;
+                case ChessPiece.WKnight:
+                case ChessPiece.BKnight:
+                    return ChessPieceType.Knight;
+                case ChessPiece.WBishop:
+                case ChessPiece.BBishop:
+                    return ChessPieceType.Bishop;
+                case ChessPiece.WRook:
+                case ChessPiece.BRook:
+                    return ChessPieceType.Rook;
+                case ChessPiece.WQueen:
+                case ChessPiece.BQueen:
+                    return ChessPieceType.Queen;
+                case ChessPiece.WKing:
+                case ChessPiece.BKing:
+                    return ChessPieceType.King;
+                default:
+                    throw new ArgumentException("invalid chess piece");
+            }
+        }
+
         public static ChessPiece ToOppositePlayer(this ChessPiece piece)
         {
             switch (piece)

@@ -33,6 +33,15 @@ namespace Sinobyl.Engine
         public T Queen { get { return this[ChessPieceType.Queen]; } set { this[ChessPieceType.Queen] = value; } }
         public T King { get { return this[ChessPieceType.King]; } set { this[ChessPieceType.King] = value; } }
 
+
+        public IEnumerable<KeyValuePair<ChessPiece, T>> PieceValues()
+        {
+            foreach (ChessPiece piece in Chess.AllPieces)
+            {
+                yield return new KeyValuePair<ChessPiece, T>(piece, this[piece.ToPieceType()]);
+            }
+        }
+
         public override bool Equals(object obj)
         {
             ChessPieceTypeDictionary<T> other = obj as ChessPieceTypeDictionary<T>;

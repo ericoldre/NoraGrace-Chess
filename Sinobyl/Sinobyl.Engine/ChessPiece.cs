@@ -14,6 +14,27 @@ namespace Sinobyl.Engine
         OOB = 12
     }
 
+    public struct ChessPieceArray<T>
+    {
+        private T[] _values;
+
+        public ChessPieceArray(IEnumerable<KeyValuePair<ChessPiece,T>> values)
+        {
+            _values = new T[12];
+            foreach (var kvp in values)
+            {
+                _values[(int)kvp.Key] = kvp.Value;
+            }
+        }
+        public T this[ChessPiece piece]
+        {
+            get
+            {
+                return _values[(int)piece];
+            }
+        }
+    }
+
     public class ChessPieceDictionary<T>
     {
         public T[] _values = new T[12];
@@ -43,6 +64,14 @@ namespace Sinobyl.Engine
         public T BRook { get { return this[ChessPiece.BRook]; } set { this[ChessPiece.BRook] = value; } }
         public T BQueen { get { return this[ChessPiece.BQueen]; } set { this[ChessPiece.BQueen] = value; } }
         public T BKing { get { return this[ChessPiece.BKing]; } set { this[ChessPiece.BKing] = value; } }
+
+        public IEnumerable<KeyValuePair<ChessPiece, T>> PieceValues()
+        {
+            foreach (ChessPiece piece in Chess.AllPieces)
+            {
+                yield return new KeyValuePair<ChessPiece, T>(piece, this[piece]);
+            }
+        }
 
         public override bool Equals(object obj)
         {

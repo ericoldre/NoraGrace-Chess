@@ -15,6 +15,18 @@ namespace Sinobyl.Engine
         {
             ChessEvalSettings retval = new ChessEvalSettings()
             {
+                MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
+                { 
+                    Pawn = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
+                    Knight = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
+                    Bishop = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
+                    Rook = new ChessGameStageDictionary<int>() { Opening = 500, Endgame = 500 },
+                    Queen = new ChessGameStageDictionary<int>() { Opening = 900, Endgame = 900 },
+                    King = new ChessGameStageDictionary<int>() { Opening = 0, Endgame = 0 },
+                },
+
+                MaterialBishopPair = new ChessGameStageDictionary<int>() { Opening = 30, Endgame = 50 },
+
                 PcSqTables = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessPositionDictionary<int>>>()
                 {
                     Pawn = new ChessGameStageDictionary<ChessPositionDictionary<int>>()
@@ -169,16 +181,7 @@ namespace Sinobyl.Engine
                     },
                 },
 
-                MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
-                {
-                    Pawn = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
-                    Knight = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
-                    Bishop = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
-                    Rook = new ChessGameStageDictionary<int>() { Opening = 500, Endgame = 500 },
-                    Queen = new ChessGameStageDictionary<int>() { Opening = 900, Endgame = 900 },
-                },
-                
-                MaterialBishopPair = new ChessGameStageDictionary<int>(){ Opening = 30, Endgame=50},
+
                 
                 PawnPassedValues = new ChessGameStageDictionary<ChessPositionDictionary<int>>()
                 {
@@ -225,9 +228,20 @@ namespace Sinobyl.Engine
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
 
-        
+        public ChessEvalSettings CloneDeep()
+        {
+            return Chess.DeserializeObject<ChessEvalSettings>(Chess.SerializeObject<ChessEvalSettings>(this));
+        }
 
+        public override bool Equals(object obj)
+        {
+            ChessEvalSettings other = obj as ChessEvalSettings;
+            if (other == null) { return false; }
 
+            var v1 = Chess.SerializeObject<ChessEvalSettings>(this);
+            var v2 = Chess.SerializeObject<ChessEvalSettings>(other);
+            return v1 == v2;
+        }
 
     }
 

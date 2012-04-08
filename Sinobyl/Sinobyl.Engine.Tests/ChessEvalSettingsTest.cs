@@ -64,6 +64,19 @@ namespace Sinobyl.Engine.Tests
         #endregion
 
 
-  
+
+
+        /// <summary>
+        ///A test for CloneDeep
+        ///</summary>
+        [TestMethod()]
+        public void CloneDeepTest()
+        {
+            ChessEvalSettings settings = ChessEvalSettings.Default(); // TODO: Initialize to an appropriate value
+
+            var cloned = settings.CloneDeep();
+
+            Assert.AreEqual(cloned, settings);
+        }
     }
 }

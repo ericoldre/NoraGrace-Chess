@@ -94,7 +94,11 @@ namespace Sinobyl.CommandLine
 					}
                     else if (split[0] == "perft")
                     {
-                        Perft.PerftSuite(int.Parse(split[1]));
+                        Perft.PerftSuite(int.Parse(split[1]), false);
+                    }
+                    else if (split[0] == "evalperft")
+                    {
+                        Perft.PerftSuite(int.Parse(split[1]),true);
                     }
                     else
                     {

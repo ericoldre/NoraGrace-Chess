@@ -20,6 +20,30 @@ namespace Sinobyl.Engine
 		public readonly int fiftymove = 0;
 		public readonly int fullmove = 0;
 
+        public ChessFEN(
+            ChessPositionDictionary<ChessPiece> Pieces,
+            ChessPlayer WhosTurn = ChessPlayer.White,
+            bool CastleWS = false,
+            bool CastleWL = false,
+            bool CastleBS = false,
+            bool CastleBL = false,
+            ChessPosition Enpassant = ChessPosition.OUTOFBOUNDS,
+            int FiftyMove = 0,
+            int FullMove = 0)
+        {
+            foreach (ChessPosition pos in Chess.AllPositions)
+            {
+                pieceat[(int)pos] = Pieces[pos];
+            }
+            this.whosturn = WhosTurn;
+            this.castleWS = CastleWS;
+            this.castleWL = CastleWL;
+            this.castleBS = CastleBS;
+            this.castleBL = CastleBL;
+            this.enpassant = Enpassant;
+            this.fiftymove = FiftyMove;
+            this.fullmove = FullMove;
+        }
 		public ChessFEN(ChessBoard board)
 		{
 			for (int pos = 0; pos < 64; pos++)
@@ -304,3 +328,4 @@ namespace Sinobyl.Engine
 		}
 	}
 }
+

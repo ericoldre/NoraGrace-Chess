@@ -1030,12 +1030,12 @@ namespace Sinobyl.Engine
 				ChessPiece taken = board.PieceAt(move.To);
 				ChessPlayer me = board.WhosTurn;
 
-				retval -= eval.PieceSquareStartEndVals[mover, move.From, ChessGameStage.Opening];
-                retval += eval.PieceSquareStartEndVals[mover, move.To, ChessGameStage.Opening];
+                retval -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
+                retval += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
 
 				if (taken != ChessPiece.EMPTY)
 				{
-					retval -= eval.PieceValueOpening[taken];
+					retval -= eval._matPieceStage[(int)taken,(int)ChessGameStage.Opening];
 				}
 
 				if (me == ChessPlayer.Black) { retval = -retval; }
@@ -1053,8 +1053,8 @@ namespace Sinobyl.Engine
                 ChessPlayer me = mover.PieceToPlayer();
 
 				int pieceSqVal = 0;
-                pieceSqVal -= eval.PieceSquareStartEndVals[mover, move.From, ChessGameStage.Opening];
-                pieceSqVal += eval.PieceSquareStartEndVals[mover, move.To, ChessGameStage.Opening];
+                pieceSqVal -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
+                pieceSqVal += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
 				if (me == ChessPlayer.Black) { pieceSqVal = -pieceSqVal; }
 				retval += pieceSqVal;
 

@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeterministicChallenge.cs" />
     <Compile Include="IEvalSettingsMutator.cs" />
     <Compile Include="MutatorFactory.cs" />
     <Compile Include="Mutators\PcSqMutator.cs" />
@@ -55,6 +56,11 @@
       <Project>{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}</Project>
       <Name>Sinobyl.Engine</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="OpeningPositions.pgn">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

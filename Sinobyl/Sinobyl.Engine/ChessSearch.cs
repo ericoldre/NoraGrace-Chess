@@ -179,7 +179,8 @@ namespace Sinobyl.Engine
 			public ChessTrans TransTable { get; set; }
 			public BlunderChance Blunder { get; set; }
 			public TimeSpan Delay { get; set; }
-
+            public ChessEval Eval { get; set; }
+            public int MaxNodes { get; set; }
 			public Args()
 			{
                 GameStartPosition = new ChessFEN(ChessFEN.FENStart);
@@ -189,6 +190,8 @@ namespace Sinobyl.Engine
 				NodesPerSecond = int.MaxValue;
 				Blunder = new BlunderChance();
 				Delay = new TimeSpan(0);
+                Eval = new ChessEval();
+                MaxNodes = int.MaxValue;
 			}
 		}
 
@@ -198,7 +201,7 @@ namespace Sinobyl.Engine
 
 		public readonly Args SearchArgs;
 		private readonly ChessBoard board;
-		private readonly ChessEval eval = new ChessEval();
+		private readonly ChessEval eval;
 		private ChessMove[] CurrentVariation = new ChessMove[50];
 		private DateTime _starttime;
 		private DateTime _stopattime;
@@ -214,6 +217,7 @@ namespace Sinobyl.Engine
 		{
 			SearchArgs = args;
 			board = new ChessBoard(SearchArgs.GameStartPosition);
+            eval = args.Eval;
 			foreach (ChessMove histmove in SearchArgs.GameMoves)
 			{
 				board.MoveApply(histmove);
@@ -431,6 +435,12 @@ namespace Sinobyl.Engine
 			//for logging
 			CountTotalAINodes++;
 			CountAIValSearch++;
+
+            if (CountAIValSearch > this.SearchArgs.MaxNodes)
+            {
+                _aborting = true;
+                return 0;
+            }
 
 			//execute this every 500 nodes
 			if (CountAIValSearch % 500 == 0)

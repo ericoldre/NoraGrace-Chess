@@ -12,6 +12,7 @@ namespace Sinobyl.Engine
 
     public class ChessGameStageDictionary<T>
     {
+        [System.Xml.Serialization.XmlIgnore()]
         public T[] _values = new T[2];
 
         public T this[ChessGameStage stage]

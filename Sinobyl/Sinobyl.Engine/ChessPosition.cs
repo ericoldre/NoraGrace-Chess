@@ -231,6 +231,7 @@ namespace Sinobyl.Engine
 
     public class ChessPositionDictionary<T>
     {
+        [System.Xml.Serialization.XmlIgnore()]
         private T[] _values = new T[64];
 
         public ChessPositionDictionary()
@@ -246,6 +247,7 @@ namespace Sinobyl.Engine
             }
         }
 
+        [System.Xml.Serialization.XmlIgnore()]
         public T this[ChessPosition pos]
         {
             get

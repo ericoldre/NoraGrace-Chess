@@ -12,8 +12,10 @@ namespace Sinobyl.Engine
 
     public class ChessPieceTypeDictionary<T>
     {
+        [System.Xml.Serialization.XmlIgnore()]
         public T[] _values = new T[6];
 
+        [System.Xml.Serialization.XmlIgnore()]
         public T this[ChessPieceType piecetype]
         {
             get

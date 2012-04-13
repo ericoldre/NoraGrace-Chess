@@ -15,6 +15,7 @@ namespace Sinobyl.Engine
     {
         private T[] _values = new T[2];
 
+        [System.Xml.Serialization.XmlIgnore()]
         public T this[ChessPlayer player]
         {
             get

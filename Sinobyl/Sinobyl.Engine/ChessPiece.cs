@@ -14,31 +14,36 @@ namespace Sinobyl.Engine
         OOB = 12
     }
 
-    public struct ChessPieceArray<T>
-    {
-        private T[] _values;
+    //public struct ChessPieceArray<T>
+    //{
+    //    [System.Xml.Serialization.XmlIgnore()]
+    //    private T[] _values;
 
-        public ChessPieceArray(IEnumerable<KeyValuePair<ChessPiece,T>> values)
-        {
-            _values = new T[12];
-            foreach (var kvp in values)
-            {
-                _values[(int)kvp.Key] = kvp.Value;
-            }
-        }
-        public T this[ChessPiece piece]
-        {
-            get
-            {
-                return _values[(int)piece];
-            }
-        }
-    }
+    //    public ChessPieceArray(IEnumerable<KeyValuePair<ChessPiece,T>> values)
+    //    {
+    //        _values = new T[12];
+    //        foreach (var kvp in values)
+    //        {
+    //            _values[(int)kvp.Key] = kvp.Value;
+    //        }
+    //    }
+    //    [System.Xml.Serialization.XmlIgnore()]
+    //    public T this[ChessPiece piece]
+    //    {
+    //        get
+    //        {
+    //            return _values[(int)piece];
+    //        }
+    //    }
+    //}
 
     public class ChessPieceDictionary<T>
     {
-        public T[] _values = new T[12];
 
+        [System.Xml.Serialization.XmlIgnore()]
+        private T[] _values = new T[12];
+
+        [System.Xml.Serialization.XmlIgnore()]
         public T this[ChessPiece piece]
         {
             get

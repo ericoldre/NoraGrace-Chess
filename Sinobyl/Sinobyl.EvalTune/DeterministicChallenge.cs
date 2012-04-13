@@ -17,10 +17,10 @@ namespace Sinobyl.EvalTune
 
             object winLock = new object();
             ParallelOptions options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 5;
+            options.MaxDegreeOfParallelism = 6;
             Parallel.ForEach(startingPositions, options, pgn =>
             {
-                Console.WriteLine("Starting Games");
+                //Console.WriteLine("Starting Games");
                 ChessEval championEval = new ChessEval(champion);
                 ChessEval challengerEval = new ChessEval(challenger);
                 ChessResultReason reason = ChessResultReason.Unknown;
@@ -31,15 +31,15 @@ namespace Sinobyl.EvalTune
                     {
                         case ChessResult.WhiteWins:
                             champWins++;
-                            Console.WriteLine("Champ wins as white by {0}", reason.ToString());
+                            //Console.WriteLine("Champ wins as white by {0}", reason.ToString());
                             break;
                         case ChessResult.BlackWins:
                             challengerWins++;
-                            Console.WriteLine("Challenger wins as black by {0}", reason.ToString());
+                            //Console.WriteLine("Challenger wins as black by {0}", reason.ToString());
                             break;
                         default:
                             draws++;
-                            Console.WriteLine("draw by {0}", reason.ToString());
+                            //Console.WriteLine("draw by {0}", reason.ToString());
                             break;
                     }
                 }
@@ -50,20 +50,20 @@ namespace Sinobyl.EvalTune
                     {
                         case ChessResult.WhiteWins:
                             challengerWins++;
-                            Console.WriteLine("Challenger wins as white by {0}", reason.ToString());
+                            //Console.WriteLine("Challenger wins as white by {0}", reason.ToString());
                             break;
                         case ChessResult.BlackWins:
                             champWins++;
-                            Console.WriteLine("Champ wins as black by {0}", reason.ToString());
+                            //Console.WriteLine("Champ wins as black by {0}", reason.ToString());
                             break;
                         default:
                             draws++;
-                            Console.WriteLine("draw by {0}", reason.ToString());
+                            //Console.WriteLine("draw by {0}", reason.ToString());
                             break;
                     }
                 }
 
-                Console.WriteLine("Ending Games");
+                //Console.WriteLine("Ending Games");
 
             });
 
@@ -106,7 +106,7 @@ namespace Sinobyl.EvalTune
                 args.GameMoves = new ChessMoves(gameMoves.ToArray());
                 args.TransTable = trans;
                 args.Eval = eval;
-                args.MaxNodes = 4000;
+                args.MaxNodes = 10000;
 
                 ChessSearch search = new ChessSearch(args);
                 var searchResult = search.Search();

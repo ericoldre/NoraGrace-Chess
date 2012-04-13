@@ -14,7 +14,7 @@ namespace Sinobyl.EvalTune
         static object writeLock = new object();
         static void Main(string[] args)
         {
-            Random rand = new Random(0);
+            Random rand = new Random();
 
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))

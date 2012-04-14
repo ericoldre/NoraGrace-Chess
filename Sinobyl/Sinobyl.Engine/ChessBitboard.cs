@@ -40,37 +40,27 @@ namespace Sinobyl.Engine
     public static class ExtensionsChessBitboard
     {
 
-        static ExtensionsChessBitboard()
-        {
-            _byteBitcount = new int[256];
-            for (int byteVal = 0; byteVal < 256; byteVal++)
-            {
-                int temp = byteVal;
-                int bitCount = 0;
-                while (temp != 0)
-                {
-                    if ((temp & 1)==1)
-                    {
-                        bitCount++;
-                    }
-                    temp = temp >> 1;
-                }
-                _byteBitcount[byteVal] = bitCount;
-            }
-        }
 
-        private static readonly int[] _byteBitcount;
+        private static readonly int[] _byteBitcount = new int[256] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
 
         public static int BitCount(this ChessBitboard bitboard)
         {
-            return _byteBitcount[((ulong)bitboard & 255)]
-                + _byteBitcount[(((ulong)bitboard >> 8) & 255)]
-                + _byteBitcount[(((ulong)bitboard >> 16) & 255)]
-                + _byteBitcount[(((ulong)bitboard >> 24) & 255)]
-                + _byteBitcount[(((ulong)bitboard >> 32) & 255)]
-                + _byteBitcount[(((ulong)bitboard >> 40) & 255)]
-                + _byteBitcount[(((ulong)bitboard >> 48) & 255)]
-                + _byteBitcount[(((ulong)bitboard >> 56) & 255)];
+            ulong val = (ulong)bitboard;
+            int retval = 0;
+            while (val != 0)
+            {
+                retval += _byteBitcount[val & 255];
+                val = val >> 8;
+            }
+            return retval;
+            //return _byteBitcount[((ulong)bitboard & 255)]
+            //    + _byteBitcount[(((ulong)bitboard >> 8) & 255)]
+            //    + _byteBitcount[(((ulong)bitboard >> 16) & 255)]
+            //    + _byteBitcount[(((ulong)bitboard >> 24) & 255)]
+            //    + _byteBitcount[(((ulong)bitboard >> 32) & 255)]
+            //    + _byteBitcount[(((ulong)bitboard >> 40) & 255)]
+            //    + _byteBitcount[(((ulong)bitboard >> 48) & 255)]
+            //    + _byteBitcount[(((ulong)bitboard >> 56) & 255)];
         }
 
         private static int[] debrujinPositions =

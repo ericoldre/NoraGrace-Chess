@@ -159,6 +159,15 @@ namespace Sinobyl.Engine
 
 
 		}
+
+        public ChessPGNHeaders Headers
+        {
+            get
+            {
+                return _headers;
+            }
+        }
+
 		public ReadOnlyCollection<ChessMove> Moves
 		{
 			get

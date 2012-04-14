@@ -54,7 +54,7 @@ namespace Sinobyl.Engine
 		NotDecided = 0, 
 		Checkmate = 1, Resign = 2, OutOfTime = 3, Adjudication = 4, //win reasons
 		Stalemate = 5, FiftyMoveRule = 6, InsufficientMaterial = 7, MutualAgreement = 8, Repetition = 9, //draw reasons
-		Unknown = 10
+		Unknown = 10, IllegalMove = 11
 	}
 	#endregion
 

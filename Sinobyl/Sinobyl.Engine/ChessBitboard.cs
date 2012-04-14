@@ -39,6 +39,40 @@ namespace Sinobyl.Engine
 
     public static class ExtensionsChessBitboard
     {
+
+        static ExtensionsChessBitboard()
+        {
+            _byteBitcount = new int[256];
+            for (int byteVal = 0; byteVal < 256; byteVal++)
+            {
+                int temp = byteVal;
+                int bitCount = 0;
+                while (temp != 0)
+                {
+                    if ((temp & 1)==1)
+                    {
+                        bitCount++;
+                    }
+                    temp = temp >> 1;
+                }
+                _byteBitcount[byteVal] = bitCount;
+            }
+        }
+
+        private static readonly int[] _byteBitcount;
+
+        public static int BitCount(this ChessBitboard bitboard)
+        {
+            return _byteBitcount[((ulong)bitboard & 255)]
+                + _byteBitcount[(((ulong)bitboard >> 8) & 255)]
+                + _byteBitcount[(((ulong)bitboard >> 16) & 255)]
+                + _byteBitcount[(((ulong)bitboard >> 24) & 255)]
+                + _byteBitcount[(((ulong)bitboard >> 32) & 255)]
+                + _byteBitcount[(((ulong)bitboard >> 40) & 255)]
+                + _byteBitcount[(((ulong)bitboard >> 48) & 255)]
+                + _byteBitcount[(((ulong)bitboard >> 56) & 255)];
+        }
+
         private static int[] debrujinPositions =
 	    {
 	        0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,

@@ -229,6 +229,24 @@ namespace Sinobyl.Engine.Tests
 		}
 
         [TestMethod]
+        public void BitboardBitCount()
+        {
+
+            foreach (ChessPosition pos in Chess.AllPositions)
+            {
+                Assert.AreEqual<int>(1, pos.Bitboard().BitCount());
+            }
+            foreach (var rank in Chess.AllRanks)
+            {
+                Assert.AreEqual<int>(8, rank.Bitboard().BitCount());
+            }
+            foreach (var file in Chess.AllFiles)
+            {
+                Assert.AreEqual<int>(8, file.Bitboard().BitCount());
+            }
+        }
+
+        [TestMethod]
         public void BitboardReverse()
         {
             Assert.AreEqual<ChessBitboard>(ChessBitboard.Rank8, ChessBitboard.Rank1.Reverse());

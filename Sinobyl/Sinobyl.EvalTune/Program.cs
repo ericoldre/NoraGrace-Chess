@@ -38,7 +38,7 @@ namespace Sinobyl.EvalTune
                 var challenger = champion.CloneDeep();
                 mutation.Mutate(challenger);
                 Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
-                var winner = DeterministicChallenge.Challenge(champion, challenger, StartingPGNs);
+                var winner = DeterministicChallenge.Challenge(champion, challenger, StartingPGNs, "Mutation: " + mutation.ToString());
 
                 if (winner.Equals(challenger))
                 {

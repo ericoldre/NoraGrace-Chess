@@ -9,7 +9,7 @@ namespace Sinobyl.EvalTune
 {
     public class DeterministicChallenge
     {
-        public static ChessEvalSettings Challenge(ChessEvalSettings champion, ChessEvalSettings challenger, IEnumerable<ChessPGN> startingPositions)
+        public static ChessEvalSettings Challenge(ChessEvalSettings champion, ChessEvalSettings challenger, IEnumerable<ChessPGN> startingPositions, string EventName)
         {
             int champWins = 0;
             int challengerWins = 0;
@@ -23,11 +23,15 @@ namespace Sinobyl.EvalTune
                 //Console.WriteLine("Starting Games");
                 ChessEval championEval = new ChessEval(champion);
                 ChessEval challengerEval = new ChessEval(challenger);
-                ChessResultReason reason = ChessResultReason.Unknown;
-                var result = Match(championEval, challengerEval, pgn, out reason);
+                
+                var result = Match(championEval, challengerEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
+                result.Headers.Add(new ChessPGNHeader("White", "Champion"));
+                result.Headers.Add(new ChessPGNHeader("Black", "Challenger"));
+                result.Headers.Add(new ChessPGNHeader("Event", EventName));
+
                 lock (winLock)
                 {
-                    switch (result)
+                    switch (result.Result)
                     {
                         case ChessResult.WhiteWins:
                             champWins++;
@@ -43,10 +47,15 @@ namespace Sinobyl.EvalTune
                             break;
                     }
                 }
-                result = Match(challengerEval, championEval, pgn, out reason);
+
+                result = Match(challengerEval, championEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
+                result.Headers.Add(new ChessPGNHeader("White", "Challenger"));
+                result.Headers.Add(new ChessPGNHeader("Black", "Champion"));
+                result.Headers.Add(new ChessPGNHeader("Event", EventName));
+
                 lock (winLock)
                 {
-                    switch (result)
+                    switch (result.Result)
                     {
                         case ChessResult.WhiteWins:
                             challengerWins++;
@@ -78,10 +87,10 @@ namespace Sinobyl.EvalTune
             }
         }
 
-        public static ChessResult Match(ChessEval white, ChessEval black, ChessPGN startingPosition, out ChessResultReason reason)
+        public static ChessPGN Match(ChessEval white, ChessEval black, ChessFEN startingPosition, IEnumerable<ChessMove> initalMoves)
         {
-            ChessResult? retval = null;
-            reason = ChessResultReason.Unknown;
+            ChessResult? gameResult = null;
+            ChessResultReason reason = ChessResultReason.Unknown;
             //ChessResult? adjudicatedResult = null;
            // int adjudicatedResultDuration = 0;
             ChessTrans whiteTrans = new ChessTrans();
@@ -89,20 +98,20 @@ namespace Sinobyl.EvalTune
 
             ChessMoves gameMoves = new ChessMoves();
             //setup init position
-            ChessBoard board = new ChessBoard();
-            foreach (var move in startingPosition.Moves)
+            ChessBoard board = new ChessBoard(startingPosition);
+            foreach (var move in initalMoves)
             {
                 board.MoveApply(move);
                 gameMoves.Add(move);
             }
 
-            while (retval == null)
+            while (gameResult == null)
             {
                 ChessEval eval = board.WhosTurn == ChessPlayer.White ? white : black;
                 ChessTrans trans = board.WhosTurn == ChessPlayer.White ? whiteTrans : blackTrans;
 
                 ChessSearch.Args args = new ChessSearch.Args();
-                args.GameStartPosition = new ChessFEN(startingPosition.StartingPosition);
+                args.GameStartPosition = startingPosition;
                 args.GameMoves = new ChessMoves(gameMoves.ToArray());
                 args.TransTable = trans;
                 args.Eval = eval;
@@ -112,20 +121,23 @@ namespace Sinobyl.EvalTune
                 var searchResult = search.Search();
                 trans.AgeEntries(2);
                 var bestMove = searchResult.PrincipleVariation[0];
-
-                if (!bestMove.IsLegal(board))
-                {
-                    reason = ChessResultReason.Unknown;
-                    retval = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
-                    return retval.Value;
-                }
-
-                board.MoveApply(bestMove);
                 gameMoves.Add(bestMove);
 
-                retval = BoardResult(board, out reason);
+                if (bestMove.IsLegal(board))
+                {
+                    board.MoveApply(bestMove);    
+                    gameResult = BoardResult(board, out reason);
+                }
+                else
+                {
+                    reason = ChessResultReason.IllegalMove;
+                    gameResult = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                }
+
             }
-            return retval.Value;
+
+            ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, null, reason);
+            return retval;
         }
 
         public static ChessResult? BoardResult(ChessBoard _board, out ChessResultReason _resultReason)

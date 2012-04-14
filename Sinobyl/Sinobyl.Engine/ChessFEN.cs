@@ -59,36 +59,7 @@ namespace Sinobyl.Engine
 			fiftymove = board.FiftyMovePlyCount;
 			fullmove = board.FullMoveCount;
 		}
-		private ChessFEN(ChessFEN fenOrig, bool reverse)
-		{
-			if (!reverse) { throw new Exception("this contructor only meant to do FEN reverse positions"); }
-			for (int ipos = 0; ipos < 64; ipos++)
-			{
-                ChessPosition pos = (ChessPosition)ipos;
-				if (pos.IsInBounds())
-				{
-                    ChessPosition posRev = pos.Reverse();
-                    ChessPiece pieceRev = fenOrig.pieceat[ipos].ToOppositePlayer();
-					pieceat[(int)posRev] = pieceRev;
-				}
-			}
-			this.whosturn = fenOrig.whosturn.PlayerOther();
-			this.fullmove = fenOrig.fullmove;
-			this.fiftymove = fenOrig.fiftymove;
-			this.castleWS = fenOrig.castleBS;
-			this.castleWL = fenOrig.castleBL;
-			this.castleBS = fenOrig.castleWS;
-			this.castleBL = fenOrig.castleWL;
-			if (fenOrig.enpassant.IsInBounds())
-			{
-				this.enpassant = fenOrig.enpassant.Reverse();
-			}
-			else
-			{
-				this.enpassant = (ChessPosition.OUTOFBOUNDS);
-			}
-
-		}
+		
 		public ChessFEN(string sFEN)
 		{
 
@@ -220,7 +191,14 @@ namespace Sinobyl.Engine
 		}
 		public ChessFEN Reverse()
 		{
-			return new ChessFEN(this, true);
+            ChessPositionDictionary<ChessPiece> pieces = new ChessPositionDictionary<ChessPiece>();
+            foreach (ChessPosition pos in Chess.AllPositions)
+            {
+                pieces[pos] = this.pieceat[(int)pos.Reverse()];
+            }
+
+            return new ChessFEN(pieces,this.whosturn.PlayerOther(), this.castleBS, this.castleBL, this.castleWS, this.castleWL, this.enpassant.IsInBounds()?this.enpassant.Reverse():ChessPosition.OUTOFBOUNDS, this.fiftymove, this.fullmove);
+
 		}
 
 		public override string ToString()

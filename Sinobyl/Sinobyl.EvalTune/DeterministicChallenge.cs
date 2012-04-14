@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using Sinobyl.Engine;
 using System.Threading.Tasks;
-
+using System.IO;
 namespace Sinobyl.EvalTune
 {
     public class DeterministicChallenge
     {
-        public static ChessEvalSettings Challenge(ChessEvalSettings champion, ChessEvalSettings challenger, IEnumerable<ChessPGN> startingPositions, string EventName)
+        public static bool Challenge(ChessEvalSettings champion, ChessEvalSettings challenger, IEnumerable<ChessPGN> startingPositions, string EventName, StreamWriter pgnWriter)
         {
             int champWins = 0;
             int challengerWins = 0;
@@ -23,11 +23,26 @@ namespace Sinobyl.EvalTune
                 //Console.WriteLine("Starting Games");
                 ChessEval championEval = new ChessEval(champion);
                 ChessEval challengerEval = new ChessEval(challenger);
-                
+
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var result = Match(championEval, challengerEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
+                stopwatch.Stop();
+
                 result.Headers.Add(new ChessPGNHeader("White", "Champion"));
                 result.Headers.Add(new ChessPGNHeader("Black", "Challenger"));
                 result.Headers.Add(new ChessPGNHeader("Event", EventName));
+                result.Headers.Add(new ChessPGNHeader("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString()));
+
+                if (pgnWriter != null)
+                {
+                    string sPgn = result.ToString();
+                    lock (pgnWriter)
+                    {
+                        pgnWriter.Write(sPgn);
+                        pgnWriter.WriteLine();
+                        pgnWriter.WriteLine();
+                    }
+                }
 
                 lock (winLock)
                 {
@@ -48,10 +63,25 @@ namespace Sinobyl.EvalTune
                     }
                 }
 
+                stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 result = Match(challengerEval, championEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
+                stopwatch.Stop();
+
                 result.Headers.Add(new ChessPGNHeader("White", "Challenger"));
                 result.Headers.Add(new ChessPGNHeader("Black", "Champion"));
                 result.Headers.Add(new ChessPGNHeader("Event", EventName));
+                result.Headers.Add(new ChessPGNHeader("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString()));
+
+                if (pgnWriter != null)
+                {
+                    string sPgn = result.ToString();
+                    lock (pgnWriter)
+                    {
+                        pgnWriter.Write(sPgn);
+                        pgnWriter.WriteLine();
+                        pgnWriter.WriteLine();
+                    }
+                }
 
                 lock (winLock)
                 {
@@ -77,14 +107,9 @@ namespace Sinobyl.EvalTune
             });
 
             Console.WriteLine("Champ:{0} Challenger:{1} Draws:{2}", champWins, challengerWins, draws);
-            if (challengerWins > champWins)
-            {
-                return challenger;
-            }
-            else
-            {
-                return champion;
-            }
+
+            return challengerWins > champWins;
+
         }
 
         public static ChessPGN Match(ChessEval white, ChessEval black, ChessFEN startingPosition, IEnumerable<ChessMove> initalMoves)
@@ -136,7 +161,7 @@ namespace Sinobyl.EvalTune
 
             }
 
-            ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, null, reason);
+            ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, new List<ChessPGNComment>(), reason);
             return retval;
         }
 

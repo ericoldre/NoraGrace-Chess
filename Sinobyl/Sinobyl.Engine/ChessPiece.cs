@@ -10,8 +10,7 @@ namespace Sinobyl.Engine
     {
         EMPTY = -1,
         WPawn = 0, WKnight = 1, WBishop = 2, WRook = 3, WQueen = 4, WKing = 5,
-        BPawn = 6, BKnight = 7, BBishop = 8, BRook = 9, BQueen = 10, BKing = 11,
-        OOB = 12
+        BPawn = 6, BKnight = 7, BBishop = 8, BRook = 9, BQueen = 10, BKing = 11
     }
 
     //public struct ChessPieceArray<T>

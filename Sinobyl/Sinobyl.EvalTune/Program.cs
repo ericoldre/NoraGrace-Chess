@@ -6,6 +6,7 @@ using Sinobyl.Engine;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Sinobyl.EvalTune
 {
@@ -14,6 +15,8 @@ namespace Sinobyl.EvalTune
         static object writeLock = new object();
         static void Main(string[] args)
         {
+
+
             Random rand = new Random();
 
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
@@ -23,7 +26,7 @@ namespace Sinobyl.EvalTune
 
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                while (StartingPGNs.Count < 2000)
+                while (StartingPGNs.Count < 40)
                 {
                     StartingPGNs.Add(ChessPGN.NextGame(reader));
                 }
@@ -43,8 +46,12 @@ namespace Sinobyl.EvalTune
                 mutation.Mutate(challenger);
                 Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
 
+                string ChallengeName = "Challenge_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
 
-                var pgnWriter = File.CreateText("Challenge_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".pgn");
+                champion.Save(ChallengeName + "_Champion.xml");
+                challenger.Save(ChallengeName + "_Challenger.xml");
+
+                var pgnWriter = File.CreateText(ChallengeName + ".pgn");
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                 var challengerWins = DeterministicChallenge.Challenge(champion, challenger, StartingPGNs, "Mutation: " + mutation.ToString(), pgnWriter);
@@ -81,9 +88,7 @@ namespace Sinobyl.EvalTune
                 {
                     if (File.Exists("ChampionSettings.xml"))
                     {
-                        string xml = File.ReadAllText("ChampionSettings.xml");
-                        var retval = Chess.DeserializeObject<ChessEvalSettings>(xml);
-                        return retval;
+                        return ChessEvalSettings.Load(File.OpenRead("ChampionSettings.xml"));
                     }
                     else
                     {
@@ -96,11 +101,7 @@ namespace Sinobyl.EvalTune
                 string xml = Chess.SerializeObject<ChessEvalSettings>(value);
                 lock (_lock)
                 {
-                    if (File.Exists("ChampionSettings.xml"))
-                    {
-                        File.Delete("ChampionSettings.xml");
-                    }
-                    File.WriteAllText("ChampionSettings.xml",xml);
+                    value.Save("ChampionSettings.xml");
                 }
             }
         }

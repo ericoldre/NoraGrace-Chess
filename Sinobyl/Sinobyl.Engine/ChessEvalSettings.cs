@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace Sinobyl.Engine
 {
@@ -273,6 +274,100 @@ namespace Sinobyl.Engine
             var v2 = Chess.SerializeObject<ChessEvalSettings>(other);
             return v1 == v2;
         }
+
+
+        public static ChessEvalSettings Load(System.IO.Stream stream, bool applyDefaultSettings = true)
+        {
+            XmlDocument loadDoc = new XmlDocument();
+            loadDoc.Load(stream);
+
+            if (applyDefaultSettings)
+            {
+                ApplyDefaultValuesToXml(loadDoc.SelectSingleNode("ChessEvalSettings") as XmlElement, getDefaultDoc().SelectSingleNode("ChessEvalSettings") as XmlElement);
+            }
+
+            System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(ChessEvalSettings));
+
+            using (var memory = new System.IO.MemoryStream())
+            {
+                loadDoc.Save(memory);
+                memory.Position = 0;
+                return (ChessEvalSettings)xs.Deserialize(memory);
+            }
+        }
+
+        public static ChessEvalSettings Load(System.IO.FileInfo file, bool applyDefaultSettings = true)
+        {
+            using (var stream = file.OpenRead())
+            {
+                return Load(stream);
+            }
+        }
+
+        public void Save(System.IO.Stream stream)
+        {
+            var writer = new System.IO.StreamWriter(stream);
+            writer.Write(Chess.SerializeObject<ChessEvalSettings>(this));
+        }
+        public void Save(System.IO.FileInfo file)
+        {
+            if (file.Exists)
+            {
+                file.Delete();
+            }
+            using (var stream = file.OpenWrite())
+            {
+                Save(stream);
+            }
+        }
+        public void Save(string fileName)
+        {
+            Save(new System.IO.FileInfo(fileName));
+        }
+
+
+        private static void ApplyDefaultValuesToXml(XmlElement ele, XmlElement defEle)
+        {
+            foreach (XmlNode nodeChildDefault in defEle.ChildNodes)
+            {
+                if (nodeChildDefault is XmlElement)
+                {
+                    XmlElement eleChildDefault = nodeChildDefault as XmlElement;
+                    XmlElement match = ele.SelectSingleNode(eleChildDefault.Name) as XmlElement;
+                    if (match == null)
+                    {
+                        match = ele.OwnerDocument.CreateElement(eleChildDefault.Name);
+                        ele.AppendChild(match);
+                    }
+                    ApplyDefaultValuesToXml(match, eleChildDefault);
+                }
+                else if(nodeChildDefault is XmlText)
+                {
+                    if (ele.InnerXml == "")
+                    {
+                        ele.InnerXml = defEle.InnerXml;
+                    }                    
+                }
+                
+            }
+            if (defEle.ChildNodes.Count == 0)
+            {
+                
+            }
+        }
+
+        private static XmlDocument _defaultDoc;
+        private static XmlDocument getDefaultDoc()
+        {
+            if (_defaultDoc == null)
+            {
+                _defaultDoc = new XmlDocument();
+                _defaultDoc.LoadXml(Chess.SerializeObject<ChessEvalSettings>(ChessEvalSettings.Default()));
+            }
+            return _defaultDoc;
+        }
+
+        
 
     }
 

@@ -27,7 +27,15 @@ namespace Sinobyl.Engine
 		{
 
 		}
-
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (ChessMove move in this)
+            {
+                sb.Append(move.ToString()+ " ");
+            }
+            return sb.ToString();
+        }
 		public string ToString(ChessBoard board, bool isVariation)
 		{
 			StringBuilder sb = new StringBuilder();

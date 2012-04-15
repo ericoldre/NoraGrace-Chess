@@ -19,7 +19,7 @@ namespace Sinobyl.EvalTune
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                while (StartingPGNs.Count <= 10)
+                while (StartingPGNs.Count < 2000)
                 {
                     StartingPGNs.Add(ChessPGN.NextGame(reader));
                 }
@@ -39,15 +39,18 @@ namespace Sinobyl.EvalTune
                 mutation.Mutate(challenger);
                 Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
 
+
                 var pgnWriter = File.CreateText("Challenge_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".pgn");
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                 var challengerWins = DeterministicChallenge.Challenge(champion, challenger, StartingPGNs, "Mutation: " + mutation.ToString(), pgnWriter);
 
+                stopwatch.Stop();
                 pgnWriter.Dispose();
 
                 if (challengerWins)
                 {
-                    Console.WriteLine("ChallengerWins");
+                    Console.WriteLine("ChallengerWins in {0} seconds", stopwatch.ElapsedMilliseconds/1000);
                     foreach (var similiarMutation in mutation.SimilarMutators())
                     {
                         mutatorStack.Push(similiarMutation);
@@ -56,7 +59,7 @@ namespace Sinobyl.EvalTune
                 }
                 else
                 {
-                    Console.WriteLine("ChallengerFails");
+                    Console.WriteLine("ChallengerFails in {0} seconds", stopwatch.ElapsedMilliseconds / 1000);
                 }
 
             }

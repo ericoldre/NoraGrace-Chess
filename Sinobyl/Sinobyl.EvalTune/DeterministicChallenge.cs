@@ -35,7 +35,7 @@ namespace Sinobyl.EvalTune
 
                 if (pgnWriter != null)
                 {
-                    string sPgn = result.ToString();
+                    string sPgn = result.ToString(90);
                     lock (pgnWriter)
                     {
                         pgnWriter.Write(sPgn);
@@ -50,13 +50,16 @@ namespace Sinobyl.EvalTune
                     {
                         case ChessResult.WhiteWins:
                             champWins++;
+                            Console.Write("0");
                             //Console.WriteLine("Champ wins as white by {0}", reason.ToString());
                             break;
                         case ChessResult.BlackWins:
                             challengerWins++;
+                            Console.Write("1");
                             //Console.WriteLine("Challenger wins as black by {0}", reason.ToString());
                             break;
                         default:
+                            Console.Write("-");
                             draws++;
                             //Console.WriteLine("draw by {0}", reason.ToString());
                             break;
@@ -74,7 +77,7 @@ namespace Sinobyl.EvalTune
 
                 if (pgnWriter != null)
                 {
-                    string sPgn = result.ToString();
+                    string sPgn = result.ToString(90);
                     lock (pgnWriter)
                     {
                         pgnWriter.Write(sPgn);
@@ -88,14 +91,17 @@ namespace Sinobyl.EvalTune
                     switch (result.Result)
                     {
                         case ChessResult.WhiteWins:
+                            Console.Write("1");
                             challengerWins++;
                             //Console.WriteLine("Challenger wins as white by {0}", reason.ToString());
                             break;
                         case ChessResult.BlackWins:
+                            Console.Write("0");
                             champWins++;
                             //Console.WriteLine("Champ wins as black by {0}", reason.ToString());
                             break;
                         default:
+                            Console.Write("-");
                             draws++;
                             //Console.WriteLine("draw by {0}", reason.ToString());
                             break;
@@ -106,7 +112,7 @@ namespace Sinobyl.EvalTune
 
             });
 
-            Console.WriteLine("Champ:{0} Challenger:{1} Draws:{2}", champWins, challengerWins, draws);
+            Console.WriteLine("\nChamp:{0} Challenger:{1} Draws:{2}", champWins, challengerWins, draws);
 
             return challengerWins > champWins;
 
@@ -124,6 +130,7 @@ namespace Sinobyl.EvalTune
             ChessMoves gameMoves = new ChessMoves();
             //setup init position
             ChessBoard board = new ChessBoard(startingPosition);
+            List<ChessPGNComment> comments = new List<ChessPGNComment>();
             foreach (var move in initalMoves)
             {
                 board.MoveApply(move);
@@ -140,7 +147,7 @@ namespace Sinobyl.EvalTune
                 args.GameMoves = new ChessMoves(gameMoves.ToArray());
                 args.TransTable = trans;
                 args.Eval = eval;
-                args.MaxNodes = 10000;
+                args.MaxNodes = 1000;
 
                 ChessSearch search = new ChessSearch(args);
                 var searchResult = search.Search();
@@ -150,7 +157,11 @@ namespace Sinobyl.EvalTune
 
                 if (bestMove.IsLegal(board))
                 {
-                    board.MoveApply(bestMove);    
+                    string comment = string.Format("Score:{2} Depth:{1} PV:{0}", new ChessMoves(searchResult.PrincipleVariation).ToString(), searchResult.Depth, searchResult.Score);
+
+                    board.MoveApply(bestMove);
+
+                    comments.Add(new ChessPGNComment(board.HistoryCount, comment));
                     gameResult = BoardResult(board, out reason);
                 }
                 else
@@ -161,7 +172,7 @@ namespace Sinobyl.EvalTune
 
             }
 
-            ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, new List<ChessPGNComment>(), reason);
+            ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, comments, reason);
             return retval;
         }
 

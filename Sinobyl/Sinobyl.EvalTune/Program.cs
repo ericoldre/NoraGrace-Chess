@@ -26,7 +26,7 @@ namespace Sinobyl.EvalTune
 
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                while (StartingPGNs.Count < 2000)
+                while (StartingPGNs.Count < 20)
                 {
                     StartingPGNs.Add(ChessPGN.NextGame(reader));
                 }
@@ -59,7 +59,12 @@ namespace Sinobyl.EvalTune
                 var pgnWriter = File.CreateText(ChallengeName + ".pgn");
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                var challengerWins = DeterministicChallenge.Challenge(champion, challenger, StartingPGNs, "Mutation: " + mutation.ToString(), pgnWriter);
+                var challengerWins = DeterministicChallenge.Challenge(
+                    ()=>new ChessEval(champion), 
+                    ()=>new ChessEval(challenger), 
+                    StartingPGNs, 
+                    "Mutation: " + mutation.ToString(), 
+                    pgnWriter);
 
                 stopwatch.Stop();
                 pgnWriter.Dispose();

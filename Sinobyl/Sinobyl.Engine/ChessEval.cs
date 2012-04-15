@@ -5,7 +5,12 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public class ChessEval
+    public interface IChessEval
+    {
+        int EvalFor(ChessBoard board, ChessPlayer who);
+    }
+
+    public class ChessEval: IChessEval
     {
         public static int TotalAIEvals = 0;
 

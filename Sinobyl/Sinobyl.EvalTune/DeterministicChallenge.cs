@@ -9,7 +9,7 @@ namespace Sinobyl.EvalTune
 {
     public class DeterministicChallenge
     {
-        public static bool Challenge(ChessEvalSettings champion, ChessEvalSettings challenger, IEnumerable<ChessPGN> startingPositions, string EventName, StreamWriter pgnWriter)
+        public static bool Challenge(Func<IChessEval> champion, Func<IChessEval> challenger, IEnumerable<ChessPGN> startingPositions, string EventName, StreamWriter pgnWriter)
         {
             int champWins = 0;
             int challengerWins = 0;
@@ -21,8 +21,8 @@ namespace Sinobyl.EvalTune
             Parallel.ForEach(startingPositions, options, pgn =>
             {
                 //Console.WriteLine("Starting Games");
-                ChessEval championEval = new ChessEval(champion);
-                ChessEval challengerEval = new ChessEval(challenger);
+                IChessEval championEval = champion();
+                IChessEval challengerEval = challenger();
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var result = Match(championEval, challengerEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
@@ -143,7 +143,7 @@ namespace Sinobyl.EvalTune
 
         }
 
-        public static ChessPGN Match(ChessEval white, ChessEval black, ChessFEN startingPosition, IEnumerable<ChessMove> initalMoves)
+        public static ChessPGN Match(IChessEval white, IChessEval black, ChessFEN startingPosition, IEnumerable<ChessMove> initalMoves)
         {
             ChessResult? gameResult = null;
             ChessResultReason reason = ChessResultReason.Unknown;
@@ -164,7 +164,7 @@ namespace Sinobyl.EvalTune
 
             while (gameResult == null)
             {
-                ChessEval eval = board.WhosTurn == ChessPlayer.White ? white : black;
+                IChessEval eval = board.WhosTurn == ChessPlayer.White ? white : black;
                 ChessTrans trans = board.WhosTurn == ChessPlayer.White ? whiteTrans : blackTrans;
 
                 ChessSearch.Args args = new ChessSearch.Args();

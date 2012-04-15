@@ -179,7 +179,7 @@ namespace Sinobyl.Engine
 			public ChessTrans TransTable { get; set; }
 			public BlunderChance Blunder { get; set; }
 			public TimeSpan Delay { get; set; }
-            public ChessEval Eval { get; set; }
+            public IChessEval Eval { get; set; }
             public int MaxNodes { get; set; }
 			public Args()
 			{
@@ -201,7 +201,7 @@ namespace Sinobyl.Engine
 
 		public readonly Args SearchArgs;
 		private readonly ChessBoard board;
-		private readonly ChessEval eval;
+		private readonly IChessEval eval;
 		private ChessMove[] CurrentVariation = new ChessMove[50];
 		private DateTime _starttime;
 		private DateTime _stopattime;

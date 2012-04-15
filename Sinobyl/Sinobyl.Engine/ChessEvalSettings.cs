@@ -9,6 +9,14 @@ namespace Sinobyl.Engine
     public class ChessEvalSettings
     {
 
+        #region helperclasses
+            public class ChessEvalSettingsMobility
+            {
+                public int ExpectedAttacksAvailable { get; set; }
+                public int AmountPerAttackDefault { get; set; }
+            }
+        #endregion
+
         #region DefaultEvalSettings
 
         public static ChessEvalSettings Default()
@@ -16,7 +24,7 @@ namespace Sinobyl.Engine
             ChessEvalSettings retval = new ChessEvalSettings()
             {
                 MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
-                { 
+                {
                     Pawn = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
                     Knight = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
                     Bishop = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
@@ -182,7 +190,7 @@ namespace Sinobyl.Engine
                 },
 
 
-                
+
                 PawnPassedValues = new ChessGameStageDictionary<ChessPositionDictionary<int>>()
                 {
                     Opening = new ChessPositionDictionary<int>(new int[]
@@ -210,7 +218,29 @@ namespace Sinobyl.Engine
                 },
                 PawnDoubled = new ChessGameStageDictionary<int>() { Opening = 10, Endgame = 25 },
                 PawnIsolated = new ChessGameStageDictionary<int>() { Opening = 15, Endgame = 25 },
-
+                Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
+                {
+                    Knight = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    {
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 4, AmountPerAttackDefault = 4 },
+                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 4, AmountPerAttackDefault = 4 },
+                    },
+                    Bishop = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    {
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 6, AmountPerAttackDefault = 5 },
+                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 6, AmountPerAttackDefault = 5 },
+                    },
+                    Rook = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    {
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 5, AmountPerAttackDefault = 2 },
+                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 7, AmountPerAttackDefault = 4 },
+                    },
+                    Queen = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    {
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 9, AmountPerAttackDefault = 1 },
+                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 13, AmountPerAttackDefault = 2 },
+                    },
+                }
             };
 
             
@@ -227,6 +257,7 @@ namespace Sinobyl.Engine
         public ChessGameStageDictionary<ChessPositionDictionary<int>> PawnPassedValues = new ChessGameStageDictionary<ChessPositionDictionary<int>>();
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
+        public ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>();
 
         public ChessEvalSettings CloneDeep()
         {

@@ -36,8 +36,9 @@ namespace Sinobyl.Engine
     //    }
     //}
 
-    public class ChessPieceDictionary<T>
+    public class ChessPieceDictionary<T> where T: new()
     {
+
 
         [System.Xml.Serialization.XmlIgnore()]
         private T[] _values = new T[12];
@@ -47,6 +48,7 @@ namespace Sinobyl.Engine
         {
             get
             {
+                if (_values[(int)piece] == null) { _values[(int)piece] = new T(); }
                 return _values[(int)piece];
             }
             set
@@ -68,6 +70,8 @@ namespace Sinobyl.Engine
         public T BRook { get { return this[ChessPiece.BRook]; } set { this[ChessPiece.BRook] = value; } }
         public T BQueen { get { return this[ChessPiece.BQueen]; } set { this[ChessPiece.BQueen] = value; } }
         public T BKing { get { return this[ChessPiece.BKing]; } set { this[ChessPiece.BKing] = value; } }
+
+        
 
         public IEnumerable<KeyValuePair<ChessPiece, T>> PieceValues()
         {

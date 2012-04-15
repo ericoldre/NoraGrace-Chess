@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
         Opening = 0, Endgame = 1
     }
 
-    public class ChessGameStageDictionary<T>
+    public class ChessGameStageDictionary<T> where T:new()
     {
         [System.Xml.Serialization.XmlIgnore()]
         public T[] _values = new T[2];
@@ -19,6 +19,7 @@ namespace Sinobyl.Engine
         {
             get
             {
+                if (_values[(int)stage] == null) { _values[(int)stage] = new T(); }
                 return _values[(int)stage];
             }
             set

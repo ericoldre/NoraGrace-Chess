@@ -17,6 +17,10 @@ namespace Sinobyl.EvalTune
             Random rand = new Random();
 
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
+
+            
+            
+
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
                 while (StartingPGNs.Count < 2000)

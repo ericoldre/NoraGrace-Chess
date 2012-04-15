@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
         Pawn = 0, Knight = 1, Bishop = 2, Rook = 3, Queen = 4, King = 5
     }
 
-    public class ChessPieceTypeDictionary<T>
+    public class ChessPieceTypeDictionary<T> where T:new()
     {
         [System.Xml.Serialization.XmlIgnore()]
         public T[] _values = new T[6];
@@ -20,6 +20,7 @@ namespace Sinobyl.Engine
         {
             get
             {
+                if (_values[(int)piecetype] == null) { _values[(int)piecetype] = new T(); }
                 return _values[(int)piecetype];
             }
             set

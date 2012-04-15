@@ -17,7 +17,7 @@ namespace Sinobyl.Engine
         public readonly int[,] PawnPassedValuePosStage = new int[64,2];
         public readonly int[,,] _pcsqPiecePosStage = new int[12,64,2];
         public readonly int[,] _matPieceStage = new int[12,2];
-
+        public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
 
         public ChessEval()
             : this(ChessEvalSettings.Default())
@@ -78,6 +78,25 @@ namespace Sinobyl.Engine
             this.PawnIsoStart = settings.PawnIsolated.Opening;
             this.PawnIsoEnd = settings.PawnIsolated.Endgame;
 
+            //setup mobility arrays
+            
+            foreach (ChessPiece piece in Chess.AllPieces)
+            {
+                foreach (ChessGameStage stage in Chess.AllGameStages)
+                {
+                    for (int attacksCount = 0; attacksCount < 28; attacksCount++)
+                    {
+                        var mob = settings.Mobility;
+                        var opiece = mob[piece.ToPieceType()];
+                        var ostage = opiece[stage];
+
+                        int val = (attacksCount - ostage.ExpectedAttacksAvailable) * ostage.AmountPerAttackDefault;
+                        _mobilityPiecesStage[attacksCount, (int)piece, (int)stage] = piece.PieceToPlayer() == ChessPlayer.White ? val : -val;
+                    }
+                    
+                }
+            }
+            
         }
 
         public int EvalFor(ChessBoard board, ChessPlayer who)
@@ -97,6 +116,8 @@ namespace Sinobyl.Engine
             int valEndMat = 0;
             int valStartPieceSq = 0;
             int valEndPieceSq = 0;
+            int valStartMobility = 0;
+            int valEndMobility = 0;
             for (int ipos = 0; ipos < 64; ipos++)
             {
                 ChessPosition pos = Chess.AllPositions[ipos];
@@ -105,26 +126,77 @@ namespace Sinobyl.Engine
 
                 PieceCount[(int)piece]++;
 
+                //add material score
                 valStartMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Opening];
                 valEndMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Endgame];
 
+                //add pcsq score;
                 valStartPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
                 valEndPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
+
+                //generate attacks
+                ChessBitboard slidingAttacks = ChessBitboard.Empty;
+                switch (piece)
+                {
+                    case ChessPiece.WPawn:
+                        break;
+                    case ChessPiece.WKnight:
+                        slidingAttacks = Attacks.KnightAttacks(pos);
+                        break;
+                    case ChessPiece.WBishop:
+                        slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        break;
+                    case ChessPiece.WRook:
+                        slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        break;
+                    case ChessPiece.WQueen:
+                        slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        break;
+                    case ChessPiece.WKing:
+                        break;
+                    case ChessPiece.BPawn:
+                        break;
+                    case ChessPiece.BKnight:
+                        slidingAttacks = Attacks.KnightAttacks(pos);
+                        break;
+                    case ChessPiece.BBishop:
+                        slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        break;
+                    case ChessPiece.BRook:
+                        slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        break;
+                    case ChessPiece.BQueen:
+                        slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        break;
+                    case ChessPiece.BKing:
+                        break;
+                }
+
+                //
+                ChessBitboard slidingMoves = slidingAttacks & ~board.PlayerLocations(piece.PieceToPlayer());
+                int moveCount = slidingMoves.BitCount();
+                valStartMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Opening];
+                valEndMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Endgame];
             }
-            int valStart = valStartMat + valStartPieceSq; ;
-            int valEnd = valEndMat + valEndPieceSq;
+            
 
 
             //pawns
             PawnInfo pawns = PawnEval(board);
-            valStart += pawns.StartVal;
-            valEnd += pawns.EndVal;
 
+
+            
+            //calculate total start and end values
+            int valStart = valStartMat + valStartPieceSq + valStartMobility + pawns.StartVal;
+            int valEnd = valEndMat + valEndPieceSq + valEndMobility + pawns.EndVal;
+
+            //calculate current stage of the game
             int WhiteCount = PieceCount[(int)ChessPiece.WKnight] + PieceCount[(int)ChessPiece.WBishop] + PieceCount[(int)ChessPiece.WRook] + PieceCount[(int)ChessPiece.WQueen];
             int BlackCount = PieceCount[(int)ChessPiece.BKnight] + PieceCount[(int)ChessPiece.BBishop] + PieceCount[(int)ChessPiece.BRook] + PieceCount[(int)ChessPiece.BQueen];
-
+            
             float StartFactor = (float)(WhiteCount + BlackCount) / (float)14;
             float EndFactor = 1 - StartFactor;
+
 
             int retval = (int)(valStart * StartFactor) + (int)(valEnd * EndFactor);
 

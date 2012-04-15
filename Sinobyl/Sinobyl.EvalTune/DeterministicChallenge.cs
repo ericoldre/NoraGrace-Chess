@@ -64,6 +64,19 @@ namespace Sinobyl.EvalTune
                             //Console.WriteLine("draw by {0}", reason.ToString());
                             break;
                     }
+
+                    if ((champWins + challengerWins + draws) % 100 == 0)
+                    {
+                        float totalgames = (champWins + challengerWins + draws);
+                        float champPct = ((float)champWins) / totalgames;
+                        float challengerPct = ((float)challengerWins) / totalgames;
+                        float drawPct = ((float)draws) / totalgames;
+                        var champPctString = champPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
+                        var challengerPctString = challengerPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
+                        var drawPctString = drawPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
+                        //.ToString("#0.##%", CultureInfo.InvariantCulture)
+                        Console.Write("[Games:{3} Champ:{0} Challenger:{1} Draws:{2}]", champPctString, challengerPctString, drawPctString, totalgames);
+                    }
                 }
 
                 stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -105,6 +118,18 @@ namespace Sinobyl.EvalTune
                             draws++;
                             //Console.WriteLine("draw by {0}", reason.ToString());
                             break;
+                    }
+                    if ((champWins + challengerWins + draws) % 100 == 0)
+                    {
+                        float totalgames = (champWins + challengerWins + draws);
+                        float champPct = ((float)champWins) / totalgames;
+                        float challengerPct = ((float)challengerWins) / totalgames;
+                        float drawPct = ((float)draws) / totalgames;
+                        var champPctString = champPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
+                        var challengerPctString = challengerPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
+                        var drawPctString = drawPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
+                        //.ToString("#0.##%", CultureInfo.InvariantCulture)
+                        Console.Write("[Games:{3} Champ:{0} Challenger:{1} Draws:{2}]", champPctString, challengerPctString, drawPctString, totalgames);
                     }
                 }
 

@@ -26,7 +26,7 @@ namespace Sinobyl.EvalTune
 
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                while (StartingPGNs.Count < 40)
+                while (StartingPGNs.Count < 2000)
                 {
                     StartingPGNs.Add(ChessPGN.NextGame(reader));
                 }
@@ -42,8 +42,13 @@ namespace Sinobyl.EvalTune
                     mutatorStack.Push(MutatorFactory.Create(rand));
                 }
                 var mutation = mutatorStack.Pop();
+                mutation = new Sinobyl.EvalTune.Mutators.WeightMutator() { Amount = -100, WeightType = "Mobility", Stage = ChessGameStage.Opening };
                 var challenger = champion.CloneDeep();
                 mutation.Mutate(challenger);
+
+                challenger.Weight.Mobility.Endgame = 0;
+                challenger.Weight.Mobility.Opening = 0;
+
                 Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
 
                 string ChallengeName = "Challenge_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
@@ -72,6 +77,8 @@ namespace Sinobyl.EvalTune
                 {
                     Console.WriteLine("ChallengerFails in {0} seconds", stopwatch.ElapsedMilliseconds / 1000);
                 }
+
+                break;
 
             }
             Console.WriteLine("done");

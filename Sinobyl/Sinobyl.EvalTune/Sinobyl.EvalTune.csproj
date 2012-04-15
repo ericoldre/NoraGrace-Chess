@@ -48,6 +48,7 @@
     <Compile Include="MutatorFactory.cs" />
     <Compile Include="Mutators\PcSqMutator.cs" />
     <Compile Include="Mutators\PieceValueMutator.cs" />
+    <Compile Include="Mutators\WeightMutator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

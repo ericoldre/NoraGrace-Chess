@@ -11,11 +11,20 @@ namespace Sinobyl.Engine
     {
 
         #region helperclasses
-            public class ChessEvalSettingsMobility
-            {
-                public int ExpectedAttacksAvailable { get; set; }
-                public int AmountPerAttackDefault { get; set; }
-            }
+        public class ChessEvalSettingsMobility
+        {
+            public int ExpectedAttacksAvailable { get; set; }
+            public int AmountPerAttackDefault { get; set; }
+        }
+
+        public class ChessEvalSettingsWeight
+        {
+            public ChessGameStageDictionary<int> Material = new ChessGameStageDictionary<int>();
+            public ChessGameStageDictionary<int> PcSq = new ChessGameStageDictionary<int>();
+            public ChessGameStageDictionary<int> Mobility = new ChessGameStageDictionary<int>();
+        }
+            
+
         #endregion
 
         #region DefaultEvalSettings
@@ -24,6 +33,12 @@ namespace Sinobyl.Engine
         {
             ChessEvalSettings retval = new ChessEvalSettings()
             {
+                Weight = new ChessEvalSettingsWeight()
+                {
+                    Material = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
+                    PcSq = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
+                    Mobility = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
+                },
                 MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
                 {
                     Pawn = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
@@ -259,6 +274,7 @@ namespace Sinobyl.Engine
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
         public ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>();
+        public ChessEvalSettingsWeight Weight = new ChessEvalSettingsWeight();
 
         public ChessEvalSettings CloneDeep()
         {
@@ -306,8 +322,10 @@ namespace Sinobyl.Engine
 
         public void Save(System.IO.Stream stream)
         {
-            var writer = new System.IO.StreamWriter(stream);
-            writer.Write(Chess.SerializeObject<ChessEvalSettings>(this));
+            using (var writer = new System.IO.StreamWriter(stream))
+            {
+                writer.Write(Chess.SerializeObject<ChessEvalSettings>(this));
+            }
         }
         public void Save(System.IO.FileInfo file)
         {

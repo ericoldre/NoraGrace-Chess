@@ -19,6 +19,13 @@ namespace Sinobyl.Engine
         public readonly int[,] _matPieceStage = new int[12,2];
         public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
 
+        private readonly int WeightMaterialOpening;
+        private readonly int WeightMaterialEndgame;
+        private readonly int WeightPcSqOpening;
+        private readonly int WeightPcSqEndgame;
+        private readonly int WeightMobilityOpening;
+        private readonly int WeightMobilityEndgame;
+
         public ChessEval()
             : this(ChessEvalSettings.Default())
         {
@@ -27,6 +34,14 @@ namespace Sinobyl.Engine
 
         public ChessEval(ChessEvalSettings settings)
         {
+            //setup weight values;
+            WeightMaterialOpening = settings.Weight.Material.Opening;
+            WeightMaterialEndgame = settings.Weight.Material.Endgame;
+            WeightPcSqOpening = settings.Weight.PcSq.Opening;
+            WeightPcSqEndgame = settings.Weight.PcSq.Endgame;
+            WeightMobilityOpening = settings.Weight.Mobility.Opening;
+            WeightMobilityEndgame = settings.Weight.Mobility.Endgame;
+
             //setup material arrays
             foreach (ChessPiece piece in Chess.AllPieces)
             {
@@ -187,8 +202,17 @@ namespace Sinobyl.Engine
 
             
             //calculate total start and end values
-            int valStart = valStartMat + valStartPieceSq + valStartMobility + pawns.StartVal;
-            int valEnd = valEndMat + valEndPieceSq + valEndMobility + pawns.EndVal;
+            int valStart = 
+                (valStartMat * WeightMaterialOpening / 100) 
+                + (valStartPieceSq * WeightPcSqOpening / 100) 
+                + (valStartMobility * WeightMobilityOpening / 100) 
+                + pawns.StartVal;
+
+            int valEnd =
+                (valEndMat * WeightMaterialEndgame / 100)
+                + (valEndPieceSq * WeightPcSqEndgame / 100)
+                + (valEndMobility * WeightMobilityEndgame / 100)
+                + pawns.StartVal;
 
             //calculate current stage of the game
             int WhiteCount = PieceCount[(int)ChessPiece.WKnight] + PieceCount[(int)ChessPiece.WBishop] + PieceCount[(int)ChessPiece.WRook] + PieceCount[(int)ChessPiece.WQueen];

@@ -10,6 +10,21 @@ namespace Sinobyl.Engine
         Opening = 0, Endgame = 1
     }
 
+    public static class ExtentionsChessGameStage
+    {
+        public static ChessGameStage Other(this ChessGameStage stage)
+        {
+            if (stage == ChessGameStage.Opening)
+            {
+                return ChessGameStage.Endgame;
+            }
+            else
+            {
+                return ChessGameStage.Opening;
+            }
+        }
+    }
+
     public class ChessGameStageDictionary<T> where T:new()
     {
         [System.Xml.Serialization.XmlIgnore()]

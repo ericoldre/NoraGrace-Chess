@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace Sinobyl.EvalTune
 {
@@ -20,18 +21,13 @@ namespace Sinobyl.EvalTune
             Random rand = new Random();
 
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
-
-            
-            
-
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                while (StartingPGNs.Count < 20)
-                {
-                    StartingPGNs.Add(ChessPGN.NextGame(reader));
-                }
+                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(5));
             }
 
+            
+            
             Stack<IEvalSettingsMutator> mutatorStack = new Stack<IEvalSettingsMutator>();
 
             while (true)
@@ -42,12 +38,8 @@ namespace Sinobyl.EvalTune
                     mutatorStack.Push(MutatorFactory.Create(rand));
                 }
                 var mutation = mutatorStack.Pop();
-                mutation = new Sinobyl.EvalTune.Mutators.WeightMutator() { Amount = -100, WeightType = "Mobility", Stage = ChessGameStage.Opening };
                 var challenger = champion.CloneDeep();
                 mutation.Mutate(challenger);
-
-                challenger.Weight.Mobility.Endgame = 0;
-                challenger.Weight.Mobility.Opening = 0;
 
                 Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
 
@@ -119,5 +111,49 @@ namespace Sinobyl.EvalTune
         }
 
 
+    }
+    public static class Tools
+    {
+        private static readonly Type[] WriteTypes = new[] {
+        typeof(string), typeof(DateTime), typeof(Enum), 
+        typeof(decimal), typeof(Guid)};
+
+        public static bool IsSimpleType(this Type type)
+        {
+            return type.IsPrimitive || WriteTypes.Contains(type);
+        }
+        public static XElement ToXml(this object input)
+        {
+            return input.ToXml(null);
+        }
+        public static XElement ToXml(this object input, string element)
+        {
+            if (input == null)
+                return null;
+
+            if (string.IsNullOrEmpty(element))
+                element = "object";
+            element = XmlConvert.EncodeName(element);
+            var ret = new XElement(element);
+
+            if (input != null)
+            {
+                var type = input.GetType();
+                var props = type.GetProperties();
+
+                var elements = from prop in props
+                               let name = XmlConvert.EncodeName(prop.Name)
+                               let val = prop.GetValue(input, null)
+                               let value = prop.PropertyType.IsSimpleType()
+                                    ? new XElement(name, val)
+                                    : val.ToXml(name)
+                               where value != null
+                               select value;
+
+                ret.Add(elements);
+            }
+
+            return ret;
+        }
     }
 }

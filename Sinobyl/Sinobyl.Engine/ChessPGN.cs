@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Sinobyl.Engine
 {
@@ -425,6 +426,17 @@ namespace Sinobyl.Engine
 			return sbHeaders.ToString() + sbMoves.ToString();
 		}
 
+        
+        public static IEnumerable<ChessPGN> AllGames(StreamReader reader)
+        {
+            while (true)
+            {
+                ChessPGN pgn = NextGame(reader);
+                if (pgn == null) { break; }
+                yield return pgn;
+            }
+        }
+
 		public static ChessPGN NextGame(string PGNString)
 		{
 			MemoryStream memory = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(PGNString));
@@ -449,8 +461,13 @@ namespace Sinobyl.Engine
 
 
 			string line;
-			while (!gamedone && (line = reader.ReadLine()) != null)
+			while (!gamedone || commentlevel != 0)
 			{
+                line = reader.ReadLine();
+                if (line == null) 
+                {
+                    break; 
+                }
 				line += " ";
 				char[] cArray = line.ToCharArray();
 				foreach (char c in cArray)
@@ -605,5 +622,26 @@ namespace Sinobyl.Engine
 		}
 	}
 
+    public static class ExtensionsChessPGN
+    {
+        public static string Summary(this IEnumerable<ChessPGN> PGNs)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var winnerGroup in PGNs.GroupBy(pgn => new { Winner = pgn.Result == ChessResult.WhiteWins ? pgn.White : pgn.Result == ChessResult.BlackWins ? pgn.Black : "Draw" }))
+            {
+                sb.AppendLine(string.Format("{0,-20} Wins:{1,-4} AvgLen:{2,-5}", winnerGroup.Key.Winner, winnerGroup.Count(), winnerGroup.Average(pgn => pgn.Moves.Count())));
+                foreach (var reasongroup in winnerGroup.GroupBy(pgn => pgn.ResultReason))
+                {
+                    sb.AppendLine(string.Format("\t{0,-20} Wins:{1,-4} AvgLen:{2,-5}", reasongroup.Key, reasongroup.Count(), reasongroup.Average(pgn => pgn.Moves.Count())));
+
+                    foreach (var gameLenGroup in reasongroup.GroupBy(pgn => (pgn.Moves.Count / 10) * 10).OrderBy(pgn => pgn.Key))
+                    {
+                        sb.AppendLine(string.Format("\t\t {0}-{1} Wins:{2,-4} Min:{3} Max:{4}", gameLenGroup.Key, gameLenGroup.Key + 9, gameLenGroup.Count(), gameLenGroup.Min(pgn => pgn.Moves.Count()), gameLenGroup.Max(pgn => pgn.Moves.Count())));
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+    }
 
 }

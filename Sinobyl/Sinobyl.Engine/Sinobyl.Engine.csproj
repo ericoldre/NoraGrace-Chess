@@ -50,8 +50,6 @@
     <Compile Include="ChessEvalSettings.cs" />
     <Compile Include="ChessFEN.cs" />
     <Compile Include="ChessFile.cs" />
-    <Compile Include="ChessGame.cs" />
-    <Compile Include="ChessGamePlayer.cs" />
     <Compile Include="ChessGameStage.cs" />
     <Compile Include="ChessMove.cs" />
     <Compile Include="ChessOpening.cs" />
@@ -62,6 +60,7 @@
     <Compile Include="ChessPosition.cs" />
     <Compile Include="ChessRank.cs" />
     <Compile Include="ChessSearch.cs" />
+    <Compile Include="ChessTimeControl.cs" />
     <Compile Include="ChessTrans.cs" />
     <Compile Include="ChessZobrist.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

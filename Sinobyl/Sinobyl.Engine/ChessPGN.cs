@@ -138,28 +138,28 @@ namespace Sinobyl.Engine
 			_comments = new List<ChessPGNComment>();
 		}
 
-		public ChessPGN(ChessGame game)
-		{
-			_headers = new ChessPGNHeaders();
-			_headers.Add(new ChessPGNHeader("White", game.PlayerWhite.Name));
-			_headers.Add(new ChessPGNHeader("Black", game.PlayerBlack.Name));
-			_headers.Add(new ChessPGNHeader("Date", DateTime.Now.ToShortDateString()));
+        //public ChessPGN(ChessGame game)
+        //{
+        //    _headers = new ChessPGNHeaders();
+        //    _headers.Add(new ChessPGNHeader("White", game.PlayerWhite.Name));
+        //    _headers.Add(new ChessPGNHeader("Black", game.PlayerBlack.Name));
+        //    _headers.Add(new ChessPGNHeader("Date", DateTime.Now.ToShortDateString()));
 
-			//_headers.Add(new ChessPGNHeader("TotalNodes", ChessSearch.CountTotalAINodes.ToString()));
-			//_headers.Add(new ChessPGNHeader("TotalEvals", ChessEval.TotalAIEvals.ToString()));
-			//_headers.Add(new ChessPGNHeader("TotalAITime", ChessSearch.CountTotalAITime.ToString()));
-			//double nodesPerSec = ChessSearch.CountTotalAINodes / ChessSearch.CountTotalAITime.TotalSeconds;
+        //    //_headers.Add(new ChessPGNHeader("TotalNodes", ChessSearch.CountTotalAINodes.ToString()));
+        //    //_headers.Add(new ChessPGNHeader("TotalEvals", ChessEval.TotalAIEvals.ToString()));
+        //    //_headers.Add(new ChessPGNHeader("TotalAITime", ChessSearch.CountTotalAITime.ToString()));
+        //    //double nodesPerSec = ChessSearch.CountTotalAINodes / ChessSearch.CountTotalAITime.TotalSeconds;
 
-			//_headers.Add(new ChessPGNHeader("Nodes/Sec", nodesPerSec.ToString()));
-
-
-			_moves = new ReadOnlyCollection<ChessMove>(game.MoveHistory());
-			_result = game.Result;
-			_resultReason = game.ResultReason;
-			_comments = new List<ChessPGNComment>();
+        //    //_headers.Add(new ChessPGNHeader("Nodes/Sec", nodesPerSec.ToString()));
 
 
-		}
+        //    _moves = new ReadOnlyCollection<ChessMove>(game.MoveHistory());
+        //    _result = game.Result;
+        //    _resultReason = game.ResultReason;
+        //    _comments = new List<ChessPGNComment>();
+
+
+        //}
 
         public ChessPGNHeaders Headers
         {

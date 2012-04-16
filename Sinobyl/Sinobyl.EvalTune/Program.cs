@@ -23,12 +23,14 @@ namespace Sinobyl.EvalTune
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(5));
+                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(2000));
             }
 
             
             
             Stack<IEvalSettingsMutator> mutatorStack = new Stack<IEvalSettingsMutator>();
+
+            int nodes = 400;
 
             while (true)
             {
@@ -40,30 +42,80 @@ namespace Sinobyl.EvalTune
                 var mutation = mutatorStack.Pop();
                 var challenger = champion.CloneDeep();
                 mutation.Mutate(challenger);
+                champion = ChessEvalSettings.Default();
+                challenger = ChessEvalSettings.Default();
+                challenger.Weight.Mobility.Opening = 0;
+                challenger.Weight.Mobility.Endgame = 0;
 
-                Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
+                //Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
 
-                string ChallengeName = "Challenge_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string eventName = "Challenge_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_N" + nodes.ToString();
 
-                champion.Save(ChallengeName + "_Champion.xml");
-                challenger.Save(ChallengeName + "_Challenger.xml");
+                champion.Save(eventName + "_Champion.xml");
+                challenger.Save(eventName + "_Challenger.xml");
 
-                var pgnWriter = File.CreateText(ChallengeName + ".pgn");
+                var pgnWriter = File.CreateText(eventName + ".pgn");
+                
+                int wins = 0;
+                int losses = 0;
+                int draws = 0;
+
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                var challengerWins = DeterministicChallenge.Challenge(
-                    ()=>new ChessEval(champion), 
-                    ()=>new ChessEval(challenger), 
-                    StartingPGNs, 
-                    "Mutation: " + mutation.ToString(), 
-                    pgnWriter);
+                var matchResults = ChessMatch.RunParallelMatch
+                (
+                    createPlayer1: () => new DeterministicPlayer("Champion", new ChessEval(champion), nodes) { CommentFormatter = (r) => string.Format("Score:{2} Depth:{1} PV:{0}", new ChessMoves(r.PrincipleVariation).ToString(), r.Depth, r.Score) },
+                    createPlayer2: () => new DeterministicPlayer("Challenger", new ChessEval(challenger), nodes) { CommentFormatter = (r) => string.Format("Score:{2} Depth:{1} PV:{0}", new ChessMoves(r.PrincipleVariation).ToString(), r.Depth, r.Score) },
+                    startingPositions: StartingPGNs,
+                    onGameCompleted: (p) => 
+                    {
+                        p.Game.Headers.Add(new ChessPGNHeader("Mutation", mutation.ToString()));
+                        p.Game.Headers.Add(new ChessPGNHeader("GameTime", (p.GameTime.ToString("c"))));
+
+                        pgnWriter.Write(p.Game.ToString());
+                        pgnWriter.Write("\n\n");
+                        switch (p.Game.Result)
+                        {
+                            case ChessResult.Draw:
+                                Console.Write("-");
+                                break;
+                            case ChessResult.WhiteWins:
+                                Console.Write(p.Player1IsWhite ? "1" : "0");
+                                break;
+                            case ChessResult.BlackWins:
+                                Console.Write(p.Player1IsWhite ? "0" : "1");
+                                break;
+                        }
+                        if (p.Results.Count() % 100 == 0)
+                        {
+                            p.Results.ResultsForPlayer("Champion", out wins, out losses, out draws);
+                            float totalgames = (wins + losses + draws);
+                            Console.Write("[Games:{3} Champion:{0} Challenger:{1} Draws:{2}]",
+                                ((float)wins / (float)totalgames).ToString("#0.##%"),
+                                ((float)losses / (float)totalgames).ToString("#0.##%"),
+                                ((float)draws / (float)totalgames).ToString("#0.##%"),
+                                totalgames);
+                        }
+                    }
+                );
 
                 stopwatch.Stop();
                 pgnWriter.Dispose();
 
-                if (challengerWins)
+                File.WriteAllText(eventName + "_Summary.txt", matchResults.Summary());
+
+                matchResults.ResultsForPlayer("Champion", out wins, out losses, out draws);
+
+                Console.WriteLine("\nChamp:{0} Challenger:{1} Draws:{2} Time:{4}",
+                    wins,
+                    losses,
+                    draws,
+                    matchResults.Count,
+                    stopwatch.Elapsed.ToString("c"));
+
+                if (losses > wins)
                 {
-                    Console.WriteLine("ChallengerWins in {0} seconds", stopwatch.ElapsedMilliseconds/1000);
+                    Console.WriteLine("ChallengerWins in {0:c}\n", stopwatch.Elapsed);
                     foreach (var similiarMutation in mutation.SimilarMutators())
                     {
                         mutatorStack.Push(similiarMutation);
@@ -72,11 +124,11 @@ namespace Sinobyl.EvalTune
                 }
                 else
                 {
-                    Console.WriteLine("ChallengerFails in {0} seconds", stopwatch.ElapsedMilliseconds / 1000);
+                    Console.WriteLine("ChallengerFails in {0:c}\n", stopwatch.Elapsed);
                 }
 
-                break;
-
+                //increment amount of nodes.
+                nodes = (int)((float)nodes * 1.5);
             }
             Console.WriteLine("done");
             Console.ReadLine();

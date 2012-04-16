@@ -47,26 +47,7 @@ namespace Sinobyl.Engine.Tests
 		//
 		#endregion
 
-		[TestMethod]
-		public void SerializationTests()
-		{
-			ChessGamePlayerPersonality pers = new ChessGamePlayerPersonality();
-			pers.Name = "qwer";
-			pers.MaxDepth = 64;
-			string s = Chess.SerializeObject<ChessGamePlayerPersonality>(pers);
-			ChessGamePlayerPersonality pers2 = Chess.DeserializeObject<ChessGamePlayerPersonality>(s);
-			Assert.AreEqual<string>(pers.Name, pers2.Name);
-			Assert.AreEqual<int>(pers.MaxDepth, pers2.MaxDepth);
-
-			ChessTimeControl tc = ChessTimeControl.Blitz(6, 8);
-			s = Chess.SerializeObject<ChessTimeControl>(tc);
-			ChessTimeControl tc2 = Chess.DeserializeObject<ChessTimeControl>(s);
-			Assert.AreEqual<TimeSpan>(tc.InitialTime, tc2.InitialTime);
-			Assert.AreEqual<TimeSpan>(tc.BonusAmount, tc2.BonusAmount);
-			Assert.AreEqual<int>(tc.BonusEveryXMoves, tc2.BonusEveryXMoves);
-
-
-		}
+		
 		[TestMethod]
 		public void LastTwoNull()
 		{

@@ -642,6 +642,30 @@ namespace Sinobyl.Engine
             }
             return sb.ToString();
         }
+
+        public static void ResultsForPlayer(this IEnumerable<ChessPGN> PGNs, string playerName, out int wins, out int losses, out int draws)
+        {
+            wins=0;
+            losses=0;
+            draws=0;
+            foreach (ChessPGN pgn in PGNs)
+            {
+                if (playerName == pgn.White)
+                {
+                    if (pgn.Result == ChessResult.WhiteWins) { wins++; }
+                    else if (pgn.Result == ChessResult.BlackWins) { losses++; }
+                    else if (pgn.Result == ChessResult.Draw) { draws++; }
+                }
+                else if (playerName == pgn.Black)
+                {
+                    if (pgn.Result == ChessResult.WhiteWins) { losses++; }
+                    else if (pgn.Result == ChessResult.BlackWins) { wins++; }
+                    else if (pgn.Result == ChessResult.Draw) { draws++; }
+                }
+            }
+        }
+
+    
     }
 
 }

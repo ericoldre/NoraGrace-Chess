@@ -49,6 +49,9 @@ namespace Sinobyl.EvalTune
             {
                 comment = null;
             }
+
+            TransTable.AgeEntries(4);
+
             return searchResult.PrincipleVariation[0];
 
         }

@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AttacksTest.cs" />
     <Compile Include="ChessEvalSettingsTest.cs" />
+    <Compile Include="ChessMoveTest.cs" />
     <Compile Include="Core.cs" />
     <Compile Include="EvalSettingsTest.cs" />
     <Compile Include="EvalTest.cs" />

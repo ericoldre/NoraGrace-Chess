@@ -82,7 +82,8 @@ namespace Sinobyl.Engine
 		}
         public override int GetHashCode()
         {
-            return (To.GetHashCode() ^ From.GetHashCode()>>1) + this.Promote.GetHashCode();
+            //return (To.GetHashCode() ^ From.GetHashCode() >> 1) + this.Promote.GetHashCode();
+            return (int)To | ((int)From << 8) | ((int)Promote << 16);
         }
 
 		public ChessMove()

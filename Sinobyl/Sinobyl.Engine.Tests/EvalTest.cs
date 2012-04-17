@@ -115,6 +115,30 @@ namespace Sinobyl.Engine.Tests
 
         }
 
+        [TestMethod]
+        public void EvalTestPcSqRev()
+        {
+            ChessEvalSettings settings = new ChessEvalSettings();
+            
+            ChessEval eval = new ChessEval();
+
+            foreach (var type in Chess.AllPieceTypes)
+            {
+                foreach (var pos in Chess.AllPositions)
+                {
+                    ChessPosition revPos = pos.Reverse();
+                    var whiteOpening = eval._pcsqPiecePosStage[(int)type.ForPlayer(ChessPlayer.White), (int)pos, (int)ChessGameStage.Opening];
+                    var blackOpening = eval._pcsqPiecePosStage[(int)type.ForPlayer(ChessPlayer.Black), (int)revPos, (int)ChessGameStage.Opening];
+                    Assert.AreEqual<int>(whiteOpening, -blackOpening);
+
+                    var whiteEnd = eval._pcsqPiecePosStage[(int)type.ForPlayer(ChessPlayer.White), (int)pos, (int)ChessGameStage.Endgame];
+                    var blackEnd = eval._pcsqPiecePosStage[(int)type.ForPlayer(ChessPlayer.Black), (int)revPos, (int)ChessGameStage.Endgame];
+                    Assert.AreEqual<int>(whiteOpening, -blackOpening);
+
+                }
+            }
+
+        }
 
         [TestMethod]
         public void EvalTest1()

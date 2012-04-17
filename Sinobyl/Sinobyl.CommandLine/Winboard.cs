@@ -203,9 +203,6 @@ namespace Sinobyl.CommandLine
                 case "nodecounttest":
                     NodeCountTest();
                     break;
-                case "seetest":
-                    SeeTest();
-                    break;
             }
             
 		}
@@ -232,24 +229,6 @@ namespace Sinobyl.CommandLine
 
 		}
 
-		public void SeeTest()
-		{
-			board.FEN = new ChessFEN("3r2k1/3B1p1p/5pb1/qpQ1p3/1R6/2n2NP1/p4PKP/R7 b - - 6 32");
-			board.MoveNullApply();
-			ChessMoves moves = ChessMove.GenMovesLegal(board);
-			foreach (ChessMove move in moves)
-			{
-				move.EstScore = ChessMove.Comp.CompEstScoreSEE(move, board);
-
-			}
-			moves.Sort(new ChessMove.Comp(board,new ChessMove(),true));
-			foreach (ChessMove move in moves)
-			{
-				Program.ConsoleWriteline(string.Format("{0}\t{1}", move.ToString(board), move.EstScore));
-
-			}
-			
-		}
 		public void NodeCountTest()
 		{
 			using (System.IO.StreamReader reader = new System.IO.StreamReader("c:\\chess\\pgn\\gm2600.pgn"))

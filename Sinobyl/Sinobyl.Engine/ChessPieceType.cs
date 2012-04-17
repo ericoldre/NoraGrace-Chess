@@ -10,6 +10,49 @@ namespace Sinobyl.Engine
         Pawn = 0, Knight = 1, Bishop = 2, Rook = 3, Queen = 4, King = 5
     }
 
+    public static class ExtensionsChessPieceType
+    {
+        public static ChessPiece ForPlayer(this ChessPieceType type, ChessPlayer player)
+        {
+            if (player == ChessPlayer.White)
+            {
+                switch (type)
+                {
+                    case ChessPieceType.Pawn:
+                        return ChessPiece.WPawn;
+                    case ChessPieceType.Knight:
+                        return ChessPiece.WKnight;
+                    case ChessPieceType.Bishop:
+                        return ChessPiece.WBishop;
+                    case ChessPieceType.Rook:
+                        return ChessPiece.WRook;
+                    case ChessPieceType.Queen:
+                        return ChessPiece.WQueen;
+                    case ChessPieceType.King:
+                        return ChessPiece.WKing;
+                }
+            }
+            else
+            {
+                switch (type)
+                {
+                    case ChessPieceType.Pawn:
+                        return ChessPiece.BPawn;
+                    case ChessPieceType.Knight:
+                        return ChessPiece.BKnight;
+                    case ChessPieceType.Bishop:
+                        return ChessPiece.BBishop;
+                    case ChessPieceType.Rook:
+                        return ChessPiece.BRook;
+                    case ChessPieceType.Queen:
+                        return ChessPiece.BQueen;
+                    case ChessPieceType.King:
+                        return ChessPiece.BKing;
+                }
+            }
+            throw new ArgumentException("invalid piece or player");
+        }
+    }
     public class ChessPieceTypeDictionary<T> where T:new()
     {
         [System.Xml.Serialization.XmlIgnore()]

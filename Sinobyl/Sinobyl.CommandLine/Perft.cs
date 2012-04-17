@@ -13,7 +13,7 @@ namespace Sinobyl.CommandLine
 
 
         #region PerftCalls
-        public static void PerftSuite(int nodesPerPosition, bool doEval)
+        public static void PerftSuite(int nodesPerPosition, bool doEval, bool doMoveSort)
         {
             //[White "Garry Kasparov"]
             //[Black "Vladimir Kramnik"]
@@ -27,7 +27,7 @@ namespace Sinobyl.CommandLine
             foreach (ChessMove move in pgn.Moves)
             {
                 board.MoveApply(move);
-                totalTime += PerftTest(board.FEN.ToString(), nodesPerPosition, doEval);
+                totalTime += PerftTest(board.FEN.ToString(), nodesPerPosition, doEval, doMoveSort);
                 totalNodes += nodesPerPosition;
                 positionCount++;
                 double nodesPerSecond = ((double)totalNodes / (double)totalTime.TotalMilliseconds) * 1000;
@@ -36,7 +36,7 @@ namespace Sinobyl.CommandLine
 
 
         }
-        private static TimeSpan PerftTest(string fen, int nodeCount, bool doEval)
+        private static TimeSpan PerftTest(string fen, int nodeCount, bool doEval, bool doMoveSort)
         {
 
             
@@ -48,7 +48,7 @@ namespace Sinobyl.CommandLine
             var sw = System.Diagnostics.Stopwatch.StartNew();
             for (depth = 2; nodesDone < nodeCount; depth++)
             {
-                PerftSearch(board, depth, nodeCount, ref nodesDone, doEval);
+                PerftSearch(board, depth, nodeCount, ref nodesDone, doEval, doMoveSort);
                 //Console.WriteLine(string.Format("depth:{0} nodes:{1} milliseconds:{2}", depth, nodesDone, sw.ElapsedMilliseconds));
             }
             sw.Stop();
@@ -57,7 +57,7 @@ namespace Sinobyl.CommandLine
             return sw.Elapsed;
         }
 
-        public static void PerftSearch(ChessBoard board, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval)
+        public static void PerftSearch(ChessBoard board, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
         {
             nodesDone++;
             if (doEval)
@@ -71,13 +71,19 @@ namespace Sinobyl.CommandLine
 
             List<ChessMove> moves = ChessMove.GenMoves(board);
 
+            if (doMoveSort)
+            {
+                ChessMove.Comp moveOrderer = new ChessMove.Comp(board, new ChessMove(), true);
+                moves.Sort(moveOrderer);
+            }
+
             foreach (ChessMove move in moves)
             {
                 board.MoveApply(move);
 
                 if (!board.IsCheck(board.WhosTurn.PlayerOther()))
                 {
-                    PerftSearch(board, depth_remaining - 1, nodeCount, ref nodesDone, doEval);
+                    PerftSearch(board, depth_remaining - 1, nodeCount, ref nodesDone, doEval, doMoveSort);
                 }
 
                 board.MoveUndo();

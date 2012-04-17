@@ -19,6 +19,7 @@ namespace Sinobyl.CommandLine
 		static bool KeepGoing = true;
 		static void Main(string[] args)
 		{
+
 			commandArgs = args;
 
             Console.WriteLine("Sinobyl");
@@ -94,11 +95,15 @@ namespace Sinobyl.CommandLine
 					}
                     else if (split[0] == "perft")
                     {
-                        Perft.PerftSuite(int.Parse(split[1]), false);
+                        Perft.PerftSuite(int.Parse(split[1]), false, false);
                     }
                     else if (split[0] == "evalperft")
                     {
-                        Perft.PerftSuite(int.Parse(split[1]),true);
+                        Perft.PerftSuite(int.Parse(split[1]),true, false);
+                    }
+                    else if (split[0] == "evalsortperft")
+                    {
+                        Perft.PerftSuite(int.Parse(split[1]), true, true);
                     }
                     else
                     {

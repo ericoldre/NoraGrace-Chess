@@ -194,7 +194,7 @@ namespace Sinobyl.Engine
             ChessPositionDictionary<ChessPiece> pieces = new ChessPositionDictionary<ChessPiece>();
             foreach (ChessPosition pos in Chess.AllPositions)
             {
-                pieces[pos] = this.pieceat[(int)pos.Reverse()];
+                pieces[pos] = this.pieceat[(int)pos.Reverse()].ToOppositePlayer();
             }
 
             return new ChessFEN(pieces,this.whosturn.PlayerOther(), this.castleBS, this.castleBL, this.castleWS, this.castleWL, this.enpassant.IsInBounds()?this.enpassant.Reverse():ChessPosition.OUTOFBOUNDS, this.fiftymove, this.fullmove);

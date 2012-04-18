@@ -105,6 +105,10 @@ namespace Sinobyl.CommandLine
                     {
                         Perft.PerftSuite(int.Parse(split[1]), true, true);
                     }
+                    else if(split[0] == "nodestodepth")
+                    {
+                        Perft.NodesToDepth(int.Parse(split[1]));
+                    }
                     else
                     {
                         winboard.ProcessCmd(input);

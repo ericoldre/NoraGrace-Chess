@@ -14,12 +14,8 @@ namespace Sinobyl.Engine
     {
         public static int TotalAIEvals = 0;
 
-        private readonly int PawnDoubledStart = 10;
-        private readonly int PawnDoubledEnd = 25;
-        private readonly int PawnIsoStart = 15;
-        private readonly int PawnIsoEnd = 20;
+        private readonly ChessEvalPawns PawnEval;
 
-        public readonly int[,] PawnPassedValuePosStage = new int[64,2];
         public readonly int[,,] _pcsqPiecePosStage = new int[12,64,2];
         public readonly int[,] _matPieceStage = new int[12,2];
         public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
@@ -31,6 +27,7 @@ namespace Sinobyl.Engine
         private readonly int WeightMobilityOpening;
         private readonly int WeightMobilityEndgame;
 
+
         public ChessEval()
             : this(ChessEvalSettings.Default())
         {
@@ -39,6 +36,9 @@ namespace Sinobyl.Engine
 
         public ChessEval(ChessEvalSettings settings)
         {
+            //setup pawn evaluation
+            PawnEval = new ChessEvalPawns(settings, 1000);
+
             //setup weight values;
             WeightMaterialOpening = settings.Weight.Material.Opening;
             WeightMaterialEndgame = settings.Weight.Material.Endgame;
@@ -83,20 +83,8 @@ namespace Sinobyl.Engine
                 }
             }
             
-            //setup passed pawn array
-            foreach (ChessPosition pos in Chess.AllPositions)
-            {
-                foreach (ChessGameStage stage in Chess.AllGameStages)
-                {
-                    PawnPassedValuePosStage[(int)pos, (int)stage] = settings.PawnPassedValues[stage][pos];
-                }
-            }
 
-            //setup pawn info
-            this.PawnDoubledStart = settings.PawnDoubled.Opening;
-            this.PawnDoubledEnd = settings.PawnDoubled.Endgame;
-            this.PawnIsoStart = settings.PawnIsolated.Opening;
-            this.PawnIsoEnd = settings.PawnIsolated.Endgame;
+
 
             //setup mobility arrays
             
@@ -199,13 +187,9 @@ namespace Sinobyl.Engine
                 valEndMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Endgame];
             }
             
-
-
             //pawns
-            PawnInfo pawns = PawnEval(board);
+            PawnInfo pawns = this.PawnEval.PawnEval(board);
 
-
-            
             //calculate total start and end values
             int valStart = 
                 (valStartMat * WeightMaterialOpening / 100) 
@@ -232,124 +216,5 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-
-        #region pawn eval
-
-        public PawnInfo[] pawnHash = new PawnInfo[1000];
-
-        public PawnInfo PawnEval(ChessBoard board)
-        {
-            long idx = board.ZobristPawn % pawnHash.GetUpperBound(0);
-            if (idx < 0) { idx = -idx; }
-            PawnInfo retval = pawnHash[idx];
-            if (retval != null && retval.PawnZobrist == board.ZobristPawn)
-            {
-                return retval;
-            }
-            //not in the hash
-            retval = new PawnInfo(board.ZobristPawn, board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), this);
-            pawnHash[idx] = retval;
-            return retval;
-        }
-
-        public class PawnInfo
-        {
-
-
-            public readonly Int64 PawnZobrist;
-            public readonly int StartVal;
-            public readonly int EndVal;
-
-            public PawnInfo(Int64 zob, ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval)
-            {
-                PawnZobrist = zob;
-                EvalAllPawns(whitePawns, blackPawns, eval, ref StartVal, ref EndVal);
-
-            }
-            public static void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval, ref int StartVal, ref int EndVal)
-            {
-                ChessBitboard doubled = ChessBitboard.Empty;
-                ChessBitboard passed = ChessBitboard.Empty;
-                ChessBitboard isolated = ChessBitboard.Empty;
-                EvalAllPawns(whitePawns, blackPawns, eval, ref StartVal, ref EndVal, out passed, out doubled, out isolated);
-            }
-            public static void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated)
-            {
-                //eval for white
-                doubled = ChessBitboard.Empty;
-                passed = ChessBitboard.Empty;
-                isolated = ChessBitboard.Empty;
-
-                int WStartVal = 0;
-                int WEndVal = 0;
-
-                EvalWhitePawns(whitePawns, blackPawns, eval, ref WStartVal, ref WEndVal, out passed, out doubled, out isolated);
-
-                //create inverse situation
-                ChessBitboard bpassed = ChessBitboard.Empty;
-                ChessBitboard bdoubled = ChessBitboard.Empty;
-                ChessBitboard bisolated = ChessBitboard.Empty;
-
-                ChessBitboard blackRev = blackPawns.Reverse();
-                ChessBitboard whiteRev = whitePawns.Reverse();
-
-                int BStartVal = 0;
-                int BEndVal = 0;
-
-                //actually passing in the black pawns from their own perspective
-                EvalWhitePawns(blackRev, whiteRev, eval, ref BStartVal, ref BEndVal, out bpassed, out bdoubled, out bisolated);
-
-                doubled |= bdoubled.Reverse();
-                passed |= bpassed.Reverse();
-                isolated |= bisolated.Reverse();
-
-                //set return values;
-                StartVal = WStartVal - BStartVal;
-                EndVal = WEndVal - BEndVal;
-
-            }
-            private static void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ChessEval eval, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated)
-            {
-                passed = ChessBitboard.Empty;
-                doubled = ChessBitboard.Empty;
-                isolated = ChessBitboard.Empty;
-
-                foreach (ChessPosition pos in whitePawns.ToPositions())
-                {
-                    ChessFile f = pos.GetFile();
-                    ChessRank r = pos.GetRank();
-                    ChessBitboard bbFile = pos.GetFile().Bitboard();
-                    ChessBitboard bbFile2E = bbFile.ShiftDirE();
-                    ChessBitboard bbFile2W = bbFile.ShiftDirW();
-
-                    //substract doubled score
-                    if (!(bbFile & ~pos.Bitboard() & whitePawns).Empty())
-                    {
-                        StartVal -= eval.PawnDoubledStart;
-                        EndVal -= eval.PawnDoubledEnd;
-                        doubled |= pos.Bitboard();
-                    }
-
-                    if ((bbFile2E & whitePawns).Empty() && (bbFile2W & whitePawns).Empty())
-                    {
-                        StartVal -= eval.PawnIsoStart;
-                        EndVal -= eval.PawnIsoEnd;
-                        isolated |= pos.Bitboard();
-                    }
-
-                    ChessBitboard blockPositions = (bbFile | bbFile2E | bbFile2W) & pos.GetRank().BitboardAllNorth().ShiftDirN();
-                    if ((blockPositions & blackPawns).Empty())
-                    {
-                        StartVal += eval.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
-                        EndVal += eval.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
-                        passed |= pos.Bitboard();
-                    }
-                }
-
-            }
-
-        }
-
-        #endregion
     }
 }

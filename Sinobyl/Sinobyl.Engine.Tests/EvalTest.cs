@@ -79,16 +79,7 @@ namespace Sinobyl.Engine.Tests
             var res1 = eval.EvalFor(board, board.WhosTurn);
             var res2 = eval.EvalFor(breverse, breverse.WhosTurn);
 
-            ChessBitboard passed;
-            ChessBitboard doubled;
-            ChessBitboard isolated;
-
-            int StartVal = 0;
-            int EndVal = 0;
-
-            ChessEval.PawnInfo.EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), eval, ref StartVal, ref EndVal, out passed, out doubled, out isolated);
-
-
+            
             Assert.AreEqual<int>(res1, res2);
             Assert.IsTrue(minOk <= res1 && res1 <= maxOk);
         }
@@ -104,9 +95,10 @@ namespace Sinobyl.Engine.Tests
             int StartVal = 0;
             int EndVal = 0;
 
-            ChessEval eval = new ChessEval();
 
-            ChessEval.PawnInfo.EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), eval, ref StartVal, ref EndVal, out passed, out doubled, out isolated);
+            var pawnEval = new ChessEvalPawns(ChessEvalSettings.Default());
+
+            pawnEval.EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), out StartVal, out EndVal, out passed, out doubled, out isolated);
 
             Assert.AreEqual<int>(2, passed.ToPositions().Count());
             Assert.AreEqual<int>(4, doubled.ToPositions().Count());

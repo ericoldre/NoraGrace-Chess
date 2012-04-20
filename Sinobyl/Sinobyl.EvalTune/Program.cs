@@ -16,8 +16,7 @@ namespace Sinobyl.EvalTune
         static object writeLock = new object();
         static void Main(string[] args)
         {
-
-
+            
             Random rand = new Random();
 
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();

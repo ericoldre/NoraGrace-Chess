@@ -113,6 +113,7 @@ namespace Sinobyl.Engine
             return retval;
 
         }
+
         public virtual int Eval(ChessBoard board)
         {
 
@@ -197,17 +198,23 @@ namespace Sinobyl.Engine
                 + (valEndMobility * WeightMobilityEndgame / 100)
                 + pawns.StartVal;
 
-            //calculate current stage of the game
-            int WhiteCount = board.PieceCount(ChessPiece.WKnight) + board.PieceCount(ChessPiece.WBishop) + board.PieceCount(ChessPiece.WRook) + board.PieceCount(ChessPiece.WQueen);
-            int BlackCount = board.PieceCount(ChessPiece.BKnight) + board.PieceCount(ChessPiece.BBishop) + board.PieceCount(ChessPiece.BRook) + board.PieceCount(ChessPiece.BQueen);
-            
-            float StartFactor = (float)(WhiteCount + BlackCount) / (float)14;
-            float EndFactor = 1 - StartFactor;
+            float startWeight;
+            float endWeight;
+            CalcStartEndWeights(board, out startWeight, out endWeight);
 
-
-            int retval = (int)(valStart * StartFactor) + (int)(valEnd * EndFactor);
+            int retval = (int)(valStart * startWeight) + (int)(valEnd * endWeight);
 
             return retval;
+        }
+
+        protected virtual void CalcStartEndWeights(ChessBoard board, out float startWeight, out float endWeight)
+        {
+            int WhiteCount = board.PieceCount(ChessPiece.WKnight) + board.PieceCount(ChessPiece.WBishop) + board.PieceCount(ChessPiece.WRook) + board.PieceCount(ChessPiece.WQueen);
+            int BlackCount = board.PieceCount(ChessPiece.BKnight) + board.PieceCount(ChessPiece.BBishop) + board.PieceCount(ChessPiece.BRook) + board.PieceCount(ChessPiece.BQueen);
+
+            startWeight = (float)(WhiteCount + BlackCount) / (float)14;
+            endWeight = 1 - startWeight;
+
         }
 
     }

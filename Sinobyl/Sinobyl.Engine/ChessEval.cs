@@ -12,7 +12,6 @@ namespace Sinobyl.Engine
 
     public class ChessEval: IChessEval
     {
-        public static int TotalAIEvals = 0;
 
         private readonly ChessEvalPawns PawnEval;
 
@@ -114,11 +113,8 @@ namespace Sinobyl.Engine
             return retval;
 
         }
-        public int Eval(ChessBoard board)
+        public virtual int Eval(ChessBoard board)
         {
-            TotalAIEvals++; //for debugging
-
-            int[] PieceCount = new int[12];
 
             int valStartMat = 0;
             int valEndMat = 0;
@@ -131,8 +127,6 @@ namespace Sinobyl.Engine
                 ChessPosition pos = Chess.AllPositions[ipos];
                 ChessPiece piece = board.PieceAt(pos);
                 if (piece == ChessPiece.EMPTY) { continue; }
-
-                PieceCount[(int)piece]++;
 
                 //add material score
                 valStartMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Opening];
@@ -204,8 +198,8 @@ namespace Sinobyl.Engine
                 + pawns.StartVal;
 
             //calculate current stage of the game
-            int WhiteCount = PieceCount[(int)ChessPiece.WKnight] + PieceCount[(int)ChessPiece.WBishop] + PieceCount[(int)ChessPiece.WRook] + PieceCount[(int)ChessPiece.WQueen];
-            int BlackCount = PieceCount[(int)ChessPiece.BKnight] + PieceCount[(int)ChessPiece.BBishop] + PieceCount[(int)ChessPiece.BRook] + PieceCount[(int)ChessPiece.BQueen];
+            int WhiteCount = board.PieceCount(ChessPiece.WKnight) + board.PieceCount(ChessPiece.WBishop) + board.PieceCount(ChessPiece.WRook) + board.PieceCount(ChessPiece.WQueen);
+            int BlackCount = board.PieceCount(ChessPiece.BKnight) + board.PieceCount(ChessPiece.BBishop) + board.PieceCount(ChessPiece.BRook) + board.PieceCount(ChessPiece.BQueen);
             
             float StartFactor = (float)(WhiteCount + BlackCount) / (float)14;
             float EndFactor = 1 - StartFactor;

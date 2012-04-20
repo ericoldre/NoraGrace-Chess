@@ -181,6 +181,7 @@ namespace Sinobyl.Engine
 			public TimeSpan Delay { get; set; }
             public IChessEval Eval { get; set; }
             public int MaxNodes { get; set; }
+            public int ContemptForDraw { get; set; }
 			public Args()
 			{
                 GameStartPosition = new ChessFEN(ChessFEN.FENStart);
@@ -192,6 +193,7 @@ namespace Sinobyl.Engine
 				Delay = new TimeSpan(0);
                 Eval = new ChessEval();
                 MaxNodes = int.MaxValue;
+                ContemptForDraw = 40;
 			}
 		}
 
@@ -209,7 +211,7 @@ namespace Sinobyl.Engine
 		private bool _returnBestResult = true; //if false return null
 		private ChessMoves _bestvariation = new ChessMoves();
 		private int _bestvariationscore = 0;
-		
+        private int[] _contemptForDrawForPlayer = new int[3];
 
 		private readonly Int64 BlunderKey = Chess.Rand64();
 		
@@ -218,10 +220,22 @@ namespace Sinobyl.Engine
 			SearchArgs = args;
 			board = new ChessBoard(SearchArgs.GameStartPosition);
             eval = args.Eval;
+            
 			foreach (ChessMove histmove in SearchArgs.GameMoves)
 			{
 				board.MoveApply(histmove);
 			}
+
+            if (board.WhosTurn == ChessPlayer.White)
+            {
+                _contemptForDrawForPlayer[(int)ChessPlayer.White] = args.ContemptForDraw;
+                _contemptForDrawForPlayer[(int)ChessPlayer.Black] = -args.ContemptForDraw;
+            }
+            else
+            {
+                _contemptForDrawForPlayer[(int)ChessPlayer.White] = -args.ContemptForDraw;
+                _contemptForDrawForPlayer[(int)ChessPlayer.Black] = args.ContemptForDraw;
+            }
 		}
 
 		public void Abort()
@@ -469,7 +483,7 @@ namespace Sinobyl.Engine
 			//check for draw
 			if (board.IsDrawByRepetition() || board.IsDrawBy50MoveRule())
 			{
-				return 0;
+                return -_contemptForDrawForPlayer[(int)board.WhosTurn];
 			}
 
 			if (depth <= 0) 

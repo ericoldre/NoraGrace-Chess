@@ -22,11 +22,63 @@ namespace Sinobyl.Engine
     {
         public ChessMatchResults Results { get; set; }
         public ChessPGN Game { get; set; }
-        public bool Player1IsWhite { get; set; }
         public TimeSpan GameTime { get; set; }
     }
     public class ChessMatch
     {
+        
+
+        public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<IChessGamePlayer>> competitors, IEnumerable<ChessPGN> startingPositions, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
+        {
+            ChessMatchResults retval = new ChessMatchResults();
+
+            Func<IChessGamePlayer> gauntletPlayer = null;
+            if (isGauntlet)
+            {
+                foreach (var player in competitors)
+                {
+                    gauntletPlayer = player;
+                    break;
+                }
+            }
+
+            ParallelOptions options = new ParallelOptions();
+            options.MaxDegreeOfParallelism = 6;
+            Parallel.ForEach(startingPositions, options, startingPGN =>
+            {
+                foreach (var fWhitePlayer in competitors)
+                {
+                    foreach (var fBlackPlayer in competitors)
+                    {
+                        if (fWhitePlayer == fBlackPlayer) { continue; }
+                        if (gauntletPlayer != null && gauntletPlayer != fWhitePlayer && gauntletPlayer != fBlackPlayer) { continue; }
+                        IChessGamePlayer playerWhite = fWhitePlayer();
+                        IChessGamePlayer playerBlack = fBlackPlayer();
+
+                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                        ChessPGN game = Game(playerWhite, playerBlack, new ChessFEN(startingPGN.StartingPosition), startingPGN.Moves, null);
+                        stopwatch.Stop();
+
+                        lock (retval)
+                        {
+                            retval.Add(game);
+                            if (onGameCompleted != null)
+                            {
+                                onGameCompleted(new ChessMatchProgress() { Results = retval, Game = game, GameTime = stopwatch.Elapsed });
+                            }
+                        }
+                    }
+                    
+                }
+            });
+
+            //Console.WriteLine("\nChamp:{0} Challenger:{1} Draws:{2}", champWins, challengerWins, draws);
+
+            return retval;
+
+        }
+
+
 
         public static ChessMatchResults RunParallelMatch(Func<IChessGamePlayer> createPlayer1, Func<IChessGamePlayer> createPlayer2, IEnumerable<ChessPGN> startingPositions, Action<ChessMatchProgress> onGameCompleted = null)
         {
@@ -56,7 +108,7 @@ namespace Sinobyl.Engine
                         retval.Add(game);
                         if (onGameCompleted != null)
                         {
-                            onGameCompleted(new ChessMatchProgress() { Results = retval, Game = game, Player1IsWhite = player1IsWhite, GameTime = stopwatch.Elapsed });
+                            onGameCompleted(new ChessMatchProgress() { Results = retval, Game = game, GameTime = stopwatch.Elapsed });
                         }
                     }
                 }

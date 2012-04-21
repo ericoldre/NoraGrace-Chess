@@ -22,7 +22,7 @@ namespace Sinobyl.EvalTune
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(2000));
+                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(1000));
             }
 
             
@@ -33,26 +33,16 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                var champion = Program.ChampionSettings;
-                if(mutatorStack.Count()==0)
-                {
-                    mutatorStack.Push(MutatorFactory.Create(rand));
-                }
-                var mutation = mutatorStack.Pop();
-                var challenger = champion.CloneDeep();
-                mutation.Mutate(challenger);
-                champion = ChessEvalSettings.Default();
-                challenger = ChessEvalSettings.Default();
-                challenger.Weight.Mobility.Opening = 0;
-                challenger.Weight.Mobility.Endgame = 0;
 
-                //Console.WriteLine("Trying Mutation: {0}", mutation.ToString());
+                var competitors = new List<Func<IChessGamePlayer>>();
+
+                competitors.Add(() => new DeterministicPlayer("Default", new ChessEval(), nodes));
+                competitors.Add(() => new DeterministicPlayer("BishopBonus2550", new ChessEvalBishopBonus(25, 50), nodes));
+                competitors.Add(() => new DeterministicPlayer("BishopBonus5075", new ChessEvalBishopBonus(50, 75), nodes));
+                competitors.Add(() => new DeterministicPlayer("BishopBonus5050", new ChessEvalBishopBonus(50, 50), nodes));
 
                 string eventName = "Challenge_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_N" + nodes.ToString();
-
-                champion.Save(eventName + "_Champion.xml");
-                challenger.Save(eventName + "_Challenger.xml");
-
+                
                 var pgnWriter = File.CreateText(eventName + ".pgn");
                 
                 int wins = 0;
@@ -61,16 +51,13 @@ namespace Sinobyl.EvalTune
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                var matchResults = ChessMatch.RunParallelMatch
+                var matchResults = ChessMatch.RunParallelRoundRobinMatch
                 (
-                    createPlayer1: () => new DeterministicPlayer("Champion", new ChessEval(champion), nodes) { CommentFormatter = (r) => string.Format("Score:{2} Depth:{1} PV:{0}", new ChessMoves(r.PrincipleVariation).ToString(), r.Depth, r.Score) },
-                    createPlayer2: () => new DeterministicPlayer("Challenger", new ChessEval(challenger), nodes) { CommentFormatter = (r) => string.Format("Score:{2} Depth:{1} PV:{0}", new ChessMoves(r.PrincipleVariation).ToString(), r.Depth, r.Score) },
+                    isGauntlet:true,
+                    competitors: competitors,
                     startingPositions: StartingPGNs,
                     onGameCompleted: (p) => 
                     {
-                        p.Game.Headers.Add(new ChessPGNHeader("Mutation", mutation.ToString()));
-                        p.Game.Headers.Add(new ChessPGNHeader("GameTime", (p.GameTime.ToString("c"))));
-
                         pgnWriter.Write(p.Game.ToString());
                         pgnWriter.Write("\n\n");
                         switch (p.Game.Result)
@@ -79,21 +66,27 @@ namespace Sinobyl.EvalTune
                                 Console.Write("-");
                                 break;
                             case ChessResult.WhiteWins:
-                                Console.Write(p.Player1IsWhite ? "1" : "0");
+                                Console.Write("1");
                                 break;
                             case ChessResult.BlackWins:
-                                Console.Write(p.Player1IsWhite ? "0" : "1");
+                                Console.Write("0");
                                 break;
                         }
-                        if (p.Results.Count() % 100 == 0)
+                        if (p.Results.Count() % 200 == 0)
                         {
-                            p.Results.ResultsForPlayer("Champion", out wins, out losses, out draws);
-                            float totalgames = (wins + losses + draws);
-                            Console.Write("[Games:{3} Champion:{0} Challenger:{1} Draws:{2}]",
-                                ((float)wins / (float)totalgames).ToString("#0.##%"),
-                                ((float)losses / (float)totalgames).ToString("#0.##%"),
-                                ((float)draws / (float)totalgames).ToString("#0.##%"),
-                                totalgames);
+                            Console.WriteLine();
+                            foreach (var compName in competitors.Select(f => f().Name))
+                            {
+                                p.Results.ResultsForPlayer(compName, out wins, out losses, out draws);
+                                float totalgames = (wins + losses + draws);
+                                Console.WriteLine("Player:{4}, WinPct:{0} LossPct:{1} DrawPct:{2} GameCount:{3}",
+                                    ((float)wins / (float)totalgames).ToString("#0.##%"),
+                                    ((float)losses / (float)totalgames).ToString("#0.##%"),
+                                    ((float)draws / (float)totalgames).ToString("#0.##%"),
+                                    totalgames,
+                                    compName);
+                            }
+                            Console.WriteLine();
                         }
                     }
                 );
@@ -102,29 +95,24 @@ namespace Sinobyl.EvalTune
                 pgnWriter.Dispose();
 
                 File.WriteAllText(eventName + "_Summary.txt", matchResults.Summary());
-
-                matchResults.ResultsForPlayer("Champion", out wins, out losses, out draws);
-
-                Console.WriteLine("\nChamp:{0} Challenger:{1} Draws:{2} Time:{4}",
-                    wins,
-                    losses,
-                    draws,
-                    matchResults.Count,
-                    stopwatch.Elapsed.ToString("c"));
-
-                if (losses > wins)
+                Console.WriteLine();
+                Console.WriteLine("Completed {1} node match in {0:c}", stopwatch.Elapsed, nodes);
+                foreach (var compName in competitors.Select(f => f().Name))
                 {
-                    Console.WriteLine("ChallengerWins in {0:c}\n", stopwatch.Elapsed);
-                    foreach (var similiarMutation in mutation.SimilarMutators())
-                    {
-                        mutatorStack.Push(similiarMutation);
-                    }
-                    Program.ChampionSettings = challenger;
+                    matchResults.ResultsForPlayer(compName, out wins, out losses, out draws);
+                    float totalgames = (wins + losses + draws);
+                    Console.WriteLine("Player:{4}, WinPct:{0} LossPct:{1} DrawPct:{2} GameCount:{3}",
+                        ((float)wins / (float)totalgames).ToString("#0.##%"),
+                        ((float)losses / (float)totalgames).ToString("#0.##%"),
+                        ((float)draws / (float)totalgames).ToString("#0.##%"),
+                        totalgames,
+                        compName);
                 }
-                else
-                {
-                    Console.WriteLine("ChallengerFails in {0:c}\n", stopwatch.Elapsed);
-                }
+                Console.WriteLine("");
+                Console.WriteLine("");
+                Console.WriteLine("");
+                
+                
 
                 //increment amount of nodes.
                 nodes = (int)((float)nodes * 1.5);

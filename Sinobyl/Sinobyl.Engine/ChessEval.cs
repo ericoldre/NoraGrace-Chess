@@ -18,6 +18,7 @@ namespace Sinobyl.Engine
         public readonly int[,,] _pcsqPiecePosStage = new int[12,64,2];
         public readonly int[,] _matPieceStage = new int[12,2];
         public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
+        public readonly int[] _matBishopPairStage = new int[2];
 
         private readonly int WeightMaterialOpening;
         private readonly int WeightMaterialEndgame;
@@ -45,6 +46,10 @@ namespace Sinobyl.Engine
             WeightPcSqEndgame = settings.Weight.PcSq.Endgame;
             WeightMobilityOpening = settings.Weight.Mobility.Opening;
             WeightMobilityEndgame = settings.Weight.Mobility.Endgame;
+
+            //bishop pairs
+            _matBishopPairStage[(int)ChessGameStage.Opening] = settings.MaterialBishopPair.Opening;
+            _matBishopPairStage[(int)ChessGameStage.Endgame] = settings.MaterialBishopPair.Endgame;
 
             //setup material arrays
             foreach (ChessPiece piece in Chess.AllPieces)
@@ -182,6 +187,18 @@ namespace Sinobyl.Engine
                 valEndMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Endgame];
             }
             
+            //bishop pairs
+            if (board.PieceCount(ChessPiece.WBishop) > 1)
+            {
+                valStartMat += _matBishopPairStage[(int)ChessGameStage.Opening];
+                valEndMat += _matBishopPairStage[(int)ChessGameStage.Endgame];
+            }
+            if (board.PieceCount(ChessPiece.BBishop) > 1)
+            {
+                valStartMat -= _matBishopPairStage[(int)ChessGameStage.Opening];
+                valEndMat -= _matBishopPairStage[(int)ChessGameStage.Endgame];
+            }
+
             //pawns
             PawnInfo pawns = this.PawnEval.PawnEval(board);
 

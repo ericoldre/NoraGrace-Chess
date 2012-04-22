@@ -7,7 +7,6 @@ namespace Sinobyl.Engine
 {
     public enum ChessRank
     {
-        EMPTY = -1,
         Rank8 = 0, 
         Rank7 = 1, 
         Rank6 = 2, 
@@ -15,7 +14,8 @@ namespace Sinobyl.Engine
         Rank4 = 4, 
         Rank3 = 5, 
         Rank2 = 6, 
-        Rank1 = 7
+        Rank1 = 7,
+        EMPTY = 8
     }
 
     public static class ExtensionsChessRank

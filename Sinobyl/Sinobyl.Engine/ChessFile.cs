@@ -7,8 +7,9 @@ namespace Sinobyl.Engine
 {
     public enum ChessFile
     {
-        EMPTY = -1,
-        FileA = 0, FileB = 1, FileC = 2, FileD = 3, FileE = 4, FileF = 5, FileG = 6, FileH = 7
+        
+        FileA = 0, FileB = 1, FileC = 2, FileD = 3, FileE = 4, FileF = 5, FileG = 6, FileH = 7,
+        EMPTY = 8,
     }
 
     public static class ExtensionsChessFile

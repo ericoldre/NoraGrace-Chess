@@ -60,6 +60,13 @@ namespace Sinobyl.Engine
             }
         }
 
+        public static int DistanceTo(this ChessPosition thisPosition, ChessPosition otherPosition)
+        {
+            int rDiff = Math.Abs((int)thisPosition.GetRank() - (int)otherPosition.GetRank());
+            int fDiff = Math.Abs((int)thisPosition.GetFile() - (int)otherPosition.GetFile());
+            return rDiff > fDiff ? rDiff : fDiff;
+        }
+
         public static int GetIndex64(this ChessPosition position)
         {
             return (int)position;

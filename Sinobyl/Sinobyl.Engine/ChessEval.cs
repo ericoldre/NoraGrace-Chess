@@ -13,19 +13,19 @@ namespace Sinobyl.Engine
     public class ChessEval: IChessEval
     {
 
-        private readonly ChessEvalPawns PawnEval;
+        protected readonly ChessEvalPawns PawnEval;
 
         public readonly int[,,] _pcsqPiecePosStage = new int[12,64,2];
         public readonly int[,] _matPieceStage = new int[12,2];
         public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
         public readonly int[] _matBishopPairStage = new int[2];
 
-        private readonly int WeightMaterialOpening;
-        private readonly int WeightMaterialEndgame;
-        private readonly int WeightPcSqOpening;
-        private readonly int WeightPcSqEndgame;
-        private readonly int WeightMobilityOpening;
-        private readonly int WeightMobilityEndgame;
+        protected readonly int WeightMaterialOpening;
+        protected readonly int WeightMaterialEndgame;
+        protected readonly int WeightPcSqOpening;
+        protected readonly int WeightPcSqEndgame;
+        protected readonly int WeightMobilityOpening;
+        protected readonly int WeightMobilityEndgame;
 
 
         public ChessEval()
@@ -213,7 +213,7 @@ namespace Sinobyl.Engine
                 (valEndMat * WeightMaterialEndgame / 100)
                 + (valEndPieceSq * WeightPcSqEndgame / 100)
                 + (valEndMobility * WeightMobilityEndgame / 100)
-                + pawns.StartVal;
+                + pawns.EndVal;
 
             float startWeight;
             float endWeight;

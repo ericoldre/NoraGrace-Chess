@@ -137,7 +137,30 @@ namespace Sinobyl.Engine
 
         }
 
+        public static ChessResult? EndgameKPK(ChessPosition whiteKing, ChessPosition blackKing, ChessPosition whitePawn, bool whiteToMove)
+        {
+            if (!whiteToMove
+                && ((Attacks.KingAttacks(blackKing) & whitePawn.Bitboard()) != ChessBitboard.Empty)
+                && (Attacks.KingAttacks(whiteKing) & whitePawn.Bitboard()) == ChessBitboard.Empty)
+            {
+                //black can just take white.
+                return ChessResult.Draw;
+            }
 
+            ChessPosition prom = ChessRank.Rank8.ToPosition(whitePawn.GetFile());
+            int pdist = prom.DistanceTo(whitePawn);
+            if (whitePawn.GetRank() == ChessRank.Rank2) { pdist--; }
+            if (!whiteToMove) { pdist++; }
+            if (prom.DistanceTo(blackKing) > pdist)
+            {
+                //pawn can run for end.
+                return ChessResult.WhiteWins;
+            }
+
+            return null;
+
+
+        }
 
     }
 

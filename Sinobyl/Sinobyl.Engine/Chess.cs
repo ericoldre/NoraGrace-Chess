@@ -141,8 +141,11 @@ namespace Sinobyl.Engine
 		}
 
 
-		
-		
+
+        public static IEnumerable<ChessPosition> AllPositionsEnumerate()
+        {
+            return AllPositions;
+        }
 
         
         

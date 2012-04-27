@@ -68,10 +68,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Murderhole2\Murderhole2.csproj">
-      <Project>{C75DF848-DDEB-412F-8A77-76D8933AEABB}</Project>
-      <Name>Murderhole2</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sinobyl.Engine\Sinobyl.Engine.csproj">
       <Project>{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}</Project>
       <Name>Sinobyl.Engine</Name>

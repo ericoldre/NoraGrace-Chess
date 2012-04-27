@@ -7,27 +7,86 @@
 			 xmlns:engine="clr-namespace:Sinobyl.Engine;assembly=Sinobyl.Engine"
              xmlns:vm="clr-namespace:Sinobyl.WPF.ViewModels"
              xmlns:SampleData="clr-namespace:Expression.Blend.SampleData.BoardDesignData" x:Class="Sinobyl.WPF.Views.Board" 
+             xmlns:convert="clr-namespace:Sinobyl.WPF.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300"
+			 d:DataContext="{Binding Source={StaticResource designBoard}}">
 	<UserControl.Resources>
 
         <ObjectDataProvider MethodName="GetDesignBoardVM" ObjectType="{x:Type vm:BoardVM}" x:Key="designBoard">
 
         </ObjectDataProvider>
-    </UserControl.Resources>
-    <Canvas d:DataContext="{Binding Source={StaticResource designBoard}}">
         
-        <ItemsControl ItemsSource="{Binding Squares}">
-    		<ItemsControl.ItemTemplate>
-    			<DataTemplate>
-    				<TextBlock Text="{Binding Name}"></TextBlock>
+        <convert:PositionToLeftMulti x:Key="PositionToLeftMulti"></convert:PositionToLeftMulti>
+        
+        <DataTemplate x:Key="BoardSquareTemplate">
+        	<Border BorderBrush="Black" BorderThickness="1">
+        		<StackPanel>
+					<TextBlock TextWrapping="Wrap" Text="{Binding Name, Mode=OneWay}"/>
+				</StackPanel>
+        	</Border>
+        </DataTemplate>
+        <ItemsPanelTemplate x:Key="SquaresPanelTemplate">
 
-				</DataTemplate>
-				 		
-			</ItemsControl.ItemTemplate>
-			  	
-		</ItemsControl>
+			<Canvas IsItemsHost="True"></Canvas>
+        </ItemsPanelTemplate>
+        <Style x:Key="BoardSquareContainerStyle" TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Canvas.Top">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                        ConverterParameter="Top">
+                        <Binding Path="Position"/>
+                        <Binding ElementName="LayoutRoot"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Canvas.Left">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                        ConverterParameter="Left">
+                        <Binding Path="Position"/>
+                        <Binding ElementName="LayoutRoot"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            
+            <Setter Property="Width">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                        ConverterParameter="Width">
+                        <Binding Path="Position"/>
+                        <Binding ElementName="LayoutRoot"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Height">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                        ConverterParameter="Height">
+                        <Binding Path="Position"/>
+                        <Binding ElementName="LayoutRoot"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+
+    </UserControl.Resources>
+    <Canvas x:Name="LayoutRoot">
         
+        
+        <ItemsControl x:Name="Squares" 
+			ItemsSource="{Binding Squares}" 
+			ItemTemplate="{DynamicResource BoardSquareTemplate}" 
+			ItemsPanel="{DynamicResource SquaresPanelTemplate}" 
+			ItemContainerStyle="{DynamicResource BoardSquareContainerStyle}"/>
+        
+        
+		
+            
+        
+		
             
     </Canvas>
 </UserControl>

@@ -22,7 +22,7 @@ namespace Sinobyl.EvalTune
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(1000));
+                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(3000));
             }
 
             
@@ -37,9 +37,7 @@ namespace Sinobyl.EvalTune
                 var competitors = new List<Func<IChessGamePlayer>>();
 
                 competitors.Add(() => new DeterministicPlayer("Default", new ChessEval(), nodes));
-                competitors.Add(() => new DeterministicPlayer("BishopBonus2550", new ChessEvalBishopBonus(25, 50), nodes));
-                competitors.Add(() => new DeterministicPlayer("BishopBonus5075", new ChessEvalBishopBonus(50, 75), nodes));
-                competitors.Add(() => new DeterministicPlayer("BishopBonus5050", new ChessEvalBishopBonus(50, 50), nodes));
+                //competitors.Add(() => new DeterministicPlayer("Fixed pawn end val", new ChessEval2(), nodes));
 
                 string eventName = "Challenge_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_N" + nodes.ToString();
                 

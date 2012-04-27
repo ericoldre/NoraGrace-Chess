@@ -29,6 +29,14 @@ namespace Sinobyl.WPF.ViewModels
  	        return Name;
         }
 
+        public Sinobyl.Engine.ChessPosition Position
+        {
+            get
+            {
+                return _position;
+            }
+        }
+
         public static List<BoardSquareVM> AllBoardSquares()
         {
             List<BoardSquareVM> retval = new List<BoardSquareVM>();

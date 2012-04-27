@@ -57,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\PositionToLeft.cs" />
     <Compile Include="SampleData\BoardDesignData\BoardDesignData.xaml.cs">
       <DependentUpon>BoardDesignData.xaml</DependentUpon>
     </Compile>
@@ -85,10 +86,6 @@
     <Page Include="Views\Board.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ResourceDictionary1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>

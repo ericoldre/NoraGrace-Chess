@@ -5,7 +5,7 @@
         Title="MainWindow" Height="350" Width="525">
     <StackPanel>
         <TextBlock Text="hello"></TextBlock>
-    	<Sinobyl_WPF_Views:Board Height="250" Width="250"/>
+    	<Sinobyl_WPF_Views:Board DataContext="{Binding}" Height="300" Width="300"/>
         <TextBlock Text="world"></TextBlock>
     </StackPanel>
 </Window>

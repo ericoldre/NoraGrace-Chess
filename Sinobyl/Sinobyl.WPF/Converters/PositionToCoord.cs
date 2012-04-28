@@ -9,7 +9,7 @@ using Sinobyl.Engine;
 
 namespace Sinobyl.WPF.Converters
 {
-    public class PositionToLeftMulti : IMultiValueConverter
+    public class PositionToCoord : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
@@ -17,11 +17,10 @@ namespace Sinobyl.WPF.Converters
             Point point = new Point();
 
             var position = (ChessPosition)values[0];
-            var layoutRoot = values[1] as System.Windows.FrameworkElement;
-            var boardvm = layoutRoot.DataContext;
+            var canvasSize = new Size((double)values[1], (double)values[2]);
 
-            size.Width = layoutRoot.ActualWidth / 8;
-            size.Height = layoutRoot.ActualHeight / 8;
+            size.Width = canvasSize.Width / 8;
+            size.Height = canvasSize.Height / 8;
 
             point.Y = size.Height * Math.Abs((ChessRank.Rank8 - position.GetRank()));
             point.X = size.Width * Math.Abs((ChessFile.FileA - position.GetFile()));

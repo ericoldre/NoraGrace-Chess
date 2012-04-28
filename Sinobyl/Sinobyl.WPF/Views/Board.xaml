@@ -16,8 +16,8 @@
         <ObjectDataProvider MethodName="GetDesignBoardVM" ObjectType="{x:Type vm:BoardVM}" x:Key="designBoard">
 
         </ObjectDataProvider>
-        
-        <convert:PositionToLeftMulti x:Key="PositionToLeftMulti"></convert:PositionToLeftMulti>
+
+        <convert:PositionToCoord x:Key="PositionToCoord" />
         
         <DataTemplate x:Key="BoardSquareTemplate">
         	<Border BorderBrush="Black" BorderThickness="1">
@@ -33,38 +33,42 @@
         <Style x:Key="BoardSquareContainerStyle" TargetType="{x:Type FrameworkElement}">
             <Setter Property="Canvas.Top">
                 <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                    <MultiBinding Converter="{StaticResource PositionToCoord}"
                         ConverterParameter="Top">
                         <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
             <Setter Property="Canvas.Left">
                 <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                    <MultiBinding Converter="{StaticResource PositionToCoord}"
                         ConverterParameter="Left">
                         <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
             
             <Setter Property="Width">
                 <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                    <MultiBinding Converter="{StaticResource PositionToCoord}"
                         ConverterParameter="Width">
                         <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
             <Setter Property="Height">
                 <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToLeftMulti}"
+                    <MultiBinding Converter="{StaticResource PositionToCoord}"
                         ConverterParameter="Height">
                         <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
+                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
@@ -73,14 +77,14 @@
 
 
     </UserControl.Resources>
-    <Canvas x:Name="LayoutRoot">
+    <Canvas x:Name="LayoutRoot" Background="Goldenrod">
         
         
         <ItemsControl x:Name="Squares" 
 			ItemsSource="{Binding Squares}" 
 			ItemTemplate="{DynamicResource BoardSquareTemplate}" 
 			ItemsPanel="{DynamicResource SquaresPanelTemplate}" 
-			ItemContainerStyle="{DynamicResource BoardSquareContainerStyle}"/>
+			ItemContainerStyle="{DynamicResource BoardSquareContainerStyle}" Margin="0"/>
         
         
 		

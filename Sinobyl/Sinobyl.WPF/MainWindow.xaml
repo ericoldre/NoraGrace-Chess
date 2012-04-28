@@ -3,9 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Sinobyl_WPF_Views="clr-namespace:Sinobyl.WPF.Views" x:Class="Sinobyl.WPF.MainWindow"
         Title="MainWindow" Height="350" Width="525">
-    <StackPanel>
-        <TextBlock Text="hello"></TextBlock>
-    	<Sinobyl_WPF_Views:Board DataContext="{Binding}" Height="300" Width="300"/>
-        <TextBlock Text="world"></TextBlock>
-    </StackPanel>
+    <Grid>
+    	<Sinobyl_WPF_Views:Board DataContext="{Binding}" Margin="0" Background="Aqua"/>
+    </Grid>
 </Window>

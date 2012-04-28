@@ -4,6 +4,9 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using Sinobyl.WPF.Models;
+using Sinobyl.WPF.ViewModels;
+using Sinobyl.Engine;
 
 namespace Sinobyl.WPF
 {
@@ -19,7 +22,7 @@ namespace Sinobyl.WPF
             MainWindow window = new MainWindow();
 
 
-            var viewModel = new ViewModels.BoardVM(new Sinobyl.Engine.ChessFEN(Sinobyl.Engine.ChessFEN.FENStart));
+            var viewModel = new BoardVM(new BoardModel(new ChessBoard(new ChessFEN(ChessFEN.FENStart))));
 
 
             // Allow all controls in the window to 

@@ -9,9 +9,9 @@ namespace Sinobyl.WPF.ViewModels
     {
         private ChessPiece _piece;
         private ChessPosition _position;
-        private RelayCommand _mouseDownCommand;
+        private RelayCommand _dragStartCommand;
         private bool _isDraggable;
-
+        
         public ChessPiece Piece
         {
             get
@@ -51,6 +51,23 @@ namespace Sinobyl.WPF.ViewModels
                 _isDraggable = value;
                 OnPropertyChanged("IsDraggable");
             }
+        }
+        public RelayCommand DragStartCommand
+        {
+            get
+            {
+                if (_dragStartCommand == null)
+                {
+                    _dragStartCommand = new RelayCommand(param => DragStartAction(param));
+                        
+                }
+                return _dragStartCommand;
+            }
+        }
+        private object DragStartAction(object param)
+        {
+            int i = 1;
+            return null;
         }
 
         

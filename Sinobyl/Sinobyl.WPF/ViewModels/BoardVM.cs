@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using Sinobyl.Engine;
 using System.Windows.Input;
+using Sinobyl.WPF.Models;
 
 namespace Sinobyl.WPF.ViewModels
 {
@@ -13,6 +14,7 @@ namespace Sinobyl.WPF.ViewModels
     {
         public ObservableCollection<BoardSquareVM> Squares { get; private set; }
         public ObservableCollection<BoardPieceVM> Pieces { get; private set; }
+        private readonly IBoardModel _model;
 
         private int _width;
         public int Width
@@ -30,30 +32,27 @@ namespace Sinobyl.WPF.ViewModels
 
     
 
-        public BoardVM(ChessFEN fen)
+        public BoardVM(IBoardModel model)
         {
+            _model = model;
+
             Squares = new ObservableCollection<BoardSquareVM>(BoardSquareVM.AllBoardSquares());
             Pieces = new ObservableCollection<BoardPieceVM>();
 
-            ChessBoard board = new ChessBoard(fen);
-            var moves = ChessMove.GenMovesLegal(board);
-
-            foreach (var position in Chess.AllPositions)
+            foreach (var piece in _model.Pieces)
             {
-                if (fen.pieceat[(int)position] != ChessPiece.EMPTY)
+                Pieces.Add(new BoardPieceVM()
                 {
-                    Pieces.Add(new BoardPieceVM() { 
-                        Piece = fen.pieceat[(int)position], 
-                        Position = position,
-                        IsDraggable = moves.Any(m=>m.From==position)
-                    });
-                }
+                    Piece = piece.Key,
+                    Position = piece.Value,
+                    IsDraggable = _model.Moves.Any(m=>m.From==piece.Value)
+                });
             }
         }
 
         public static BoardVM GetDesignBoardVM()
         {
-            return new BoardVM(new ChessFEN(ChessFEN.FENStart));
+            return new BoardVM(new BoardModel(new ChessBoard(new ChessFEN(ChessFEN.FENStart))));
         }
     }
 }

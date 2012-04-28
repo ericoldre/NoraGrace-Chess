@@ -21,15 +21,24 @@
         
         <DataTemplate x:Key="BoardSquareTemplate">
         	<Border BorderBrush="Black" BorderThickness="1">
-        		<StackPanel>
+        		<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 					<TextBlock TextWrapping="Wrap" Text="{Binding Name, Mode=OneWay}"/>
 				</StackPanel>
         	</Border>
         </DataTemplate>
-        <ItemsPanelTemplate x:Key="SquaresPanelTemplate">
 
+        <DataTemplate x:Key="PieceTemplate">
+            <Border BorderBrush="Green" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Piece, Mode=OneWay}"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <ItemsPanelTemplate x:Key="CanvasPanelTemplate">
 			<Canvas IsItemsHost="True"></Canvas>
         </ItemsPanelTemplate>
+        
         <Style x:Key="BoardSquareContainerStyle" TargetType="{x:Type FrameworkElement}">
             <Setter Property="Canvas.Top">
                 <Setter.Value>
@@ -77,20 +86,24 @@
 
 
     </UserControl.Resources>
-    <Canvas x:Name="LayoutRoot" Background="Goldenrod">
+    <Canvas x:Name="LayoutRoot">
         
         
         <ItemsControl x:Name="Squares" 
 			ItemsSource="{Binding Squares}" 
 			ItemTemplate="{DynamicResource BoardSquareTemplate}" 
-			ItemsPanel="{DynamicResource SquaresPanelTemplate}" 
+			ItemsPanel="{DynamicResource CanvasPanelTemplate}" 
 			ItemContainerStyle="{DynamicResource BoardSquareContainerStyle}" Margin="0"/>
-        
-        
-		
-            
-        
-		
-            
+
+        <ItemsControl x:Name="Pieces" 
+			ItemsSource="{Binding Pieces}" 
+			ItemTemplate="{DynamicResource PieceTemplate}" 
+			ItemsPanel="{DynamicResource CanvasPanelTemplate}" 
+			ItemContainerStyle="{DynamicResource BoardSquareContainerStyle}" Margin="0"/>
+
+
+
+
+
     </Canvas>
 </UserControl>

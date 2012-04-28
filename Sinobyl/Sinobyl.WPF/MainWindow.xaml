@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Sinobyl_WPF_Views="clr-namespace:Sinobyl.WPF.Views" x:Class="Sinobyl.WPF.MainWindow"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="525" Width="525">
     <Grid>
-    	<Sinobyl_WPF_Views:Board DataContext="{Binding}" Margin="0" Background="Aqua"/>
+    	<Sinobyl_WPF_Views:Board DataContext="{Binding}" Margin="0" />
     </Grid>
 </Window>

@@ -19,7 +19,7 @@ namespace Sinobyl.WPF
             MainWindow window = new MainWindow();
 
 
-            var viewModel = new ViewModels.BoardVM();
+            var viewModel = new ViewModels.BoardVM(new Sinobyl.Engine.ChessFEN(Sinobyl.Engine.ChessFEN.FENStart));
 
 
             // Allow all controls in the window to 

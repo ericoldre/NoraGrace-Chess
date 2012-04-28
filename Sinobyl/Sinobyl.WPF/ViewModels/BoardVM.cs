@@ -12,6 +12,7 @@ namespace Sinobyl.WPF.ViewModels
     public class BoardVM: ViewModelBase
     {
         public ObservableCollection<BoardSquareVM> Squares { get; private set; }
+        public ObservableCollection<BoardPieceVM> Pieces { get; private set; }
 
         private int _width;
         public int Width
@@ -29,14 +30,22 @@ namespace Sinobyl.WPF.ViewModels
 
     
 
-        public BoardVM()
+        public BoardVM(ChessFEN fen)
         {
             Squares = new ObservableCollection<BoardSquareVM>(BoardSquareVM.AllBoardSquares());
+            Pieces = new ObservableCollection<BoardPieceVM>();
+            foreach (var position in Chess.AllPositions)
+            {
+                if (fen.pieceat[(int)position] != ChessPiece.EMPTY)
+                {
+                    Pieces.Add(new BoardPieceVM() { Piece = fen.pieceat[(int)position], Position = position });
+                }
+            }
         }
 
         public static BoardVM GetDesignBoardVM()
         {
-            return new BoardVM();
+            return new BoardVM(new ChessFEN(ChessFEN.FENStart));
         }
     }
 }

@@ -11,7 +11,9 @@ namespace Sinobyl.WPF.ViewModels
         private readonly ChessPiece _piece;
         private readonly ChessPosition _position;
         private RelayCommand _dragStartCommand;
+        private RelayCommand _dragVectorCommand;
         private bool _isDragging = false;
+        private System.Windows.Vector _dragOffset = new System.Windows.Vector();
 
         public BoardPieceVM(ChessPiece piece, ChessPosition pos, BoardVM boardVM)
         {
@@ -53,6 +55,20 @@ namespace Sinobyl.WPF.ViewModels
             }
         }
 
+        public System.Windows.Vector DragOffset
+        {
+            get
+            {
+                return _dragOffset;
+            }
+            private set
+            {
+                if (_dragOffset == value) { return; }
+                _dragOffset = value;
+                OnPropertyChanged("DragOffset");
+            }
+
+        }
         public RelayCommand DragStartCommand
         {
             get
@@ -65,7 +81,18 @@ namespace Sinobyl.WPF.ViewModels
                 return _dragStartCommand;
             }
         }
-        
+
+        public RelayCommand DragVectorCommand
+        {
+            get
+            {
+                if (_dragVectorCommand == null)
+                {
+                    _dragVectorCommand = new RelayCommand(param => this.DragOffset = (System.Windows.Vector)param, param => IsDragging);
+                }
+                return _dragVectorCommand;
+            }
+        }
 
     }
 }

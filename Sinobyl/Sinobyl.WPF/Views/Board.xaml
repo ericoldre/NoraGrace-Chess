@@ -37,11 +37,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="PieceTemplate">
-            <Border Name="border" BorderBrush="Green" BorderThickness="1">
-                <StackPanel>
-                	<Image Name="img"></Image>
-                </StackPanel>
-            </Border>
+            <Image Name="img"></Image>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>

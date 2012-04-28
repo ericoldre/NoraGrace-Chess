@@ -120,6 +120,20 @@
       <Name>Sinobyl.Engine</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Pieces\Alpha\300bb.png" />
+    <Resource Include="Images\Pieces\Alpha\300bk.png" />
+    <Resource Include="Images\Pieces\Alpha\300bn.png" />
+    <Resource Include="Images\Pieces\Alpha\300bp.png" />
+    <Resource Include="Images\Pieces\Alpha\300bq.png" />
+    <Resource Include="Images\Pieces\Alpha\300br.png" />
+    <Resource Include="Images\Pieces\Alpha\300wb.png" />
+    <Resource Include="Images\Pieces\Alpha\300wk.png" />
+    <Resource Include="Images\Pieces\Alpha\300wn.png" />
+    <Resource Include="Images\Pieces\Alpha\300wp.png" />
+    <Resource Include="Images\Pieces\Alpha\300wq.png" />
+    <Resource Include="Images\Pieces\Alpha\300wr.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

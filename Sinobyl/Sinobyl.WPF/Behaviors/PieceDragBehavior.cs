@@ -13,33 +13,34 @@ namespace Sinobyl.WPF.Behaviors
     {
 
         private bool _mouseDown = false;
+        private BoardPieceVM ViewModel;
 
         protected override void OnAttached()
         {
             base.OnAttached();
-            var o = AssociatedObject;
-            var d = o.DataContext;
-            var t = AssociatedType;
 
-            var canvas = AssociatedObject.Parent as Canvas;
-
-            BoardPieceVM vm = (BoardPieceVM)AssociatedObject.DataContext;
-
+            ViewModel = (BoardPieceVM)AssociatedObject.DataContext;
 
             AssociatedObject.MouseLeftButtonDown += (s, e) =>
             {
                 _mouseDown = true;
-                vm.DragStartCommand.Execute(null);
+                System.Diagnostics.Debug.WriteLine(string.Format("Down: {0}", ViewModel.Position.ToString()));
+                if (ViewModel.DragStartCommand.CanExecute(null))
+                {
+                    ViewModel.DragStartCommand.Execute(null);
+                }
                 AssociatedObject.CaptureMouse();
             };
             AssociatedObject.MouseMove += (s, e) =>
             {
                 if (!_mouseDown) { return; }
+                System.Diagnostics.Debug.WriteLine(string.Format("move: {0}", ViewModel.Position.ToString()));
                 int i = 1;
             };
             AssociatedObject.MouseLeftButtonUp += (s, e) =>
             {
                 _mouseDown = false;
+                System.Diagnostics.Debug.WriteLine(string.Format("Up: {0}", ViewModel.Position.ToString()));
                 AssociatedObject.ReleaseMouseCapture();
             };
 

@@ -20,6 +20,7 @@ namespace Sinobyl.WPF.ViewModels
             _boardVM = boardVM;
             _boardVM.MoveDestinations(pos).CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(MovesChanged);
             IsDraggable = _boardVM.MoveDestinations(_position).Count > 0;
+            
         }
 
         void MovesChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -61,7 +62,7 @@ namespace Sinobyl.WPF.ViewModels
             {
                 if (_dragStartCommand == null)
                 {
-                    _dragStartCommand = new RelayCommand(param => DragStartAction(param));
+                    _dragStartCommand = new RelayCommand(param => DragStartAction(param), param=>this.IsDraggable);
                         
                 }
                 return _dragStartCommand;

@@ -41,7 +41,8 @@
 
         <DataTemplate x:Key="PieceTemplate">
         	<Grid>
-        		<Rectangle Name="rect" StrokeDashArray="0.5 1.0" Stroke="#FFE2ED14" StrokeThickness="2" RadiusX="10" RadiusY="10" Margin="2" Visibility="Hidden"/>     	
+        		<Rectangle Name="rect" StrokeDashArray="0.5 1.0" Stroke="#FFE2ED14" StrokeThickness="2" RadiusX="10" RadiusY="10" Margin="2" Visibility="Hidden"/>
+                <Button Name="cmdButton" Command="{Binding Path=DragStartCommand}" Margin="10" Visibility="Collapsed"></Button>
 				<Image Name="img" Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wp.png"></Image>  
                 <i:Interaction.Behaviors>
                     <behave:PieceDragBehavior></behave:PieceDragBehavior>
@@ -49,10 +50,12 @@
 			</Grid>
             
             <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsDraggable}" Value="True">
+                
+                <DataTrigger Binding="{Binding ElementName=cmdButton, Path=IsEnabled}" Value="True">
                     <Setter TargetName="img" Property="Cursor" Value="Hand"/>
 					<Setter TargetName="rect" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
+                
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
                         <engine:ChessPiece>WPawn</engine:ChessPiece>

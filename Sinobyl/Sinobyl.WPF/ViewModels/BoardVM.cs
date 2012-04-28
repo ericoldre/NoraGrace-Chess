@@ -50,28 +50,42 @@ namespace Sinobyl.WPF.ViewModels
 
         void ModelMoves_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            foreach (var oldMove in e.OldItems.Cast<ChessMove>())
+            if (e.OldItems != null)
             {
-                MoveDestinations(oldMove.From).Remove(oldMove.To);
+                foreach (var oldMove in e.OldItems.Cast<ChessMove>())
+                {
+                    MoveDestinations(oldMove.From).Remove(oldMove.To);
+                }
             }
-            foreach (var newMove in e.NewItems.Cast<ChessMove>())
+            
+            if (e.NewItems != null)
             {
-                MoveDestinations(newMove.From).Add(newMove.To);
+                foreach (var newMove in e.NewItems.Cast<ChessMove>())
+                {
+                    MoveDestinations(newMove.From).Add(newMove.To);
+                }
             }
+            
         }
 
         void ModelPieces_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            foreach (var oldPiece in e.OldItems.Cast<KeyValuePair<ChessPiece, ChessPosition>>())
+            if (e.OldItems != null)
             {
-                foreach (var existing in this.Pieces.Where(p => p.Position == oldPiece.Value).ToArray())
+                foreach (var oldPiece in e.OldItems.Cast<KeyValuePair<ChessPiece, ChessPosition>>())
                 {
-                    this.Pieces.Remove(existing);
+                    foreach (var existing in this.Pieces.Where(p => p.Position == oldPiece.Value).ToArray())
+                    {
+                        this.Pieces.Remove(existing);
+                    }
                 }
             }
-            foreach (var newPiece in e.NewItems.Cast<KeyValuePair<ChessPiece, ChessPosition>>())
+            if (e.NewItems != null)
             {
-                Pieces.Add(new BoardPieceVM(newPiece.Key, newPiece.Value, this));
+                foreach (var newPiece in e.NewItems.Cast<KeyValuePair<ChessPiece, ChessPosition>>())
+                {
+                    Pieces.Add(new BoardPieceVM(newPiece.Key, newPiece.Value, this));
+                }
             }
         }
 

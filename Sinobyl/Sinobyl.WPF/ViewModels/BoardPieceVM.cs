@@ -11,22 +11,18 @@ namespace Sinobyl.WPF.ViewModels
         private readonly ChessPiece _piece;
         private readonly ChessPosition _position;
         private RelayCommand _dragStartCommand;
-        private bool _isDraggable;
+        private bool _isDragging = false;
 
         public BoardPieceVM(ChessPiece piece, ChessPosition pos, BoardVM boardVM)
         {
             _piece = piece;
             _position = pos;
             _boardVM = boardVM;
-            _boardVM.MoveDestinations(pos).CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(MovesChanged);
-            IsDraggable = _boardVM.MoveDestinations(_position).Count > 0;
+            //_boardVM.MoveDestinations(pos).CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(MovesChanged);
+            ////IsDraggable = _boardVM.MoveDestinations(_position).Count > 0;
             
         }
 
-        void MovesChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            IsDraggable = _boardVM.MoveDestinations(_position).Count > 0;
-        }
 
         public ChessPiece Piece
         {
@@ -43,38 +39,32 @@ namespace Sinobyl.WPF.ViewModels
             }
         }
 
-        public bool IsDraggable
+        public bool IsDragging
         {
             get
             {
-                return _isDraggable;
+                return _isDragging;
             }
             private set
             {
-                if (value == _isDraggable) { return; }
-                _isDraggable = value;
-                OnPropertyChanged("IsDraggable");
+                if (_isDragging == value) { return; }
+                _isDragging = value;
+                OnPropertyChanged("IsDragging");
             }
         }
+
         public RelayCommand DragStartCommand
         {
             get
             {
                 if (_dragStartCommand == null)
                 {
-                    _dragStartCommand = new RelayCommand(param => DragStartAction(param), param=>this.IsDraggable);
+                    _dragStartCommand = new RelayCommand(param => IsDragging=true, param => _boardVM.MoveDestinations(_position).Count > 0);
                         
                 }
                 return _dragStartCommand;
             }
         }
-
-        private object DragStartAction(object param)
-        {
-            int i = 1;
-            return null;
-        }
-
         
 
     }

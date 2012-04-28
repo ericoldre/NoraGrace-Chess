@@ -4,6 +4,15 @@
         xmlns:Sinobyl_WPF_Views="clr-namespace:Sinobyl.WPF.Views" x:Class="Sinobyl.WPF.MainWindow"
         Title="MainWindow" Height="525" Width="525">
     <Grid>
-    	<Sinobyl_WPF_Views:Board DataContext="{Binding}" Margin="0" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.07*"></RowDefinition>
+            <RowDefinition Height="0.93*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Button Grid.Row="0" VerticalAlignment="Top" Click="Button_Click">
+            <TextBlock Text="RemoveMoves"></TextBlock>
+        </Button>
+        
+        <Sinobyl_WPF_Views:Board DataContext="{Binding}" Grid.Row="1" />
     </Grid>
 </Window>

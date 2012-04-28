@@ -23,5 +23,19 @@ namespace Sinobyl.WPF
         {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Sinobyl.WPF.ViewModels.BoardVM viewmodel = (Sinobyl.WPF.ViewModels.BoardVM)this.DataContext;
+
+            Sinobyl.WPF.Models.BoardModel model = (Sinobyl.WPF.Models.BoardModel)viewmodel.Model;
+            
+            while(viewmodel.Model.Moves.Count()>0)
+            {
+                viewmodel.Model.Moves.RemoveAt(0);
+            }
+            
+
+        }
     }
 }

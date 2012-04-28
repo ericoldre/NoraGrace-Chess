@@ -34,11 +34,19 @@ namespace Sinobyl.WPF.ViewModels
         {
             Squares = new ObservableCollection<BoardSquareVM>(BoardSquareVM.AllBoardSquares());
             Pieces = new ObservableCollection<BoardPieceVM>();
+
+            ChessBoard board = new ChessBoard(fen);
+            var moves = ChessMove.GenMovesLegal(board);
+
             foreach (var position in Chess.AllPositions)
             {
                 if (fen.pieceat[(int)position] != ChessPiece.EMPTY)
                 {
-                    Pieces.Add(new BoardPieceVM() { Piece = fen.pieceat[(int)position], Position = position });
+                    Pieces.Add(new BoardPieceVM() { 
+                        Piece = fen.pieceat[(int)position], 
+                        Position = position,
+                        IsDraggable = moves.Any(m=>m.From==position)
+                    });
                 }
             }
         }

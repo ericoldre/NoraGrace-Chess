@@ -7,22 +7,31 @@ namespace Sinobyl.WPF.ViewModels
 {
     public class BoardPieceVM: ViewModelBase
     {
-        private ChessPiece _piece;
-        private ChessPosition _position;
+        private readonly BoardVM _boardVM;
+        private readonly ChessPiece _piece;
+        private readonly ChessPosition _position;
         private RelayCommand _dragStartCommand;
         private bool _isDraggable;
-        
+
+        public BoardPieceVM(ChessPiece piece, ChessPosition pos, BoardVM boardVM)
+        {
+            _piece = piece;
+            _position = pos;
+            _boardVM = boardVM;
+            _boardVM.MoveDestinations(pos).CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(MovesChanged);
+            IsDraggable = _boardVM.MoveDestinations(_position).Count > 0;
+        }
+
+        void MovesChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            IsDraggable = _boardVM.MoveDestinations(_position).Count > 0;
+        }
+
         public ChessPiece Piece
         {
             get
             {
                 return _piece;
-            }
-            set
-            {
-                if (value == _piece) { return; }
-                _piece = value;
-                OnPropertyChanged("Piece");
             }
         }
         public ChessPosition Position
@@ -30,12 +39,6 @@ namespace Sinobyl.WPF.ViewModels
             get
             {
                 return _position;
-            }
-            set
-            {
-                if (value == _position) { return; }
-                _position = value;
-                OnPropertyChanged("Position");
             }
         }
 
@@ -45,7 +48,7 @@ namespace Sinobyl.WPF.ViewModels
             {
                 return _isDraggable;
             }
-            set
+            private set
             {
                 if (value == _isDraggable) { return; }
                 _isDraggable = value;
@@ -64,6 +67,7 @@ namespace Sinobyl.WPF.ViewModels
                 return _dragStartCommand;
             }
         }
+
         private object DragStartAction(object param)
         {
             int i = 1;

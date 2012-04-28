@@ -18,13 +18,22 @@
         </ObjectDataProvider>
 
         <convert:PositionToCoord x:Key="PositionToCoord" />
+
+
         
         <DataTemplate x:Key="BoardSquareTemplate">
-        	<Border BorderBrush="Black" BorderThickness="1">
-        		<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-					<TextBlock TextWrapping="Wrap" Text="{Binding Name, Mode=OneWay}"/>
-				</StackPanel>
-        	</Border>
+            <Grid Name="grid" Background="Aqua">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Name, Mode=OneWay}"/>
+                </StackPanel>
+            </Grid>
+
+            <DataTemplate.Triggers>
+                <DataTrigger Value="True" Binding="{Binding Path=IsLight}">
+                    <Setter TargetName="grid" Property="Background" Value="Green"></Setter>
+                </DataTrigger>
+                
+            </DataTemplate.Triggers>
         </DataTemplate>
 
         <DataTemplate x:Key="PieceTemplate">
@@ -38,6 +47,8 @@
         <ItemsPanelTemplate x:Key="CanvasPanelTemplate">
 			<Canvas IsItemsHost="True"></Canvas>
         </ItemsPanelTemplate>
+
+
         
         <Style x:Key="BoardSquareContainerStyle" TargetType="{x:Type FrameworkElement}">
             <Setter Property="Canvas.Top">

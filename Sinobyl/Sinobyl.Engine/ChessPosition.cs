@@ -20,6 +20,20 @@ namespace Sinobyl.Engine
 
     public static class ExtensionsChessPosition
     {
+        public static bool IsLight(this ChessPosition pos)
+        {
+            bool retval = (int)pos % 2 == 1;
+            switch (pos.GetRank())
+            {
+                case ChessRank.Rank2:
+                case ChessRank.Rank4:
+                case ChessRank.Rank6:
+                case ChessRank.Rank8:
+                    retval = !retval;
+                    break;
+            }
+            return retval;
+        }
         public static bool IsInBounds(this ChessPosition pos)
         {
             return (int)pos >= 0 && (int)pos <= 63;

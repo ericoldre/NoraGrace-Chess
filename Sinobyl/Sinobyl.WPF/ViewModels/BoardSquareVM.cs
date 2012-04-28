@@ -16,7 +16,7 @@ namespace Sinobyl.WPF.ViewModels
         }
         public bool IsLight
         {
-            get { return (int)_position%2 == 0; }
+            get { return _position.IsLight(); }
         }
 
         public BoardSquareVM(Sinobyl.Engine.ChessPosition pos)

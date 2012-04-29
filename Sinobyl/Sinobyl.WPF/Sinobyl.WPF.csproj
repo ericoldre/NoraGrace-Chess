@@ -64,6 +64,7 @@
     <Compile Include="Models\IBoardModel.cs" />
     <Compile Include="Models\IPieceModel.cs" />
     <Compile Include="Models\PieceModel.cs" />
+    <Compile Include="Models\RangeObservableCollection.cs" />
     <Compile Include="SampleData\BoardDesignData\BoardDesignData.xaml.cs">
       <DependentUpon>BoardDesignData.xaml</DependentUpon>
     </Compile>

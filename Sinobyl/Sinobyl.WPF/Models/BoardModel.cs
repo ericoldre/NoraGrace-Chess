@@ -11,8 +11,8 @@ namespace Sinobyl.WPF.Models
     {
         private class BoardChangedException : Exception { }
         private readonly ChessBoard _board;
-        private readonly ObservableCollection<IPieceModel> _pieces = new ObservableCollection<IPieceModel>();
-        private readonly ObservableCollection<ChessMove> _moves = new ObservableCollection<ChessMove>();
+        private readonly RangeObservableCollection<IPieceModel> _pieces = new RangeObservableCollection<IPieceModel>();
+        private readonly RangeObservableCollection<ChessMove> _moves = new RangeObservableCollection<ChessMove>();
 
         public ObservableCollection<IPieceModel> Pieces
         {
@@ -28,12 +28,6 @@ namespace Sinobyl.WPF.Models
         {
             _board.MoveApply(move);
 
-            while (_moves.Count > 0) { _moves.RemoveAt(_moves.Count - 1); }
-            foreach (var newmove in ChessMove.GenMovesLegal(_board))
-            {
-                _moves.Add(newmove);
-            }
-
         }
 
         public BoardModel(ChessBoard board)
@@ -41,10 +35,7 @@ namespace Sinobyl.WPF.Models
             _board = board;
             _board.BoardChanged += new EventHandler<ChessBoard.BoardChangedEventArgs>(Board_BoardChanged);
             RefreshPieces();
-            foreach (var move in ChessMove.GenMovesLegal(board))
-            {
-                _moves.Add(move);
-            }
+            _moves.AddRange(ChessMove.GenMovesLegal(_board));
         }
 
         void Board_BoardChanged(object sender, ChessBoard.BoardChangedEventArgs e)
@@ -84,7 +75,9 @@ namespace Sinobyl.WPF.Models
                 throw ex;
             }
 
-            
+            _moves.RemoveRange(_moves.ToArray());
+            _moves.AddRange(ChessMove.GenMovesLegal(_board));
+
         }
 
         private bool VerifyPieces()

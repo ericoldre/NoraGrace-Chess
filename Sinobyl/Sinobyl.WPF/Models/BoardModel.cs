@@ -13,15 +13,17 @@ namespace Sinobyl.WPF.Models
         private readonly ChessBoard _board;
         private readonly RangeObservableCollection<IPieceModel> _pieces = new RangeObservableCollection<IPieceModel>();
         private readonly RangeObservableCollection<ChessMove> _moves = new RangeObservableCollection<ChessMove>();
+        private readonly ReadOnlyObservableCollection<IPieceModel> _piecesReadonly;
+        private readonly ReadOnlyObservableCollection<ChessMove> _movesReadonly;
 
-        public ObservableCollection<IPieceModel> Pieces
+        public ReadOnlyObservableCollection<IPieceModel> Pieces
         {
-            get { return _pieces; }
+            get { return _piecesReadonly; }
         }
 
-        public ObservableCollection<ChessMove> Moves
+        public ReadOnlyObservableCollection<ChessMove> Moves
         {
-            get { return _moves; }
+            get { return _movesReadonly; }
         }
 
         public void ApplyMove(ChessMove move)
@@ -33,6 +35,8 @@ namespace Sinobyl.WPF.Models
         public BoardModel(ChessBoard board)
         {
             _board = board;
+            _movesReadonly = new ReadOnlyObservableCollection<ChessMove>(_moves);
+            _piecesReadonly = new ReadOnlyObservableCollection<IPieceModel>(_pieces);
             _board.BoardChanged += new EventHandler<ChessBoard.BoardChangedEventArgs>(Board_BoardChanged);
             RefreshPieces();
             _moves.AddRange(ChessMove.GenMovesLegal(_board));
@@ -44,25 +48,25 @@ namespace Sinobyl.WPF.Models
             {
                 foreach (var removed in e.Removed)
                 {
-                    this.Pieces.Where(p => p.Position == removed.Position).ToList().ForEach(ip =>
+                    _pieces.Where(p => p.Position == removed.Position).ToList().ForEach(ip =>
                     {
-                        this.Pieces.Remove(ip);
+                        _pieces.Remove(ip);
                     });
                 }
                 foreach (var moved in e.Moved)
                 {
-                    this.Pieces.Where(p => p.Position == moved.OldPosition).ToList().ForEach(ip =>
+                    _pieces.Where(p => p.Position == moved.OldPosition).ToList().ForEach(ip =>
                     {
                         ((PieceModel)ip).Position = moved.NewPosition;
                     });
                 }
                 foreach (var added in e.Added)
                 {
-                    this.Pieces.Add(new PieceModel() { Piece = added.Piece, Position = added.Position });
+                    _pieces.Add(new PieceModel() { Piece = added.Piece, Position = added.Position });
                 }
                 foreach (var changed in e.Changed)
                 {
-                    this.Pieces.Where(p => p.Position == changed.Position).ToList().ForEach(ip =>
+                    _pieces.Where(p => p.Position == changed.Position).ToList().ForEach(ip =>
                     {
                         ((PieceModel)ip).Piece = changed.NewPiece;
                     });
@@ -91,14 +95,9 @@ namespace Sinobyl.WPF.Models
         }
         private void RefreshPieces()
         {
-            this.Pieces.Clear();
-            foreach (var position in Chess.AllPositions)
-            {
-                if (_board.PieceAt(position) != ChessPiece.EMPTY)
-                {
-                    _pieces.Add(new PieceModel() { Piece = _board.PieceAt(position), Position = position });
-                }
-            }
+            _pieces.RemoveRange(this._pieces.ToArray());
+            var x = Chess.AllPositions.Where(pos => _board.PieceAt(pos) != ChessPiece.EMPTY).Select(pos => new PieceModel() { Piece = _board.PieceAt(pos), Position = pos });
+            _pieces.AddRange(x.ToArray());
         }
 
     }

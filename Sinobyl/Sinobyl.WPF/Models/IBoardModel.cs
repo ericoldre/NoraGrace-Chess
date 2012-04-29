@@ -9,8 +9,8 @@ namespace Sinobyl.WPF.Models
 {
     public interface IBoardModel
     {
-        ObservableCollection<IPieceModel> Pieces { get; }
-        ObservableCollection<ChessMove> Moves { get; }
+        ReadOnlyObservableCollection<IPieceModel> Pieces { get; }
+        ReadOnlyObservableCollection<ChessMove> Moves { get; }
         void ApplyMove(ChessMove move);
     }
 }

@@ -75,8 +75,8 @@ namespace Sinobyl.WPF.ViewModels
                 MoveDestinations(move.From).Add(move.To);
             }
 
-            _model.Pieces.CollectionChanged += new NotifyCollectionChangedEventHandler(ModelPieces_CollectionChanged);
-            _model.Moves.CollectionChanged += new NotifyCollectionChangedEventHandler(ModelMoves_CollectionChanged);
+            ((INotifyCollectionChanged)(_model.Pieces)).CollectionChanged += new NotifyCollectionChangedEventHandler(ModelPieces_CollectionChanged);
+            ((INotifyCollectionChanged)(_model.Moves)).CollectionChanged += new NotifyCollectionChangedEventHandler(ModelMoves_CollectionChanged);
         }
 
         void ModelMoves_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

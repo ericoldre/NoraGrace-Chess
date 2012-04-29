@@ -10,6 +10,7 @@
              xmlns:convert="clr-namespace:Sinobyl.WPF.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:behave="clr-namespace:Sinobyl.WPF.Behaviors"
+             xmlns:views="clr-namespace:Sinobyl.WPF.Views"
              mc:Ignorable="d" 
     
              d:DesignHeight="500" d:DesignWidth="500"
@@ -23,7 +24,6 @@
         <convert:PositionToCoord x:Key="PositionToCoord" />
 
 
-        
         <DataTemplate x:Key="BoardSquareTemplate">
             <Grid Name="grid" Background="#FF909573">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
@@ -189,7 +189,10 @@
 
 
     </UserControl.Resources>
-    <Canvas x:Name="LayoutRoot">
+    <Canvas x:Name="LayoutRoot" 
+            views:SizeObserver.Observe="true" 
+            views:SizeObserver.ObservedWidth="{Binding BoardWidth, Mode=OneWayToSource}"
+            views:SizeObserver.ObservedHeight="{Binding BoardHeight, Mode=OneWayToSource}">
         
         
         <ItemsControl x:Name="Squares" 

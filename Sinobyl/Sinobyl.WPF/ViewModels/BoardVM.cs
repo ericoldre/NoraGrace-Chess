@@ -17,7 +17,8 @@ namespace Sinobyl.WPF.ViewModels
         private readonly Dictionary<ChessPosition, ObservableCollection<ChessPosition>> _moves = new Dictionary<ChessPosition, ObservableCollection<ChessPosition>>();
         public ObservableCollection<BoardSquareVM> Squares { get; private set; }
         public ObservableCollection<BoardPieceVM> Pieces { get; private set; }
-        
+        private double _boardWidth;
+        private double _boardHeight;
 
         public IBoardModel Model
         {
@@ -26,8 +27,33 @@ namespace Sinobyl.WPF.ViewModels
                 return _model;
             }
         }
-    
 
+        public double BoardWidth
+        {
+            get
+            {
+                return _boardWidth;
+            }
+            set
+            {
+                if (_boardWidth == value) { return; }
+                _boardWidth = value;
+                OnPropertyChanged("BoardWidth");
+            }
+        }
+        public double BoardHeight
+        {
+            get
+            {
+                return _boardHeight;
+            }
+            set
+            {
+                if (_boardHeight == value) { return; }
+                _boardHeight = value;
+                OnPropertyChanged("BoardHeight");
+            }
+        }
         public BoardVM(IBoardModel model)
         {
             _model = model;

@@ -11,6 +11,7 @@ namespace Sinobyl.WPF.ViewModels
     {
         private readonly BoardVM _boardVM;
         private ChessPosition _position;
+        private Vector _renderOffset = new Vector();
 
         public BoardElementVM(BoardVM boardViewModel)
         {
@@ -25,10 +26,12 @@ namespace Sinobyl.WPF.ViewModels
                 case "BoardWidth":
                     OnPropertyChanged("Size");
                     OnPropertyChanged("Location");
+                    OnPropertyChanged("VisualCenter");
                     break;
                 case "BoardHeight":
                     OnPropertyChanged("Size");
                     OnPropertyChanged("Location");
+                    OnPropertyChanged("VisualCenter");
                     break;
             }
         }
@@ -54,6 +57,7 @@ namespace Sinobyl.WPF.ViewModels
                 OnPropertyChanged("Position");
                 OnPropertyChanged("Size");
                 OnPropertyChanged("Location");
+                OnPropertyChanged("VisualCenter");
             }
         }
 
@@ -69,6 +73,33 @@ namespace Sinobyl.WPF.ViewModels
             get
             {
                 return PositionToPoint(new Size(_boardVM.BoardWidth, _boardVM.BoardHeight), this.Position);
+            }
+        }
+
+        public System.Windows.Vector RenderOffset
+        {
+            get
+            {
+                return _renderOffset;
+            }
+            set
+            {
+                if (_renderOffset == value) { return; }
+                _renderOffset = value;
+                OnPropertyChanged("RenderOffset");
+                OnPropertyChanged("VisualCenter");
+            }
+        }
+
+        public System.Windows.Point VisualCenter
+        {
+            get
+            {
+                return new System.Windows.Point()
+                {
+                    X = this.Location.X - this.RenderOffset.X + (this.Size.Width / 2),
+                    Y = this.Location.Y - this.RenderOffset.Y + (this.Size.Height / 2)
+                };
             }
         }
 

@@ -14,7 +14,7 @@ namespace Sinobyl.WPF.ViewModels
         private RelayCommand _dragVectorCommand;
         private RelayCommand _dragEndCommand;
         private bool _isDragging = false;
-        private System.Windows.Vector _dragOffset = new System.Windows.Vector();
+        
 
         public BoardPieceVM(BoardVM boardVM, Sinobyl.WPF.Models.IPieceModel pieceModel): base(boardVM)
         {
@@ -67,21 +67,9 @@ namespace Sinobyl.WPF.ViewModels
             }
         }
 
-        public System.Windows.Vector DragOffset
-        {
-            get
-            {
-                return _dragOffset;
-            }
-            private set
-            {
-                if (_dragOffset == value) { return; }
-                _dragOffset = value;
-                OnPropertyChanged("DragOffset");
-            }
+        
 
-        }
-
+        
 
         public RelayCommand DragStartCommand
         {
@@ -103,7 +91,7 @@ namespace Sinobyl.WPF.ViewModels
             {
                 if (_dragVectorCommand == null)
                 {
-                    _dragVectorCommand = new RelayCommand(param => this.DragOffset = (System.Windows.Vector)param, param => IsDragging);
+                    _dragVectorCommand = new RelayCommand(param => this.RenderOffset = (System.Windows.Vector)param, param => IsDragging);
                 }
                 return _dragVectorCommand;
             }
@@ -114,7 +102,12 @@ namespace Sinobyl.WPF.ViewModels
             {
                 if (_dragEndCommand == null)
                 {
-                    _dragEndCommand = new RelayCommand(param => this.IsDragging = false, param => IsDragging);
+                    _dragEndCommand = new RelayCommand(param => 
+                    {
+                        this.IsDragging = false;
+                        this.RenderOffset = new System.Windows.Vector(0, 0);
+                    }, 
+                    param => IsDragging);
                 }
                 return _dragEndCommand;
             }

@@ -45,7 +45,7 @@
                 <Button Name="cmdButton" Command="{Binding Path=DragStartCommand}" Margin="10" Visibility="Collapsed"></Button>
 				<Image Name="img" Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wp.png" RenderTransformOrigin="0.5,0.5">
 					<Image.RenderTransform>
-							<TranslateTransform X="{Binding Path=DragOffset.X}" Y="{Binding Path=DragOffset.Y}"/>
+							<TranslateTransform X="{Binding Path=RenderOffset.X}" Y="{Binding Path=RenderOffset.Y}"/>
 					</Image.RenderTransform>
 				</Image>  
                 <i:Interaction.Behaviors>

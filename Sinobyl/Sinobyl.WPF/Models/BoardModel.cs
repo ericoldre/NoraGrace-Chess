@@ -10,21 +10,19 @@ namespace Sinobyl.WPF.Models
     public class BoardModel: IBoardModel
     {
 
-        private readonly ObservableCollection<KeyValuePair<ChessPiece, ChessPosition>> _pieces = new ObservableCollection<KeyValuePair<ChessPiece, ChessPosition>>();
+        private readonly ObservableCollection<IPieceModel> _pieces = new ObservableCollection<IPieceModel>();
         private readonly ObservableCollection<ChessMove> _moves = new ObservableCollection<ChessMove>();
-        #region IBoardModel Members
 
-        ObservableCollection<KeyValuePair<ChessPiece, ChessPosition>> IBoardModel.Pieces
+        public ObservableCollection<IPieceModel> Pieces
         {
             get { return _pieces; }
         }
 
-        ObservableCollection<ChessMove> IBoardModel.Moves
+        public ObservableCollection<ChessMove> Moves
         {
             get { return _moves; }
         }
 
-        #endregion
 
         public BoardModel(ChessBoard board)
         {
@@ -32,7 +30,7 @@ namespace Sinobyl.WPF.Models
             {
                 if (board.PieceAt(position) != ChessPiece.EMPTY)
                 {
-                    _pieces.Add(new KeyValuePair<ChessPiece, ChessPosition>(board.PieceAt(position), position));
+                    _pieces.Add(new PieceModel() { Piece = board.PieceAt(position), Position = position });
                 }
             }
             foreach (var move in ChessMove.GenMovesLegal(board))

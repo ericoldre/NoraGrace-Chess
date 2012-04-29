@@ -37,7 +37,7 @@ namespace Sinobyl.WPF.ViewModels
 
             foreach (var piece in _model.Pieces)
             {
-                Pieces.Add(new BoardPieceVM(piece.Key, piece.Value, this));
+                Pieces.Add(new BoardPieceVM(this, piece));
             }
             foreach (var move in _model.Moves)
             {
@@ -72,9 +72,9 @@ namespace Sinobyl.WPF.ViewModels
         {
             if (e.OldItems != null)
             {
-                foreach (var oldPiece in e.OldItems.Cast<KeyValuePair<ChessPiece, ChessPosition>>())
+                foreach (var oldPiece in e.OldItems.Cast<IPieceModel>())
                 {
-                    foreach (var existing in this.Pieces.Where(p => p.Position == oldPiece.Value).ToArray())
+                    foreach (var existing in this.Pieces.Where(p => p.Position == oldPiece.Position).ToArray())
                     {
                         this.Pieces.Remove(existing);
                     }
@@ -82,9 +82,9 @@ namespace Sinobyl.WPF.ViewModels
             }
             if (e.NewItems != null)
             {
-                foreach (var newPiece in e.NewItems.Cast<KeyValuePair<ChessPiece, ChessPosition>>())
+                foreach (var newPiece in e.NewItems.Cast<IPieceModel>())
                 {
-                    Pieces.Add(new BoardPieceVM(newPiece.Key, newPiece.Value, this));
+                    Pieces.Add(new BoardPieceVM(this, newPiece));
                 }
             }
         }

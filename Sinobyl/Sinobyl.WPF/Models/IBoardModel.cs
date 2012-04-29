@@ -9,7 +9,7 @@ namespace Sinobyl.WPF.Models
 {
     public interface IBoardModel
     {
-        ObservableCollection<KeyValuePair<ChessPiece, ChessPosition>> Pieces { get; }
+        ObservableCollection<IPieceModel> Pieces { get; }
         ObservableCollection<ChessMove> Moves { get; }
     }
 }

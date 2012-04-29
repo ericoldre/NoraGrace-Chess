@@ -62,6 +62,8 @@
     <Compile Include="Converters\PositionToCoord.cs" />
     <Compile Include="Models\BoardModel.cs" />
     <Compile Include="Models\IBoardModel.cs" />
+    <Compile Include="Models\IPieceModel.cs" />
+    <Compile Include="Models\PieceModel.cs" />
     <Compile Include="SampleData\BoardDesignData\BoardDesignData.xaml.cs">
       <DependentUpon>BoardDesignData.xaml</DependentUpon>
     </Compile>

@@ -8,21 +8,27 @@ namespace Sinobyl.WPF.ViewModels
     public class BoardPieceVM: ViewModelBase
     {
         private readonly BoardVM _boardVM;
-        private readonly ChessPiece _piece;
-        private readonly ChessPosition _position;
+        private readonly Sinobyl.WPF.Models.IPieceModel _pieceModel;
+        private ChessPiece _piece;
+        private ChessPosition _position;
         private RelayCommand _dragStartCommand;
         private RelayCommand _dragVectorCommand;
         private bool _isDragging = false;
         private System.Windows.Vector _dragOffset = new System.Windows.Vector();
 
-        public BoardPieceVM(ChessPiece piece, ChessPosition pos, BoardVM boardVM)
+        public BoardPieceVM(BoardVM boardVM, Sinobyl.WPF.Models.IPieceModel pieceModel)
         {
-            _piece = piece;
-            _position = pos;
             _boardVM = boardVM;
-            //_boardVM.MoveDestinations(pos).CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(MovesChanged);
-            ////IsDraggable = _boardVM.MoveDestinations(_position).Count > 0;
-            
+            _pieceModel = pieceModel;
+            Piece = pieceModel.Piece;
+            Position = pieceModel.Position;
+            _pieceModel.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(PieceModel_PropertyChanged);
+        }
+
+        void PieceModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            Piece = _pieceModel.Piece;
+            Position = _pieceModel.Position;
         }
 
 
@@ -32,12 +38,24 @@ namespace Sinobyl.WPF.ViewModels
             {
                 return _piece;
             }
+            set
+            {
+                if (_piece == value) { return; }
+                _piece = value;
+                OnPropertyChanged("Piece");
+            }
         }
         public ChessPosition Position
         {
             get
             {
                 return _position;
+            }
+            set
+            {
+                if (_position == value) { return; }
+                _position = value;
+                OnPropertyChanged("Position");
             }
         }
 

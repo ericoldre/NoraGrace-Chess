@@ -29,11 +29,14 @@ namespace Sinobyl.WPF
             Sinobyl.WPF.ViewModels.BoardVM viewmodel = (Sinobyl.WPF.ViewModels.BoardVM)this.DataContext;
 
             Sinobyl.WPF.Models.BoardModel model = (Sinobyl.WPF.Models.BoardModel)viewmodel.Model;
+
+            var x = model.Pieces.First(p => p.Position == Engine.ChessPosition.A2) as Sinobyl.WPF.Models.PieceModel;
+            x.Position = Engine.ChessPosition.A4;
             
-            while(viewmodel.Model.Moves.Count()>0)
-            {
-                viewmodel.Model.Moves.RemoveAt(0);
-            }
+            //while(viewmodel.Model.Moves.Count()>0)
+            //{
+            //    viewmodel.Model.Moves.RemoveAt(0);
+            //}
             
 
         }

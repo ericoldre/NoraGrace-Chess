@@ -47,7 +47,7 @@ namespace Sinobyl.WPF.Behaviors
             AssociatedObject.MouseLeftButtonUp += (s, e) =>
             {
                 _mouseDown = false;
-                ViewModel.DragVectorCommand.Execute(new Vector(0,0));
+                ViewModel.DragEndCommand.Execute(null);
                 System.Diagnostics.Debug.WriteLine(string.Format("Up: {0}", ViewModel.Position.ToString()));
                 AssociatedObject.ReleaseMouseCapture();
             };

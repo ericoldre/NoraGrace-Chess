@@ -28,7 +28,7 @@ namespace Sinobyl.WPF.Models
         {
             _board.MoveApply(move);
 
-            _moves.Clear();
+            while (_moves.Count > 0) { _moves.RemoveAt(_moves.Count - 1); }
             foreach (var newmove in ChessMove.GenMovesLegal(_board))
             {
                 _moves.Add(newmove);

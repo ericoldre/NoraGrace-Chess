@@ -11,5 +11,6 @@ namespace Sinobyl.WPF.Models
     {
         ObservableCollection<IPieceModel> Pieces { get; }
         ObservableCollection<ChessMove> Moves { get; }
+        void ApplyMove(ChessMove move);
     }
 }

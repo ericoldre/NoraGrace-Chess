@@ -5,46 +5,29 @@ using System.Text;
 using Sinobyl.Engine;
 namespace Sinobyl.WPF.ViewModels
 {
-    public class BoardSquareVM: ViewModelBase 
+    public class BoardSquareVM: BoardElementVM
     {
-        private readonly Sinobyl.Engine.ChessPosition _position;
-
+        
         public string Name
         {
-            get { return _position.PositionToString(); }
+            get { return this.Position.PositionToString(); }
             
         }
         public bool IsLight
         {
-            get { return _position.IsLight(); }
+            get { return this.Position.IsLight(); }
         }
 
-        public BoardSquareVM(Sinobyl.Engine.ChessPosition pos)
+        public BoardSquareVM(BoardVM boardVM, Sinobyl.Engine.ChessPosition pos): base(boardVM)
         {
-            _position = pos;
+            this.Position = pos;
         }
 
-        public override string  ToString()
+        public override string ToString()
         {
  	        return Name;
         }
 
-        public Sinobyl.Engine.ChessPosition Position
-        {
-            get
-            {
-                return _position;
-            }
-        }
 
-        public static List<BoardSquareVM> AllBoardSquares()
-        {
-            List<BoardSquareVM> retval = new List<BoardSquareVM>();
-            foreach (var pos in Sinobyl.Engine.Chess.AllPositions)
-            {
-                retval.Add(new BoardSquareVM(pos));
-            }
-            return retval;
-        }
     }
 }

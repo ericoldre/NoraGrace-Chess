@@ -67,6 +67,7 @@
     <Compile Include="SampleData\BoardDesignData\BoardDesignData.xaml.cs">
       <DependentUpon>BoardDesignData.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\BoardElementVM.cs" />
     <Compile Include="ViewModels\BoardPieceVM.cs" />
     <Compile Include="ViewModels\BoardSquareVM.cs" />
     <Compile Include="ViewModels\BoardVM.cs" />

@@ -58,8 +58,13 @@ namespace Sinobyl.WPF.ViewModels
         {
             _model = model;
 
-            Squares = new ObservableCollection<BoardSquareVM>(BoardSquareVM.AllBoardSquares());
+            Squares = new ObservableCollection<BoardSquareVM>();
             Pieces = new ObservableCollection<BoardPieceVM>();
+
+            foreach (ChessPosition pos in Chess.AllPositions)
+            {
+                Squares.Add(new BoardSquareVM(this, pos));
+            }
 
             foreach (var piece in _model.Pieces)
             {

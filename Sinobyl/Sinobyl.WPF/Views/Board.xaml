@@ -140,50 +140,12 @@
 			<Canvas IsItemsHost="True"></Canvas>
         </ItemsPanelTemplate>
 
-
         
         <Style x:Key="BoardSquareContainerStyle" TargetType="{x:Type FrameworkElement}">
-            <Setter Property="Canvas.Top">
-                <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToCoord}"
-                        ConverterParameter="Top">
-                        <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
-                    </MultiBinding>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Canvas.Left">
-                <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToCoord}"
-                        ConverterParameter="Left">
-                        <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
-                    </MultiBinding>
-                </Setter.Value>
-            </Setter>
-            
-            <Setter Property="Width">
-                <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToCoord}"
-                        ConverterParameter="Width">
-                        <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
-                    </MultiBinding>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Height">
-                <Setter.Value>
-                    <MultiBinding Converter="{StaticResource PositionToCoord}"
-                        ConverterParameter="Height">
-                        <Binding Path="Position"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualWidth"/>
-                        <Binding ElementName="LayoutRoot" Path="ActualHeight"/>
-                    </MultiBinding>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Canvas.Top" Value="{Binding Path=Top}" />
+            <Setter Property="Canvas.Left" Value="{Binding Path=Left}" />
+            <Setter Property="Width" Value="{Binding Path=Width}" />
+            <Setter Property="Height"  Value="{Binding Path=Height}" />
         </Style>
 
 

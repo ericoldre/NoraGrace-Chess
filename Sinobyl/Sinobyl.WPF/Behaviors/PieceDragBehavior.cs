@@ -42,7 +42,7 @@ namespace Sinobyl.WPF.Behaviors
                 var currentPoint = e.GetPosition(AssociatedObject);
                 var delta = currentPoint - _startDragPoint;
                 ViewModel.DragVectorCommand.Execute(delta);
-                System.Diagnostics.Debug.WriteLine(string.Format("move: {0} {1}", delta.X, delta.Y));
+                //System.Diagnostics.Debug.WriteLine(string.Format("move: {0} {1}", delta.X, delta.Y));
             };
             AssociatedObject.MouseLeftButtonUp += (s, e) =>
             {

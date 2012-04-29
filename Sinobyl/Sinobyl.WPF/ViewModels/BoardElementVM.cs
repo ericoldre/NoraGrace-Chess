@@ -97,12 +97,35 @@ namespace Sinobyl.WPF.ViewModels
             {
                 return new System.Windows.Point()
                 {
-                    X = this.Location.X - this.RenderOffset.X + (this.Size.Width / 2),
-                    Y = this.Location.Y - this.RenderOffset.Y + (this.Size.Height / 2)
+                    X = this.Location.X + this.RenderOffset.X + (this.Size.Width / 2),
+                    Y = this.Location.Y + this.RenderOffset.Y + (this.Size.Height / 2)
                 };
             }
         }
+        
+        protected static ChessPosition PointToPosition(Size boardSize, Point point)
+        {
+            if (point.X > boardSize.Width || point.X < 0) { return ChessPosition.OUTOFBOUNDS; }
+            if (point.Y > boardSize.Height || point.Y < 0) { return ChessPosition.OUTOFBOUNDS; }
 
+            var sqSize = BoardSizeToSquareSize(boardSize);
+           
+            double X = point.X;
+            ChessFile f = ChessFile.FileA;
+            while (X > sqSize.Width)
+            {
+                X -= sqSize.Width;
+                f += 1;
+            }
+            double Y = point.Y;
+            ChessRank r = ChessRank.Rank8;
+            while (Y > sqSize.Height)
+            {
+                Y -= sqSize.Height;
+                r += 1;
+            }
+            return f.ToPosition(r);
+        }
         protected static Point PositionToPoint(Size boardSize, ChessPosition pos)
         {
             var size = BoardSizeToSquareSize(boardSize);

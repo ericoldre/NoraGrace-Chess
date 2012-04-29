@@ -91,7 +91,12 @@ namespace Sinobyl.WPF.ViewModels
             {
                 if (_dragVectorCommand == null)
                 {
-                    _dragVectorCommand = new RelayCommand(param => this.RenderOffset = (System.Windows.Vector)param, param => IsDragging);
+                    _dragVectorCommand = new RelayCommand(param =>
+                    {
+                        this.RenderOffset = (System.Windows.Vector)param;
+                        var pos = PointToPosition(this.BoardViewModel.BoardSize, this.VisualCenter);
+                        System.Diagnostics.Debug.WriteLine(string.Format("Over: {0} Point:{1}", pos.ToString(), this.VisualCenter));
+                    }, param => IsDragging);
                 }
                 return _dragVectorCommand;
             }

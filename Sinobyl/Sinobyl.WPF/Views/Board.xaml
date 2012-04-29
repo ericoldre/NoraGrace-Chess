@@ -142,10 +142,10 @@
 
         
         <Style x:Key="BoardSquareContainerStyle" TargetType="{x:Type FrameworkElement}">
-            <Setter Property="Canvas.Top" Value="{Binding Path=Top}" />
-            <Setter Property="Canvas.Left" Value="{Binding Path=Left}" />
-            <Setter Property="Width" Value="{Binding Path=Width}" />
-            <Setter Property="Height"  Value="{Binding Path=Height}" />
+            <Setter Property="Canvas.Top" Value="{Binding Path=Location.Y}" />
+            <Setter Property="Canvas.Left" Value="{Binding Path=Location.X}" />
+            <Setter Property="Width" Value="{Binding Path=Size.Width}" />
+            <Setter Property="Height"  Value="{Binding Path=Size.Height}" />
         </Style>
 
 

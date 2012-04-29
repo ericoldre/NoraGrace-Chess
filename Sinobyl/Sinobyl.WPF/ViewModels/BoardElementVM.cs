@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sinobyl.Engine;
+using System.Windows;
 
 namespace Sinobyl.WPF.ViewModels
 {
@@ -22,12 +23,12 @@ namespace Sinobyl.WPF.ViewModels
  	        switch (e.PropertyName)
             {
                 case "BoardWidth":
-                    OnPropertyChanged("Width");
-                    OnPropertyChanged("Left");
+                    OnPropertyChanged("Size");
+                    OnPropertyChanged("Location");
                     break;
                 case "BoardHeight":
-                    OnPropertyChanged("Height");
-                    OnPropertyChanged("Top");
+                    OnPropertyChanged("Size");
+                    OnPropertyChanged("Location");
                     break;
             }
         }
@@ -51,38 +52,37 @@ namespace Sinobyl.WPF.ViewModels
                 if (_position == value) { return; }
                 _position = value;
                 OnPropertyChanged("Position");
-                OnPropertyChanged("Top");
-                OnPropertyChanged("Left");
+                OnPropertyChanged("Size");
+                OnPropertyChanged("Location");
             }
         }
 
-        public double Width
+        public Size Size
         {
             get
             {
-                return _boardVM.BoardWidth / 8;
+                return BoardSizeToSquareSize(new Size(_boardVM.BoardWidth, _boardVM.BoardHeight));
             }
         }
-        public double Height
+        public Point Location
         {
             get
             {
-                return _boardVM.BoardHeight / 8;
+                return PositionToPoint(new Size(_boardVM.BoardWidth, _boardVM.BoardHeight), this.Position);
             }
         }
-        public double Top
+
+        protected static Point PositionToPoint(Size boardSize, ChessPosition pos)
         {
-            get
-            {
-                return Height * Math.Abs((ChessRank.Rank8 - this.Position.GetRank()));
-            }
+            var size = BoardSizeToSquareSize(boardSize);
+            return new Point(
+                size.Width * Math.Abs((ChessFile.FileA - pos.GetFile())),
+                size.Height * Math.Abs((ChessRank.Rank8 - pos.GetRank()))
+                );
         }
-        public double Left
+        protected static Size BoardSizeToSquareSize(Size boardSize)
         {
-            get
-            {
-                return Width * Math.Abs((ChessFile.FileA - this.Position.GetFile()));
-            }
+            return new Size(boardSize.Width / 8, boardSize.Height / 8);
         }
     }
 }

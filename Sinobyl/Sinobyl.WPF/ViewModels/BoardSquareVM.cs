@@ -5,7 +5,7 @@ using System.Text;
 using Sinobyl.Engine;
 namespace Sinobyl.WPF.ViewModels
 {
-    public class BoardSquareVM: BoardElementVM
+    public class BoardSquareVM: BoardElementVM, Sinobyl.WPF.DragHelper.IDropTarget
     {
         
         public string Name
@@ -27,6 +27,7 @@ namespace Sinobyl.WPF.ViewModels
         {
  	        return Name;
         }
+
 
 
     }

@@ -14,6 +14,7 @@ namespace Sinobyl.WPF.DragHelper
         public void AddDragSource(UIElement element, IDragSource dragSource)
         {
             _drags.Add(element, new DragHandler(element, dragSource, this));
+            
         }
 
         public void RemoveDragSource(UIElement element)

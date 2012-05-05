@@ -5,7 +5,7 @@ using System.Text;
 using Sinobyl.Engine;
 namespace Sinobyl.WPF.ViewModels
 {
-    public class BoardPieceVM: BoardElementVM
+    public class BoardPieceVM: BoardElementVM, Sinobyl.WPF.DragHelper.IDragSource
     {
         private readonly BoardVM _boardVM;
         private readonly Sinobyl.WPF.Models.IPieceModel _pieceModel;
@@ -48,5 +48,14 @@ namespace Sinobyl.WPF.ViewModels
             }
         }
 
+
+        #region IDragSource Members
+
+        public bool CanDrag
+        {
+            get { return true; }
+        }
+
+        #endregion
     }
 }

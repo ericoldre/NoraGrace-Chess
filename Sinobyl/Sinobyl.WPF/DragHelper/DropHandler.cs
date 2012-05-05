@@ -18,5 +18,20 @@ namespace Sinobyl.WPF.DragHelper
             _target = target;
             _context = context;
         }
+
+        public UIElement Element
+        {
+            get { return _element; }
+        }
+        public IDropTarget Target
+        {
+            get { return _target; }
+        }
+        public DragDropContext Context
+        {
+            get { return _context; }
+        }
+
+    
     }
 }

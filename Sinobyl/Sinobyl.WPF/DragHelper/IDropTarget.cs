@@ -7,5 +7,6 @@ namespace Sinobyl.WPF.DragHelper
 {
     public interface IDropTarget
     {
+
     }
 }

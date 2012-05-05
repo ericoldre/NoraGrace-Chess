@@ -28,11 +28,18 @@ namespace Sinobyl.WPF
         {
             Sinobyl.WPF.ViewModels.BoardVM viewmodel = (Sinobyl.WPF.ViewModels.BoardVM)this.DataContext;
 
+            
             var m = viewmodel.Model;
-            if (m.Moves.Count > 0)
-            {
-                m.ApplyMove(m.Moves[0]);
-            }
+
+            m.ApplyMove(new Engine.ChessMove(Engine.ChessPosition.D2, Engine.ChessPosition.D4));
+            m.ApplyMove(new Engine.ChessMove(Engine.ChessPosition.E7, Engine.ChessPosition.E5));
+            m.ApplyMove(new Engine.ChessMove(Engine.ChessPosition.D4, Engine.ChessPosition.E5));
+
+
+            //if (m.Moves.Count > 0)
+            //{
+            //    m.ApplyMove(m.Moves[0]);
+            //}
             
 
         }

@@ -140,5 +140,35 @@ namespace Sinobyl.WPF.DragHelper
         #endregion
 
 
+        public static readonly DependencyProperty IsActivePotentialDropTargetProperty =
+            DependencyProperty.RegisterAttached("IsActivePotentialDropTarget", typeof(bool), typeof(DragDropProperties),
+            new UIPropertyMetadata(false));
+
+        public static bool GetIsActivePotentialDropTarget(UIElement target)
+        {
+            return (bool)target.GetValue(IsActivePotentialDropTargetProperty);
+        }
+
+        public static void SetIsActivePotentialDropTarget(UIElement target, bool value)
+        {
+            target.SetValue(IsActivePotentialDropTargetProperty, value);
+        }
+
+        public static readonly DependencyProperty IsActiveValidDropTargetProperty =
+            DependencyProperty.RegisterAttached("IsActiveValidDropTarget", typeof(bool), typeof(DragDropProperties),
+            new UIPropertyMetadata(false));
+
+        public static bool GetIsActiveValidDropTarget(UIElement target)
+        {
+            return (bool)target.GetValue(IsActiveValidDropTargetProperty);
+        }
+
+        public static void SetIsActiveValidDropTarget(UIElement target, bool value)
+        {
+            target.SetValue(IsActiveValidDropTargetProperty, value);
+        }
+
+
+
     }
 }

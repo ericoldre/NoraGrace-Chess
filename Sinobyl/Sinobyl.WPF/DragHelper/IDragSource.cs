@@ -9,5 +9,14 @@ namespace Sinobyl.WPF.DragHelper
     public interface IDragSource: INotifyPropertyChanged
     {
         bool CanDrag { get; }
+
+        IEnumerable<IDropTarget> DragTargetPotential
+        {
+            get;
+        }
+        IEnumerable<IDropTarget> DragTargetValid
+        {
+            get;
+        }
     }
 }

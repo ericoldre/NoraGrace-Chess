@@ -25,6 +25,19 @@ namespace Sinobyl.WPF.DragHelper
             source.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(source_PropertyChanged);
         }
 
+        public UIElement Element
+        {
+            get { return _element; }
+        }
+        public IDragSource Source
+        {
+            get { return _source; }
+        }
+        public DragDropContext Context
+        {
+            get { return _context; }
+        }
+
         void source_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -88,16 +101,18 @@ namespace Sinobyl.WPF.DragHelper
         {
             StartDragPoint = e.GetPosition(_element);
             _element.CaptureMouse();
+            this.Context.SetValidAndPotental(this.Source.DragTargetPotential, this.Source.DragTargetValid);
         }
 
         void element_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-
+            if (!StartDragPoint.HasValue) { return; }
         }
 
         void element_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             _element.ReleaseMouseCapture();
+            this.Context.SetValidAndPotental(null, null);
         }
 
 

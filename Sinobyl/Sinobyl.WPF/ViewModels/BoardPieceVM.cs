@@ -57,5 +57,34 @@ namespace Sinobyl.WPF.ViewModels
         }
 
         #endregion
+
+        #region IDragSource Members
+
+
+        public IEnumerable<DragHelper.IDropTarget> DragTargetPotential
+        {
+            get 
+            {
+                foreach(ChessPosition pos in Chess.AllPositions)
+                {
+                    var sq = this.BoardViewModel.SquareDictionary[pos];
+                    yield return sq;
+                }
+            }
+        }
+
+        public IEnumerable<DragHelper.IDropTarget> DragTargetValid
+        {
+            get 
+            {
+                foreach (var to in this.BoardViewModel.MoveDestinations(this.Position))
+                {
+                    var sq = this.BoardViewModel.SquareDictionary[to];
+                    yield return sq;
+                }
+            }
+        }
+
+        #endregion
     }
 }

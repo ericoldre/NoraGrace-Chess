@@ -65,14 +65,14 @@ namespace Sinobyl.WPF.DragHelper
                 if (!_startDragPoint.HasValue && value.HasValue)
                 {
                     //from null to value
-                    _element.PreviewMouseMove += element_PreviewMouseMove;
-                    _element.PreviewMouseUp += element_PreviewMouseUp;
+                    _element.MouseMove += element_PreviewMouseMove;
+                    _element.MouseUp += element_PreviewMouseUp;
                 }
                 else if (_startDragPoint.HasValue && !value.HasValue)
                 {
                     //from having value to null
-                    _element.PreviewMouseMove -= element_PreviewMouseMove;
-                    _element.PreviewMouseUp -= element_PreviewMouseUp;
+                    _element.MouseMove -= element_PreviewMouseMove;
+                    _element.MouseUp -= element_PreviewMouseUp;
                 }
                 _startDragPoint = value;
             }
@@ -96,12 +96,12 @@ namespace Sinobyl.WPF.DragHelper
                 if (_canDrag)
                 {
                     //add handlers
-                    _element.PreviewMouseDown += element_PreviewMouseDown;
+                    _element.MouseDown += element_PreviewMouseDown;
                 }
                 else
                 {
                     //remove handlers.
-                    _element.PreviewMouseDown -= element_PreviewMouseDown;
+                    _element.MouseDown -= element_PreviewMouseDown;
                 }
 
             }
@@ -111,7 +111,7 @@ namespace Sinobyl.WPF.DragHelper
 
         void element_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            StartDragPoint = e.GetPosition(_element);
+            StartDragPoint = e.GetPosition(null);
             _element.CaptureMouse();
             this.Context.SetValidAndPotental(this.Source.DragTargetPotential, this.Source.DragTargetValid);
         }
@@ -119,9 +119,14 @@ namespace Sinobyl.WPF.DragHelper
         void element_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (!StartDragPoint.HasValue) { return; }
-            var currentPoint = e.GetPosition(Element);
+            var currentPoint = e.GetPosition(null);
             var delta = currentPoint - StartDragPoint.Value;
+            
             DragDropProperties.SetDragOffset(this.Element, delta);
+            
+            System.Diagnostics.Debug.WriteLine(string.Format("move: {0} {1}", delta.X, delta.Y));
+
+
         }
 
         void element_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)

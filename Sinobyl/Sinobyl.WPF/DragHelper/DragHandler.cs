@@ -58,6 +58,22 @@ namespace Sinobyl.WPF.DragHelper
             }
             set
             {
+                if (_startDragPoint == value)
+                {
+                    return;
+                }
+                if (!_startDragPoint.HasValue && value.HasValue)
+                {
+                    //from null to value
+                    _element.PreviewMouseMove += element_PreviewMouseMove;
+                    _element.PreviewMouseUp += element_PreviewMouseUp;
+                }
+                else if (_startDragPoint.HasValue && !value.HasValue)
+                {
+                    //from having value to null
+                    _element.PreviewMouseMove -= element_PreviewMouseMove;
+                    _element.PreviewMouseUp -= element_PreviewMouseUp;
+                }
                 _startDragPoint = value;
             }
         }
@@ -81,15 +97,11 @@ namespace Sinobyl.WPF.DragHelper
                 {
                     //add handlers
                     _element.PreviewMouseDown += element_PreviewMouseDown;
-                    _element.PreviewMouseMove += element_PreviewMouseMove;
-                    _element.PreviewMouseUp += element_PreviewMouseUp;
                 }
                 else
                 {
                     //remove handlers.
                     _element.PreviewMouseDown -= element_PreviewMouseDown;
-                    _element.PreviewMouseMove -= element_PreviewMouseMove;
-                    _element.PreviewMouseUp -= element_PreviewMouseUp;
                 }
 
             }
@@ -107,12 +119,19 @@ namespace Sinobyl.WPF.DragHelper
         void element_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (!StartDragPoint.HasValue) { return; }
+            var currentPoint = e.GetPosition(Element);
+            var delta = currentPoint - StartDragPoint.Value;
+            DragDropProperties.SetDragOffset(this.Element, delta);
         }
 
         void element_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             _element.ReleaseMouseCapture();
             this.Context.SetValidAndPotental(null, null);
+            Vector v = DragDropProperties.GetDragOffset(this.Element);
+
+            DragDropProperties.SetDragOffset(this.Element, new Vector(0, 0));
+            this.StartDragPoint = null;
         }
 
 

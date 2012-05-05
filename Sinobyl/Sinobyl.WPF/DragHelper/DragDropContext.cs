@@ -3,13 +3,61 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Collections.ObjectModel;
+using Sinobyl.WPF.Models;
 
 namespace Sinobyl.WPF.DragHelper
 {
     public class DragDropContext
     {
-        private List<DragHandler> _drags = new List<DragHandler>();
-        private List<DropHandler> _drops = new List< DropHandler>();
+        private readonly List<DragHandler> _drags = new List<DragHandler>();
+        private readonly List<DropHandler> _drops = new List<DropHandler>();
+
+        private readonly RangeObservableCollection<DropHandler> _potentials = new RangeObservableCollection<DropHandler>();
+        private readonly RangeObservableCollection<DropHandler> _valids = new RangeObservableCollection<DropHandler>();
+        private DropHandler _active = null;
+
+        public DragDropContext()
+        {
+            _potentials.CollectionChanged += potentials_CollectionChanged;
+            _valids.CollectionChanged += valids_CollectionChanged;
+        }
+
+        void valids_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (var old in e.OldItems.Cast<DropHandler>())
+                {
+                    DragDropProperties.SetIsActiveValidDropTarget(old.Element, false);
+                }
+            }
+            if (e.NewItems != null)
+            {
+                foreach (var newItem in e.NewItems.Cast<DropHandler>())
+                {
+                    DragDropProperties.SetIsActiveValidDropTarget(newItem.Element, true);
+                }
+            }
+        }
+
+        void potentials_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (var old in e.OldItems.Cast<DropHandler>())
+                {
+                    DragDropProperties.SetIsActivePotentialDropTarget(old.Element, false);
+                }
+            }
+            if (e.NewItems != null)
+            {
+                foreach (var newItem in e.NewItems.Cast<DropHandler>())
+                {
+                    DragDropProperties.SetIsActivePotentialDropTarget(newItem.Element, true);
+                }
+            }
+        }
 
         public void AddDragSource(UIElement element, IDragSource dragSource)
         {
@@ -39,14 +87,27 @@ namespace Sinobyl.WPF.DragHelper
             }
         }
 
+        public void handleMouse()
+        {
+
+        }
+        
+
         public void SetValidAndPotental(IEnumerable<IDropTarget> potentials, IEnumerable<IDropTarget> valids)
         {
+            while (_potentials.Count > 0)
+            {
+                _potentials.RemoveAt(_potentials.Count-1);
+            }
+            while (_valids.Count > 0)
+            {
+                _valids.RemoveAt(_valids.Count - 1);
+            }
+
             Dictionary<IDropTarget,DropHandler> dic = new Dictionary<IDropTarget,DropHandler>();
             foreach (var drop in this._drops)
             {
                 dic.Add(drop.Target,drop);
-                DragDropProperties.SetIsActivePotentialDropTarget(drop.Element,false);
-                DragDropProperties.SetIsActiveValidDropTarget(drop.Element,false);
             }
             if(potentials!=null)
             {
@@ -55,7 +116,7 @@ namespace Sinobyl.WPF.DragHelper
                     if(dic.ContainsKey(potential))
                     {
                         var h = dic[potential];
-                        DragDropProperties.SetIsActivePotentialDropTarget(h.Element,true);
+                        _potentials.Add(h);
                     }
                 }
             }
@@ -66,7 +127,7 @@ namespace Sinobyl.WPF.DragHelper
                     if (dic.ContainsKey(v))
                     {
                         var h = dic[v];
-                        DragDropProperties.SetIsActiveValidDropTarget(h.Element, true);
+                        _valids.Add(h);
                     }
                 }
             }

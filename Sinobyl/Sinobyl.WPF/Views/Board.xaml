@@ -37,6 +37,13 @@
                     <Setter TargetName="grid" Property="Background" Value="#FFB0B593"></Setter>
                 </DataTrigger>
                 
+                <DataTrigger Binding="{Binding Path=(drag:DragDropProperties.IsActiveValidDropTarget), ElementName=grid}" Value="True">
+                    <Setter TargetName="grid" Property="Background" Value="White"></Setter>
+                </DataTrigger>
+                <MultiDataTrigger>
+                    
+                    
+                </MultiDataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
 

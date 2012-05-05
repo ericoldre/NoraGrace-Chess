@@ -169,6 +169,19 @@ namespace Sinobyl.WPF.DragHelper
         }
 
 
+        public static readonly DependencyProperty DragOffsetProperty =
+            DependencyProperty.RegisterAttached("DragOffset", typeof(Vector), typeof(DragDropProperties));
+
+        public static Vector GetDragOffset(UIElement target)
+        {
+            return (Vector)target.GetValue(DragOffsetProperty);
+        }
+
+        public static void SetDragOffset(UIElement target, Vector value)
+        {
+            target.SetValue(DragOffsetProperty, value);
+        }
+
 
     }
 }

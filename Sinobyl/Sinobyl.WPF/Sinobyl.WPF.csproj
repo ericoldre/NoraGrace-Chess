@@ -60,6 +60,12 @@
     </ApplicationDefinition>
     <Compile Include="Behaviors\PieceDragBehavior.cs" />
     <Compile Include="Converters\PositionToCoord.cs" />
+    <Compile Include="DragHelper\DragDropContext.cs" />
+    <Compile Include="DragHelper\DragDropProperties.cs" />
+    <Compile Include="DragHelper\DragHandler.cs" />
+    <Compile Include="DragHelper\DropHandler.cs" />
+    <Compile Include="DragHelper\IDragSource.cs" />
+    <Compile Include="DragHelper\IDropTarget.cs" />
     <Compile Include="Models\BoardModel.cs" />
     <Compile Include="Models\IBoardModel.cs" />
     <Compile Include="Models\IPieceModel.cs" />

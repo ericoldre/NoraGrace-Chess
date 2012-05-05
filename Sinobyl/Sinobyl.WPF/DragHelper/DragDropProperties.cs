@@ -169,6 +169,22 @@ namespace Sinobyl.WPF.DragHelper
         }
 
 
+        public static readonly DependencyProperty IsActiveSelectedDropTargetProperty =
+            DependencyProperty.RegisterAttached("IsActiveSelectedDropTarget", typeof(bool), typeof(DragDropProperties),
+            new UIPropertyMetadata(false));
+
+        public static bool GetIsActiveSelectedDropTarget(UIElement target)
+        {
+            return (bool)target.GetValue(IsActiveSelectedDropTargetProperty);
+        }
+
+        public static void SetIsActiveSelectedDropTarget(UIElement target, bool value)
+        {
+            target.SetValue(IsActiveSelectedDropTargetProperty, value);
+        }
+
+
+
         public static readonly DependencyProperty DragOffsetProperty =
             DependencyProperty.RegisterAttached("DragOffset", typeof(Vector), typeof(DragDropProperties));
 

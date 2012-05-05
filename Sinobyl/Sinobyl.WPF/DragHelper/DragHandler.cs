@@ -14,6 +14,7 @@ namespace Sinobyl.WPF.DragHelper
 
         private bool _canDrag = false;
         private Point? _startDragPoint;
+        private Vector _startDragRelToCenter;
 
         public DragHandler(UIElement element, IDragSource source, DragDropContext context)
         {
@@ -112,6 +113,19 @@ namespace Sinobyl.WPF.DragHelper
         void element_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             StartDragPoint = e.GetPosition(null);
+
+            if (this.Element is FrameworkElement)
+            {
+                FrameworkElement frame = this.Element as FrameworkElement;
+                _startDragRelToCenter = e.GetPosition(this.Element) - new Point(frame.ActualWidth / 2, frame.ActualHeight / 2);
+                //System.Diagnostics.Debug.WriteLine(string.Format("start: {0} {1}", _startDragRelToCenter.X, _startDragRelToCenter.Y));
+            }
+            else
+            {
+                _startDragRelToCenter = e.GetPosition(this.Element) - new Point(0, 0);
+            }
+            
+
             _element.CaptureMouse();
             this.Context.SetValidAndPotental(this.Source.DragTargetPotential, this.Source.DragTargetValid);
         }
@@ -123,8 +137,8 @@ namespace Sinobyl.WPF.DragHelper
             var delta = currentPoint - StartDragPoint.Value;
             
             DragDropProperties.SetDragOffset(this.Element, delta);
-            
-            System.Diagnostics.Debug.WriteLine(string.Format("move: {0} {1}", delta.X, delta.Y));
+            this.Context.handleMouse(this, e, _startDragRelToCenter);
+            //System.Diagnostics.Debug.WriteLine(string.Format("move: {0} {1}", delta.X, delta.Y));
 
 
         }

@@ -48,6 +48,7 @@ namespace Sinobyl.WPF.DragHelper
                 foreach (var old in e.OldItems.Cast<DropHandler>())
                 {
                     DragDropProperties.SetIsActivePotentialDropTarget(old.Element, false);
+                    DragDropProperties.SetIsActiveSelectedDropTarget(old.Element, false);
                 }
             }
             if (e.NewItems != null)
@@ -87,9 +88,15 @@ namespace Sinobyl.WPF.DragHelper
             }
         }
 
-        public void handleMouse()
+        public void handleMouse(DragHandler sender, System.Windows.Input.MouseEventArgs e, Vector startRelToCenter)
         {
-
+            foreach (var potential in _potentials)
+            {
+                var p = e.GetPosition(potential.Element) - startRelToCenter;
+                FrameworkElement fe = potential.Element as FrameworkElement;
+                bool inEle = (p.X > 0 && p.Y > 0 && p.X < fe.ActualWidth && p.Y < fe.ActualHeight);
+                DragDropProperties.SetIsActiveSelectedDropTarget(potential.Element, inEle);                
+            }
         }
         
 

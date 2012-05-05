@@ -37,7 +37,7 @@
                     <Setter TargetName="grid" Property="Background" Value="#FFB0B593"></Setter>
                 </DataTrigger>
                 
-                <DataTrigger Binding="{Binding Path=(drag:DragDropProperties.IsActiveValidDropTarget), ElementName=grid}" Value="True">
+                <DataTrigger Binding="{Binding Path=(drag:DragDropProperties.IsActiveSelectedDropTarget), ElementName=grid}" Value="True">
                     <Setter TargetName="grid" Property="Background" Value="White"></Setter>
                 </DataTrigger>
                 <MultiDataTrigger>
@@ -63,7 +63,7 @@
             
             <DataTemplate.Triggers>
                 
-                <DataTrigger Binding="{Binding ElementName=cmdButton, Path=IsEnabled}" Value="True">
+                <DataTrigger Binding="{Binding Path=CanDrag}" Value="True">
                     <Setter TargetName="img" Property="Cursor" Value="Hand"/>
 					<Setter TargetName="rect" Property="Visibility" Value="Visible"/>
                 </DataTrigger>

@@ -46,6 +46,42 @@ namespace Sinobyl.WPF.Converters
             throw new NotImplementedException();
         }
 
+        protected static ChessPosition PointToPosition(Size boardSize, Point point)
+        {
+            if (point.X > boardSize.Width || point.X < 0) { return ChessPosition.OUTOFBOUNDS; }
+            if (point.Y > boardSize.Height || point.Y < 0) { return ChessPosition.OUTOFBOUNDS; }
+
+            var sqSize = BoardSizeToSquareSize(boardSize);
+
+            double X = point.X;
+            ChessFile f = ChessFile.FileA;
+            while (X > sqSize.Width)
+            {
+                X -= sqSize.Width;
+                f += 1;
+            }
+            double Y = point.Y;
+            ChessRank r = ChessRank.Rank8;
+            while (Y > sqSize.Height)
+            {
+                Y -= sqSize.Height;
+                r += 1;
+            }
+            return f.ToPosition(r);
+        }
+        protected static Point PositionToPoint(Size boardSize, ChessPosition pos)
+        {
+            var size = BoardSizeToSquareSize(boardSize);
+            return new Point(
+                size.Width * Math.Abs((ChessFile.FileA - pos.GetFile())),
+                size.Height * Math.Abs((ChessRank.Rank8 - pos.GetRank()))
+                );
+        }
+        protected static Size BoardSizeToSquareSize(Size boardSize)
+        {
+            return new Size(boardSize.Width / 8, boardSize.Height / 8);
+        }
+
     }
 
 }

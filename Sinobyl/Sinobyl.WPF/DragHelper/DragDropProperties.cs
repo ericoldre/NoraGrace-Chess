@@ -13,7 +13,7 @@ namespace Sinobyl.WPF.DragHelper
 
         public static readonly DependencyProperty DragDropContextProperty =
             DependencyProperty.RegisterAttached("DragDropContext", typeof(DragDropContext), typeof(DragDropProperties),
-            new UIPropertyMetadata(false, DragDropContextChanged));
+            new UIPropertyMetadata(null, DragDropContextChanged));
 
         public static DragDropContext GetDragDropContext(UIElement target)
         {
@@ -70,7 +70,7 @@ namespace Sinobyl.WPF.DragHelper
 
         public static readonly DependencyProperty DragSourceProperty =
             DependencyProperty.RegisterAttached("DragSource", typeof(IDragSource), typeof(DragDropProperties),
-                new UIPropertyMetadata(false, DragSourceChanged));
+                new UIPropertyMetadata(null, DragSourceChanged));
 
         public static IDragSource GetDragSource(UIElement target)
         {
@@ -107,7 +107,7 @@ namespace Sinobyl.WPF.DragHelper
 
         public static readonly DependencyProperty DropTargetProperty =
             DependencyProperty.RegisterAttached("DropTarget", typeof(IDropTarget), typeof(DragDropProperties),
-            new UIPropertyMetadata(false, DropTargetChanged));
+            new UIPropertyMetadata(null, DropTargetChanged));
 
         public static IDropTarget GetDropTarget(UIElement target)
         {

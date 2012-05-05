@@ -9,7 +9,7 @@
              xmlns:SampleData="clr-namespace:Expression.Blend.SampleData.BoardDesignData" x:Class="Sinobyl.WPF.Views.Board" 
              xmlns:convert="clr-namespace:Sinobyl.WPF.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:behave="clr-namespace:Sinobyl.WPF.Behaviors"
+             xmlns:drag="clr-namespace:Sinobyl.WPF.DragHelper"
              xmlns:views="clr-namespace:Sinobyl.WPF.Views"
              mc:Ignorable="d" 
     
@@ -23,6 +23,7 @@
 
         <convert:PositionToCoord x:Key="PositionToCoord" />
 
+        <drag:DragDropContext x:Key="dragDropContext"></drag:DragDropContext>
 
         <DataTemplate x:Key="BoardSquareTemplate">
             <Grid Name="grid" Background="#FF909573">
@@ -42,15 +43,14 @@
         <DataTemplate x:Key="PieceTemplate">
         	<Grid>
         		<Rectangle Name="rect" StrokeDashArray="0.5 1.0" Stroke="#FFE2ED14" StrokeThickness="2" RadiusX="10" RadiusY="10" Margin="2" Visibility="Hidden"/>
-                <Button Name="cmdButton" Command="{Binding Path=DragStartCommand}" Margin="10" Visibility="Collapsed"></Button>
-				<Image Name="img" Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wp.png" RenderTransformOrigin="0.5,0.5">
+                
+				<Image Name="img" Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wp.png" 
+                       RenderTransformOrigin="0.5,0.5" 
+                       drag:DragDropProperties.DragDropContext="{StaticResource ResourceKey=dragDropContext}" >
 					<Image.RenderTransform>
 							<TranslateTransform X="{Binding Path=RenderOffset.X}" Y="{Binding Path=RenderOffset.Y}"/>
 					</Image.RenderTransform>
 				</Image>  
-                <i:Interaction.Behaviors>
-                    <behave:PieceDragBehavior></behave:PieceDragBehavior>
-                </i:Interaction.Behaviors>
 			</Grid>
             
             <DataTemplate.Triggers>

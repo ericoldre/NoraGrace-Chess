@@ -55,7 +55,7 @@
                        RenderTransformOrigin="0.5,0.5" drag:DragDropProperties.DragSource="{Binding}" drag:DragDropProperties.DragDropContext="{StaticResource dragDropContext}"
                         >
 					<Image.RenderTransform>
-							<TranslateTransform X="{Binding Path=RenderOffset.X}" Y="{Binding Path=RenderOffset.Y}"/>
+                        <TranslateTransform X="{Binding Path=(drag:DragDropProperties.DragOffset).X, ElementName=img}" Y="{Binding Path=(drag:DragDropProperties.DragOffset).Y, ElementName=img}"/>
 					</Image.RenderTransform>
 				</Image>  
 			</Grid>

@@ -129,7 +129,7 @@ namespace Sinobyl.WPF.DragHelper
             _element.ReleaseMouseCapture();
             this.Context.SetValidAndPotental(null, null);
             Vector v = DragDropProperties.GetDragOffset(this.Element);
-
+            
             DragDropProperties.SetDragOffset(this.Element, new Vector(0, 0));
             this.StartDragPoint = null;
         }

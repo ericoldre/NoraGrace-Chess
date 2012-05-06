@@ -5,13 +5,17 @@
         Title="MainWindow" Height="525" Width="525">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.07*"></RowDefinition>
-            <RowDefinition Height="0.93*"></RowDefinition>
+            <RowDefinition Height="0.2*"></RowDefinition>
+            <RowDefinition Height="0.8*"></RowDefinition>
         </Grid.RowDefinitions>
         
-        <Button Grid.Row="0" VerticalAlignment="Top" Click="Button_Click">
-            <TextBlock Text="RemoveMoves"></TextBlock>
-        </Button>
+        <StackPanel Grid.Row="0">
+            <Button VerticalAlignment="Top" Click="Button_Click">
+                <TextBlock Text="RemoveMoves"></TextBlock>
+            </Button>
+            <TextBlock Text="{Binding Path=DragDropContext.DragHandlers.Count}"></TextBlock>
+
+        </StackPanel>
         
         <Sinobyl_WPF_Views:Board DataContext="{Binding}" Grid.Row="1" />
     </Grid>

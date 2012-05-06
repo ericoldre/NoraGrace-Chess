@@ -5,138 +5,90 @@ using System.Text;
 using System.Windows;
 using System.Collections.ObjectModel;
 using Sinobyl.WPF.Models;
+using System.ComponentModel;
+using System.Windows.Input;
 
 namespace Sinobyl.WPF.DragHelper
 {
     public class DragDropContext
     {
-        private readonly List<DragHandler> _drags = new List<DragHandler>();
-        private readonly List<DropHandler> _drops = new List<DropHandler>();
+        //private readonly List<DragHandler> _drags = new List<DragHandler>();
+        //private readonly List<DropHandler> _drops = new List<DropHandler>();
 
-        private readonly RangeObservableCollection<DropHandler> _potentials = new RangeObservableCollection<DropHandler>();
-        private readonly RangeObservableCollection<DropHandler> _valids = new RangeObservableCollection<DropHandler>();
+        private readonly RangeObservableCollection<IDropTarget> _potentials = new RangeObservableCollection<IDropTarget>();
+        private readonly RangeObservableCollection<IDropTarget> _valids = new RangeObservableCollection<IDropTarget>();
         private DropHandler _active = null;
+
+        public event EventHandler<DragMoveEventArgs> DragMove;
 
         public DragDropContext()
         {
-            _potentials.CollectionChanged += potentials_CollectionChanged;
-            _valids.CollectionChanged += valids_CollectionChanged;
+            
         }
 
-        void valids_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public RangeObservableCollection<IDropTarget> PotentialDropTargets
         {
-            if (e.OldItems != null)
+            get
             {
-                foreach (var old in e.OldItems.Cast<DropHandler>())
-                {
-                    DragDropProperties.SetIsActiveValidDropTarget(old.Element, false);
-                }
-            }
-            if (e.NewItems != null)
-            {
-                foreach (var newItem in e.NewItems.Cast<DropHandler>())
-                {
-                    DragDropProperties.SetIsActiveValidDropTarget(newItem.Element, true);
-                }
+                return _potentials;
             }
         }
 
-        void potentials_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public RangeObservableCollection<IDropTarget> ValidDropTargets
         {
-            if (e.OldItems != null)
+            get
             {
-                foreach (var old in e.OldItems.Cast<DropHandler>())
-                {
-                    DragDropProperties.SetIsActivePotentialDropTarget(old.Element, false);
-                    DragDropProperties.SetIsActiveSelectedDropTarget(old.Element, false);
-                }
-            }
-            if (e.NewItems != null)
-            {
-                foreach (var newItem in e.NewItems.Cast<DropHandler>())
-                {
-                    DragDropProperties.SetIsActivePotentialDropTarget(newItem.Element, true);
-                }
+                return _valids;
             }
         }
 
-        public void AddDragSource(UIElement element, IDragSource dragSource)
-        {
-            _drags.Add(new DragHandler(element, dragSource, this));
-        }
-
-        public void RemoveDragSource(UIElement element)
-        {
-            var rs = _drags.Where(d=>d.Element==element).ToArray();
-            foreach(var r in rs)
-            {
-                _drags.Remove(r);
-            }
-        }
-
-        public void AddDropTarget(UIElement element, IDropTarget dropTarget)
-        {
-            _drops.Add(new DropHandler(element, dropTarget, this));
-        }
-
-        public void RemoveDropTarget(UIElement element)
-        {
-            var rs = _drops.Where(d=>d.Element==element).ToArray();
-            foreach(var r in rs)
-            {
-                _drops.Remove(r);
-            }
-        }
-
-        public void handleMouse(DragHandler sender, System.Windows.Input.MouseEventArgs e, Vector startRelToCenter)
-        {
-            foreach (var potential in _potentials)
-            {
-                var p = e.GetPosition(potential.Element) - startRelToCenter;
-                FrameworkElement fe = potential.Element as FrameworkElement;
-                bool inEle = (p.X > 0 && p.Y > 0 && p.X < fe.ActualWidth && p.Y < fe.ActualHeight);
-                DragDropProperties.SetIsActiveSelectedDropTarget(potential.Element, inEle);                
-            }
-        }
         
 
-        public void SetValidAndPotental(IEnumerable<IDropTarget> potentials, IEnumerable<IDropTarget> valids)
+        public void DoDrag(IDragSource dragSource)
         {
             while (_potentials.Count > 0)
             {
-                _potentials.RemoveAt(_potentials.Count-1);
+                _potentials.RemoveAt(_potentials.Count - 1);
             }
             while (_valids.Count > 0)
             {
                 _valids.RemoveAt(_valids.Count - 1);
             }
+            _potentials.AddRange(dragSource.DragTargetPotential.ToList());
+            _valids.AddRange(dragSource.DragTargetValid.ToList());
+        }
 
-            Dictionary<IDropTarget,DropHandler> dic = new Dictionary<IDropTarget,DropHandler>();
-            foreach (var drop in this._drops)
+        public void DoDragMove(IDragSource dragSource, MouseEventArgs e, Vector startRelToCenter)
+        {
+            var ev = this.DragMove;
+            if (ev != null)
             {
-                dic.Add(drop.Target,drop);
+                DragMoveEventArgs args = new DragMoveEventArgs(e, startRelToCenter);
+                ev(this, args);
             }
-            if(potentials!=null)
+        }
+
+        public void EndDrag(IDragSource dragSource)
+        {
+            while (_potentials.Count > 0)
             {
-                foreach(var potential in potentials)
-                {
-                    if(dic.ContainsKey(potential))
-                    {
-                        var h = dic[potential];
-                        _potentials.Add(h);
-                    }
-                }
+                _potentials.RemoveAt(_potentials.Count - 1);
             }
-            if (valids != null)
+            while (_valids.Count > 0)
             {
-                foreach (var v in valids)
-                {
-                    if (dic.ContainsKey(v))
-                    {
-                        var h = dic[v];
-                        _valids.Add(h);
-                    }
-                }
+                _valids.RemoveAt(_valids.Count - 1);
+            }
+        }
+
+        public class DragMoveEventArgs: EventArgs
+        {
+            public MouseEventArgs MouseArgs { get; private set; }
+            public Vector DraggedElementCenterRelativeToMouse { get; private set; }
+
+            public DragMoveEventArgs(MouseEventArgs mouseArgs, Vector draggedElementCenterRelativeToMouse)
+            {
+                MouseArgs = mouseArgs;
+                DraggedElementCenterRelativeToMouse = draggedElementCenterRelativeToMouse;
             }
         }
 

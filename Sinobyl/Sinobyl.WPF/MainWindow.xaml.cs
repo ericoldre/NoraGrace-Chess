@@ -19,15 +19,17 @@ namespace Sinobyl.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             InitializeComponent();
+           
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Sinobyl.WPF.ViewModels.BoardVM viewmodel = (Sinobyl.WPF.ViewModels.BoardVM)this.DataContext;
-
             
             var m = viewmodel.Model;
 

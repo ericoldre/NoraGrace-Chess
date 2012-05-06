@@ -18,11 +18,16 @@ namespace Sinobyl.WPF.DragHelper
 
         public static IDragSource GetDragSource(UIElement target)
         {
+            //var dh = GetDragHandler(target);
+            //if (dh == null) { return null; }
+            //else { return dh.Source; }
             return (IDragSource)target.GetValue(DragSourceProperty);
         }
 
         public static void SetDragSource(UIElement target, IDragSource value)
         {
+           // DragHandler dh = new DragHandler(target, value);
+           // SetDragHandler(target, dh);
             target.SetValue(DragSourceProperty, value);
         }
 
@@ -30,22 +35,36 @@ namespace Sinobyl.WPF.DragHelper
         {
             UIElement uiElement = (UIElement)d;
 
-
             if (e.OldValue != null)
             {
-                IDragSource oldValue = (IDragSource)e.OldValue;
-                oldValue.DragDropContext.RemoveDragSource(uiElement);
-                //context.RemoveDragSource(uiElement);
+                SetDragHandler(uiElement, null);
             }
             if (e.NewValue != null)
             {
-                IDragSource newValue = (IDragSource)e.NewValue;
-                newValue.DragDropContext.AddDragSource(uiElement, newValue);
+                DragHandler dh = new DragHandler(uiElement, (IDragSource)e.NewValue);
+                SetDragHandler(uiElement, dh);
             }
             
         }
 
         #endregion
+
+        #region private draghandler
+        public static readonly DependencyProperty DragHandlerProperty =
+            DependencyProperty.RegisterAttached("DragHandler", typeof(DragHandler), typeof(DragDropProperties),
+                new UIPropertyMetadata(null));
+
+        private static DragHandler GetDragHandler(UIElement target)
+        {
+            return (DragHandler)target.GetValue(DragHandlerProperty);
+        }
+
+        private static void SetDragHandler(UIElement target, DragHandler value)
+        {
+            target.SetValue(DragHandlerProperty, value);
+        }
+        #endregion
+
 
         #region DropTarget
 
@@ -69,17 +88,31 @@ namespace Sinobyl.WPF.DragHelper
 
             if (e.OldValue != null)
             {
-                IDropTarget oldValue = (IDropTarget)e.OldValue;
-                oldValue.DragDropContext.RemoveDropTarget(uiElement);
-                //context.RemoveDragSource(uiElement);
+                SetDropHandler(uiElement, null);
             }
             if (e.NewValue != null)
             {
-                IDropTarget newValue = (IDropTarget)e.NewValue;
-                newValue.DragDropContext.AddDropTarget(uiElement, newValue);
+                DropHandler dh = new DropHandler(uiElement, (IDropTarget)e.NewValue);
+                SetDropHandler(uiElement, dh);
             }
         }
 
+        #endregion
+
+        #region private drophandler
+        public static readonly DependencyProperty DropHandlerProperty =
+            DependencyProperty.RegisterAttached("DropHandler", typeof(DropHandler), typeof(DragDropProperties),
+                new UIPropertyMetadata(null));
+
+        private static DropHandler GetDropHandler(UIElement target)
+        {
+            return (DropHandler)target.GetValue(DropHandlerProperty);
+        }
+
+        private static void SetDropHandler(UIElement target, DropHandler value)
+        {
+            target.SetValue(DropHandlerProperty, value);
+        }
         #endregion
 
 

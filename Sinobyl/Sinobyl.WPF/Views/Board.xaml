@@ -27,8 +27,10 @@
 
         <DataTemplate x:Key="BoardSquareTemplate">
             <Grid Name="grid" Background="#FF909573" drag:DragDropProperties.DropTarget="{Binding}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
-                    <TextBlock TextWrapping="Wrap" Text="{Binding Name, Mode=OneWay}"/>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                    <TextBlock Text="{Binding Path=(drag:DragDropProperties.IsActivePotentialDropTarget), ElementName=grid}"/>
+                    <TextBlock Text="{Binding Path=(drag:DragDropProperties.IsActiveValidDropTarget), ElementName=grid}"/>
+
                 </StackPanel>
                 <Border x:Name="highlightBorder" BorderBrush="Yellow" BorderThickness="2" Opacity="0" CornerRadius="8,8,8,8"></Border>
             </Grid>
@@ -37,7 +39,7 @@
                 <DataTrigger Value="True" Binding="{Binding Path=IsLight}">
                     <Setter TargetName="grid" Property="Background" Value="#FFB0B593"></Setter>
                 </DataTrigger>
-                
+
                 <DataTrigger Binding="{Binding Path=(drag:DragDropProperties.IsActiveSelectedDropTarget), ElementName=grid}" Value="True">
                     <DataTrigger.EnterActions>
                         <BeginStoryboard>

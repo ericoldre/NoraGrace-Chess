@@ -28,7 +28,13 @@ namespace Sinobyl.WPF.ViewModels
  	        return Name;
         }
 
-
+        public DragHelper.DragDropContext DragDropContext
+        {
+            get
+            {
+                return this.BoardViewModel.DragDropContext;
+            }
+        }
 
     }
 }

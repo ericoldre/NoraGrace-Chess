@@ -7,6 +7,9 @@ namespace Sinobyl.WPF.DragHelper
 {
     public interface IDropTarget
     {
-
+        DragDropContext DragDropContext
+        {
+            get;
+        }
     }
 }

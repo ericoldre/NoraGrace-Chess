@@ -18,5 +18,9 @@ namespace Sinobyl.WPF.DragHelper
         {
             get;
         }
+        DragDropContext DragDropContext
+        {
+            get;
+        }
     }
 }

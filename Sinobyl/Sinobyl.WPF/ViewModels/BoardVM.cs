@@ -18,6 +18,7 @@ namespace Sinobyl.WPF.ViewModels
         public ObservableCollection<BoardSquareVM> Squares { get; private set; }
         public ObservableCollection<BoardPieceVM> Pieces { get; private set; }
         public Sinobyl.Engine.ChessPositionDictionary<BoardSquareVM> SquareDictionary { get; private set; }
+        public Sinobyl.WPF.DragHelper.DragDropContext DragDropContext { get; private set; }
 
         private double _boardWidth;
         private double _boardHeight;
@@ -73,6 +74,7 @@ namespace Sinobyl.WPF.ViewModels
             Squares = new ObservableCollection<BoardSquareVM>();
             Pieces = new ObservableCollection<BoardPieceVM>();
             SquareDictionary = new ChessPositionDictionary<BoardSquareVM>();
+            DragDropContext = new DragHelper.DragDropContext();
 
             foreach (ChessPosition pos in Chess.AllPositions)
             {

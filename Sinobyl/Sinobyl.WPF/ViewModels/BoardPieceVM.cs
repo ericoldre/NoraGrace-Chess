@@ -86,6 +86,11 @@ namespace Sinobyl.WPF.ViewModels
                 }
             }
         }
+        public void DragComplete(DragHelper.IDropTarget target)
+        {
+            BoardSquareVM sqTo = (BoardSquareVM)target;
+            this.BoardViewModel.Model.ApplyMove(new ChessMove(this.Position, sqTo.Position));
+        }
 
         public IEnumerable<DragHelper.IDropTarget> DragTargetValid
         {

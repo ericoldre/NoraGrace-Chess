@@ -164,19 +164,48 @@
 
         
         <Style x:Key="BoardSquareContainerStyle" TargetType="{x:Type FrameworkElement}">
-            <Setter Property="Canvas.Top" Value="{Binding Path=Location.Y}" />
-            <Setter Property="Canvas.Left" Value="{Binding Path=Location.X}" />
-            <Setter Property="Width" Value="{Binding Path=Size.Width}" />
-            <Setter Property="Height"  Value="{Binding Path=Size.Height}" />
+            <Setter Property="Canvas.Top">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToCoord}" ConverterParameter="Top">
+                        <Binding Path="Position"></Binding>
+                        <Binding Path="ActualWidth" ElementName="LayoutRoot"></Binding>
+                        <Binding Path="ActualHeight" ElementName="LayoutRoot"></Binding>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Canvas.Left">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToCoord}" ConverterParameter="Left">
+                        <Binding Path="Position"></Binding>
+                        <Binding Path="ActualWidth" ElementName="LayoutRoot"></Binding>
+                        <Binding Path="ActualHeight" ElementName="LayoutRoot"></Binding>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Width">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToCoord}" ConverterParameter="Width">
+                        <Binding Path="Position"></Binding>
+                        <Binding Path="ActualWidth" ElementName="LayoutRoot"></Binding>
+                        <Binding Path="ActualHeight" ElementName="LayoutRoot"></Binding>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Height">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource PositionToCoord}" ConverterParameter="Height">
+                        <Binding Path="Position"></Binding>
+                        <Binding Path="ActualWidth" ElementName="LayoutRoot"></Binding>
+                        <Binding Path="ActualHeight" ElementName="LayoutRoot"></Binding>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
         </Style>
 
 
 
     </UserControl.Resources>
-    <Canvas x:Name="LayoutRoot" 
-            views:SizeObserver.Observe="true" 
-            views:SizeObserver.ObservedWidth="{Binding BoardWidth, Mode=OneWayToSource}"
-            views:SizeObserver.ObservedHeight="{Binding BoardHeight, Mode=OneWayToSource}">
+    <Canvas x:Name="LayoutRoot" >
         
         
         <ItemsControl x:Name="Squares" 

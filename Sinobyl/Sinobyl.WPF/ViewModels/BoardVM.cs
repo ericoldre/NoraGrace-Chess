@@ -20,49 +20,11 @@ namespace Sinobyl.WPF.ViewModels
         public Sinobyl.Engine.ChessPositionDictionary<BoardSquareVM> SquareDictionary { get; private set; }
         public Sinobyl.WPF.DragHelper.DragDropContext DragDropContext { get; private set; }
 
-        private double _boardWidth;
-        private double _boardHeight;
-
         public IBoardModel Model
         {
             get
             {
                 return _model;
-            }
-        }
-
-        public double BoardWidth
-        {
-            get
-            {
-                return _boardWidth;
-            }
-            set
-            {
-                if (_boardWidth == value) { return; }
-                _boardWidth = value;
-                OnPropertyChanged("BoardWidth");
-            }
-        }
-        public double BoardHeight
-        {
-            get
-            {
-                return _boardHeight;
-            }
-            set
-            {
-                if (_boardHeight == value) { return; }
-                _boardHeight = value;
-                OnPropertyChanged("BoardHeight");
-            }
-        }
-
-        public System.Windows.Size BoardSize
-        {
-            get
-            {
-                return new System.Windows.Size(this.BoardWidth, this.BoardHeight);
             }
         }
 

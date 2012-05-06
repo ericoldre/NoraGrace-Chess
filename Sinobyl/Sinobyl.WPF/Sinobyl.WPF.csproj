@@ -83,7 +83,6 @@
     <Compile Include="Views\Board.xaml.cs">
       <DependentUpon>Board.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SizeObserver.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

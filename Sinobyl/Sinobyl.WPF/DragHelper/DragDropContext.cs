@@ -72,9 +72,16 @@ namespace Sinobyl.WPF.DragHelper
 
         public void EndDrag(IDragSource dragSource)
         {
+            var finalValidSelected = _selected.Where(s => _valids.Contains(s)).ToArray();
+
             _potentials.Clear();
             _valids.Clear();
             _selected.Clear();
+
+            foreach (var f in finalValidSelected)
+            {
+                dragSource.DragComplete(f);
+            }
         }
 
         public class DragMoveEventArgs: EventArgs

@@ -22,6 +22,9 @@ namespace Sinobyl.WPF.DragHelper
         {
             get;
         }
+
+        void DragComplete(IDropTarget target);
+
         string DisplayName { get; }
     }
 }

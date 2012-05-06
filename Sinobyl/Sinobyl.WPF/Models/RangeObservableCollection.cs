@@ -11,7 +11,9 @@ namespace Sinobyl.WPF.Models
     [Serializable]
     public class RangeObservableCollection<T> : ObservableCollection<T>
     {
-        private bool _suppressNotification = false;
+        private bool _suppressBulkNotification = false;
+
+        public event EventHandler<NotifyCollectionChangedEventArgs> CollectionChangedBulk;
 
         public RangeObservableCollection()
             : base() { }
@@ -21,9 +23,35 @@ namespace Sinobyl.WPF.Models
 
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
-            //Hide the notification when we are doing a full range
-            if (!_suppressNotification)
-                base.OnCollectionChanged(e);
+            base.OnCollectionChanged(e);
+            //Hide the bulk notification when we are doing a full range
+            if (!_suppressBulkNotification)
+            {
+                OnBulkCollectionChanged(e);
+            }
+        }
+
+        protected void OnBulkCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != NotifyCollectionChangedAction.Add && e.Action != NotifyCollectionChangedAction.Remove)
+            {
+                throw new ArgumentException("");
+            }
+            
+            var bulkEv = this.CollectionChangedBulk;
+            if (bulkEv != null)
+            {
+                bulkEv(this, e);
+            }
+            
+        }
+        protected override void ClearItems()
+        {
+            var clearedList = this.ToList();
+            _suppressBulkNotification = true;
+            base.ClearItems();
+            _suppressBulkNotification = false;
+            OnBulkCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, clearedList));
         }
 
         public void AddRange(IList<T> list)
@@ -32,7 +60,7 @@ namespace Sinobyl.WPF.Models
                 throw new ArgumentNullException("list");
 
             //Turn off collection change notificaiton
-            _suppressNotification = true;
+            _suppressBulkNotification = true;
 
             foreach (T item in list)
             {
@@ -40,10 +68,9 @@ namespace Sinobyl.WPF.Models
             }
 
             //Turn notification back on
-            _suppressNotification = false;
+            _suppressBulkNotification = false;
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, (IList)list));
+            OnBulkCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, list));
         }
 
         public void RemoveRange(IList<T> list)
@@ -52,7 +79,7 @@ namespace Sinobyl.WPF.Models
                 throw new ArgumentNullException("list");
 
             //Turn off collection change notificaiton
-            _suppressNotification = true;
+            _suppressBulkNotification = true;
 
             foreach (T item in list)
             {
@@ -61,10 +88,9 @@ namespace Sinobyl.WPF.Models
             }
 
             //Turn notification back on
-            _suppressNotification = false;
+            _suppressBulkNotification = false;
 
-            NotifyCollectionChangedEventArgs args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-            OnCollectionChanged(args);
+            OnBulkCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, list));
         }
     }
 }

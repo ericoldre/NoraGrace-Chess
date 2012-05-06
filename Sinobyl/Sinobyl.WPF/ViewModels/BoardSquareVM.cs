@@ -8,7 +8,7 @@ namespace Sinobyl.WPF.ViewModels
     public class BoardSquareVM: BoardElementVM, Sinobyl.WPF.DragHelper.IDropTarget
     {
         
-        public string Name
+        public string DisplayName
         {
             get { return this.Position.PositionToString(); }
             
@@ -25,7 +25,7 @@ namespace Sinobyl.WPF.ViewModels
 
         public override string ToString()
         {
- 	        return Name;
+            return DisplayName;
         }
 
         public DragHelper.DragDropContext DragDropContext

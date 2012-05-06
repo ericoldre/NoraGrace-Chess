@@ -17,6 +17,7 @@ namespace Sinobyl.WPF.DragHelper
 
         private readonly RangeObservableCollection<IDropTarget> _potentials = new RangeObservableCollection<IDropTarget>();
         private readonly RangeObservableCollection<IDropTarget> _valids = new RangeObservableCollection<IDropTarget>();
+        private readonly RangeObservableCollection<IDropTarget> _selected = new RangeObservableCollection<IDropTarget>();
         private DropHandler _active = null;
 
         public event EventHandler<DragMoveEventArgs> DragMove;
@@ -41,7 +42,13 @@ namespace Sinobyl.WPF.DragHelper
                 return _valids;
             }
         }
-
+        public RangeObservableCollection<IDropTarget> SelectedDropTargets
+        {
+            get
+            {
+                return _selected;
+            }
+        }
         
 
         public void DoDrag(IDragSource dragSource)

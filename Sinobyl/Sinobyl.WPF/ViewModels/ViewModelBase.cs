@@ -19,16 +19,7 @@ namespace Sinobyl.WPF.ViewModels
 
         #endregion // Constructor
 
-        #region DisplayName
 
-        /// <summary>
-        /// Returns the user-friendly name of this object.
-        /// Child classes can set this property to a new value,
-        /// or override it to determine the value on-demand.
-        /// </summary>
-        public virtual string DisplayName { get; protected set; }
-
-        #endregion // DisplayName
 
         #region Debugging Aides
 
@@ -107,17 +98,6 @@ namespace Sinobyl.WPF.ViewModels
         protected virtual void OnDispose()
         {
         }
-
-#if DEBUG
-        /// <summary>
-        /// Useful for ensuring that ViewModel objects are properly garbage collected.
-        /// </summary>
-        ~ViewModelBase()
-        {
-            string msg = string.Format("{0} ({1}) ({2}) Finalized", this.GetType().Name, this.DisplayName, this.GetHashCode());
-            System.Diagnostics.Debug.WriteLine(msg);
-        }
-#endif
 
         #endregion // IDisposable Members
     }

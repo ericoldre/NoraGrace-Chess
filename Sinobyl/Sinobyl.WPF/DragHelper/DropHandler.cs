@@ -79,6 +79,7 @@ namespace Sinobyl.WPF.DragHelper
                 else
                 {
                     this.Context.DragMove -= Context_DragMove;
+                    this.IsSelected = false;
                 }
             }
         }
@@ -93,6 +94,19 @@ namespace Sinobyl.WPF.DragHelper
             {
                 if (IsSelected == value) { return; }
                 DragDropProperties.SetIsActiveSelectedDropTarget(this.Element, value);
+
+                var contains = this.Context.SelectedDropTargets.Contains(this.Target);
+                if (contains != value)
+                {
+                    if (value)
+                    {
+                        this.Context.SelectedDropTargets.Add(this.Target);
+                    }
+                    else
+                    {
+                        this.Context.SelectedDropTargets.Remove(this.Target);
+                    }
+                }
             }
         }
 
@@ -131,19 +145,11 @@ namespace Sinobyl.WPF.DragHelper
 
             FrameworkElement fe = this.Element as FrameworkElement;
 
-            bool inEle = (
+            this.IsSelected = (
                 DraggedElementCenter.X > 0 
                 && DraggedElementCenter.Y > 0
                 && DraggedElementCenter.X < fe.ActualWidth
                 && DraggedElementCenter.Y < fe.ActualHeight);
-
-            this.IsSelected = inEle;
-
-            Sinobyl.WPF.ViewModels.BoardSquareVM vm = (Sinobyl.WPF.ViewModels.BoardSquareVM)this.Target;
-            if (vm.Position == Engine.ChessPosition.C4)
-            {
-                System.Diagnostics.Debug.WriteLine("X:{0} Y:{1}", MousePosition.X, MousePosition.Y);
-            }
 
         }
 

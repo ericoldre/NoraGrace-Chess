@@ -22,5 +22,6 @@ namespace Sinobyl.WPF.DragHelper
         {
             get;
         }
+        string DisplayName { get; }
     }
 }

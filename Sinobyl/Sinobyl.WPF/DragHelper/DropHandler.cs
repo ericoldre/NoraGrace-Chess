@@ -116,26 +116,12 @@ namespace Sinobyl.WPF.DragHelper
 
         void ValidDropTargets_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.OldItems != null && e.OldItems.Contains(this.Target))
-            {
-                this.IsValid = false;
-            }
-            if (e.NewItems != null && e.NewItems.Contains(this.Target))
-            {
-                this.IsValid = true;
-            }
+            this.IsValid = this.Context.ValidDropTargets.Contains(this.Target);
         }
 
         void PotentialDropTargets_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.OldItems != null && e.OldItems.Contains(this.Target))
-            {
-                this.IsPotential = false;
-            }
-            if (e.NewItems != null && e.NewItems.Contains(this.Target))
-            {
-                this.IsPotential = true;
-            }
+            this.IsPotential = this.Context.PotentialDropTargets.Contains(this.Target);
         }
 
         void Context_DragMove(object sender, DragDropContext.DragMoveEventArgs e)

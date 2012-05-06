@@ -27,7 +27,7 @@
 
         <DataTemplate x:Key="BoardSquareTemplate">
             <Grid Name="grid" Background="#FF909573" drag:DragDropProperties.DropTarget="{Binding}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Visible">
                     <TextBlock Text="{Binding Path=(drag:DragDropProperties.IsActivePotentialDropTarget), ElementName=grid}"/>
                     <TextBlock Text="{Binding Path=(drag:DragDropProperties.IsActiveValidDropTarget), ElementName=grid}"/>
 

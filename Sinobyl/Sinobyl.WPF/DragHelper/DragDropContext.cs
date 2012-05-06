@@ -53,14 +53,9 @@ namespace Sinobyl.WPF.DragHelper
 
         public void DoDrag(IDragSource dragSource)
         {
-            while (_potentials.Count > 0)
-            {
-                _potentials.RemoveAt(_potentials.Count - 1);
-            }
-            while (_valids.Count > 0)
-            {
-                _valids.RemoveAt(_valids.Count - 1);
-            }
+            _potentials.Clear();
+            _valids.Clear();
+            _selected.Clear();
             _potentials.AddRange(dragSource.DragTargetPotential.ToList());
             _valids.AddRange(dragSource.DragTargetValid.ToList());
         }
@@ -77,14 +72,9 @@ namespace Sinobyl.WPF.DragHelper
 
         public void EndDrag(IDragSource dragSource)
         {
-            while (_potentials.Count > 0)
-            {
-                _potentials.RemoveAt(_potentials.Count - 1);
-            }
-            while (_valids.Count > 0)
-            {
-                _valids.RemoveAt(_valids.Count - 1);
-            }
+            _potentials.Clear();
+            _valids.Clear();
+            _selected.Clear();
         }
 
         public class DragMoveEventArgs: EventArgs

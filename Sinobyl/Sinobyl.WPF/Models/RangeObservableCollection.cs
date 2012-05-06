@@ -42,7 +42,8 @@ namespace Sinobyl.WPF.Models
             //Turn notification back on
             _suppressNotification = false;
 
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, (IList)list));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, (IList)list));
         }
 
         public void RemoveRange(IList<T> list)
@@ -62,7 +63,7 @@ namespace Sinobyl.WPF.Models
             //Turn notification back on
             _suppressNotification = false;
 
-            NotifyCollectionChangedEventArgs args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, (IList)list);
+            NotifyCollectionChangedEventArgs args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
             OnCollectionChanged(args);
         }
     }

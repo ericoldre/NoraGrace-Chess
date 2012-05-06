@@ -30,6 +30,7 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
                     <TextBlock TextWrapping="Wrap" Text="{Binding Name, Mode=OneWay}"/>
                 </StackPanel>
+                <Border x:Name="highlightBorder" BorderBrush="Yellow" BorderThickness="2" Opacity="0" CornerRadius="8,8,8,8"></Border>
             </Grid>
 
             <DataTemplate.Triggers>
@@ -38,12 +39,23 @@
                 </DataTrigger>
                 
                 <DataTrigger Binding="{Binding Path=(drag:DragDropProperties.IsActiveSelectedDropTarget), ElementName=grid}" Value="True">
-                    <Setter TargetName="grid" Property="Background" Value="White"></Setter>
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard x:Name="asdf">
+                                <DoubleAnimation Storyboard.TargetName="highlightBorder" Storyboard.TargetProperty="Opacity" From="0" To=".5" Duration="0:0:0.2">
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard x:Name="asdfw">
+                                <DoubleAnimation Storyboard.TargetName="highlightBorder" Storyboard.TargetProperty="Opacity" From=".5" To="0" Duration="0:0:0.2">
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
                 </DataTrigger>
-                <MultiDataTrigger>
-                    
-                    
-                </MultiDataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
 

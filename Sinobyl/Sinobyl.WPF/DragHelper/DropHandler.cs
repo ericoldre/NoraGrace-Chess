@@ -17,15 +17,15 @@ namespace Sinobyl.WPF.DragHelper
         {
             _element = element;
             _target = target;
-            _target.DragDropContext.PotentialDropTargets.CollectionChanged += PotentialDropTargets_CollectionChanged;
-            _target.DragDropContext.ValidDropTargets.CollectionChanged += ValidDropTargets_CollectionChanged;
+            _target.DragDropContext.PotentialDropTargets.CollectionChangedBulk += PotentialDropTargets_CollectionChanged;
+            _target.DragDropContext.ValidDropTargets.CollectionChangedBulk += ValidDropTargets_CollectionChanged;
         }
         ~DropHandler()
         {
             //IsPotential = false;
             //IsValid = false;
-            _target.DragDropContext.PotentialDropTargets.CollectionChanged -= PotentialDropTargets_CollectionChanged;
-            _target.DragDropContext.ValidDropTargets.CollectionChanged -= ValidDropTargets_CollectionChanged;
+            _target.DragDropContext.PotentialDropTargets.CollectionChangedBulk -= PotentialDropTargets_CollectionChanged;
+            _target.DragDropContext.ValidDropTargets.CollectionChangedBulk -= ValidDropTargets_CollectionChanged;
         }
 
         #endregion

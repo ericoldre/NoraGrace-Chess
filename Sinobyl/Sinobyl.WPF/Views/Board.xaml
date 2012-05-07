@@ -6,7 +6,7 @@
 			 xmlns:sys="clr-namespace:System;assembly=System"
 			 xmlns:engine="clr-namespace:Sinobyl.Engine;assembly=Sinobyl.Engine"
              xmlns:vm="clr-namespace:Sinobyl.WPF.ViewModels"
-             xmlns:SampleData="clr-namespace:Expression.Blend.SampleData.BoardDesignData" x:Class="Sinobyl.WPF.Views.Board" 
+             x:Class="Sinobyl.WPF.Views.Board" 
              xmlns:convert="clr-namespace:Sinobyl.WPF.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:drag="clr-namespace:Sinobyl.WPF.DragHelper"

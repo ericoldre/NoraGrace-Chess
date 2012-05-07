@@ -63,6 +63,7 @@ namespace Sinobyl.WPF.ViewModels
         {
             get { return true; }
         }
+
         public DragHelper.DragDropContext DragDropContext
         {
             get
@@ -70,6 +71,7 @@ namespace Sinobyl.WPF.ViewModels
                 return this.BoardViewModel.DragDropContext;
             }
         }
+
         #endregion
 
         #region IDragSource Members
@@ -89,7 +91,19 @@ namespace Sinobyl.WPF.ViewModels
         public void DragComplete(DragHelper.IDropTarget target)
         {
             BoardSquareVM sqTo = (BoardSquareVM)target;
-            this.BoardViewModel.Model.ApplyMove(new ChessMove(this.Position, sqTo.Position));
+            if (this.Piece == ChessPiece.WPawn && sqTo.Position.GetRank() == ChessRank.Rank8)
+            {
+                this.BoardViewModel.Model.ApplyMove(new ChessMove(this.Position, sqTo.Position, ChessPiece.WQueen));
+            }
+            else if (this.Piece == ChessPiece.BPawn && sqTo.Position.GetRank() == ChessRank.Rank1)
+            {
+                this.BoardViewModel.Model.ApplyMove(new ChessMove(this.Position, sqTo.Position, ChessPiece.BQueen));
+            }
+            else
+            {
+                this.BoardViewModel.Model.ApplyMove(new ChessMove(this.Position, sqTo.Position));
+            }
+            
         }
 
         public IEnumerable<DragHelper.IDropTarget> DragTargetValid

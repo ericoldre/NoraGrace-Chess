@@ -58,7 +58,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Behaviors\PieceDragBehavior.cs" />
     <Compile Include="Converters\PositionToCoord.cs" />
     <Compile Include="DragHelper\DragDropContext.cs" />
     <Compile Include="DragHelper\DragDropProperties.cs" />
@@ -149,6 +148,7 @@
     <Resource Include="Images\Pieces\Alpha\300wq.png" />
     <Resource Include="Images\Pieces\Alpha\300wr.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

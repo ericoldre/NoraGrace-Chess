@@ -6,14 +6,35 @@ using System.Text;
 namespace Sinobyl.Engine
 {
 
-    public enum ChessPieceValue
+    public enum ChessPiece
     {
         WPawn = 0, WKnight = 1, WBishop = 2, WRook = 3, WQueen = 4, WKing = 5,
         BPawn = 6, BKnight = 7, BBishop = 8, BRook = 9, BQueen = 10, BKing = 11,
         EMPTY = 12
     }
 
+    //public struct ChessPieceArray<T>
+    //{
+    //    [System.Xml.Serialization.XmlIgnore()]
+    //    private T[] _values;
 
+    //    public ChessPieceArray(IEnumerable<KeyValuePair<ChessPiece,T>> values)
+    //    {
+    //        _values = new T[12];
+    //        foreach (var kvp in values)
+    //        {
+    //            _values[(int)kvp.Key] = kvp.Value;
+    //        }
+    //    }
+    //    [System.Xml.Serialization.XmlIgnore()]
+    //    public T this[ChessPiece piece]
+    //    {
+    //        get
+    //        {
+    //            return _values[(int)piece];
+    //        }
+    //    }
+    //}
 
     public class ChessPieceDictionary<T> where T: new()
     {
@@ -76,74 +97,20 @@ namespace Sinobyl.Engine
         }
     }
 
-    public struct ChessPiece
+    public static class ExtensionsChessPiece
     {
         private static readonly string _piecedesclookup = "PNBRQKpnbrqk";
 
-        public static readonly ChessPiece WPawn = new ChessPiece(ChessPieceValue.WPawn);
-        public static readonly ChessPiece WKnight = new ChessPiece(ChessPieceValue.WKnight);
-        public static readonly ChessPiece WBishop = new ChessPiece(ChessPieceValue.WBishop);
-        public static readonly ChessPiece WRook = new ChessPiece(ChessPieceValue.WRook);
-        public static readonly ChessPiece WQueen = new ChessPiece(ChessPieceValue.WQueen);
-        public static readonly ChessPiece WKing = new ChessPiece(ChessPieceValue.WKing);
-        public static readonly ChessPiece BPawn = new ChessPiece(ChessPieceValue.BPawn);
-        public static readonly ChessPiece BKnight = new ChessPiece(ChessPieceValue.BKnight);
-        public static readonly ChessPiece BBishop = new ChessPiece(ChessPieceValue.BBishop);
-        public static readonly ChessPiece BRook = new ChessPiece(ChessPieceValue.BRook);
-        public static readonly ChessPiece BQueen = new ChessPiece(ChessPieceValue.BQueen);
-        public static readonly ChessPiece BKing = new ChessPiece(ChessPieceValue.BKing);
-        public static readonly ChessPiece EMPTY = new ChessPiece(ChessPieceValue.EMPTY);
-
-
-        public readonly ChessPieceValue Value;
-
-        public ChessPiece(ChessPieceValue value)
-        {
-            Value = value;
-        }
-
-        #region operators
-
-        public static implicit operator ChessPieceValue(ChessPiece piece)
-        {
-            return piece.Value;
-        }
-        public static implicit operator ChessPiece(ChessPieceValue value)
-        {
-            return new ChessPiece(value);
-        }
-
-        public static explicit operator int(ChessPiece piece)
-        {
-            return (int)piece.Value;
-        }
-        public static explicit operator ChessPiece(int i)
-        {
-            return new ChessPiece((ChessPieceValue)i);
-        }
-        public static bool operator ==(ChessPiece a, ChessPiece b)
-        {
-            return a.Value == b.Value;
-        }
-
-        public static bool operator !=(ChessPiece a, ChessPiece b)
-        {
-            return !(a == b);
-        }
-
-
-        #endregion
-
-        public static ChessPiece ParseAsPiece(char c)
+        public static ChessPiece ParseAsPiece(this char c)
         {
             int idx = _piecedesclookup.IndexOf(c);
             if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid piece"); }
             return (ChessPiece)idx;
         }
 
-        public static ChessPiece ParseAsPiece(char c, ChessPlayer player)
+        public static ChessPiece ParseAsPiece(this char c, ChessPlayer player)
         {
-            ChessPiece tmppiece = ParseAsPiece(c.ToString().ToUpper()[0]);
+            ChessPiece tmppiece = c.ToString().ToUpper()[0].ParseAsPiece();
             if (player == ChessPlayer.White)
             {
                 return tmppiece;
@@ -154,105 +121,105 @@ namespace Sinobyl.Engine
             }
         }
 
-        public string PieceToString()
+        public static string PieceToString(this ChessPiece piece)
         {
             //AssertPiece(piece);
-            return _piecedesclookup.Substring((int)this, 1);
+            return _piecedesclookup.Substring((int)piece, 1);
         }
 
 
-        public int PieceValBasic()
+        public static int PieceValBasic(this ChessPiece piece)
         {
-            switch (this.Value)
+            switch (piece)
             {
-                case ChessPieceValue.WPawn:
-                case ChessPieceValue.BPawn:
+                case ChessPiece.WPawn:
+                case ChessPiece.BPawn:
                     return 100;
-                case ChessPieceValue.WKnight:
-                case ChessPieceValue.BKnight:
+                case ChessPiece.WKnight:
+                case ChessPiece.BKnight:
                     return 300;
-                case ChessPieceValue.WBishop:
-                case ChessPieceValue.BBishop:
+                case ChessPiece.WBishop:
+                case ChessPiece.BBishop:
                     return 300;
-                case ChessPieceValue.WRook:
-                case ChessPieceValue.BRook:
+                case ChessPiece.WRook:
+                case ChessPiece.BRook:
                     return 500;
-                case ChessPieceValue.WQueen:
-                case ChessPieceValue.BQueen:
+                case ChessPiece.WQueen:
+                case ChessPiece.BQueen:
                     return 900;
-                case ChessPieceValue.WKing:
-                case ChessPieceValue.BKing:
+                case ChessPiece.WKing:
+                case ChessPiece.BKing:
                     return 10000;
                 default:
                     return 0;
             }
         }
 
-        public ChessPieceType ToPieceType()
+        public static ChessPieceType ToPieceType(this ChessPiece piece)
         {
-            switch (this.Value)
+            switch (piece)
             {
-                case ChessPieceValue.WPawn:
-                case ChessPieceValue.BPawn:
+                case ChessPiece.WPawn:
+                case ChessPiece.BPawn:
                     return ChessPieceType.Pawn;
-                case ChessPieceValue.WKnight:
-                case ChessPieceValue.BKnight:
+                case ChessPiece.WKnight:
+                case ChessPiece.BKnight:
                     return ChessPieceType.Knight;
-                case ChessPieceValue.WBishop:
-                case ChessPieceValue.BBishop:
+                case ChessPiece.WBishop:
+                case ChessPiece.BBishop:
                     return ChessPieceType.Bishop;
-                case ChessPieceValue.WRook:
-                case ChessPieceValue.BRook:
+                case ChessPiece.WRook:
+                case ChessPiece.BRook:
                     return ChessPieceType.Rook;
-                case ChessPieceValue.WQueen:
-                case ChessPieceValue.BQueen:
+                case ChessPiece.WQueen:
+                case ChessPiece.BQueen:
                     return ChessPieceType.Queen;
-                case ChessPieceValue.WKing:
-                case ChessPieceValue.BKing:
+                case ChessPiece.WKing:
+                case ChessPiece.BKing:
                     return ChessPieceType.King;
                 default:
                     throw new ArgumentException("invalid chess piece");
             }
         }
 
-        public ChessPiece ToOppositePlayer()
+        public static ChessPiece ToOppositePlayer(this ChessPiece piece)
         {
-            switch (this.Value)
+            switch (piece)
             {
-                case ChessPieceValue.WPawn:
+                case ChessPiece.WPawn:
                     return ChessPiece.BPawn;
-                case ChessPieceValue.WKnight:
+                case ChessPiece.WKnight:
                     return ChessPiece.BKnight;
-                case ChessPieceValue.WBishop:
+                case ChessPiece.WBishop:
                     return ChessPiece.BBishop;
-                case ChessPieceValue.WRook:
+                case ChessPiece.WRook:
                     return ChessPiece.BRook;
-                case ChessPieceValue.WQueen:
+                case ChessPiece.WQueen:
                     return ChessPiece.BQueen;
-                case ChessPieceValue.WKing:
+                case ChessPiece.WKing:
                     return ChessPiece.BKing;
 
-                case ChessPieceValue.BPawn:
+                case ChessPiece.BPawn:
                     return ChessPiece.WPawn;
-                case ChessPieceValue.BKnight:
+                case ChessPiece.BKnight:
                     return ChessPiece.WKnight;
-                case ChessPieceValue.BBishop:
+                case ChessPiece.BBishop:
                     return ChessPiece.WBishop;
-                case ChessPieceValue.BRook:
+                case ChessPiece.BRook:
                     return ChessPiece.WRook;
-                case ChessPieceValue.BQueen:
+                case ChessPiece.BQueen:
                     return ChessPiece.WQueen;
-                case ChessPieceValue.BKing:
+                case ChessPiece.BKing:
                     return ChessPiece.WKing;
                 default:
                     return ChessPiece.EMPTY;
             }
         }
-        public ChessPlayer PieceToPlayer()
+        public static ChessPlayer PieceToPlayer(this ChessPiece piece)
         {
-            if (this == ChessPiece.EMPTY) { return ChessPlayer.None; }
+            if (piece == ChessPiece.EMPTY) { return ChessPlayer.None; }
             //AssertPiece(piece);
-            if ((int)this >= 0 && (int)this <= 5)
+            if ((int)piece >= 0 && (int)piece <= 5)
             {
                 return ChessPlayer.White;
             }
@@ -261,27 +228,27 @@ namespace Sinobyl.Engine
                 return ChessPlayer.Black;
             }
         }
-        public bool PieceIsSliderRook()
+        public static bool PieceIsSliderRook(this ChessPiece piece)
         {
-            switch (this.Value)
+            switch (piece)
             {
-                case ChessPieceValue.WRook:
-                case ChessPieceValue.WQueen:
-                case ChessPieceValue.BRook:
-                case ChessPieceValue.BQueen:
+                case ChessPiece.WRook:
+                case ChessPiece.WQueen:
+                case ChessPiece.BRook:
+                case ChessPiece.BQueen:
                     return true;
                 default:
                     return false;
             }
         }
-        public bool PieceIsSliderBishop()
+        public static bool PieceIsSliderBishop(this ChessPiece piece)
         {
-            switch (this.Value)
+            switch (piece)
             {
-                case ChessPieceValue.WBishop:
-                case ChessPieceValue.WQueen:
-                case ChessPieceValue.BBishop:
-                case ChessPieceValue.BQueen:
+                case ChessPiece.WBishop:
+                case ChessPiece.WQueen:
+                case ChessPiece.BBishop:
+                case ChessPiece.BQueen:
                     return true;
                 default:
                     return false;
@@ -290,4 +257,3 @@ namespace Sinobyl.Engine
 
     }
 }
-

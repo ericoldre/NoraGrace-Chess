@@ -149,7 +149,7 @@ namespace Sinobyl.Engine
 				//coordinate notation, with promotion
                 this.From = movetext.Substring(0, 2).ParseAsPosition();
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
-                this.Promote = ChessPiece.ParseAsPiece(movetext[4], me);
+				this.Promote = movetext[4].ParseAsPiece(me);
 			}
 			else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
 			{
@@ -207,7 +207,7 @@ namespace Sinobyl.Engine
 				if (board.PieceAt(tmppos) == mypawn)
 				{
 					From = tmppos;
-                    Promote = ChessPiece.ParseAsPiece(movetext[2], me);
+					Promote = movetext[2].ParseAsPiece(me);
 					return;
 				}
 				throw new ChessException("no pawn can promoted to " + movetext.Substring(0, 2));
@@ -216,7 +216,7 @@ namespace Sinobyl.Engine
 			{
 				//pawn attack
                 this.To = movetext.Substring(1, 2).ParseAsPosition();
-				tmpfile = ChessFile.ParseAsFile(movetext[0]);
+				tmpfile = movetext[0].ParseAsFile();
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
 				return;
 			}
@@ -224,16 +224,16 @@ namespace Sinobyl.Engine
 			{
 				//pawn attack, promote
 				this.To = movetext.Substring(1, 2).ParseAsPosition();
-				tmpfile = ChessFile.ParseAsFile(movetext[0]);
+				tmpfile = movetext[0].ParseAsFile();
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
-                this.Promote = ChessPiece.ParseAsPiece(movetext[3], me);
+				this.Promote = movetext[3].ParseAsPiece(me);
 				return;
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678]$"))
 			{
 				//normal attack
 				this.To = movetext.Substring(1, 2).ParseAsPosition();
-                tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
+				tmppiece = movetext[0].ParseAsPiece(me);
 				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
 				return;
 			}
@@ -241,8 +241,8 @@ namespace Sinobyl.Engine
 			{
 				//normal, specify file
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
-				tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
-                tmpfile = ChessFile.ParseAsFile(movetext[1]);
+				tmppiece = movetext[0].ParseAsPiece(me);
+                tmpfile = movetext[1].ParseAsFile();
 				this.From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
 				return;
 			}
@@ -250,8 +250,8 @@ namespace Sinobyl.Engine
 			{
 				//normal, specify rank
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
-				tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
-				tmprank = ChessRank.ParseAsRank(movetext[1]);
+				tmppiece = movetext[0].ParseAsPiece(me);
+				tmprank = movetext[1].ParseAsRank();
 				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
 				return;
 
@@ -260,9 +260,9 @@ namespace Sinobyl.Engine
 			{
 				//normal, specify rank and file
 				this.To = movetext.Substring(3, 2).ParseAsPosition();
-				tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
-                tmpfile = ChessFile.ParseAsFile(movetext[1]);
-                tmprank = ChessRank.ParseAsRank(movetext[2]);
+				tmppiece = movetext[0].ParseAsPiece(me);
+                tmpfile = movetext[1].ParseAsFile();
+                tmprank = movetext[2].ParseAsRank();
 				this.From = filter(board, To, tmppiece, tmpfile, tmprank);
 				return;
 			}
@@ -1086,7 +1086,7 @@ namespace Sinobyl.Engine
 			static int attackswap(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
 			{
 				int nextAttackPieceVal = 0;
-				ChessPosition nextAttackPos;
+				ChessPosition nextAttackPos = 0;
 
 				bool HasAttack = attackpop(board, attacks, player, positionattacked, out nextAttackPos, out nextAttackPieceVal);
 				if (!HasAttack) { return 0; }
@@ -1107,12 +1107,12 @@ namespace Sinobyl.Engine
 			{
 
 
-				ChessPosition mypawn = ChessPosition.OUTOFBOUNDS;
-                ChessPosition myknight = ChessPosition.OUTOFBOUNDS;
-                ChessPosition mybishop = ChessPosition.OUTOFBOUNDS;
-                ChessPosition myrook = ChessPosition.OUTOFBOUNDS;
-                ChessPosition myqueen = ChessPosition.OUTOFBOUNDS;
-                ChessPosition myking = ChessPosition.OUTOFBOUNDS;
+				ChessPosition mypawn = 0;
+				ChessPosition myknight = 0;
+				ChessPosition mybishop = 0;
+				ChessPosition myrook = 0;
+				ChessPosition myqueen = 0;
+				ChessPosition myking = 0;
 
 
 				if (player == ChessPlayer.White)
@@ -1120,19 +1120,19 @@ namespace Sinobyl.Engine
 					foreach (ChessPosition attackPos in attacks.ToPositions())
 					{
 						ChessPiece attackPiece = board.PieceAt(attackPos);
-						switch (attackPiece.Value)
+						switch (attackPiece)
 						{
-							case ChessPieceValue.WPawn:
+							case ChessPiece.WPawn:
 								mypawn = attackPos; break;
-                            case ChessPieceValue.WKnight:
+							case ChessPiece.WKnight:
 								myknight = attackPos; break;
-                            case ChessPieceValue.WBishop:
+							case ChessPiece.WBishop:
 								mybishop = attackPos; break;
-                            case ChessPieceValue.WRook:
+							case ChessPiece.WRook:
 								myrook = attackPos; break;
-                            case ChessPieceValue.WQueen:
+							case ChessPiece.WQueen:
 								myqueen = attackPos; break;
-                            case ChessPieceValue.WKing:
+							case ChessPiece.WKing:
 								myking = attackPos; break;
 						}
 					}
@@ -1142,59 +1142,59 @@ namespace Sinobyl.Engine
 					foreach (ChessPosition attackPos in attacks.ToPositions())
 					{
 						ChessPiece attackPiece = board.PieceAt(attackPos);
-						switch (attackPiece.Value)
+						switch (attackPiece)
 						{
-							case ChessPieceValue.BPawn:
+							case ChessPiece.BPawn:
 								mypawn = attackPos; break;
-                            case ChessPieceValue.BKnight:
+							case ChessPiece.BKnight:
 								myknight = attackPos; break;
-                            case ChessPieceValue.BBishop:
+							case ChessPiece.BBishop:
 								mybishop = attackPos; break;
-                            case ChessPieceValue.BRook:
+							case ChessPiece.BRook:
 								myrook = attackPos; break;
-                            case ChessPieceValue.BQueen:
+							case ChessPiece.BQueen:
 								myqueen = attackPos; break;
-                            case ChessPieceValue.BKing:
+							case ChessPiece.BKing:
 								myking = attackPos; break;
 						}
 					}
 				}
 
-                OutFrom = ChessPosition.OUTOFBOUNDS;
+				OutFrom = (ChessPosition)(int)-1;
 				OutPieceVal = 0;
 
-				if (mypawn != ChessPosition.OUTOFBOUNDS)
+				if (mypawn != 0)
 				{
 					OutFrom = mypawn;
 					OutPieceVal = 100;
 				}
-				else if (myknight != ChessPosition.OUTOFBOUNDS)
+				else if (myknight != 0)
 				{
 					OutFrom = myknight;
 					OutPieceVal = 300;
 				}
-                else if (mybishop != ChessPosition.OUTOFBOUNDS)
+				else if (mybishop != 0)
 				{
 					OutFrom = mybishop;
 					OutPieceVal = 300;
 				}
-                else if (myrook != ChessPosition.OUTOFBOUNDS)
+				else if (myrook != 0)
 				{
 					OutFrom = myrook;
 					OutPieceVal = 500;
 				}
-                else if (myqueen != ChessPosition.OUTOFBOUNDS)
+				else if (myqueen != 0)
 				{
 					OutFrom = myqueen;
 					OutPieceVal = 900;
 				}
-                else if (myking != ChessPosition.OUTOFBOUNDS)
+				else if (myking != 0)
 				{
 					OutFrom = myking;
 					OutPieceVal = 100000;
 				}
 
-                if (OutFrom == ChessPosition.OUTOFBOUNDS)
+				if (OutFrom == 0)
 				{
 					//i'm out of attacks to this position;
 					return false;
@@ -1203,8 +1203,8 @@ namespace Sinobyl.Engine
                 ChessDirection addAttackFrom = positionattacked.DirectionTo(OutFrom);
                 if (!addAttackFrom.IsDirectionKnight())
 				{
-					ChessPosition AddPosition;
-					ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, out AddPosition);
+					ChessPosition AddPosition = 0;
+					ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
                     if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
 					{
                         attacks |= AddPosition.Bitboard();

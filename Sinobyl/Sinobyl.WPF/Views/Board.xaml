@@ -125,74 +125,74 @@
                 
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>WPawn</engine:ChessPieceValue>
+                        <engine:ChessPiece>WPawn</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wp.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>WBishop</engine:ChessPieceValue>
+                        <engine:ChessPiece>WBishop</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wb.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>WKnight</engine:ChessPieceValue>
+                        <engine:ChessPiece>WKnight</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wn.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>WRook</engine:ChessPieceValue>
+                        <engine:ChessPiece>WRook</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wr.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>WQueen</engine:ChessPieceValue>
+                        <engine:ChessPiece>WQueen</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wq.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>WKing</engine:ChessPieceValue>
+                        <engine:ChessPiece>WKing</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wk.png"></Setter>
                 </DataTrigger>
                 <!-- black pieces-->
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>BPawn</engine:ChessPieceValue>
+                        <engine:ChessPiece>BPawn</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300bp.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>BBishop</engine:ChessPieceValue>
+                        <engine:ChessPiece>BBishop</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300bb.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>BKnight</engine:ChessPieceValue>
+                        <engine:ChessPiece>BKnight</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300bn.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>BRook</engine:ChessPieceValue>
+                        <engine:ChessPiece>BRook</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300br.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>BQueen</engine:ChessPieceValue>
+                        <engine:ChessPiece>BQueen</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300bq.png"></Setter>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=Piece}">
                     <DataTrigger.Value>
-                        <engine:ChessPieceValue>BKing</engine:ChessPieceValue>
+                        <engine:ChessPiece>BKing</engine:ChessPiece>
                     </DataTrigger.Value>
                     <Setter TargetName="img" Property="Source" Value="/Sinobyl.WPF;component/Images/Pieces/Alpha/300bk.png"></Setter>
                 </DataTrigger>

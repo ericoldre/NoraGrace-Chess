@@ -22,12 +22,12 @@ namespace Sinobyl.Engine
 
         public ChessFEN(
             ChessPositionDictionary<ChessPiece> Pieces,
-            ChessPlayerValue WhosTurn = ChessPlayerValue.White,
+            ChessPlayer WhosTurn = ChessPlayer.White,
             bool CastleWS = false,
             bool CastleWL = false,
             bool CastleBS = false,
             bool CastleBL = false,
-            ChessPositionValue Enpassant = ChessPositionValue.OUTOFBOUNDS,
+            ChessPosition Enpassant = ChessPosition.OUTOFBOUNDS,
             int FiftyMove = 0,
             int FullMove = 0)
         {
@@ -124,7 +124,7 @@ namespace Sinobyl.Engine
 					}
 					else
 					{
-						pieceat[(int)Chess.AllFiles[ifile].ToPosition(rank)] = ChessPiece.ParseAsPiece(c);
+						pieceat[(int)Chess.AllFiles[ifile].ToPosition(rank)] = c.ParseAsPiece();
 						ifile++;
 					}
 				}

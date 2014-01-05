@@ -43,26 +43,6 @@ namespace Sinobyl.Engine
 
         private static readonly int[] _byteBitcount = new int[256] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
 
-        public static IEnumerable<ChessPosition> ToPositions(this ChessBitboard bitboard)
-        {
-            while (bitboard != 0)
-            {
-                ChessPosition first = bitboard.FirstPosition();
-                yield return first;
-                bitboard = bitboard & ~first.Bitboard();
-            }
-        }
-
-        public static ChessBitboard FromPositions(this IEnumerable<ChessPosition> positions)
-        {
-            ChessBitboard bitboard = 0;
-            foreach (var position in positions)
-            {
-                bitboard |= position.Bitboard();
-            }
-            return bitboard;
-        }
-
         public static int BitCount(this ChessBitboard bitboard)
         {
             ulong val = (ulong)bitboard;
@@ -125,39 +105,39 @@ namespace Sinobyl.Engine
 
         public static ChessBitboard Shift(this ChessBitboard bits, ChessDirection dir)
         {
-            switch (dir.Value)
+            switch (dir)
             {
-                case ChessDirectionValue.DirN:
+                case ChessDirection.DirN:
                     return bits.ShiftDirN();
-                case ChessDirectionValue.DirE:
+                case ChessDirection.DirE:
                     return bits.ShiftDirE();
-                case ChessDirectionValue.DirS:
+                case ChessDirection.DirS:
                     return bits.ShiftDirS();
-                case ChessDirectionValue.DirW:
+                case ChessDirection.DirW:
                     return bits.ShiftDirW();
-                case ChessDirectionValue.DirNE:
+                case ChessDirection.DirNE:
                     return bits.ShiftDirNE();
-                case ChessDirectionValue.DirSE:
+                case ChessDirection.DirSE:
                     return bits.ShiftDirSE();
-                case ChessDirectionValue.DirSW:
+                case ChessDirection.DirSW:
                     return bits.ShiftDirSW();
-                case ChessDirectionValue.DirNW:
+                case ChessDirection.DirNW:
                     return bits.ShiftDirNW();
-                case ChessDirectionValue.DirNNE:
+                case ChessDirection.DirNNE:
                     return bits.ShiftDirNE().ShiftDirN();
-                case ChessDirectionValue.DirEEN:
+                case ChessDirection.DirEEN:
                     return bits.ShiftDirNE().ShiftDirE();
-                case ChessDirectionValue.DirEES:
+                case ChessDirection.DirEES:
                     return bits.ShiftDirSE().ShiftDirE();
-                case ChessDirectionValue.DirSSE:
+                case ChessDirection.DirSSE:
                     return bits.ShiftDirSE().ShiftDirS();
-                case ChessDirectionValue.DirSSW:
+                case ChessDirection.DirSSW:
                     return bits.ShiftDirSW().ShiftDirS();
-                case ChessDirectionValue.DirWWS:
+                case ChessDirection.DirWWS:
                     return bits.ShiftDirSW().ShiftDirW();
-                case ChessDirectionValue.DirWWN:
+                case ChessDirection.DirWWN:
                     return bits.ShiftDirNW().ShiftDirW();
-                case ChessDirectionValue.DirNNW:
+                case ChessDirection.DirNNW:
                     return bits.ShiftDirNW().ShiftDirN();
                 default:
                     return ChessBitboard.Empty;

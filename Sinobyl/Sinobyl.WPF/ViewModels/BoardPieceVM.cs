@@ -22,6 +22,8 @@ namespace Sinobyl.WPF.ViewModels
             _boardVM.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(BoardVM_PropertyChanged);
         }
 
+
+
         public string DisplayName
         {
             get

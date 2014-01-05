@@ -12,7 +12,7 @@
              xmlns:drag="clr-namespace:Sinobyl.WPF.DragHelper"
              xmlns:views="clr-namespace:Sinobyl.WPF.Views"
              mc:Ignorable="d" 
-    
+     
              d:DesignHeight="500" d:DesignWidth="500"
 			 d:DataContext="{Binding Source={StaticResource designBoard}}">
 	<UserControl.Resources>
@@ -22,9 +22,50 @@
         </ObjectDataProvider>
 
         <convert:PositionToCoord x:Key="PositionToCoord" />
+        <convert:PercentConverter x:Key="PercentConverter"></convert:PercentConverter>
 
         <drag:DragDropContext x:Key="dragDropContext"></drag:DragDropContext>
 
+        <DataTemplate x:Key="PromotionTemplate">
+            <Grid Margin="0" x:Name="grid">
+                <Rectangle Fill="Gray" Opacity=".8"></Rectangle>
+                <Border CornerRadius="10,10,10,10" Margin="20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" 
+                                Width="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualWidth}"
+                                Height="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualHeight}">
+                            <Image Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wq.png"></Image>
+                        </Button>
+                        <Button Grid.Column="1" 
+                                Width="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualWidth}"
+                                Height="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualHeight}">
+                            <Image Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wr.png"></Image>
+                        </Button>
+                        <Button Grid.Column="2"  
+                                Width="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualWidth}"
+                                Height="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualHeight}">
+                            <Image Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wb.png"></Image>
+                        </Button>
+                        <Button Grid.Column="3" 
+                                Width="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualWidth}"
+                                Height="{Binding Converter={StaticResource PercentConverter}, ConverterParameter=20, ElementName=grid, Path=ActualHeight}">
+                            <Image Source="/Sinobyl.WPF;component/Images/Pieces/Alpha/300wn.png"></Image>
+                        </Button>
+                        
+                    </Grid>
+                </Border>
+            </Grid>
+
+
+
+        </DataTemplate>
+        
         <DataTemplate x:Key="BoardSquareTemplate">
             <Grid Name="grid" Background="#FF909573" drag:DragDropProperties.DropTarget="{Binding}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
@@ -208,13 +249,13 @@
     <Canvas x:Name="LayoutRoot" >
         
         
-        <ItemsControl x:Name="Squares" 
+        <ItemsControl x:Name="Squares" Visibility="Visible"
 			ItemsSource="{Binding Squares}" 
 			ItemTemplate="{DynamicResource BoardSquareTemplate}" 
 			ItemsPanel="{DynamicResource CanvasPanelTemplate}" 
 			ItemContainerStyle="{DynamicResource BoardSquareContainerStyle}" Margin="0"/>
 
-        <ItemsControl x:Name="Pieces" 
+        <ItemsControl x:Name="Pieces" Visibility="Visible"
 			ItemsSource="{Binding Pieces}" 
 			ItemTemplate="{DynamicResource PieceTemplate}" 
 			ItemsPanel="{DynamicResource CanvasPanelTemplate}" 
@@ -222,7 +263,24 @@
 
 
 
+        <ItemsControl x:Name="Promotions"
+            ItemsSource="{Binding Promotions}"
+            ItemsPanel="{DynamicResource CanvasPanelTemplate}" 
+            ItemTemplate="{DynamicResource PromotionTemplate}" 
+            Margin="0">
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="{x:Type FrameworkElement}">
+                    <Setter Property="Canvas.Top" Value="0"></Setter>
+                    <Setter Property="Canvas.Left" Value="0"></Setter>
+                    <Setter Property="Width" Value="{Binding Converter={StaticResource ResourceKey=PercentConverter}, ConverterParameter=100, ElementName=LayoutRoot, Path=ActualWidth}"></Setter>
+                    <Setter Property="Height" Value="{Binding Converter={StaticResource ResourceKey=PercentConverter}, ConverterParameter=100, ElementName=LayoutRoot, Path=ActualHeight}"></Setter>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+
+        </ItemsControl>
 
 
     </Canvas>
 </UserControl>
+
+        

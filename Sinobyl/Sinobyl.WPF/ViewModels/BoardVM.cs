@@ -17,6 +17,7 @@ namespace Sinobyl.WPF.ViewModels
         private readonly Dictionary<ChessPosition, ObservableCollection<ChessPosition>> _moves = new Dictionary<ChessPosition, ObservableCollection<ChessPosition>>();
         public ObservableCollection<BoardSquareVM> Squares { get; private set; }
         public ObservableCollection<BoardPieceVM> Pieces { get; private set; }
+        public ObservableCollection<BoardPromotionVM> Promotions { get; private set; }
         public Sinobyl.Engine.ChessPositionDictionary<BoardSquareVM> SquareDictionary { get; private set; }
         public Sinobyl.WPF.DragHelper.DragDropContext DragDropContext { get; private set; }
 
@@ -33,10 +34,13 @@ namespace Sinobyl.WPF.ViewModels
         {
             _model = model;
 
+            Promotions = new ObservableCollection<BoardPromotionVM>();
             Squares = new ObservableCollection<BoardSquareVM>();
             Pieces = new ObservableCollection<BoardPieceVM>();
             SquareDictionary = new ChessPositionDictionary<BoardSquareVM>();
             DragDropContext = new DragHelper.DragDropContext();
+
+            Promotions.Add(new BoardPromotionVM());
 
             foreach (ChessPosition pos in Chess.AllPositions)
             {
@@ -102,7 +106,9 @@ namespace Sinobyl.WPF.ViewModels
 
         public static BoardVM GetDesignBoardVM()
         {
-            return new BoardVM(new BoardModel(new ChessBoard(new ChessFEN(ChessFEN.FENStart))));
+            var retval = new BoardVM(new BoardModel(new ChessBoard(new ChessFEN(ChessFEN.FENStart))));
+            retval.Promotions.Add(new BoardPromotionVM());
+            return retval;
         }
 
         public ObservableCollection<ChessPosition> MoveDestinations(ChessPosition fromPosition)

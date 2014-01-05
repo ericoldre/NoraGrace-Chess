@@ -58,6 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\PercentConverter.cs" />
     <Compile Include="Converters\PositionToCoord.cs" />
     <Compile Include="DragHelper\DragDropContext.cs" />
     <Compile Include="DragHelper\DragDropProperties.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Models\RangeObservableCollection.cs" />
     <Compile Include="ViewModels\BoardElementVM.cs" />
     <Compile Include="ViewModels\BoardPieceVM.cs" />
+    <Compile Include="ViewModels\BoardPromotionVM.cs" />
     <Compile Include="ViewModels\BoardSquareVM.cs" />
     <Compile Include="ViewModels\BoardVM.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />

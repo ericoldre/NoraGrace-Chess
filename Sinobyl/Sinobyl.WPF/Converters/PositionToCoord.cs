@@ -22,8 +22,8 @@ namespace Sinobyl.WPF.Converters
             size.Width = canvasSize.Width / 8;
             size.Height = canvasSize.Height / 8;
 
-            point.Y = size.Height * Math.Abs((ChessRank.Rank8 - position.GetRank()));
-            point.X = size.Width * Math.Abs((ChessFile.FileA - position.GetFile()));
+            point.Y = size.Height * Math.Abs((ChessRank.Rank8.Value - position.GetRank().Value));
+            point.X = size.Width * Math.Abs((ChessFile.FileA.Value - position.GetFile().Value));
 
             switch (parameter.ToString())
             {
@@ -54,27 +54,27 @@ namespace Sinobyl.WPF.Converters
             var sqSize = BoardSizeToSquareSize(boardSize);
 
             double X = point.X;
-            ChessFile f = ChessFile.FileA;
+            ChessFileValue f = ChessFile.FileA;
             while (X > sqSize.Width)
             {
                 X -= sqSize.Width;
                 f += 1;
             }
             double Y = point.Y;
-            ChessRank r = ChessRank.Rank8;
+            ChessRankValue r = ChessRank.Rank8;
             while (Y > sqSize.Height)
             {
                 Y -= sqSize.Height;
                 r += 1;
             }
-            return f.ToPosition(r);
+            return ((ChessFile)f).ToPosition(r);
         }
         protected static Point PositionToPoint(Size boardSize, ChessPosition pos)
         {
             var size = BoardSizeToSquareSize(boardSize);
             return new Point(
-                size.Width * Math.Abs((ChessFile.FileA - pos.GetFile())),
-                size.Height * Math.Abs((ChessRank.Rank8 - pos.GetRank()))
+                size.Width * Math.Abs((ChessFile.FileA.Value - pos.GetFile().Value)),
+                size.Height * Math.Abs((ChessRank.Rank8.Value - pos.GetRank().Value))
                 );
         }
         protected static Size BoardSizeToSquareSize(Size boardSize)

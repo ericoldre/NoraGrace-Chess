@@ -103,7 +103,7 @@ namespace Sinobyl.Engine
 
         public ChessPosition ToPosition(ChessRank rank)
         {
-            return (ChessPosition)((int)rank * 8) + (int)this;
+            return (ChessPosition)(((int)rank * 8) + (int)this);
         }
 
         public ChessBitboard Bitboard()

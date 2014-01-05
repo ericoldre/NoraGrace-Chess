@@ -109,7 +109,7 @@ namespace Sinobyl.Engine
         {
             //if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
             //if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
-            return (ChessPosition)((int)this * 8) + (int)file;
+            return (ChessPosition)(((int)this * 8) + (int)file);
         }
 
         public ChessBitboard Bitboard()

@@ -27,7 +27,7 @@ namespace Sinobyl.Engine
             bool CastleWL = false,
             bool CastleBS = false,
             bool CastleBL = false,
-            ChessPosition Enpassant = ChessPosition.OUTOFBOUNDS,
+            ChessPositionValue Enpassant = ChessPositionValue.OUTOFBOUNDS,
             int FiftyMove = 0,
             int FullMove = 0)
         {

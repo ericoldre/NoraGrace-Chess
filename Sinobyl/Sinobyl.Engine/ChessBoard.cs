@@ -893,12 +893,12 @@ namespace Sinobyl.Engine
 				&& this._hist[_hist.Count - 2].From == (ChessPosition.OUTOFBOUNDS);
 		}
 
-		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, ref ChessPosition pos)
+		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, out ChessPosition pos)
 		{
 			int i = 0;
-			return PieceInDirection(from, dir, ref pos, ref i);
+			return PieceInDirection(from, dir, out pos, out i);
 		}
-		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, ref ChessPosition pos, ref int dist)
+		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, out ChessPosition pos, out int dist)
 		{
 
 			ChessPiece piece;

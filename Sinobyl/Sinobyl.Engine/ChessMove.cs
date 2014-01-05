@@ -1086,7 +1086,7 @@ namespace Sinobyl.Engine
 			static int attackswap(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
 			{
 				int nextAttackPieceVal = 0;
-				ChessPosition nextAttackPos = 0;
+				ChessPosition nextAttackPos;
 
 				bool HasAttack = attackpop(board, attacks, player, positionattacked, out nextAttackPos, out nextAttackPieceVal);
 				if (!HasAttack) { return 0; }
@@ -1107,12 +1107,12 @@ namespace Sinobyl.Engine
 			{
 
 
-				ChessPosition mypawn = 0;
-				ChessPosition myknight = 0;
-				ChessPosition mybishop = 0;
-				ChessPosition myrook = 0;
-				ChessPosition myqueen = 0;
-				ChessPosition myking = 0;
+				ChessPosition mypawn = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myknight = ChessPosition.OUTOFBOUNDS;
+                ChessPosition mybishop = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myrook = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myqueen = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myking = ChessPosition.OUTOFBOUNDS;
 
 
 				if (player == ChessPlayer.White)
@@ -1160,41 +1160,41 @@ namespace Sinobyl.Engine
 					}
 				}
 
-				OutFrom = (ChessPosition)(int)-1;
+                OutFrom = ChessPosition.OUTOFBOUNDS;
 				OutPieceVal = 0;
 
-				if (mypawn != 0)
+				if (mypawn != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = mypawn;
 					OutPieceVal = 100;
 				}
-				else if (myknight != 0)
+				else if (myknight != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myknight;
 					OutPieceVal = 300;
 				}
-				else if (mybishop != 0)
+                else if (mybishop != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = mybishop;
 					OutPieceVal = 300;
 				}
-				else if (myrook != 0)
+                else if (myrook != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myrook;
 					OutPieceVal = 500;
 				}
-				else if (myqueen != 0)
+                else if (myqueen != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myqueen;
 					OutPieceVal = 900;
 				}
-				else if (myking != 0)
+                else if (myking != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myking;
 					OutPieceVal = 100000;
 				}
 
-				if (OutFrom == 0)
+                if (OutFrom == ChessPosition.OUTOFBOUNDS)
 				{
 					//i'm out of attacks to this position;
 					return false;
@@ -1203,8 +1203,8 @@ namespace Sinobyl.Engine
                 ChessDirection addAttackFrom = positionattacked.DirectionTo(OutFrom);
                 if (!addAttackFrom.IsDirectionKnight())
 				{
-					ChessPosition AddPosition = 0;
-					ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
+					ChessPosition AddPosition;
+					ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, out AddPosition);
                     if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
 					{
                         attacks |= AddPosition.Bitboard();

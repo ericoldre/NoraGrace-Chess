@@ -23,12 +23,12 @@ namespace Sinobyl.Engine
         public static bool IsLight(this ChessPosition pos)
         {
             bool retval = (int)pos % 2 == 1;
-            switch (pos.GetRank())
+            switch (pos.GetRank().Value)
             {
-                case ChessRank.Rank2:
-                case ChessRank.Rank4:
-                case ChessRank.Rank6:
-                case ChessRank.Rank8:
+                case ChessRankValue.Rank2:
+                case ChessRankValue.Rank4:
+                case ChessRankValue.Rank6:
+                case ChessRankValue.Rank8:
                     retval = !retval;
                     break;
             }
@@ -106,7 +106,7 @@ namespace Sinobyl.Engine
 
             if (fileto == filefrom)
             {
-                if (rankfrom < rankto) { return ChessDirection.DirS; }
+                if (rankfrom.Value < rankto.Value) { return ChessDirection.DirS; }
                 return ChessDirection.DirN;
             }
             else if (rankfrom == rankto)
@@ -114,18 +114,18 @@ namespace Sinobyl.Engine
                 if (filefrom > fileto) { return ChessDirection.DirW; }
                 return ChessDirection.DirE;
             }
-            int rankchange = rankto - rankfrom;
-            int filechange = fileto - filefrom;
+            int rankchange = rankto.Value - rankfrom.Value;
+            int filechange = (int)fileto - (int)filefrom;
             int rankchangeabs = rankchange > 0 ? rankchange : -rankchange;
             int filechangeabs = filechange > 0 ? filechange : -filechange;
             if ((rankchangeabs == 1 && filechangeabs == 2) || (rankchangeabs == 2 && filechangeabs == 1))
             {
                 //knight direction
-                return (ChessDirection)((int)rankchange * 8) + (int)filechange;
+                return (ChessDirectionValue)((int)rankchange * 8) + (int)filechange;
             }
             else if (rankchangeabs != filechangeabs)
             {
-                return 0;
+                return (ChessDirectionValue)0;
             }
             if (rankchange < 0)
             {
@@ -146,66 +146,68 @@ namespace Sinobyl.Engine
         }
         public static ChessPosition PositionInDirection(this ChessPosition pos, ChessDirection dir)
         {
-            ChessFile file = pos.GetFile();
-            ChessRank rank = pos.GetRank();
-            switch (dir)
+            ChessFileValue file = pos.GetFile();
+            ChessRankValue rank = pos.GetRank();
+            switch (dir.Value)
             {
-                case ChessDirection.DirN:
+                case ChessDirectionValue.DirN:
                     rank -= 1;
                     break;
-                case ChessDirection.DirE:
+                case ChessDirectionValue.DirE:
                     file += 1;
                     break;
-                case ChessDirection.DirS:
+                case ChessDirectionValue.DirS:
                     rank += 1;
                     break;
-                case ChessDirection.DirW:
+                case ChessDirectionValue.DirW:
                     file -= 1;
                     break;
-                case ChessDirection.DirNE:
+                case ChessDirectionValue.DirNE:
                     rank -= 1; file += 1;
                     break;
-                case ChessDirection.DirSE:
+                case ChessDirectionValue.DirSE:
                     rank += 1; file += 1;
                     break;
-                case ChessDirection.DirSW:
+                case ChessDirectionValue.DirSW:
                     rank += 1; file -= 1;
                     break;
-                case ChessDirection.DirNW:
+                case ChessDirectionValue.DirNW:
                     rank -= 1; file -= 1;
                     break;
 
-                case ChessDirection.DirNNE:
+                case ChessDirectionValue.DirNNE:
                     rank -= 2; file += 1;
                     break;
-                case ChessDirection.DirEEN:
+                case ChessDirectionValue.DirEEN:
                     rank -= 1; file += 2;
                     break;
-                case ChessDirection.DirEES:
+                case ChessDirectionValue.DirEES:
                     rank += 1; file += 2;
                     break;
-                case ChessDirection.DirSSE:
+                case ChessDirectionValue.DirSSE:
                     rank += 2; file += 1;
                     break;
 
-                case ChessDirection.DirSSW:
+                case ChessDirectionValue.DirSSW:
                     rank += 2; file -= 1;
                     break;
-                case ChessDirection.DirWWS:
+                case ChessDirectionValue.DirWWS:
                     rank += 1; file -= 2;
                     break;
-                case ChessDirection.DirWWN:
+                case ChessDirectionValue.DirWWN:
                     rank -= 1; file -= 2;
                     break;
-                case ChessDirection.DirNNW:
+                case ChessDirectionValue.DirNNW:
                     rank -= 2; file -= 1;
                     break;
                 default:
                     return (ChessPosition.OUTOFBOUNDS);
             }
-            if (rank.IsInBounds() && file.IsInBounds())
+            ChessRank r = new ChessRank(rank);
+            ChessFile f = new ChessFile(file);
+            if (r.IsInBounds() && f.IsInBounds())
             {
-                return rank.ToPosition(file);
+                return r.ToPosition(f);
             }
             else
             {
@@ -218,30 +220,30 @@ namespace Sinobyl.Engine
             ChessRank r = pos.GetRank();
             ChessFile f = pos.GetFile();
             ChessRank newrank = ChessRank.EMPTY;
-            switch (r)
+            switch (r.Value)
             {
-                case ChessRank.Rank1:
+                case ChessRankValue.Rank1:
                     newrank = ChessRank.Rank8;
                     break;
-                case ChessRank.Rank2:
+                case ChessRankValue.Rank2:
                     newrank = ChessRank.Rank7;
                     break;
-                case ChessRank.Rank3:
+                case ChessRankValue.Rank3:
                     newrank = ChessRank.Rank6;
                     break;
-                case ChessRank.Rank4:
+                case ChessRankValue.Rank4:
                     newrank = ChessRank.Rank5;
                     break;
-                case ChessRank.Rank5:
+                case ChessRankValue.Rank5:
                     newrank = ChessRank.Rank4;
                     break;
-                case ChessRank.Rank6:
+                case ChessRankValue.Rank6:
                     newrank = ChessRank.Rank3;
                     break;
-                case ChessRank.Rank7:
+                case ChessRankValue.Rank7:
                     newrank = ChessRank.Rank2;
                     break;
-                case ChessRank.Rank8:
+                case ChessRankValue.Rank8:
                     newrank = ChessRank.Rank1;
                     break;
             }

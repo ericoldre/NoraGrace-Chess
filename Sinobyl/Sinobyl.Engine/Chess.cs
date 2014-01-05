@@ -135,8 +135,8 @@ namespace Sinobyl.Engine
 		public static ChessPosition ParseAsPosition(this string s)
 		{
 			if (s.Length != 2) { throw new ChessException(s + " is not a valid position"); }
-            ChessFile file = s.ToCharArray()[0].ParseAsFile();
-            ChessRank rank = s.ToCharArray()[1].ParseAsRank();
+            ChessFile file = ChessFile.ParseAsFile(s.ToCharArray()[0]);
+            ChessRank rank = ChessRank.ParseAsRank(s.ToCharArray()[1]);
 			return file.ToPosition(rank);
 		}
 

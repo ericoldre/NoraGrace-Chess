@@ -144,39 +144,39 @@ namespace Sinobyl.Engine
 
                 //generate attacks
                 ChessBitboard slidingAttacks = ChessBitboard.Empty;
-                switch (piece)
+                switch (piece.Value)
                 {
-                    case ChessPiece.WPawn:
+                    case ChessPieceValue.WPawn:
                         break;
-                    case ChessPiece.WKnight:
+                    case ChessPieceValue.WKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
                         break;
-                    case ChessPiece.WBishop:
+                    case ChessPieceValue.WBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         break;
-                    case ChessPiece.WRook:
+                    case ChessPieceValue.WRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
                         break;
-                    case ChessPiece.WQueen:
+                    case ChessPieceValue.WQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         break;
-                    case ChessPiece.WKing:
+                    case ChessPieceValue.WKing:
                         break;
-                    case ChessPiece.BPawn:
+                    case ChessPieceValue.BPawn:
                         break;
-                    case ChessPiece.BKnight:
+                    case ChessPieceValue.BKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
                         break;
-                    case ChessPiece.BBishop:
+                    case ChessPieceValue.BBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         break;
-                    case ChessPiece.BRook:
+                    case ChessPieceValue.BRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
                         break;
-                    case ChessPiece.BQueen:
+                    case ChessPieceValue.BQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         break;
-                    case ChessPiece.BKing:
+                    case ChessPieceValue.BKing:
                         break;
                 }
 

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public enum ChessPlayer
+    public enum ChessPlayerValue
     {
         None = -1,
         White = 0, Black = 1
@@ -41,12 +41,54 @@ namespace Sinobyl.Engine
         }
     }
     
-    public static class ExtensionsChessPlayer
+    public struct ChessPlayer
     {
-        public static ChessPlayer PlayerOther(this ChessPlayer player)
+        public readonly ChessPlayerValue Value;
+        public static readonly ChessPlayer None = new ChessPlayer(ChessPlayerValue.None);
+        public static readonly ChessPlayer White = new ChessPlayer(ChessPlayerValue.White);
+        public static readonly ChessPlayer Black = new ChessPlayer(ChessPlayerValue.Black);
+
+        public ChessPlayer(ChessPlayerValue value)
+        {
+            Value = value;
+        }
+
+        #region operators
+
+        public static implicit operator ChessPlayerValue(ChessPlayer player)
+        {
+            return player.Value;
+        }
+        public static implicit operator ChessPlayer(ChessPlayerValue value)
+        {
+            return new ChessPlayer(value);
+        }
+
+        public static explicit operator int(ChessPlayer Player)
+        {
+            return (int)Player.Value;
+        }
+        public static explicit operator ChessPlayer(int i)
+        {
+            return new ChessPlayer((ChessPlayerValue)i);
+        }
+
+        public static bool operator ==(ChessPlayer a, ChessPlayer b)
+        {
+            return a.Value == b.Value;
+        }
+
+        public static bool operator !=(ChessPlayer a, ChessPlayer b)
+        {
+            return !(a == b);
+        }
+
+        #endregion
+
+        public ChessPlayer PlayerOther()
         {
             //AssertPlayer(player);
-            if (player == ChessPlayer.White) { return ChessPlayer.Black; }
+            if (this == ChessPlayer.White) { return ChessPlayer.Black; }
             else { return ChessPlayer.White; }
         }
     }

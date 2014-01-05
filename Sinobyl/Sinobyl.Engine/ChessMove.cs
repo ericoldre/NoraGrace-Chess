@@ -149,7 +149,7 @@ namespace Sinobyl.Engine
 				//coordinate notation, with promotion
                 this.From = movetext.Substring(0, 2).ParseAsPosition();
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
-				this.Promote = movetext[4].ParseAsPiece(me);
+                this.Promote = ChessPiece.ParseAsPiece(movetext[4], me);
 			}
 			else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
 			{
@@ -207,7 +207,7 @@ namespace Sinobyl.Engine
 				if (board.PieceAt(tmppos) == mypawn)
 				{
 					From = tmppos;
-					Promote = movetext[2].ParseAsPiece(me);
+                    Promote = ChessPiece.ParseAsPiece(movetext[2], me);
 					return;
 				}
 				throw new ChessException("no pawn can promoted to " + movetext.Substring(0, 2));
@@ -216,7 +216,7 @@ namespace Sinobyl.Engine
 			{
 				//pawn attack
                 this.To = movetext.Substring(1, 2).ParseAsPosition();
-				tmpfile = movetext[0].ParseAsFile();
+				tmpfile = ChessFile.ParseAsFile(movetext[0]);
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
 				return;
 			}
@@ -224,16 +224,16 @@ namespace Sinobyl.Engine
 			{
 				//pawn attack, promote
 				this.To = movetext.Substring(1, 2).ParseAsPosition();
-				tmpfile = movetext[0].ParseAsFile();
+				tmpfile = ChessFile.ParseAsFile(movetext[0]);
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
-				this.Promote = movetext[3].ParseAsPiece(me);
+                this.Promote = ChessPiece.ParseAsPiece(movetext[3], me);
 				return;
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678]$"))
 			{
 				//normal attack
 				this.To = movetext.Substring(1, 2).ParseAsPosition();
-				tmppiece = movetext[0].ParseAsPiece(me);
+                tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
 				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
 				return;
 			}
@@ -241,8 +241,8 @@ namespace Sinobyl.Engine
 			{
 				//normal, specify file
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
-				tmppiece = movetext[0].ParseAsPiece(me);
-                tmpfile = movetext[1].ParseAsFile();
+				tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
+                tmpfile = ChessFile.ParseAsFile(movetext[1]);
 				this.From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
 				return;
 			}
@@ -250,8 +250,8 @@ namespace Sinobyl.Engine
 			{
 				//normal, specify rank
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
-				tmppiece = movetext[0].ParseAsPiece(me);
-				tmprank = movetext[1].ParseAsRank();
+				tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
+				tmprank = ChessRank.ParseAsRank(movetext[1]);
 				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
 				return;
 
@@ -260,9 +260,9 @@ namespace Sinobyl.Engine
 			{
 				//normal, specify rank and file
 				this.To = movetext.Substring(3, 2).ParseAsPosition();
-				tmppiece = movetext[0].ParseAsPiece(me);
-                tmpfile = movetext[1].ParseAsFile();
-                tmprank = movetext[2].ParseAsRank();
+				tmppiece = ChessPiece.ParseAsPiece(movetext[0], me);
+                tmpfile = ChessFile.ParseAsFile(movetext[1]);
+                tmprank = ChessRank.ParseAsRank(movetext[2]);
 				this.From = filter(board, To, tmppiece, tmpfile, tmprank);
 				return;
 			}
@@ -1120,19 +1120,19 @@ namespace Sinobyl.Engine
 					foreach (ChessPosition attackPos in attacks.ToPositions())
 					{
 						ChessPiece attackPiece = board.PieceAt(attackPos);
-						switch (attackPiece)
+						switch (attackPiece.Value)
 						{
-							case ChessPiece.WPawn:
+							case ChessPieceValue.WPawn:
 								mypawn = attackPos; break;
-							case ChessPiece.WKnight:
+                            case ChessPieceValue.WKnight:
 								myknight = attackPos; break;
-							case ChessPiece.WBishop:
+                            case ChessPieceValue.WBishop:
 								mybishop = attackPos; break;
-							case ChessPiece.WRook:
+                            case ChessPieceValue.WRook:
 								myrook = attackPos; break;
-							case ChessPiece.WQueen:
+                            case ChessPieceValue.WQueen:
 								myqueen = attackPos; break;
-							case ChessPiece.WKing:
+                            case ChessPieceValue.WKing:
 								myking = attackPos; break;
 						}
 					}
@@ -1142,19 +1142,19 @@ namespace Sinobyl.Engine
 					foreach (ChessPosition attackPos in attacks.ToPositions())
 					{
 						ChessPiece attackPiece = board.PieceAt(attackPos);
-						switch (attackPiece)
+						switch (attackPiece.Value)
 						{
-							case ChessPiece.BPawn:
+							case ChessPieceValue.BPawn:
 								mypawn = attackPos; break;
-							case ChessPiece.BKnight:
+                            case ChessPieceValue.BKnight:
 								myknight = attackPos; break;
-							case ChessPiece.BBishop:
+                            case ChessPieceValue.BBishop:
 								mybishop = attackPos; break;
-							case ChessPiece.BRook:
+                            case ChessPieceValue.BRook:
 								myrook = attackPos; break;
-							case ChessPiece.BQueen:
+                            case ChessPieceValue.BQueen:
 								myqueen = attackPos; break;
-							case ChessPiece.BKing:
+                            case ChessPieceValue.BKing:
 								myking = attackPos; break;
 						}
 					}

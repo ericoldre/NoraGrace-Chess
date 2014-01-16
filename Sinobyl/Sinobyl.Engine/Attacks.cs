@@ -109,7 +109,7 @@ namespace Sinobyl.Engine
         {
             
             //horizontal attacks
-            foreach(var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 for (ulong pattern = 0; pattern <= 63; pattern++)
                 {
@@ -123,7 +123,7 @@ namespace Sinobyl.Engine
             }
 
             //vertical attacks
-            foreach (var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 for (ulong pattern = 0; pattern <= 63; pattern++)
                 {
@@ -138,7 +138,7 @@ namespace Sinobyl.Engine
                 }
             }
             //Diag a1h8
-            foreach (var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 for (ulong pattern = 0; pattern <= 63; pattern++)
                 {
@@ -154,7 +154,7 @@ namespace Sinobyl.Engine
             }
 
             //diag h1a8
-            foreach (var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 for (ulong pattern = 0; pattern <= 63; pattern++)
                 {
@@ -170,7 +170,7 @@ namespace Sinobyl.Engine
             }
 
             //knight attacks
-            foreach (var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 ChessBitboard board = 0;
                 foreach (var dir in Chess.AllDirectionsKnight)
@@ -181,7 +181,7 @@ namespace Sinobyl.Engine
             }
             
             //king attacks
-            foreach (var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 ChessBitboard board = 0;
                 foreach (var dir in Chess.AllDirectionsQueen)
@@ -192,7 +192,7 @@ namespace Sinobyl.Engine
             }
 
             //wpawn attacks
-            foreach (var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 ChessBitboard board = 0;
                 board |= sq.PositionInDirection(ChessDirection.DirNE).Bitboard();
@@ -200,7 +200,7 @@ namespace Sinobyl.Engine
                 _attacks_from_wpawn_lu[sq.GetIndex64()] = board;
             }
             //bpawn attacks
-            foreach (var sq in Chess.AllPositions)
+            foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 ChessBitboard board = 0;
                 board |= sq.PositionInDirection(ChessDirection.DirSE).Bitboard();
@@ -295,7 +295,7 @@ namespace Sinobyl.Engine
 
         public static ChessBitboardRotatedVert RotateVert(ChessPosition position)
         {
-            return (ChessBitboardRotatedVert)Chess.AllPositions[_position_translate_vert[position.GetIndex64()]].Bitboard();
+            return (ChessBitboardRotatedVert)ChessPositionInfo.AllPositions[_position_translate_vert[position.GetIndex64()]].Bitboard();
         }
 
         public static ChessBitboardRotatedVert RotateVert(ChessBitboard bitboard)
@@ -304,8 +304,8 @@ namespace Sinobyl.Engine
             foreach (var pos in bitboard.ToPositions())
             {
                 int vertIndex = _position_translate_vert[pos.GetIndex64()];
-                ChessPosition transVert = Chess.AllPositions[vertIndex];
-                retval |= (ChessBitboard)Chess.AllPositions[transVert.GetIndex64()].Bitboard();
+                ChessPosition transVert = ChessPositionInfo.AllPositions[vertIndex];
+                retval |= (ChessBitboard)ChessPositionInfo.AllPositions[transVert.GetIndex64()].Bitboard();
             }
             return (ChessBitboardRotatedVert)retval;
         }
@@ -320,14 +320,14 @@ namespace Sinobyl.Engine
                 {
                     if (pos.GetIndex64() == _position_translate_vert[posidx]) { break; }
                 }
-                retval |= Chess.AllPositions[posidx].Bitboard();
+                retval |= ChessPositionInfo.AllPositions[posidx].Bitboard();
             }
             return retval;
         }
 
         public static ChessBitboardRotatedA1H8 RotateA1H8(ChessPosition position)
         {
-            return (ChessBitboardRotatedA1H8)Chess.AllPositions[_position_translate_diagh8[position.GetIndex64()]].Bitboard();
+            return (ChessBitboardRotatedA1H8)ChessPositionInfo.AllPositions[_position_translate_diagh8[position.GetIndex64()]].Bitboard();
         }
 
         public static ChessBitboardRotatedA1H8 RotateDiagA1H8(ChessBitboard bitboard)
@@ -336,8 +336,8 @@ namespace Sinobyl.Engine
             foreach (var pos in bitboard.ToPositions())
             {
                 int vertIndex = _position_translate_diagh8[pos.GetIndex64()];
-                ChessPosition transVert = Chess.AllPositions[vertIndex];
-                retval |= (ChessBitboard)Chess.AllPositions[transVert.GetIndex64()].Bitboard();
+                ChessPosition transVert = ChessPositionInfo.AllPositions[vertIndex];
+                retval |= ChessPositionInfo.AllPositions[transVert.GetIndex64()].Bitboard();
             }
             return (ChessBitboardRotatedA1H8)retval;
         }
@@ -351,14 +351,14 @@ namespace Sinobyl.Engine
                 {
                     if (pos.GetIndex64() == _position_translate_diagh8[posidx]) { break; }
                 }
-                retval |= Chess.AllPositions[posidx].Bitboard();
+                retval |= ChessPositionInfo.AllPositions[posidx].Bitboard();
             }
             return retval;
         }
 
         public static ChessBitboardRotatedH1A8 RotateH1A8(ChessPosition position)
         {
-            return (ChessBitboardRotatedH1A8)Chess.AllPositions[_position_translate_diaga8[position.GetIndex64()]].Bitboard();
+            return (ChessBitboardRotatedH1A8)ChessPositionInfo.AllPositions[_position_translate_diaga8[position.GetIndex64()]].Bitboard();
         }
 
         public static ChessBitboardRotatedH1A8 RotateDiagH1A8(ChessBitboard bitboard)
@@ -367,8 +367,8 @@ namespace Sinobyl.Engine
             foreach (var pos in bitboard.ToPositions())
             {
                 int vertIndex = _position_translate_diaga8[pos.GetIndex64()];
-                ChessPosition transVert = Chess.AllPositions[vertIndex];
-                retval |= (ChessBitboard)Chess.AllPositions[transVert.GetIndex64()].Bitboard();
+                ChessPosition transVert = ChessPositionInfo.AllPositions[vertIndex];
+                retval |= ChessPositionInfo.AllPositions[transVert.GetIndex64()].Bitboard();
             }
             return (ChessBitboardRotatedH1A8)retval;
         }
@@ -382,7 +382,7 @@ namespace Sinobyl.Engine
                 {
                     if (pos.GetIndex64() == _position_translate_diaga8[posidx]) { break; }
                 }
-                retval |= Chess.AllPositions[posidx].Bitboard();
+                retval |= ChessPositionInfo.AllPositions[posidx].Bitboard();
             }
             return retval;
         }

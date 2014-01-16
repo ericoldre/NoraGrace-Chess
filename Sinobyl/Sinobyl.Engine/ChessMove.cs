@@ -498,7 +498,7 @@ namespace Sinobyl.Engine
             ChessPosition targetpos;
             ChessPiece targetpiece;
 
-            foreach (ChessPosition piecepos in Chess.AllPositions)
+            foreach (ChessPosition piecepos in ChessPositionInfo.AllPositions)
             {
                 ChessPiece piece = board.PieceAt(piecepos);
                 if (piece == ChessPiece.EMPTY) { continue; }

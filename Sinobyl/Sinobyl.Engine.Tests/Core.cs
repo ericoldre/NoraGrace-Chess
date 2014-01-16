@@ -72,7 +72,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void PositionInDirectionUnsafeTest()
         {
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 foreach (ChessDirection dir in Chess.AllDirections)
                 {
@@ -91,9 +91,9 @@ namespace Sinobyl.Engine.Tests
 		{
 			
 			ChessPosition posCurr;
-			foreach (ChessPosition posFrom in Chess.AllPositions)
+            foreach (ChessPosition posFrom in ChessPositionInfo.AllPositions)
 			{
-				foreach (ChessPosition posTo in Chess.AllPositions)
+                foreach (ChessPosition posTo in ChessPositionInfo.AllPositions)
 				{
 					if(posFrom==posTo){continue;}
                     ChessDirection dirFromTo = posFrom.DirectionTo(posTo);
@@ -177,35 +177,35 @@ namespace Sinobyl.Engine.Tests
 		[TestMethod]
 		public void DirectionTests()
 		{
-			Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.A1, ChessDirection.DirW).IsInBounds());
-            Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.A1, ChessDirection.DirS).IsInBounds());
-            Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.A8, ChessDirection.DirW).IsInBounds());
-            Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.A8, ChessDirection.DirN).IsInBounds());
-            Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.H1, ChessDirection.DirE).IsInBounds());
-            Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.H1, ChessDirection.DirS).IsInBounds());
-            Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.H8, ChessDirection.DirE).IsInBounds());
-            Assert.IsFalse(ExtensionsChessPosition.PositionInDirection(ChessPosition.H8, ChessDirection.DirN).IsInBounds());
+			Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A1, ChessDirection.DirW).IsInBounds());
+            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A1, ChessDirection.DirS).IsInBounds());
+            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A8, ChessDirection.DirW).IsInBounds());
+            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A8, ChessDirection.DirN).IsInBounds());
+            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H1, ChessDirection.DirE).IsInBounds());
+            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H1, ChessDirection.DirS).IsInBounds());
+            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H8, ChessDirection.DirE).IsInBounds());
+            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H8, ChessDirection.DirN).IsInBounds());
 
             
 
-            Assert.AreEqual<ChessPosition>(ChessPosition.D5, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirN));
-            Assert.AreEqual<ChessPosition>(ChessPosition.D3, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirS));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C4, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirW));
-            Assert.AreEqual<ChessPosition>(ChessPosition.E4, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirE));
+            Assert.AreEqual<ChessPosition>(ChessPosition.D5, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirN));
+            Assert.AreEqual<ChessPosition>(ChessPosition.D3, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirS));
+            Assert.AreEqual<ChessPosition>(ChessPosition.C4, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirW));
+            Assert.AreEqual<ChessPosition>(ChessPosition.E4, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirE));
 
-            Assert.AreEqual<ChessPosition>(ChessPosition.E5, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirNE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.E3, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirSE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C3, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirSW));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C5, ExtensionsChessPosition.PositionInDirection(ChessPosition.D4, ChessDirection.DirNW));
+            Assert.AreEqual<ChessPosition>(ChessPosition.E5, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirNE));
+            Assert.AreEqual<ChessPosition>(ChessPosition.E3, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirSE));
+            Assert.AreEqual<ChessPosition>(ChessPosition.C3, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirSW));
+            Assert.AreEqual<ChessPosition>(ChessPosition.C5, ChessPositionInfo.PositionInDirection(ChessPosition.D4, ChessDirection.DirNW));
 
-            Assert.AreEqual<ChessPosition>(ChessPosition.F7, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirNNE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.G6, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirEEN));
-            Assert.AreEqual<ChessPosition>(ChessPosition.G4, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirEES));
-            Assert.AreEqual<ChessPosition>(ChessPosition.F3, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirSSE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.D3, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirSSW));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C4, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirWWS));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C6, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirWWN));
-            Assert.AreEqual<ChessPosition>(ChessPosition.D7, ExtensionsChessPosition.PositionInDirection(ChessPosition.E5, ChessDirection.DirNNW));
+            Assert.AreEqual<ChessPosition>(ChessPosition.F7, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirNNE));
+            Assert.AreEqual<ChessPosition>(ChessPosition.G6, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirEEN));
+            Assert.AreEqual<ChessPosition>(ChessPosition.G4, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirEES));
+            Assert.AreEqual<ChessPosition>(ChessPosition.F3, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirSSE));
+            Assert.AreEqual<ChessPosition>(ChessPosition.D3, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirSSW));
+            Assert.AreEqual<ChessPosition>(ChessPosition.C4, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirWWS));
+            Assert.AreEqual<ChessPosition>(ChessPosition.C6, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirWWN));
+            Assert.AreEqual<ChessPosition>(ChessPosition.D7, ChessPositionInfo.PositionInDirection(ChessPosition.E5, ChessDirection.DirNNW));
 
 		}
 
@@ -213,7 +213,7 @@ namespace Sinobyl.Engine.Tests
         public void BitboardBitCount()
         {
 
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 Assert.AreEqual<int>(1, pos.Bitboard().BitCount());
             }
@@ -268,11 +268,11 @@ namespace Sinobyl.Engine.Tests
             Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank8 & ~ChessBitboard.FileH, ChessBitboard.Full.ShiftDirSW());
             Assert.AreEqual<ChessBitboard>(~ChessBitboard.Rank1 & ~ChessBitboard.FileH, ChessBitboard.Full.ShiftDirNW());
 
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 foreach (ChessDirection dir in Chess.AllDirections)
                 {
-                    ChessPosition posEnd = ExtensionsChessPosition.PositionInDirection(pos, dir);
+                    ChessPosition posEnd = ChessPositionInfo.PositionInDirection(pos, dir);
                     ChessBitboard shifted = pos.Bitboard().Shift(dir);
                     Assert.AreEqual<bool>(posEnd.IsInBounds(), shifted.ToPositions().Count() == 1);
                     Assert.AreEqual<ChessBitboard>(posEnd.Bitboard(), shifted);
@@ -284,11 +284,11 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void BitboardTests()
         {
-            foreach (var pos in Chess.AllPositions)
+            foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 foreach (var dir in Chess.AllDirections)
                 {
-                    var posnew = ExtensionsChessPosition.PositionInDirection(pos, dir);
+                    var posnew = ChessPositionInfo.PositionInDirection(pos, dir);
                     if (!posnew.IsInBounds())
                     {
                         Assert.IsTrue(posnew.Bitboard().Empty());
@@ -299,9 +299,9 @@ namespace Sinobyl.Engine.Tests
                     }
                 }
             }
-            foreach (var pos1 in Chess.AllPositions)
+            foreach (var pos1 in ChessPositionInfo.AllPositions)
             {
-                foreach (var pos2 in Chess.AllPositions)
+                foreach (var pos2 in ChessPositionInfo.AllPositions)
                 {
 
                     //if we have 3 unique positions
@@ -320,7 +320,7 @@ namespace Sinobyl.Engine.Tests
                         Assert.IsTrue(!(bbAll & bb2).Empty());
 
                         //verify bitboard does not contain any other positions
-                        foreach (var posOther in Chess.AllPositions.Where(posO=>!posArray.Any(posE=>posO==posE)))
+                        foreach (var posOther in ChessPositionInfo.AllPositions.Where(posO => !posArray.Any(posE => posO == posE)))
                         {
                             var bbOther = posOther.Bitboard();
                             Assert.IsTrue((bbOther & bbAll).Empty());    

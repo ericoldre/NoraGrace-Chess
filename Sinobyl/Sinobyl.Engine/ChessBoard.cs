@@ -173,7 +173,7 @@ namespace Sinobyl.Engine
 
 		private void initPieceAtArray()
 		{
-			foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				_pieceat[pos] = ChessPiece.EMPTY;
 			}
@@ -366,7 +366,7 @@ namespace Sinobyl.Engine
 		public List<ChessPosition> PieceList(ChessPiece piece)
 		{
 			List<ChessPosition> retval = new List<ChessPosition>();
-			foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				if (PieceAt(pos) == piece)
 				{
@@ -393,7 +393,7 @@ namespace Sinobyl.Engine
                 }
 
                 //clear all existing pieces.
-                foreach (var pos in Chess.AllPositions)
+                foreach (var pos in ChessPositionInfo.AllPositions)
                 {
                     if (_pieceat[pos] != ChessPiece.EMPTY)
                     {
@@ -406,7 +406,7 @@ namespace Sinobyl.Engine
 				initPieceAtArray();
 
                 //add pieces
-				foreach(var pos in Chess.AllPositions)
+                foreach (var pos in ChessPositionInfo.AllPositions)
 				{
                     if (value.pieceat[pos.GetIndex64()] != ChessPiece.EMPTY)
 					{
@@ -500,7 +500,7 @@ namespace Sinobyl.Engine
 		}
 		private void Reset()
 		{
-			foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				_pieceat[pos] = ChessPiece.EMPTY;
 			}

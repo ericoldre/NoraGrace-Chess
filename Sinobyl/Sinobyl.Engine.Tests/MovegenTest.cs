@@ -122,7 +122,7 @@ namespace Sinobyl.Engine.Tests
         {
             ChessBitboard[] expectedPieces = new ChessBitboard[12];
             var all = ChessBitboard.Empty;
-            foreach (var pos in Chess.AllPositions)
+            foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 if (board.PieceAt(pos) != ChessPiece.EMPTY)
                 {

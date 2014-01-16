@@ -83,7 +83,7 @@ namespace Sinobyl.WPF.ViewModels
         {
             get 
             {
-                foreach(ChessPosition pos in Chess.AllPositions)
+                foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
                 {
                     var sq = this.BoardViewModel.SquareDictionary[pos];
                     yield return sq;

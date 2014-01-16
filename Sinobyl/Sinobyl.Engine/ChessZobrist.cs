@@ -31,7 +31,7 @@ namespace Sinobyl.Engine
 			_player = Rand64(rand);
 
 			//initialize the piecepos and enpassant zob keys
-			foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				_enpassant[(int)pos] = Rand64(rand);
 				foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
@@ -94,7 +94,7 @@ namespace Sinobyl.Engine
 		public static Int64 BoardZobPawn(ChessBoard board)
 		{
 			Int64 retval = 0;
-			foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				ChessPiece piece = board.PieceAt(pos);
 				if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
@@ -107,7 +107,7 @@ namespace Sinobyl.Engine
 		public static Int64 BoardZob(ChessBoard board)
 		{
 			Int64 retval = 0;
-			foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				ChessPiece piece = board.PieceAt(pos);
 				if (piece != ChessPiece.EMPTY)

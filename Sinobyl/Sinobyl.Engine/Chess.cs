@@ -81,16 +81,7 @@ namespace Sinobyl.Engine
         public static readonly ChessPieceType[] AllPieceTypes = new ChessPieceType[]{
             ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};
 
-		public static readonly ChessPosition[] AllPositions = new ChessPosition[]{
-		    ChessPosition.A8,ChessPosition.B8,ChessPosition.C8,ChessPosition.D8,ChessPosition.E8,ChessPosition.F8,ChessPosition.G8,ChessPosition.H8,
-            ChessPosition.A7,ChessPosition.B7,ChessPosition.C7,ChessPosition.D7,ChessPosition.E7,ChessPosition.F7,ChessPosition.G7,ChessPosition.H7,
-		    ChessPosition.A6,ChessPosition.B6,ChessPosition.C6,ChessPosition.D6,ChessPosition.E6,ChessPosition.F6,ChessPosition.G6,ChessPosition.H6,
-		    ChessPosition.A5,ChessPosition.B5,ChessPosition.C5,ChessPosition.D5,ChessPosition.E5,ChessPosition.F5,ChessPosition.G5,ChessPosition.H5,
-		    ChessPosition.A4,ChessPosition.B4,ChessPosition.C4,ChessPosition.D4,ChessPosition.E4,ChessPosition.F4,ChessPosition.G4,ChessPosition.H4,
-            ChessPosition.A3,ChessPosition.B3,ChessPosition.C3,ChessPosition.D3,ChessPosition.E3,ChessPosition.F3,ChessPosition.G3,ChessPosition.H3,
-		    ChessPosition.A2,ChessPosition.B2,ChessPosition.C2,ChessPosition.D2,ChessPosition.E2,ChessPosition.F2,ChessPosition.G2,ChessPosition.H2,
-            ChessPosition.A1,ChessPosition.B1,ChessPosition.C1,ChessPosition.D1,ChessPosition.E1,ChessPosition.F1,ChessPosition.G1,ChessPosition.H1,
-		};
+
 
         public static readonly ChessGameStage[] AllGameStages = new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame };
 
@@ -140,10 +131,6 @@ namespace Sinobyl.Engine
 
 
 
-        public static IEnumerable<ChessPosition> AllPositionsEnumerate()
-        {
-            return AllPositions;
-        }
 
         
         

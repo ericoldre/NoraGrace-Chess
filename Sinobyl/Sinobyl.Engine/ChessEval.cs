@@ -68,7 +68,7 @@ namespace Sinobyl.Engine
             }
 
             //setup piecesq tables
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
                 {
@@ -130,7 +130,7 @@ namespace Sinobyl.Engine
             int valEndMobility = 0;
             for (int ipos = 0; ipos < 64; ipos++)
             {
-                ChessPosition pos = Chess.AllPositions[ipos];
+                ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
                 ChessPiece piece = board.PieceAt(pos);
                 if (piece == ChessPiece.EMPTY) { continue; }
 

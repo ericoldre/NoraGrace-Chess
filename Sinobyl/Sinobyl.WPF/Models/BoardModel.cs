@@ -96,7 +96,7 @@ namespace Sinobyl.WPF.Models
         private void RefreshPieces()
         {
             _pieces.RemoveRange(this._pieces.ToArray());
-            var x = Chess.AllPositions.Where(pos => _board.PieceAt(pos) != ChessPiece.EMPTY).Select(pos => new PieceModel() { Piece = _board.PieceAt(pos), Position = pos });
+            var x = ChessPositionInfo.AllPositions.Where(pos => _board.PieceAt(pos) != ChessPiece.EMPTY).Select(pos => new PieceModel() { Piece = _board.PieceAt(pos), Position = pos });
             _pieces.AddRange(x.ToArray());
         }
 

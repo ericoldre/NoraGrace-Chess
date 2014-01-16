@@ -116,7 +116,7 @@ namespace Sinobyl.Engine.Tests
 
             foreach (var type in Chess.AllPieceTypes)
             {
-                foreach (var pos in Chess.AllPositions)
+                foreach (var pos in ChessPositionInfo.AllPositions)
                 {
                     ChessPosition revPos = pos.Reverse();
                     var whiteOpening = eval._pcsqPiecePosStage[(int)type.ForPlayer(ChessPlayer.White), (int)pos, (int)ChessGameStage.Opening];

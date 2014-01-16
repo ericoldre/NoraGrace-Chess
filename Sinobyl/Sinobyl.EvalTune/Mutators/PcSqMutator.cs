@@ -48,10 +48,10 @@ namespace Sinobyl.EvalTune.Mutators
             
 
             List<ChessBitboard> boards = new List<ChessBitboard>();
-            boards.AddRange(Chess.AllPositions.Select(p => p.Bitboard()));
+            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => p.Bitboard()));
             boards.AddRange(ChessRankInfo.AllRanks.Select(r => r.Bitboard()));
             boards.AddRange(ChessFileInfo.AllFiles.Select(f => f.Bitboard()));
-            boards.AddRange(Chess.AllPositions.Select(p => bitboardExpand(p.Bitboard())));
+            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => bitboardExpand(p.Bitboard())));
 
             this.Positions = boards[rand.Next(0, boards.Count())];
             

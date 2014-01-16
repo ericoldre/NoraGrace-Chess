@@ -42,7 +42,7 @@ namespace Sinobyl.WPF.ViewModels
 
             Promotions.Add(new BoardPromotionVM());
 
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 var squareVM = new BoardSquareVM(this, pos);
                 Squares.Add(squareVM);

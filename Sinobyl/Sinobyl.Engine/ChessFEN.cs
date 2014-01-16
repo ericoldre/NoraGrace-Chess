@@ -31,7 +31,7 @@ namespace Sinobyl.Engine
             int FiftyMove = 0,
             int FullMove = 0)
         {
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 pieceat[(int)pos] = Pieces[pos];
             }
@@ -104,7 +104,7 @@ namespace Sinobyl.Engine
 
 			//parse the string values into usable formats
 
-			foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				pieceat[(int)pos] = ChessPiece.EMPTY;
 			}
@@ -192,7 +192,7 @@ namespace Sinobyl.Engine
 		public ChessFEN Reverse()
 		{
             ChessPositionDictionary<ChessPiece> pieces = new ChessPositionDictionary<ChessPiece>();
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 pieces[pos] = this.pieceat[(int)pos.Reverse()].ToOppositePlayer();
             }

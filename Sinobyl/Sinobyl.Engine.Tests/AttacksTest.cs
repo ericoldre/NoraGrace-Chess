@@ -27,7 +27,7 @@ namespace Sinobyl.Engine.Tests
         private static ChessBitboard RandomBitboard(int pctFill)
         {
             ChessBitboard retval = 0;
-            foreach (var pos in Chess.AllPositions)
+            foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 if (rand.Next(0, 99) < pctFill)
                 {
@@ -40,7 +40,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void AttacksHoriz()
         {
-            foreach (var pos in Chess.AllPositions)
+            foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 for (int i = 0; i < 100; i++)
                 {
@@ -57,7 +57,7 @@ namespace Sinobyl.Engine.Tests
         public void AttacksVert()
         {
 
-            foreach (var pos in Chess.AllPositions)
+            foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 for (int i = 0; i < 100; i++)
                 {
@@ -73,7 +73,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void AttacksDiagA1H8()
         {
-            foreach (var position in Chess.AllPositions)
+            foreach (var position in ChessPositionInfo.AllPositions)
             {
                 var original = position.Bitboard();
                 var rotated = Attacks.RotateDiagA1H8(original);
@@ -81,7 +81,7 @@ namespace Sinobyl.Engine.Tests
                 Assert.AreEqual<ChessBitboard>(original, rotatedBack);
             }
 
-            foreach (var pos in Chess.AllPositions)
+            foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 for (int i = 0; i < 100; i++)
                 {
@@ -96,7 +96,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void AttacksDiagH1A8()
         {
-            foreach (var position in Chess.AllPositions)
+            foreach (var position in ChessPositionInfo.AllPositions)
             {
                 var original = position.Bitboard();
                 var rotated = Attacks.RotateDiagH1A8(original);
@@ -104,7 +104,7 @@ namespace Sinobyl.Engine.Tests
                 Assert.AreEqual<ChessBitboard>(original, rotatedBack);
             }
 
-            foreach (var pos in Chess.AllPositions)
+            foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 for (int i = 0; i < 100; i++)
                 {

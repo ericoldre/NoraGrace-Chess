@@ -26,7 +26,7 @@ namespace Sinobyl.Engine
 
             //setup passed pawn array
             PawnPassedValuePosStage = new int[64, 2];
-            foreach (ChessPosition pos in Chess.AllPositions)
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 foreach (ChessGameStage stage in Chess.AllGameStages)
                 {

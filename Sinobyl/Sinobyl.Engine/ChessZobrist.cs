@@ -34,7 +34,7 @@ namespace Sinobyl.Engine
 			foreach (ChessPosition pos in Chess.AllPositions)
 			{
 				_enpassant[(int)pos] = Rand64(rand);
-				foreach (ChessPiece piece in Chess.AllPieces)
+				foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
 				{
 					_piecepos[(int)piece, (int)pos] = Rand64(rand);
 				}

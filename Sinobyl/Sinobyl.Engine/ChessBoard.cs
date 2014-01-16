@@ -177,7 +177,7 @@ namespace Sinobyl.Engine
 			{
 				_pieceat[pos] = ChessPiece.EMPTY;
 			}
-			foreach(ChessPiece piece in Chess.AllPieces)
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
 			{
                 _pieceCount[piece] = 0;
                 _pieces[piece] = 0;

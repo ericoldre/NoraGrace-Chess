@@ -13,29 +13,7 @@ namespace Sinobyl.Engine
         EMPTY = 12
     }
 
-    //public struct ChessPieceArray<T>
-    //{
-    //    [System.Xml.Serialization.XmlIgnore()]
-    //    private T[] _values;
-
-    //    public ChessPieceArray(IEnumerable<KeyValuePair<ChessPiece,T>> values)
-    //    {
-    //        _values = new T[12];
-    //        foreach (var kvp in values)
-    //        {
-    //            _values[(int)kvp.Key] = kvp.Value;
-    //        }
-    //    }
-    //    [System.Xml.Serialization.XmlIgnore()]
-    //    public T this[ChessPiece piece]
-    //    {
-    //        get
-    //        {
-    //            return _values[(int)piece];
-    //        }
-    //    }
-    //}
-
+    
     public class ChessPieceDictionary<T> where T: new()
     {
 
@@ -75,7 +53,7 @@ namespace Sinobyl.Engine
 
         public IEnumerable<KeyValuePair<ChessPiece, T>> PieceValues()
         {
-            foreach (ChessPiece piece in Chess.AllPieces)
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
                 yield return new KeyValuePair<ChessPiece, T>(piece, this[piece]);
             }
@@ -86,7 +64,7 @@ namespace Sinobyl.Engine
             ChessPieceDictionary<T> other = obj as ChessPieceDictionary<T>;
             if (other == null) { return false; }
 
-            foreach (ChessPiece pos in Chess.AllPieces)
+            foreach (ChessPiece pos in ChessPieceInfo.AllPieces)
             {
                 if (!this[pos].Equals(other[pos]))
                 {
@@ -97,11 +75,15 @@ namespace Sinobyl.Engine
         }
     }
 
-    public static class ExtensionsChessPiece
+    public static class ChessPieceInfo
     {
         private static readonly string _piecedesclookup = "PNBRQKpnbrqk";
 
-        public static ChessPiece ParseAsPiece(this char c)
+        public static readonly ChessPiece[] AllPieces = new ChessPiece[]{
+			ChessPiece.WPawn, ChessPiece.WKnight, ChessPiece.WBishop, ChessPiece.WRook, ChessPiece.WQueen, ChessPiece.WKing,
+			ChessPiece.BPawn, ChessPiece.BKnight, ChessPiece.BBishop, ChessPiece.BRook, ChessPiece.BQueen, ChessPiece.BKing};
+
+        public static ChessPiece Parse(char c)
         {
             int idx = _piecedesclookup.IndexOf(c);
             if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid piece"); }
@@ -110,7 +92,7 @@ namespace Sinobyl.Engine
 
         public static ChessPiece ParseAsPiece(this char c, ChessPlayer player)
         {
-            ChessPiece tmppiece = c.ToString().ToUpper()[0].ParseAsPiece();
+            ChessPiece tmppiece = ChessPieceInfo.Parse(c.ToString().ToUpper()[0]);
             if (player == ChessPlayer.White)
             {
                 return tmppiece;

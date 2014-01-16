@@ -22,7 +22,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         public PieceValueMutator(Random rand)
         {
-            PieceType = Chess.AllPieces[rand.Next(0, Chess.AllPieces.Count())].ToPieceType();
+            PieceType = ChessPieceInfo.AllPieces[rand.Next(0, ChessPieceInfo.AllPieces.Count())].ToPieceType();
 
             switch (rand.Next(0, 3))
             {

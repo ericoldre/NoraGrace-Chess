@@ -131,7 +131,7 @@ namespace Sinobyl.Engine.Tests
                 }
             }
 
-            foreach (var piece in Chess.AllPieces)
+            foreach (var piece in ChessPieceInfo.AllPieces)
             {
                 Assert.AreEqual<ChessBitboard>(expectedPieces[(int)piece], board.PieceLocations(piece));
             }

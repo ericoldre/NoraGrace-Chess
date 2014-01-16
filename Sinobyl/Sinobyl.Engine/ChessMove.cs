@@ -216,7 +216,7 @@ namespace Sinobyl.Engine
 			{
 				//pawn attack
                 this.To = movetext.Substring(1, 2).ParseAsPosition();
-				tmpfile = movetext[0].ParseAsFile();
+				tmpfile = ChessFileInfo.Parse(movetext[0]);
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
 				return;
 			}
@@ -224,7 +224,7 @@ namespace Sinobyl.Engine
 			{
 				//pawn attack, promote
 				this.To = movetext.Substring(1, 2).ParseAsPosition();
-				tmpfile = movetext[0].ParseAsFile();
+                tmpfile = ChessFileInfo.Parse(movetext[0]);
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
 				this.Promote = movetext[3].ParseAsPiece(me);
 				return;
@@ -242,7 +242,7 @@ namespace Sinobyl.Engine
 				//normal, specify file
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
 				tmppiece = movetext[0].ParseAsPiece(me);
-                tmpfile = movetext[1].ParseAsFile();
+                tmpfile = ChessFileInfo.Parse(movetext[1]);
 				this.From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
 				return;
 			}
@@ -251,7 +251,7 @@ namespace Sinobyl.Engine
 				//normal, specify rank
 				this.To = movetext.Substring(2, 2).ParseAsPosition();
 				tmppiece = movetext[0].ParseAsPiece(me);
-				tmprank = movetext[1].ParseAsRank();
+                tmprank = ChessRankInfo.Parse(movetext[1]);
 				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
 				return;
 
@@ -261,8 +261,8 @@ namespace Sinobyl.Engine
 				//normal, specify rank and file
 				this.To = movetext.Substring(3, 2).ParseAsPosition();
 				tmppiece = movetext[0].ParseAsPiece(me);
-                tmpfile = movetext[1].ParseAsFile();
-                tmprank = movetext[2].ParseAsRank();
+                tmpfile = ChessFileInfo.Parse(movetext[1]);
+                tmprank = ChessRankInfo.Parse(movetext[2]);
 				this.From = filter(board, To, tmppiece, tmpfile, tmprank);
 				return;
 			}

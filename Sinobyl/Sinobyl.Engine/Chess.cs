@@ -72,13 +72,11 @@ namespace Sinobyl.Engine
 		
 
 		//public arrays
-		public static readonly ChessRank[] AllRanks = new ChessRank[] { ChessRank.Rank8, ChessRank.Rank7, ChessRank.Rank6, ChessRank.Rank5, ChessRank.Rank4, ChessRank.Rank3, ChessRank.Rank2, ChessRank.Rank1 };
-		public static readonly ChessFile[] AllFiles = new ChessFile[] { ChessFile.FileA, ChessFile.FileB, ChessFile.FileC, ChessFile.FileD, ChessFile.FileE, ChessFile.FileF, ChessFile.FileG, ChessFile.FileH };
-		public static readonly ChessPlayer[] AllPlayers = new ChessPlayer[] { ChessPlayer.White, ChessPlayer.Black };
+		
+		
+		
 
-		public static readonly ChessPiece[] AllPieces = new ChessPiece[]{
-			ChessPiece.WPawn, ChessPiece.WKnight, ChessPiece.WBishop, ChessPiece.WRook, ChessPiece.WQueen, ChessPiece.WKing,
-			ChessPiece.BPawn, ChessPiece.BKnight, ChessPiece.BBishop, ChessPiece.BRook, ChessPiece.BQueen, ChessPiece.BKing};
+		
 
         public static readonly ChessPieceType[] AllPieceTypes = new ChessPieceType[]{
             ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};
@@ -135,8 +133,8 @@ namespace Sinobyl.Engine
 		public static ChessPosition ParseAsPosition(this string s)
 		{
 			if (s.Length != 2) { throw new ChessException(s + " is not a valid position"); }
-            ChessFile file = s.ToCharArray()[0].ParseAsFile();
-            ChessRank rank = s.ToCharArray()[1].ParseAsRank();
+            ChessFile file = ChessFileInfo.Parse(s[0]);
+            ChessRank rank = ChessRankInfo.Parse(s[1]);
 			return file.ToPosition(rank);
 		}
 

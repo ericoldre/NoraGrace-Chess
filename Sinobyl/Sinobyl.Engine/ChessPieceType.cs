@@ -82,7 +82,7 @@ namespace Sinobyl.Engine
 
         public IEnumerable<KeyValuePair<ChessPiece, T>> PieceValues()
         {
-            foreach (ChessPiece piece in Chess.AllPieces)
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
                 yield return new KeyValuePair<ChessPiece, T>(piece, this[piece.ToPieceType()]);
             }

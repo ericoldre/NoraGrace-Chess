@@ -41,8 +41,10 @@ namespace Sinobyl.Engine
         }
     }
     
-    public static class ExtensionsChessPlayer
+    public static class ChessPlayerInfo
     {
+        public static readonly ChessPlayer[] AllPlayers = new ChessPlayer[] { ChessPlayer.White, ChessPlayer.Black };
+
         public static ChessPlayer PlayerOther(this ChessPlayer player)
         {
             //AssertPlayer(player);

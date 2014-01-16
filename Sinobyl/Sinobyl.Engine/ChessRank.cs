@@ -18,17 +18,25 @@ namespace Sinobyl.Engine
         EMPTY = 8
     }
 
-    public static class ExtensionsChessRank
+    public static class ChessRankInfo
     {
         private static readonly string _rankdesclookup = "87654321";
 
-        public static ChessRank ParseAsRank(this char c)
+        private static readonly ChessRank[] _allRanks = new ChessRank[] { ChessRank.Rank8, ChessRank.Rank7, ChessRank.Rank6, ChessRank.Rank5, ChessRank.Rank4, ChessRank.Rank3, ChessRank.Rank2, ChessRank.Rank1 };
+        public static ChessRank[] AllRanks
+        {
+            get
+            {
+                return _allRanks;
+            }
+        }
+        public static ChessRank Parse(char c)
         {
             int idx = _rankdesclookup.IndexOf(c);
             if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid rank"); }
             return (ChessRank)idx;
         }
-
+        
         public static string RankToString(this ChessRank rank)
         {
             //AssertRank(rank);

@@ -52,7 +52,7 @@ namespace Sinobyl.Engine
             _matBishopPairStage[(int)ChessGameStage.Endgame] = settings.MaterialBishopPair.Endgame;
 
             //setup material arrays
-            foreach (ChessPiece piece in Chess.AllPieces)
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
                 foreach (ChessGameStage stage in Chess.AllGameStages)
                 {
@@ -70,7 +70,7 @@ namespace Sinobyl.Engine
             //setup piecesq tables
             foreach (ChessPosition pos in Chess.AllPositions)
             {
-                foreach (ChessPiece piece in Chess.AllPieces)
+                foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
                 {
                     foreach (ChessGameStage stage in Chess.AllGameStages)
                     {
@@ -91,8 +91,8 @@ namespace Sinobyl.Engine
 
 
             //setup mobility arrays
-            
-            foreach (ChessPiece piece in Chess.AllPieces)
+
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
                 foreach (ChessGameStage stage in Chess.AllGameStages)
                 {

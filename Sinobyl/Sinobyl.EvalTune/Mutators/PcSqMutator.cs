@@ -25,7 +25,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         public PcSqMutator(Random rand)
         {
-            PieceType = Chess.AllPieces[rand.Next(0, Chess.AllPieces.Count())].ToPieceType();
+            PieceType = ChessPieceInfo.AllPieces[rand.Next(0, ChessPieceInfo.AllPieces.Count())].ToPieceType();
 
             switch (rand.Next(0, 3))
             {
@@ -49,8 +49,8 @@ namespace Sinobyl.EvalTune.Mutators
 
             List<ChessBitboard> boards = new List<ChessBitboard>();
             boards.AddRange(Chess.AllPositions.Select(p => p.Bitboard()));
-            boards.AddRange(Chess.AllRanks.Select(r => r.Bitboard()));
-            boards.AddRange(Chess.AllFiles.Select(f => f.Bitboard()));
+            boards.AddRange(ChessRankInfo.AllRanks.Select(r => r.Bitboard()));
+            boards.AddRange(ChessFileInfo.AllFiles.Select(f => f.Bitboard()));
             boards.AddRange(Chess.AllPositions.Select(p => bitboardExpand(p.Bitboard())));
 
             this.Positions = boards[rand.Next(0, boards.Count())];

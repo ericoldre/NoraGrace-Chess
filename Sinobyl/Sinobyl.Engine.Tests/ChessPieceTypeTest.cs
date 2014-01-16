@@ -12,7 +12,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void TestMethod1()
         {
-            foreach (ChessPiece piece in Chess.AllPieces)
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
                 var type = piece.ToPieceType();
                 var player = piece.PieceToPlayer();

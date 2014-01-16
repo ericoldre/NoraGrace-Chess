@@ -91,7 +91,7 @@ namespace Sinobyl.Engine
 			//grab the string data from the regular expression
 			System.Text.RegularExpressions.Match match = matches[0];
 			string[] sRanks = new string[8];
-			foreach (ChessRank rank in Chess.AllRanks)
+			foreach (ChessRank rank in ChessRankInfo.AllRanks)
 			{
                 sRanks[int.Parse(rank.RankToString()) - 1] = match.Groups["R" + rank.RankToString()].Value;
 			}
@@ -110,7 +110,7 @@ namespace Sinobyl.Engine
 			}
 
 			//set board piece positions
-			foreach (ChessRank rank in Chess.AllRanks)
+			foreach (ChessRank rank in ChessRankInfo.AllRanks)
 			{
                 string srank = sRanks[int.Parse(rank.RankToString()) - 1];
 				int ifile = 0;
@@ -124,7 +124,7 @@ namespace Sinobyl.Engine
 					}
 					else
 					{
-						pieceat[(int)Chess.AllFiles[ifile].ToPosition(rank)] = c.ParseAsPiece();
+                        pieceat[(int)ChessFileInfo.AllFiles[ifile].ToPosition(rank)] = ChessPieceInfo.Parse(c);
 						ifile++;
 					}
 				}
@@ -209,8 +209,8 @@ namespace Sinobyl.Engine
 				int emptycount = 0;
 				for (int ifile = 0; ifile <= 7; ifile++)
 				{
-					ChessRank rank = Chess.AllRanks[irank];
-					ChessFile file = Chess.AllFiles[ifile];
+					ChessRank rank = ChessRankInfo.AllRanks[irank];
+					ChessFile file = ChessFileInfo.AllFiles[ifile];
 					ChessPiece piece = pieceat[(int)file.ToPosition(rank)];
 
 					if (piece == ChessPiece.EMPTY)

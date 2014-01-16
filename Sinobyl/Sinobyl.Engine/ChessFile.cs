@@ -12,11 +12,12 @@ namespace Sinobyl.Engine
         EMPTY = 8,
     }
 
-    public static class ExtensionsChessFile
+    public static class ChessFileInfo
     {
         private static readonly string _filedesclookup = "abcdefgh";
+        public static readonly ChessFile[] AllFiles = new ChessFile[] { ChessFile.FileA, ChessFile.FileB, ChessFile.FileC, ChessFile.FileD, ChessFile.FileE, ChessFile.FileF, ChessFile.FileG, ChessFile.FileH };
 
-        public static ChessFile ParseAsFile(this char c)
+        public static ChessFile Parse(char c)
         {
             int idx = _filedesclookup.IndexOf(c.ToString().ToLower());
             if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid file"); }

@@ -140,7 +140,7 @@ namespace Sinobyl.Engine.Tests
 
 
                     ChessBitboard allpieces = 0;
-                    foreach (ChessPiece pieceType in Chess.AllPieces)
+                    foreach (ChessPiece pieceType in ChessPieceInfo.AllPieces)
                     {
                         Assert.AreEqual<ChessBitboard>(board.PieceList(pieceType).ToBitboard(), board.PieceLocations(pieceType));
                         allpieces |= board.PieceLocations(pieceType);
@@ -157,7 +157,7 @@ namespace Sinobyl.Engine.Tests
                     board.MoveUndo();
 
                     ChessBitboard allpieces = 0;
-                    foreach (ChessPiece pieceType in Chess.AllPieces)
+                    foreach (ChessPiece pieceType in ChessPieceInfo.AllPieces)
                     {
                         Assert.AreEqual<ChessBitboard>(board.PieceList(pieceType).ToBitboard(), board.PieceLocations(pieceType));
                         allpieces |= board.PieceLocations(pieceType);

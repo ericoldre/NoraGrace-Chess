@@ -77,7 +77,7 @@ namespace Sinobyl.Engine.Tests
             {
                 foreach (var from in Chess.AllPositions.Union(new ChessPosition[] { ChessPosition.OUTOFBOUNDS }))
                 {
-                    foreach (var prom in Chess.AllPieces.Union(new ChessPiece[] { ChessPiece.EMPTY }))
+                    foreach (var prom in ChessPieceInfo.AllPieces.Union(new ChessPiece[] { ChessPiece.EMPTY }))
                     {
                         ChessMove move = new ChessMove(from, to, prom);
                         var hash = move.GetHashCode();

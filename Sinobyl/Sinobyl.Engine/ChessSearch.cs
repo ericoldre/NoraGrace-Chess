@@ -219,7 +219,7 @@ namespace Sinobyl.Engine
 		private int _bestvariationscore = 0;
         private int[] _contemptForDrawForPlayer = new int[3];
 
-		private readonly Int64 BlunderKey = Chess.Rand64();
+		private readonly Int64 BlunderKey = Rand64();
 		
 		public ChessSearch(Args args)
 		{
@@ -243,6 +243,22 @@ namespace Sinobyl.Engine
                 _contemptForDrawForPlayer[(int)ChessPlayer.Black] = args.ContemptForDraw;
             }
 		}
+
+        private static Random rand = new Random();
+
+        public static Int64 Rand64()
+        {
+            byte[] bytes = new byte[8];
+            rand.NextBytes(bytes);
+            Int64 retval = 0;
+            for (int i = 0; i <= 7; i++)
+            {
+                //Int64 ibyte = (Int64)bytes[i]&256;
+                Int64 ibyte = (Int64)bytes[i];
+                retval |= ibyte << (i * 8);
+            }
+            return retval;
+        }
 
 		public void Abort()
 		{

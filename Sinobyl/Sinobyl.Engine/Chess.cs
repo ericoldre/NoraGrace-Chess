@@ -148,21 +148,7 @@ namespace Sinobyl.Engine
 			return (T)xs.Deserialize(reader);
 		}
 
-		private static Random rand = new Random();
 
-		public static Int64 Rand64()
-		{
-			byte[] bytes = new byte[8];
-			rand.NextBytes(bytes);
-			Int64 retval = 0;
-			for (int i = 0; i <= 7; i++)
-			{
-				//Int64 ibyte = (Int64)bytes[i]&256;
-				Int64 ibyte = (Int64)bytes[i];
-				retval |= ibyte << (i * 8);
-			}
-			return retval;
-		}
 
 	}
 	

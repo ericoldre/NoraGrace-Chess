@@ -71,44 +71,6 @@ namespace Sinobyl.Engine
 
 		
 
-		//public arrays
-		
-		
-		
-
-		
-
-        public static readonly ChessPieceType[] AllPieceTypes = new ChessPieceType[]{
-            ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};
-
-
-
-        public static readonly ChessGameStage[] AllGameStages = new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame };
-
-		public static readonly ChessDirection[] AllDirections = new ChessDirection[]{
-			ChessDirection.DirN, ChessDirection.DirE, ChessDirection.DirS, ChessDirection.DirW, ChessDirection.DirNE, ChessDirection.DirSE, ChessDirection.DirSW, ChessDirection.DirNW,
-			ChessDirection.DirNNE, ChessDirection.DirEEN, ChessDirection.DirEES, ChessDirection.DirSSE, ChessDirection.DirSSW, ChessDirection.DirWWS, ChessDirection.DirWWN, ChessDirection.DirNNW};
-
-		public static readonly ChessDirection[] AllDirectionsKnight = new ChessDirection[]{
-			ChessDirection.DirNNE, ChessDirection.DirEEN, ChessDirection.DirEES, ChessDirection.DirSSE, ChessDirection.DirSSW, ChessDirection.DirWWS, ChessDirection.DirWWN, ChessDirection.DirNNW};
-
-		public static readonly ChessDirection[] AllDirectionsRook = new ChessDirection[]{
-			ChessDirection.DirN, ChessDirection.DirE, ChessDirection.DirS, ChessDirection.DirW};
-
-		public static readonly ChessDirection[] AllDirectionsBishop = new ChessDirection[]{
-			ChessDirection.DirNE, ChessDirection.DirSE, ChessDirection.DirSW, ChessDirection.DirNW};
-
-		public static readonly ChessDirection[] AllDirectionsQueen = new ChessDirection[]{
-			ChessDirection.DirN, ChessDirection.DirE, ChessDirection.DirS, ChessDirection.DirW, ChessDirection.DirNE, ChessDirection.DirSE, ChessDirection.DirSW, ChessDirection.DirNW};
-
-
-		//private lookup arrays
-		
-		
-		
-		//private static readonly int[] _directionrankinc = new int[] { 1, 0, -1, 0,/*diag*/1, -1, -1, 1,/*knight*/2, 1, -1, -2, -2, -1, 1, 2 };
-		//private static readonly int[] _directionfileinc = new int[] { 0, 1, 0, -1,/*diag*/1, 1, -1, -1,/*knight*/1, 2, 2, 1, -1, -2, -2, -1 };
-
 
 		
 		public static int MateIn(int ply)

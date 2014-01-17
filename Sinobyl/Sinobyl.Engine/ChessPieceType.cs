@@ -10,8 +10,14 @@ namespace Sinobyl.Engine
         Pawn = 0, Knight = 1, Bishop = 2, Rook = 3, Queen = 4, King = 5
     }
 
-    public static class ExtensionsChessPieceType
+    public static class ChessPieceTypeInfo
     {
+
+
+        public static readonly ChessPieceType[] AllPieceTypes = new ChessPieceType[]{
+            ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};
+
+
         public static ChessPiece ForPlayer(this ChessPieceType type, ChessPlayer player)
         {
             if (player == ChessPlayer.White)

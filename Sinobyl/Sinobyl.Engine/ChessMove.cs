@@ -506,7 +506,7 @@ namespace Sinobyl.Engine
                 //knight attacks
                 if (piece == myknight)
                 {
-                    foreach (ChessDirection dir in Chess.AllDirectionsKnight)
+                    foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsKnight)
                     {
                         AddDirection(retval, board, piecepos, dir, board.WhosTurn, 1, CapsOnly);
                     }
@@ -515,7 +515,7 @@ namespace Sinobyl.Engine
                 //bishop attacks
                 if (piece == mybishop)
                 {
-                    foreach (ChessDirection dir in Chess.AllDirectionsBishop)
+                    foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsBishop)
                     {
                         AddDirection(retval, board, piecepos, dir, board.WhosTurn, 8, CapsOnly);
                     }
@@ -524,7 +524,7 @@ namespace Sinobyl.Engine
                 //rook attacks
                 if (piece == myrook)
                 {
-                    foreach (ChessDirection dir in Chess.AllDirectionsRook)
+                    foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsRook)
                     {
                         AddDirection(retval, board, piecepos, dir, board.WhosTurn, 8, CapsOnly);
                     }
@@ -533,7 +533,7 @@ namespace Sinobyl.Engine
                 //queen attacks
                 if (piece == myqueen)
                 {
-                    foreach (ChessDirection dir in Chess.AllDirectionsQueen)
+                    foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsQueen)
                     {
                         AddDirection(retval, board, piecepos, dir, board.WhosTurn, 8, CapsOnly);
                     }
@@ -542,7 +542,7 @@ namespace Sinobyl.Engine
                 //king attacks
                 if (piece == myking)
                 {
-                    foreach (ChessDirection dir in Chess.AllDirectionsQueen)
+                    foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsQueen)
                     {
                         AddDirection(retval, board, piecepos, dir, board.WhosTurn, 1, CapsOnly);
                     }

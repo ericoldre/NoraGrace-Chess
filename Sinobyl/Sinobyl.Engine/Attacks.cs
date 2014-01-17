@@ -173,7 +173,7 @@ namespace Sinobyl.Engine
             foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 ChessBitboard board = 0;
-                foreach (var dir in Chess.AllDirectionsKnight)
+                foreach (var dir in ChessDirectionInfo.AllDirectionsKnight)
                 {
                     board |= sq.PositionInDirection(dir).Bitboard();
                 }
@@ -184,7 +184,7 @@ namespace Sinobyl.Engine
             foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 ChessBitboard board = 0;
-                foreach (var dir in Chess.AllDirectionsQueen)
+                foreach (var dir in ChessDirectionInfo.AllDirectionsQueen)
                 {
                     board |= sq.PositionInDirection(dir).Bitboard();
                 }

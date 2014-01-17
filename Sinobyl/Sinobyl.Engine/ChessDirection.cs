@@ -12,8 +12,26 @@ namespace Sinobyl.Engine
         DirNNE = DirN + DirNE, DirEEN = DirE + DirNE, DirEES = DirE + DirSE, DirSSE = DirS + DirSE, DirSSW = DirS + DirSW, DirWWS = DirW + DirSW, DirWWN = DirW + DirNW, DirNNW = DirN + DirNW
     }
 
-    public static class ExtensionsChessDirection
+    public static class ChessDirectionInfo
     {
+
+        public static readonly ChessDirection[] AllDirections = new ChessDirection[]{
+			ChessDirection.DirN, ChessDirection.DirE, ChessDirection.DirS, ChessDirection.DirW, ChessDirection.DirNE, ChessDirection.DirSE, ChessDirection.DirSW, ChessDirection.DirNW,
+			ChessDirection.DirNNE, ChessDirection.DirEEN, ChessDirection.DirEES, ChessDirection.DirSSE, ChessDirection.DirSSW, ChessDirection.DirWWS, ChessDirection.DirWWN, ChessDirection.DirNNW};
+
+        public static readonly ChessDirection[] AllDirectionsKnight = new ChessDirection[]{
+			ChessDirection.DirNNE, ChessDirection.DirEEN, ChessDirection.DirEES, ChessDirection.DirSSE, ChessDirection.DirSSW, ChessDirection.DirWWS, ChessDirection.DirWWN, ChessDirection.DirNNW};
+
+        public static readonly ChessDirection[] AllDirectionsRook = new ChessDirection[]{
+			ChessDirection.DirN, ChessDirection.DirE, ChessDirection.DirS, ChessDirection.DirW};
+
+        public static readonly ChessDirection[] AllDirectionsBishop = new ChessDirection[]{
+			ChessDirection.DirNE, ChessDirection.DirSE, ChessDirection.DirSW, ChessDirection.DirNW};
+
+        public static readonly ChessDirection[] AllDirectionsQueen = new ChessDirection[]{
+			ChessDirection.DirN, ChessDirection.DirE, ChessDirection.DirS, ChessDirection.DirW, ChessDirection.DirNE, ChessDirection.DirSE, ChessDirection.DirSW, ChessDirection.DirNW};
+
+
         public static bool IsDirectionRook(this ChessDirection dir)
         {
             //AssertDirection(dir);

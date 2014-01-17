@@ -114,7 +114,7 @@ namespace Sinobyl.Engine.Tests
             
             ChessEval eval = new ChessEval();
 
-            foreach (var type in Chess.AllPieceTypes)
+            foreach (var type in ChessPieceTypeInfo.AllPieceTypes)
             {
                 foreach (var pos in ChessPositionInfo.AllPositions)
                 {

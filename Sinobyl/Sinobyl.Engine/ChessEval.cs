@@ -54,7 +54,7 @@ namespace Sinobyl.Engine
             //setup material arrays
             foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
-                foreach (ChessGameStage stage in Chess.AllGameStages)
+                foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
                 {
                     if (piece.PieceToPlayer() == ChessPlayer.White)
                     {
@@ -72,7 +72,7 @@ namespace Sinobyl.Engine
             {
                 foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
                 {
-                    foreach (ChessGameStage stage in Chess.AllGameStages)
+                    foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
                     {
                         if (piece.PieceToPlayer() == ChessPlayer.White)
                         {
@@ -94,7 +94,7 @@ namespace Sinobyl.Engine
 
             foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
-                foreach (ChessGameStage stage in Chess.AllGameStages)
+                foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
                 {
                     for (int attacksCount = 0; attacksCount < 28; attacksCount++)
                     {

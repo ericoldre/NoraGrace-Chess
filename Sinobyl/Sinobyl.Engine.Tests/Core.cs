@@ -74,7 +74,7 @@ namespace Sinobyl.Engine.Tests
         {
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
-                foreach (ChessDirection dir in Chess.AllDirections)
+                foreach (ChessDirection dir in ChessDirectionInfo.AllDirections)
                 {
                     var correctResult = pos.PositionInDirection(dir);
                     if (correctResult.IsInBounds())
@@ -99,7 +99,7 @@ namespace Sinobyl.Engine.Tests
                     ChessDirection dirFromTo = posFrom.DirectionTo(posTo);
 					if (dirFromTo == 0) 
 					{
-						foreach(ChessDirection dirTry in Chess.AllDirectionsQueen)
+                        foreach (ChessDirection dirTry in ChessDirectionInfo.AllDirectionsQueen)
 						{
 							posCurr = posFrom;
 							while(posCurr.IsInBounds())
@@ -108,7 +108,7 @@ namespace Sinobyl.Engine.Tests
                                 posCurr = posCurr.PositionInDirection(dirTry);
 							}
 						}
-                        foreach (ChessDirection dirTry in Chess.AllDirectionsKnight)
+                        foreach (ChessDirection dirTry in ChessDirectionInfo.AllDirectionsKnight)
                         {
                             posCurr = posFrom.PositionInDirection(dirTry);
                             Assert.IsFalse(posCurr == posTo);
@@ -270,7 +270,7 @@ namespace Sinobyl.Engine.Tests
 
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
-                foreach (ChessDirection dir in Chess.AllDirections)
+                foreach (ChessDirection dir in ChessDirectionInfo.AllDirections)
                 {
                     ChessPosition posEnd = ChessPositionInfo.PositionInDirection(pos, dir);
                     ChessBitboard shifted = pos.Bitboard().Shift(dir);
@@ -286,7 +286,7 @@ namespace Sinobyl.Engine.Tests
         {
             foreach (var pos in ChessPositionInfo.AllPositions)
             {
-                foreach (var dir in Chess.AllDirections)
+                foreach (var dir in ChessDirectionInfo.AllDirections)
                 {
                     var posnew = ChessPositionInfo.PositionInDirection(pos, dir);
                     if (!posnew.IsInBounds())

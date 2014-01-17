@@ -10,8 +10,11 @@ namespace Sinobyl.Engine
         Opening = 0, Endgame = 1
     }
 
-    public static class ExtentionsChessGameStage
+    public static class ChessGameStageInfo
     {
+
+        public static readonly ChessGameStage[] AllGameStages = new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame };
+
         public static ChessGameStage Other(this ChessGameStage stage)
         {
             if (stage == ChessGameStage.Opening)

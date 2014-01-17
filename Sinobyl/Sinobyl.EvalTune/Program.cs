@@ -139,7 +139,7 @@ namespace Sinobyl.EvalTune
             }
             set
             {
-                string xml = Chess.SerializeObject<ChessEvalSettings>(value);
+                string xml = ChessEvalSettings.SerializeObject<ChessEvalSettings>(value);
                 lock (_lock)
                 {
                     value.Save("ChampionSettings.xml");

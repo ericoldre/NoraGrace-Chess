@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace Sinobyl.Engine
 {
@@ -278,7 +280,7 @@ namespace Sinobyl.Engine
 
         public ChessEvalSettings CloneDeep()
         {
-            return Chess.DeserializeObject<ChessEvalSettings>(Chess.SerializeObject<ChessEvalSettings>(this));
+            return DeserializeObject<ChessEvalSettings>(SerializeObject<ChessEvalSettings>(this));
         }
 
         public override bool Equals(object obj)
@@ -286,8 +288,8 @@ namespace Sinobyl.Engine
             ChessEvalSettings other = obj as ChessEvalSettings;
             if (other == null) { return false; }
 
-            var v1 = Chess.SerializeObject<ChessEvalSettings>(this);
-            var v2 = Chess.SerializeObject<ChessEvalSettings>(other);
+            var v1 = SerializeObject<ChessEvalSettings>(this);
+            var v2 = SerializeObject<ChessEvalSettings>(other);
             return v1 == v2;
         }
 
@@ -324,7 +326,7 @@ namespace Sinobyl.Engine
         {
             using (var writer = new System.IO.StreamWriter(stream))
             {
-                writer.Write(Chess.SerializeObject<ChessEvalSettings>(this));
+                writer.Write(SerializeObject<ChessEvalSettings>(this));
             }
         }
         public void Save(System.IO.FileInfo file)
@@ -380,10 +382,64 @@ namespace Sinobyl.Engine
             if (_defaultDoc == null)
             {
                 _defaultDoc = new XmlDocument();
-                _defaultDoc.LoadXml(Chess.SerializeObject<ChessEvalSettings>(ChessEvalSettings.Default()));
+                _defaultDoc.LoadXml(SerializeObject<ChessEvalSettings>(ChessEvalSettings.Default()));
             }
             return _defaultDoc;
         }
+
+        /// <summary>
+        /// Serialize an object into an XML string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string SerializeObject<T>(T obj)
+        {
+            try
+            {
+                XmlSerializer xs = new XmlSerializer(typeof(T));
+                MemoryStream memoryStream = new MemoryStream();
+
+                StreamWriter writer = new StreamWriter(memoryStream, Encoding.UTF8);
+
+                xs.Serialize(writer, obj);
+                memoryStream.Position = 0;
+                StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8);
+                string retval = reader.ReadToEnd();
+                return retval;
+                //return reader.ReadToEnd();
+                //xmlString = UTF8ByteArrayToString(memoryStream.ToArray()); 
+                //return xmlString;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Reconstruct an object from an XML string
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <returns></returns>
+        public static T DeserializeObject<T>(string xml)
+        {
+            XmlSerializer xs = new XmlSerializer(typeof(T));
+            MemoryStream memoryStream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(memoryStream, Encoding.UTF8);
+            writer.Write(xml);
+            writer.Flush();
+
+
+
+
+            memoryStream.Position = 0;
+
+
+            StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8);
+            return (T)xs.Deserialize(reader);
+        }
+
 
         
 

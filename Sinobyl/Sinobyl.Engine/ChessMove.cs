@@ -141,14 +141,14 @@ namespace Sinobyl.Engine
 			if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][abcdefgh][12345678]$", RegexOptions.IgnoreCase))
 			{
 				//coordinate notation, will not verify legality for now
-                this.From = movetext.Substring(0, 2).ParseAsPosition();
-                this.To = movetext.Substring(2, 2).ParseAsPosition();
+                this.From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+                this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][abcdefgh][12345678][BNRQK]$", RegexOptions.IgnoreCase))
 			{
 				//coordinate notation, with promotion
-                this.From = movetext.Substring(0, 2).ParseAsPosition();
-				this.To = movetext.Substring(2, 2).ParseAsPosition();
+                this.From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				this.Promote = movetext[4].ParseAsPiece(me);
 			}
 			else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
@@ -180,7 +180,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678]$"))
 			{
 				//pawn forward
-                this.To = movetext.ParseAsPosition();
+                this.To = ChessPositionInfo.Parse(movetext);
                 tmppos = To.PositionInDirection(mysouth);
 				if (board.PieceAt(tmppos) == mypawn)
 				{
@@ -202,7 +202,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][BNRQK]$"))
 			{
 				//pawn forward, promotion
-                this.To = movetext.Substring(0, 2).ParseAsPosition();
+                this.To = ChessPositionInfo.Parse(movetext.Substring(0, 2));
                 tmppos = To.PositionInDirection(mysouth);
 				if (board.PieceAt(tmppos) == mypawn)
 				{
@@ -215,7 +215,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678]$"))
 			{
 				//pawn attack
-                this.To = movetext.Substring(1, 2).ParseAsPosition();
+                this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
 				tmpfile = ChessFileInfo.Parse(movetext[0]);
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
 				return;
@@ -223,7 +223,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678][BNRQK]$"))
 			{
 				//pawn attack, promote
-				this.To = movetext.Substring(1, 2).ParseAsPosition();
+				this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
                 tmpfile = ChessFileInfo.Parse(movetext[0]);
 				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
 				this.Promote = movetext[3].ParseAsPiece(me);
@@ -232,7 +232,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678]$"))
 			{
 				//normal attack
-				this.To = movetext.Substring(1, 2).ParseAsPosition();
+				this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
 				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
 				return;
@@ -240,7 +240,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][abcdefgh][12345678]$"))
 			{
 				//normal, specify file
-				this.To = movetext.Substring(2, 2).ParseAsPosition();
+				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmpfile = ChessFileInfo.Parse(movetext[1]);
 				this.From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
@@ -249,7 +249,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[BNRQK][12345678][abcdefgh][12345678]$"))
 			{
 				//normal, specify rank
-				this.To = movetext.Substring(2, 2).ParseAsPosition();
+				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmprank = ChessRankInfo.Parse(movetext[1]);
 				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
@@ -259,7 +259,7 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678][abcdefgh][12345678]$"))
 			{
 				//normal, specify rank and file
-				this.To = movetext.Substring(3, 2).ParseAsPosition();
+				this.To = ChessPositionInfo.Parse(movetext.Substring(3, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmpfile = ChessFileInfo.Parse(movetext[1]);
                 tmprank = ChessRankInfo.Parse(movetext[2]);

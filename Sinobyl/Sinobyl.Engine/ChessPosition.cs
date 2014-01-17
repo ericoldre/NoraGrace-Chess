@@ -32,6 +32,15 @@ namespace Sinobyl.Engine
             ChessPosition.A1,ChessPosition.B1,ChessPosition.C1,ChessPosition.D1,ChessPosition.E1,ChessPosition.F1,ChessPosition.G1,ChessPosition.H1,
 		};
 
+
+        public static ChessPosition Parse(string s)
+        {
+            if (s.Length != 2) { throw new ChessException(s + " is not a valid position"); }
+            ChessFile file = ChessFileInfo.Parse(s[0]);
+            ChessRank rank = ChessRankInfo.Parse(s[1]);
+            return file.ToPosition(rank);
+        }
+
         public static bool IsLight(this ChessPosition pos)
         {
             bool retval = (int)pos % 2 == 1;

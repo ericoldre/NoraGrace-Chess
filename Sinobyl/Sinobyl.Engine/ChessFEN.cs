@@ -170,7 +170,7 @@ namespace Sinobyl.Engine
 			this.enpassant = (ChessPosition.OUTOFBOUNDS);
 			if (sEnpassant != "-")
 			{
-				enpassant = sEnpassant.ParseAsPosition();
+				enpassant = ChessPositionInfo.Parse(sEnpassant);
 			}
 
 			//set fifty move count

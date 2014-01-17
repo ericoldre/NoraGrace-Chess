@@ -65,8 +65,8 @@ namespace Sinobyl.Engine
 
 					foreach (string smove in smoves)
 					{
-						ChessPosition from = smove.Substring(0, 2).ParseAsPosition();
-                        ChessPosition to = smove.Substring(2, 2).ParseAsPosition();
+						ChessPosition from = ChessPositionInfo.Parse(smove.Substring(0, 2));
+                        ChessPosition to = ChessPositionInfo.Parse(smove.Substring(2, 2));
 						ChessMove move = new ChessMove(from, to);
 						board.MoveApply(move);
 						if (_positions.ContainsKey(board.Zobrist))

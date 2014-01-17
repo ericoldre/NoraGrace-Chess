@@ -98,6 +98,12 @@ namespace Sinobyl.Engine
 		public int CountAIValSearch = 0;
 		public int CountAIQSearch = 0;
 
+
+        public static int MateIn(int ply)
+        {
+            return 30000 - ply; //private static readonly int VALCHECKMATE = 30000;
+        }
+
 		#region helper classes
 		public class Progress
 		{
@@ -153,7 +159,7 @@ namespace Sinobyl.Engine
 
 			public bool DoBlunder(Int64 Zob, int depth, bool isRecapture, int moveNum, int moveCount, int alpha, int beta)
 			{
-				if (alpha < -Chess.MateIn(5) || beta > Chess.MateIn(5)) { return false; }
+                if (alpha < -ChessSearch.MateIn(5) || beta > ChessSearch.MateIn(5)) { return false; }
 				if (moveNum < this.BlunderSkipCount) { return false; }
 
 				
@@ -272,7 +278,7 @@ namespace Sinobyl.Engine
 				ValSearchRoot(depth);
 
 				//if we get three consecutive depths with same mate score.. just move.
-				if (_bestvariationscore > Chess.MateIn(10) || _bestvariationscore < -Chess.MateIn(10))
+                if (_bestvariationscore > ChessSearch.MateIn(10) || _bestvariationscore < -ChessSearch.MateIn(10))
 				{
 					if (MateScoreLast == _bestvariationscore)
 					{
@@ -624,7 +630,7 @@ namespace Sinobyl.Engine
 			{
 				if (in_check_before_move)
 				{
-					score = -Chess.MateIn(ply); // VALCHECKMATE + ply;
+                    score = -ChessSearch.MateIn(ply); // VALCHECKMATE + ply;
 				}
 				else
 				{
@@ -723,7 +729,7 @@ namespace Sinobyl.Engine
 			//trans_table_store(board,0,entrytype,alpha,0);
 			if (playerincheck && tried_move_count == 0)
 			{
-				alpha = -Chess.MateIn(ply);// VALCHECKMATE + ply;
+                alpha = -ChessSearch.MateIn(ply);// VALCHECKMATE + ply;
 			}
 			
 			return alpha;

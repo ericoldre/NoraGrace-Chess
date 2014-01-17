@@ -70,35 +70,6 @@ namespace Sinobyl.Engine
 	{
 
 		
-
-
-		
-		public static int MateIn(int ply)
-		{
-			return 30000 - ply; //private static readonly int VALCHECKMATE = 30000;
-		}
-
-
-		
-
-
-
-
-
-
-
-        
-        
-
-
-
-        
-
-
-
-
-
-
 		/// <summary>
 		/// To convert a Byte Array of Unicode values (UTF-8 encoded) to a complete String.
 		/// </summary>

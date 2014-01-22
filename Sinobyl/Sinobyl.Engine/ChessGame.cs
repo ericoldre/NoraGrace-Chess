@@ -21,11 +21,11 @@ namespace Sinobyl.Engine
     {
 
 
-        public event msgVoid OnGameStart;
-        public event msgMove OnGameMove;
-        public event msgMove OnGameMoveUndo;
-        public event msgPlayerChessSearchProgress OnPlayerKibitz;
-        public event msgVoid OnGameFinish;
+        public event EventHandler OnGameStart;
+        public event EventHandler<EventArgsMove> OnGameMove;
+        public event EventHandler<EventArgsMove> OnGameMoveUndo;
+        public event EventHandler<EventArgsSearchProgressPlayer> OnPlayerKibitz;
+        public event EventHandler OnGameFinish;
 
 
         //properties that are locked once the game starts
@@ -55,16 +55,16 @@ namespace Sinobyl.Engine
         {
             if (player != null)
             {
-                player.OnMove -= new msgMove(Player_OnMove);
-                player.OnKibitz -= new msgChessSearchProgress(player_OnKibitz);
-                player.OnResign -= new msgVoid(player_OnResign);
+                player.OnMove -= Player_OnMove;
+                player.OnKibitz -= player_OnKibitz;
+                player.OnResign -= player_OnResign;
             }
         }
         private void PlayerHandlersAdd(ChessGamePlayer player)
         {
-            player.OnKibitz += new msgChessSearchProgress(player_OnKibitz);
-            player.OnMove += new msgMove(Player_OnMove);
-            player.OnResign += new msgVoid(player_OnResign);
+            player.OnKibitz += player_OnKibitz;
+            player.OnMove += Player_OnMove;
+            player.OnResign += player_OnResign;
         }
 
         public void TakebackMoves(int count)
@@ -77,14 +77,15 @@ namespace Sinobyl.Engine
                     ChessMove moveUndoing = _moves[_moves.Count - 1];
                     _board.MoveUndo();
                     _moves.RemoveAt(_moves.Count - 1);
-                    if (this.OnGameMoveUndo != null) { this.OnGameMoveUndo(this, moveUndoing); }
+                    var eh = this.OnGameMoveUndo;
+                    if (eh != null) { eh(this, new EventArgsMove(moveUndoing)); }
                 }
             }
             PlayerWhosTurn.YourTurn(this._startFEN, new ChessMoves(this.MoveHistory()), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
 
         }
 
-        void player_OnResign(object sender)
+        void player_OnResign(object sender, EventArgs e)
         {
             if (sender.Equals(PlayerBlack))
             {
@@ -95,15 +96,18 @@ namespace Sinobyl.Engine
                 _result = ChessResult.BlackWins;
             }
             _resultReason = ChessResultReason.Resign;
-            if (this.OnGameFinish != null) { this.OnGameFinish(this); }
+            var eh = this.OnGameFinish;
+            if (eh != null) { eh(this, new EventArgs()); }
         }
 
-        void player_OnKibitz(object sender, ChessSearch.Progress progress)
+        void player_OnKibitz(object sender, EventArgsSearchProgress e)
         {
-            if (this.OnPlayerKibitz != null)
+            var eh = this.OnPlayerKibitz;
+
+            if (eh != null)
             {
                 ChessPlayer color = sender == _white ? ChessPlayer.White : ChessPlayer.Black;
-                this.OnPlayerKibitz(this, color, progress);
+                eh(this, new EventArgsSearchProgressPlayer(e.Progress, color));
             }
         }
         public ChessGamePlayer PlayerWhite
@@ -210,7 +214,8 @@ namespace Sinobyl.Engine
                 if (_board.WhosTurn == ChessPlayer.Black) { _result = ChessResult.WhiteWins; }
                 _resultReason = ChessResultReason.OutOfTime;
 
-                if (this.OnGameFinish != null) { this.OnGameFinish(this); }
+                var eh = this.OnGameFinish;
+                if (eh != null) { eh(this, new EventArgs()); }
                 return; //game over
             }
         }
@@ -224,7 +229,8 @@ namespace Sinobyl.Engine
             _timeRemainingForPlayer[(int)ChessPlayer.Black] = _timecontrol.InitialTime;
             _timeMoveStarted = DateTime.Now;
 
-            if (this.OnGameStart != null) { this.OnGameStart(this); }
+            var eh = this.OnGameStart;
+            if (eh != null) { eh(this, new EventArgs()); }
 
             PlayerWhosTurn.YourTurn(this._startFEN, new ChessMoves(this.MoveHistory()), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
         }
@@ -328,7 +334,8 @@ namespace Sinobyl.Engine
                 _resultReason = ChessResultReason.Stalemate;
             }
 
-            if (this.OnGameMove != null) { this.OnGameMove(this, move); }
+            var ehGameMove = this.OnGameMove;
+            if (ehGameMove != null) { ehGameMove(this, new EventArgsMove(move)); }
 
             if (_result == null)
             {
@@ -338,7 +345,9 @@ namespace Sinobyl.Engine
             else
             {
                 //game is done.
-                if (this.OnGameFinish != null) { this.OnGameFinish(this); }
+                var eh = this.OnGameFinish;
+                if (eh != null) { this.OnGameFinish(this, new EventArgs()); }
+                
             }
 
 

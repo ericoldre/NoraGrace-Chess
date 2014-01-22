@@ -7,30 +7,12 @@ using System.Xml;
 
 namespace Sinobyl.Engine
 {
-	/// <summary>
-	/// Summary description for Chess.
-	/// </summary>
-	/// 
-
-	#region delegates
-
-	
-
-	public delegate void msgFEN(object sender, ChessFEN fen);
-
-	public delegate void msgMove(object sender, object moveObj);
-	public delegate void msgVoid(object sender);
-	public delegate void msgString(object sender, string sString);
-	public delegate void msgRequestTime(object sender, object player, ref TimeSpan timeleft);
-	public delegate void msgRequestTimeControl(object sender, object player, ref int movesPerControl, ref TimeSpan initialTime, ref TimeSpan increment);
-	public delegate void msgFromTo(object sender, ChessPosition from, ChessPosition to);
-	//public delegate void msgResult(object sender, ChessResult result, string reason);
-	public delegate void msgThinking(object sender, object thinking);
 
 
-	#endregion
+
 
 	#region enums
+
 
 
 

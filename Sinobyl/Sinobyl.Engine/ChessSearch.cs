@@ -9,16 +9,14 @@ using System.Collections.ObjectModel;
 namespace Sinobyl.Engine
 {
 
-	public delegate void msgChessSearchProgress(object sender, ChessSearch.Progress progress);
-	public delegate void msgPlayerChessSearchProgress(object sender, ChessPlayer color, ChessSearch.Progress progress);
-
+	
 
 	#region Search asynch
 
 	public class ChessSearchAsync
 	{
-		public event msgChessSearchProgress OnProgress;
-		public event msgChessSearchProgress OnFinish;
+		public event EventHandler<EventArgsSearchProgress> OnProgress;
+        public event EventHandler<EventArgsSearchProgress> OnFinish;
 		private ChessSearch search;
 		private BackgroundWorker bw;
 
@@ -34,7 +32,8 @@ namespace Sinobyl.Engine
 		void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
 			ChessSearch.Progress bestAnswer = (ChessSearch.Progress)e.UserState;
-			if (this.OnProgress != null) { this.OnProgress(this, bestAnswer); }
+            var eh = this.OnProgress;
+			if (eh != null) { eh(this, new EventArgsSearchProgress(bestAnswer)); }
 		}
 
 		void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -42,7 +41,8 @@ namespace Sinobyl.Engine
 			if (e.Result != null)
 			{
 				ChessSearch.Progress finalAnswer = (ChessSearch.Progress)e.Result;
-				if (this.OnFinish != null) { this.OnFinish(this, finalAnswer); }
+                var eh = this.OnFinish;
+				if (eh != null) { eh(this, new EventArgsSearchProgress(finalAnswer)); }
 			}
 			else
 			{
@@ -55,11 +55,11 @@ namespace Sinobyl.Engine
 		{
 			if (search != null)
 			{
-				search.OnProgress -= new msgChessSearchProgress(search_OnProgress);
+				search.OnProgress -= search_OnProgress;
 				search = null;
 			}
 			search = new ChessSearch((ChessSearch.Args)e.Argument);
-			search.OnProgress += new msgChessSearchProgress(search_OnProgress);
+			search.OnProgress += search_OnProgress;
 			ChessSearch.Progress retval = search.Search();
 			e.Result = retval;
 		}
@@ -69,9 +69,9 @@ namespace Sinobyl.Engine
 			bw.RunWorkerAsync(args);
 		}
 
-		void search_OnProgress(object sender, ChessSearch.Progress progress)
+		void search_OnProgress(object sender, EventArgsSearchProgress e)
 		{
-			bw.ReportProgress(50, progress);
+			bw.ReportProgress(50, e.Progress);
 		}
 
 		public void Abort(bool raiseOnFinish)
@@ -205,7 +205,7 @@ namespace Sinobyl.Engine
 
 		#endregion
 
-		public event msgChessSearchProgress OnProgress;
+		public event EventHandler<EventArgsSearchProgress> OnProgress;
 
 		public readonly Args SearchArgs;
 		private readonly ChessBoard board;
@@ -410,7 +410,11 @@ namespace Sinobyl.Engine
 					ChessSearch.Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), pv, this.board.FEN);
 					if (depth > 1 && this.OnProgress != null)
 					{
-						this.OnProgress(this, prog);
+                        var eh = this.OnProgress;
+                        if (eh != null)
+                        {
+                            eh(this, new EventArgsSearchProgress(prog));
+                        }
 					}
 				}
 			}

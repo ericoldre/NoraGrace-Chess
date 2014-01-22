@@ -17,9 +17,9 @@ namespace Sinobyl.CommandLine
 
 		public Winboard()
 		{
-			player.OnMove += new msgMove(player_OnMove);
-			player.OnKibitz += new msgChessSearchProgress(player_OnKibitz);
-			player.OnResign += new msgVoid(player_OnResign);
+			player.OnMove += player_OnMove;
+			player.OnKibitz += player_OnKibitz;
+			player.OnResign += player_OnResign;
 		}
 
 		public ChessGamePlayerPersonality EnginePersonality
@@ -34,18 +34,18 @@ namespace Sinobyl.CommandLine
 			}
 		}
 
-		void player_OnResign(object sender)
+		void player_OnResign(object sender, EventArgs e)
 		{
 			throw new NotImplementedException();
 		}
 
-		void player_OnKibitz(object sender, ChessSearch.Progress progress)
+		void player_OnKibitz(object sender, EventArgsSearchProgress e)
 		{
             
             try
             {
-                string pvstring = new ChessMoves(progress.PrincipleVariation).ToString(new ChessBoard(progress.FEN), true);
-                string output = string.Format("{0} {1} {2} {3} {4}", progress.Depth, progress.Score, Math.Round(progress.Time.TotalMilliseconds / 10), progress.Nodes, pvstring);
+                string pvstring = new ChessMoves(e.Progress.PrincipleVariation).ToString(new ChessBoard(e.Progress.FEN), true);
+                string output = string.Format("{0} {1} {2} {3} {4}", e.Progress.Depth, e.Progress.Score, Math.Round(e.Progress.Time.TotalMilliseconds / 10), e.Progress.Nodes, pvstring);
                 Program.ConsoleWriteline(output);
             }
             catch (Exception ex)
@@ -55,14 +55,13 @@ namespace Sinobyl.CommandLine
             
 		}
 
-		void player_OnMove(object sender, object moveObj)
+		void player_OnMove(object sender, EventArgsMove e)
 		{
             
             try
             {
-                ChessMove move = (ChessMove)moveObj;
-                Program.ConsoleWriteline(string.Format("move {0}", move.ToString()));
-                board.MoveApply(move);
+                Program.ConsoleWriteline(string.Format("move {0}", e.Move.ToString()));
+                board.MoveApply(e.Move);
                 GameDoneAnnounce();
 
             }

@@ -65,6 +65,7 @@
     <Compile Include="ChessPosition.cs" />
     <Compile Include="ChessRank.cs" />
     <Compile Include="ChessSearch.cs" />
+    <Compile Include="ChessSearchAsync.cs" />
     <Compile Include="ChessTimeControl.cs" />
     <Compile Include="ChessTrans.cs" />
     <Compile Include="ChessZobrist.cs" />

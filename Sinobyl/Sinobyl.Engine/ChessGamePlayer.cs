@@ -189,6 +189,7 @@ namespace Sinobyl.Engine
             args.TransTable = _transTable;
             args.Delay = this.DelaySearch;
 
+            search.Abort(false);
             search.SearchAsync(args);
 
         }

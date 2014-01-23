@@ -18,7 +18,7 @@ namespace Sinobyl.CommandLine
 		public Winboard()
 		{
 			player.MovePlayed += player_OnMove;
-			player.Kibitzed += player_OnKibitz;
+			player.Kibitz += player_OnKibitz;
 			player.Resigned += player_OnResign;
 		}
 

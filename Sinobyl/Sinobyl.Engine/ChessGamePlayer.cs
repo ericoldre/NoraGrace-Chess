@@ -11,26 +11,28 @@ namespace Sinobyl.Engine
     public abstract class ChessGamePlayer
     {
         public event EventHandler<MoveEventArgs> MovePlayed;
-        public event EventHandler<SearchProgressEventArgs> Kibitzed;
+        public event EventHandler<SearchProgressEventArgs> Kibitz;
         public event EventHandler Resigned;
 
         public abstract void TurnStop();
         public abstract void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, ChessTimeControl timeControl, TimeSpan timeLeft);
         public abstract string Name { get; }
 
-        protected void RaiseOnMove(ChessMove move)
+        protected virtual void OnMovePlayed(ChessMove move)
         {
             var e = this.MovePlayed;
             if (e != null) { e(this, new MoveEventArgs(move)); }
         }
-        protected void RaiseOnResign()
+
+        protected virtual void OnResigned()
         {
             var e = this.Resigned;
             if (e != null) { e(this, new EventArgs()); }
         }
-        protected void RaiseOnKibitz(ChessSearch.Progress prog)
+
+        protected virtual void OnKibitz(ChessSearch.Progress prog)
         {
-            var eh = this.Kibitzed;
+            var eh = this.Kibitz;
             if (eh != null) { eh(this, new SearchProgressEventArgs(prog)); }
         }
 
@@ -138,13 +140,13 @@ namespace Sinobyl.Engine
 
         void search_OnFinish(object sender, SearchProgressEventArgs e)
         {
-            this.RaiseOnMove(e.Progress.PrincipleVariation[0]);
+            this.OnMovePlayed(e.Progress.PrincipleVariation[0]);
             //if (this.OnMove != null) { this.OnMove(this, progress.PrincipleVariation[0]); }
         }
 
         void search_OnProgress(object sender, SearchProgressEventArgs e)
         {
-            this.RaiseOnKibitz(e.Progress);
+            this.OnKibitz(e.Progress);
         }
 
         public override void TurnStop()
@@ -205,7 +207,7 @@ namespace Sinobyl.Engine
             ChessMove move = (ChessMove)e.Result;
             if (move != null)
             {
-                RaiseOnMove(move);
+                OnMovePlayed(move);
             }
         }
 
@@ -231,7 +233,7 @@ namespace Sinobyl.Engine
 
         void search_FoundMove(object sender, object move)
         {
-            this.RaiseOnMove((ChessMove)move);
+            this.OnMovePlayed((ChessMove)move);
             //if (this.OnMove != null) { this.OnMove(this, move); }
         }
     }

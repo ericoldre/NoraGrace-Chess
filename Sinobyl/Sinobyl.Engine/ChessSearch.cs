@@ -32,24 +32,33 @@ namespace Sinobyl.Engine
 		void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
 			ChessSearch.Progress bestAnswer = (ChessSearch.Progress)e.UserState;
-            var eh = this.ProgressReported;
-			if (eh != null) { eh(this, new SearchProgressEventArgs(bestAnswer)); }
+            OnProgressReported(new SearchProgressEventArgs(bestAnswer));
 		}
+
+        protected virtual void OnProgressReported(SearchProgressEventArgs progress)
+        {
+            var eh = this.ProgressReported;
+            if (eh != null) { eh(this, progress); }
+        }
 
 		void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (e.Result != null)
 			{
 				ChessSearch.Progress finalAnswer = (ChessSearch.Progress)e.Result;
-                var eh = this.Finished;
-				if (eh != null) { eh(this, new SearchProgressEventArgs(finalAnswer)); }
+                OnFinished(new SearchProgressEventArgs(finalAnswer));
 			}
 			else
 			{
 				//search was cancelled and told to not return the best result. as in move takeback.
 			}
-
 		}
+
+        protected virtual void OnFinished(SearchProgressEventArgs finalAnswer)
+        {
+            var eh = this.Finished;
+            if (eh != null) { eh(this, finalAnswer); }
+        }
 
 		void bw_DoWork(object sender, DoWorkEventArgs e)
 		{
@@ -410,15 +419,21 @@ namespace Sinobyl.Engine
 					ChessSearch.Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), pv, this.board.FEN);
 					if (depth > 1 && this.ProgressReported != null)
 					{
-                        var eh = this.ProgressReported;
-                        if (eh != null)
-                        {
-                            eh(this, new SearchProgressEventArgs(prog));
-                        }
+                        OnProgressReported(new SearchProgressEventArgs(prog));
 					}
 				}
 			}
 		}
+
+        public virtual void OnProgressReported(SearchProgressEventArgs args)
+        {
+            var eh = this.ProgressReported;
+            if (eh != null)
+            {
+                eh(this, args);
+            }
+        }
+
 		private int ValSearchAspiration(int depth, int alpha, int estscore, int initWindow, ChessMoves pv)
 		{
 			int windowAlpha = estscore - initWindow;

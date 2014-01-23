@@ -17,9 +17,9 @@ namespace Sinobyl.CommandLine
 
 		public Winboard()
 		{
-			player.OnMove += player_OnMove;
-			player.OnKibitz += player_OnKibitz;
-			player.OnResign += player_OnResign;
+			player.MovePlayed += player_OnMove;
+			player.Kibitzed += player_OnKibitz;
+			player.Resigned += player_OnResign;
 		}
 
 		public ChessGamePlayerPersonality EnginePersonality
@@ -39,7 +39,7 @@ namespace Sinobyl.CommandLine
 			throw new NotImplementedException();
 		}
 
-		void player_OnKibitz(object sender, EventArgsSearchProgress e)
+		void player_OnKibitz(object sender, SearchProgressEventArgs e)
 		{
             
             try
@@ -55,7 +55,7 @@ namespace Sinobyl.CommandLine
             
 		}
 
-		void player_OnMove(object sender, EventArgsMove e)
+		void player_OnMove(object sender, MoveEventArgs e)
 		{
             
             try

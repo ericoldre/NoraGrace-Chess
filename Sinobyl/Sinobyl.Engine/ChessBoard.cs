@@ -108,9 +108,6 @@ namespace Sinobyl.Engine
 
         public event EventHandler<BoardChangedEventArgs> BoardChanged;
 
-		//public event msgMove OnMoveApply;
-		//public event msgVoid OnMoveUndo;
-		//public event msgVoid OnReset;
 
         private ChessPositionDictionary<ChessPiece> _pieceat = new ChessPositionDictionary<ChessPiece>();
 		//private ChessPiece[] _pieceat = new ChessPiece[65];

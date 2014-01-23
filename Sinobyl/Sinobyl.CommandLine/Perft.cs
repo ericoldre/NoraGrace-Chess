@@ -31,7 +31,7 @@ namespace Sinobyl.CommandLine
                 args.TransTable = new ChessTrans();
 
                 ChessSearch search = new ChessSearch(args);
-                search.OnProgress += (s, e) => {Console.WriteLine("\t{0}", new ChessMoves(e.Progress.PrincipleVariation).ToString(board,true));};
+                search.ProgressReported += (s, e) => {Console.WriteLine("\t{0}", new ChessMoves(e.Progress.PrincipleVariation).ToString(board,true));};
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var searchResults = search.Search();
                 stopwatch.Stop();

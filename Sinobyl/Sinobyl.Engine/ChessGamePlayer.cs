@@ -10,9 +10,9 @@ namespace Sinobyl.Engine
 {
     public abstract class ChessGamePlayer
     {
-        public event EventHandler<EventArgsMove> OnMove;
-        public event EventHandler<EventArgsSearchProgress> OnKibitz;
-        public event EventHandler OnResign;
+        public event EventHandler<MoveEventArgs> MovePlayed;
+        public event EventHandler<SearchProgressEventArgs> Kibitzed;
+        public event EventHandler Resigned;
 
         public abstract void TurnStop();
         public abstract void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, ChessTimeControl timeControl, TimeSpan timeLeft);
@@ -20,18 +20,18 @@ namespace Sinobyl.Engine
 
         protected void RaiseOnMove(ChessMove move)
         {
-            var e = this.OnMove;
-            if (e != null) { e(this, new EventArgsMove(move)); }
+            var e = this.MovePlayed;
+            if (e != null) { e(this, new MoveEventArgs(move)); }
         }
         protected void RaiseOnResign()
         {
-            var e = this.OnResign;
+            var e = this.Resigned;
             if (e != null) { e(this, new EventArgs()); }
         }
         protected void RaiseOnKibitz(ChessSearch.Progress prog)
         {
-            var eh = this.OnKibitz;
-            if (eh != null) { eh(this, new EventArgsSearchProgress(prog)); }
+            var eh = this.Kibitzed;
+            if (eh != null) { eh(this, new SearchProgressEventArgs(prog)); }
         }
 
 
@@ -113,8 +113,8 @@ namespace Sinobyl.Engine
         {
             DelaySearch = new TimeSpan(0);
             search = new ChessSearchAsync();
-            search.OnProgress += search_OnProgress;
-            search.OnFinish += search_OnFinish;
+            search.ProgressReported += search_OnProgress;
+            search.Finished += search_OnFinish;
         }
         public ChessGamePlayerPersonality Personality
         {
@@ -136,13 +136,13 @@ namespace Sinobyl.Engine
             }
         }
 
-        void search_OnFinish(object sender, EventArgsSearchProgress e)
+        void search_OnFinish(object sender, SearchProgressEventArgs e)
         {
             this.RaiseOnMove(e.Progress.PrincipleVariation[0]);
             //if (this.OnMove != null) { this.OnMove(this, progress.PrincipleVariation[0]); }
         }
 
-        void search_OnProgress(object sender, EventArgsSearchProgress e)
+        void search_OnProgress(object sender, SearchProgressEventArgs e)
         {
             this.RaiseOnKibitz(e.Progress);
         }

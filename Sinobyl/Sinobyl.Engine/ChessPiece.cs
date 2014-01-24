@@ -86,7 +86,7 @@ namespace Sinobyl.Engine
         public static ChessPiece Parse(char c)
         {
             int idx = _piecedesclookup.IndexOf(c);
-            if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid piece"); }
+            if (idx < 0) { throw new ArgumentException(c.ToString() + " is not a valid piece"); }
             return (ChessPiece)idx;
         }
 

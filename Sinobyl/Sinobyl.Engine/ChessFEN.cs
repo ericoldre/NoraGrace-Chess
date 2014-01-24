@@ -85,8 +85,8 @@ namespace Sinobyl.Engine
 			MatchCollection matches = regex.Matches(sFEN);
 
 			//make sure we found exactly 1 match
-			if (matches.Count == 0) { throw new ChessException("No valid fen found"); }
-			if (matches.Count > 1) { throw new ChessException("Multiple FENs in string"); }
+            if (matches.Count == 0) { throw new ArgumentException("No valid fen found"); }
+            if (matches.Count > 1) { throw new ArgumentException("Multiple FENs in string"); }
 
 			//grab the string data from the regular expression
 			System.Text.RegularExpressions.Match match = matches[0];
@@ -116,7 +116,7 @@ namespace Sinobyl.Engine
 				int ifile = 0;
 				foreach (char c in srank.ToCharArray())
 				{
-                    if (ifile > 7) { throw new ChessException("too many pieces in rank " + rank.RankToString()); }
+                    if (ifile > 7) { throw new ArgumentException("too many pieces in rank " + rank.RankToString()); }
 
 					if ("1234567890".IndexOf(c) >= 0)
 					{

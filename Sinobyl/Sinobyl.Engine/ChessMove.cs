@@ -196,7 +196,7 @@ namespace Sinobyl.Engine
 						return;
 					}
 				}
-				throw new ChessException("no pawn can move to " + movetext);
+                throw new ArgumentException("no pawn can move to " + movetext);
 
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][BNRQK]$"))
@@ -210,7 +210,7 @@ namespace Sinobyl.Engine
 					Promote = movetext[2].ParseAsPiece(me);
 					return;
 				}
-				throw new ChessException("no pawn can promoted to " + movetext.Substring(0, 2));
+                throw new ArgumentException("no pawn can promoted to " + movetext.Substring(0, 2));
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678]$"))
 			{
@@ -306,7 +306,7 @@ namespace Sinobyl.Engine
 
             if (fits.Count != 1)
 			{
-				throw new ChessException("invalid move input");
+                throw new ArgumentException("invalid move input");
 				
 			}
 

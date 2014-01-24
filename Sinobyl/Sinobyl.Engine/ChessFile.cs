@@ -20,7 +20,7 @@ namespace Sinobyl.Engine
         public static ChessFile Parse(char c)
         {
             int idx = _filedesclookup.IndexOf(c.ToString().ToLower());
-            if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid file"); }
+            if (idx < 0) { throw new ArgumentException(c.ToString() + " is not a valid file"); }
             return (ChessFile)idx;
         }
 

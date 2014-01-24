@@ -9,13 +9,19 @@ using System.Linq;
 
 namespace Sinobyl.Engine
 {
-	/// <summary>
-	/// Summary description for ChessPGN.
-	/// </summary>
-	/// 
 
+    public enum ChessResult
+    {
+        Draw = 0, WhiteWins = 1, BlackWins = -1
+    }
 
-
+    public enum ChessResultReason
+    {
+        NotDecided = 0,
+        Checkmate = 1, Resign = 2, OutOfTime = 3, Adjudication = 4, //win reasons
+        Stalemate = 5, FiftyMoveRule = 6, InsufficientMaterial = 7, MutualAgreement = 8, Repetition = 9, //draw reasons
+        Unknown = 10, IllegalMove = 11
+    }
 
 
 	public class ChessPGNHeaders : List<ChessPGNHeader>
@@ -84,7 +90,7 @@ namespace Sinobyl.Engine
 			MatchCollection matches = regex.Matches(headerline);
 			if (matches.Count != 1)
 			{
-				throw new ChessException("not a valid pgn header: " + headerline);
+                throw new ArgumentException("not a valid pgn header: " + headerline);
 			}
 			System.Text.RegularExpressions.Match match = matches[0];
 			_key = match.Groups["key"].Value;

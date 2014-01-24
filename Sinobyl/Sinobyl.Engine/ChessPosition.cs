@@ -35,7 +35,7 @@ namespace Sinobyl.Engine
 
         public static ChessPosition Parse(string s)
         {
-            if (s.Length != 2) { throw new ChessException(s + " is not a valid position"); }
+            if (s.Length != 2) { throw new ArgumentException(s + " is not a valid position"); }
             ChessFile file = ChessFileInfo.Parse(s[0]);
             ChessRank rank = ChessRankInfo.Parse(s[1]);
             return file.ToPosition(rank);

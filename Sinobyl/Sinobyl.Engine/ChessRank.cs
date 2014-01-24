@@ -33,7 +33,7 @@ namespace Sinobyl.Engine
         public static ChessRank Parse(char c)
         {
             int idx = _rankdesclookup.IndexOf(c);
-            if (idx < 0) { throw new ChessException(c.ToString() + " is not a valid rank"); }
+            if (idx < 0) { throw new ArgumentException(c.ToString() + " is not a valid rank"); }
             return (ChessRank)idx;
         }
         

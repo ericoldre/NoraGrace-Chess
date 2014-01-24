@@ -8,21 +8,38 @@ using System.Collections.ObjectModel;
 
 namespace Sinobyl.Engine
 {
-    public class ChessSearchAsync
+    public class ChessSearchAsync: IDisposable
     {
         public event EventHandler<SearchProgressEventArgs> ProgressReported;
         public event EventHandler<SearchProgressEventArgs> Finished;
         private ChessSearch search;
-        private BackgroundWorker bw;
+        private readonly BackgroundWorker bw = new BackgroundWorker();
 
         public ChessSearchAsync()
         {
-            bw = new BackgroundWorker();
             bw.WorkerReportsProgress = true;
             bw.DoWork += new DoWorkEventHandler(bw_DoWork);
             bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bw_RunWorkerCompleted);
             bw.ProgressChanged += new ProgressChangedEventHandler(bw_ProgressChanged);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Dispose any managed objects
+                bw.Dispose();
+            }
+            // Now disposed of any unmanaged objects
+        }
+
+
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {

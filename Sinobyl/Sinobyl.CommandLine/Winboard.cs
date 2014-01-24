@@ -6,10 +6,10 @@ using Sinobyl.Engine;
 
 namespace Sinobyl.CommandLine
 {
-	public class Winboard
+	public class Winboard: IDisposable
 	{
 
-		ChessGamePlayerMurderhole player = new ChessGamePlayerMurderhole();
+		readonly ChessGamePlayerMurderhole player = new ChessGamePlayerMurderhole();
 		ChessBoard board = new ChessBoard();
 		ChessPlayer myplayer = ChessPlayer.Black;
 		ChessTimeControl timeControl = ChessTimeControl.Blitz(5, 5);
@@ -21,6 +21,22 @@ namespace Sinobyl.CommandLine
 			player.Kibitz += player_OnKibitz;
 			player.Resigned += player_OnResign;
 		}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                player.Dispose();
+                // Dispose any managed objects
+            }
+            // Now disposed of any unmanaged objects
+        }
 
 		public ChessGamePlayerPersonality EnginePersonality
 		{

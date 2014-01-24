@@ -101,7 +101,7 @@ namespace Sinobyl.Engine
 
 
     }
-    public class ChessGamePlayerMurderhole : ChessGamePlayer
+    public class ChessGamePlayerMurderhole : ChessGamePlayer, IDisposable
     {
 
         private readonly ChessSearchAsync search;
@@ -129,6 +129,29 @@ namespace Sinobyl.Engine
                 _personality = value;
             }
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                var bw = this.BookBackgroundWorker;
+                if (bw != null)
+                {
+                    bw.Dispose();
+                }
+                search.Dispose();
+                // Dispose any managed objects
+                
+            }
+            // Now disposed of any unmanaged objects
+        }
+
 
         public override string Name
         {

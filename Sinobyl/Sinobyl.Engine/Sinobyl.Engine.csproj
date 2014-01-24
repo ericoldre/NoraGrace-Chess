@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attacks.cs" />
-    <Compile Include="Chess.cs" />
     <Compile Include="ChessBitboard.cs" />
     <Compile Include="ChessBoard.cs" />
     <Compile Include="ChessBook.cs" />

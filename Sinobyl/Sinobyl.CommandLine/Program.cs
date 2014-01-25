@@ -42,11 +42,14 @@ namespace Sinobyl.CommandLine
 			bwReadInput.WorkerReportsProgress = true;
 			bwReadInput.RunWorkerAsync();
 
+            
 			while (KeepGoing)
 			{
 				System.Threading.Thread.Sleep(500);
 			}
 		}
+
+
 
         public static void LogException(Exception ex)
         {
@@ -108,36 +111,11 @@ namespace Sinobyl.CommandLine
 				{
 					
 					string input = Console.ReadLine();
-					string[] split = input.Split(' ');
                     if (_logInput.IsInfoEnabled) { _logInput.Info(input); }
-					if (input.ToLower() == "quit")
-					{
-						break;
-					}
-					else if (split[0] == "logtest")
-					{
-						logtest(split[1]);
-					}
-                    else if (split[0] == "perft")
+                    bool shouldContinue = ProcessInput(input);
+                    if (!shouldContinue)
                     {
-                        Perft.PerftSuite(int.Parse(split[1]), false, false);
-                    }
-                    else if (split[0] == "evalperft")
-                    {
-                        Perft.PerftSuite(int.Parse(split[1]),true, false);
-                    }
-                    else if (split[0] == "evalsortperft")
-                    {
-                        Perft.PerftSuite(int.Parse(split[1]), true, true);
-                    }
-                    else if(split[0] == "nodestodepth")
-                    {
-                        Perft.NodesToDepth(int.Parse(split[1]));
-                    }
-                    else
-                    {
-                        winboard.ProcessCmd(input);
-                        //bwReadInput.ReportProgress(0, input);
+                        break;
                     }
 				}
 			}
@@ -147,6 +125,37 @@ namespace Sinobyl.CommandLine
 			}
 			
 		}
+
+        public static bool ProcessInput(string input)
+        {
+            string[] split = input.Split(' ');
+            string primaryCommand = split[0].ToLowerInvariant();
+            switch (primaryCommand)
+            {
+                case "quit":
+                    return false;
+                case "logtest":
+                    logtest(split[1]);
+                    break;
+                case "perft":
+                    Perft.PerftSuite(int.Parse(split[1]), false, false);
+                    break;
+                case "evalperft":
+                    Perft.PerftSuite(int.Parse(split[1]), true, false);
+                    break;
+                case "evalsortperft":
+                    Perft.PerftSuite(int.Parse(split[1]), true, true);
+                    break;
+                case "nodestodepth":
+                    Perft.NodesToDepth(int.Parse(split[1]));
+                    break;
+                default:
+                    winboard.ProcessCmd(input);
+                    break;
+            }
+            return true;
+
+        }
 		public static void ConsoleWriteline(string output)
 		{
             if (_logOutput.IsInfoEnabled) { _logOutput.Info(output); }

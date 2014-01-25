@@ -12,7 +12,6 @@ namespace Sinobyl.CommandLine
 		
 		private static readonly BackgroundWorker bwReadInput = new BackgroundWorker();
 		private static Winboard winboard = new Winboard();
-		private static StreamWriter logger;
         private static object loggerLock = new object();
 		public static string[] commandArgs;
 
@@ -28,14 +27,15 @@ namespace Sinobyl.CommandLine
 			commandArgs = args;
 
             Console.WriteLine("Sinobyl");
-			string startDateTime = DateTime.Now.ToString("yyyyMMddHHmmss");
-			logger = File.AppendText(string.Format("Sinobyl.{0}.log", startDateTime));
-
+			
 			foreach (string arg in args)
 			{
-				LogInfo("ARGUMENT", arg);
+                if (_log.IsInfoEnabled) { _log.InfoFormat("ARGUMENT - {0}", arg); }
+				//LogInfo("ARGUMENT", arg);
 			}
-			LogInfo("ENGSTRENGTH", Program.EngineStrength.ToString());
+
+            if (_log.IsInfoEnabled) { _log.InfoFormat("ENGSTRENGTH - {0}", Program.EngineStrength); }
+
 			winboard.EnginePersonality = Sinobyl.Engine.ChessGamePlayerPersonality.FromStrength(Program.EngineStrength);
 			
 
@@ -48,8 +48,30 @@ namespace Sinobyl.CommandLine
 			{
 				System.Threading.Thread.Sleep(500);
 			}
-			logger.Close();
 		}
+
+        public static void LogException(Exception ex)
+        {
+            try
+            {
+                _log.Fatal("FATAL EXCEPTION");
+                while (ex != null)
+                {
+                    _log.FatalFormat("EXCEPTION:{0}\tSOURCE:{1}\n", ex.Message, ex.Source);
+                    foreach (string st in ex.StackTrace.Split('\n'))
+                    {
+                        _log.Fatal(st);
+                    }
+
+                    ex = ex.InnerException;
+                    if (ex != null) { _log.Fatal("INNER EXCEPTION"); }
+                }
+            }
+            finally
+            {
+                KeepGoing = false;
+            }
+        }
 
 		public static float EngineStrength
 		{
@@ -89,7 +111,6 @@ namespace Sinobyl.CommandLine
 					string input = Console.ReadLine();
 					string[] split = input.Split(' ');
                     if (_logInput.IsInfoEnabled) { _logInput.Info(input); }
-					logger.WriteLine("in\t" + input);
 					if (input.ToLower() == "quit")
 					{
 						break;
@@ -114,6 +135,18 @@ namespace Sinobyl.CommandLine
                     {
                         Perft.NodesToDepth(int.Parse(split[1]));
                     }
+                    else if (split[0] == "exception")
+                    {
+                        try
+                        {
+                            throw new ArgumentException("inner ex");
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new ArgumentException("Test exception", ex);
+                        }
+                        
+                    }
                     else
                     {
                         winboard.ProcessCmd(input);
@@ -130,37 +163,19 @@ namespace Sinobyl.CommandLine
 		public static void ConsoleWriteline(string output)
 		{
             if (_logOutput.IsInfoEnabled) { _logOutput.Info(output); }
-            LogInfo("OUT", output);
+            //LogInfo("OUT", output);
             Console.WriteLine(output);
 		}
-		public static void LogInfo(string type, string message)
-		{
-            lock (loggerLock)
-            {
-                logger.WriteLine(type + "\t" + message);
-                logger.Flush();
-            }
-		}
-		public static void LogException(Exception ex)
-		{ 
-            lock (loggerLock)
-            {
-                while (ex != null)
-                {
-                    logger.WriteLine("Exception: " + ex.Message + "\tSource: " + ex.Source);
-                    
-                    foreach (var st in ex.StackTrace.Split('\n'))
-                    {
-                        logger.WriteLine("\t\t" + st.ToString());
-                    }
-                    ex = ex.InnerException;
-                }
+        //public static void LogInfo(string type, string message)
+        //{
+        //    lock (loggerLock)
+        //    {
+        //        logger.WriteLine(type + "\t" + message);
+        //        logger.Flush();
+        //    }
+        //}
 
-                logger.Flush();
-            }
 
-			KeepGoing = false;
-		}
 
         private static void movegenperf(int depth)
         {

@@ -14,6 +14,7 @@ namespace Sinobyl.CommandLine
 		ChessPlayer myplayer = ChessPlayer.Black;
 		ChessTimeControl timeControl = ChessTimeControl.Blitz(5, 5);
 		TimeSpan timeLeft = TimeSpan.FromMinutes(5);
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Winboard));
 
 		public Winboard()
 		{
@@ -66,6 +67,7 @@ namespace Sinobyl.CommandLine
             }
             catch (Exception ex)
             {
+                //throw ex;
                 Program.LogException(ex);
             }
             
@@ -83,6 +85,7 @@ namespace Sinobyl.CommandLine
             }
             catch (Exception ex)
             {
+                //throw ex;
                 Program.LogException(ex);
             }
             
@@ -115,7 +118,10 @@ namespace Sinobyl.CommandLine
 
 		void StartThinking()
 		{
-			Program.LogInfo("THINKING", board.FEN.ToString());
+            if (_log.IsInfoEnabled)
+            {
+                _log.InfoFormat("THINKING:{0}", board.FEN);
+            }
 			player.YourTurn(board, timeControl, timeLeft);
 		}
 	
@@ -144,7 +150,11 @@ namespace Sinobyl.CommandLine
             }
             command = command.ToLower();
 
-            Program.LogInfo("COMMAND", input);
+
+            if (_log.IsDebugEnabled)
+            {
+                _log.DebugFormat("COMMAND:{0}", input);
+            }
 
             switch (command)
             {

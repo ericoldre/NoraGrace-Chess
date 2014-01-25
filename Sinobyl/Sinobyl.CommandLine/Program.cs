@@ -134,18 +134,6 @@ namespace Sinobyl.CommandLine
                     {
                         Perft.NodesToDepth(int.Parse(split[1]));
                     }
-                    else if (split[0] == "exception")
-                    {
-                        try
-                        {
-                            throw new ArgumentException("inner ex");
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new ArgumentException("Test exception", ex);
-                        }
-                        
-                    }
                     else
                     {
                         winboard.ProcessCmd(input);
@@ -165,21 +153,7 @@ namespace Sinobyl.CommandLine
             //LogInfo("OUT", output);
             Console.WriteLine(output);
 		}
-        //public static void LogInfo(string type, string message)
-        //{
-        //    lock (loggerLock)
-        //    {
-        //        logger.WriteLine(type + "\t" + message);
-        //        logger.Flush();
-        //    }
-        //}
 
-
-
-        private static void movegenperf(int depth)
-        {
-
-        }
 
 		private static void logtest(string logFile)
 		{

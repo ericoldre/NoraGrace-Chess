@@ -31,7 +31,10 @@ namespace Sinobyl.CommandLine
                 args.TransTable = new ChessTrans();
 
                 ChessSearch search = new ChessSearch(args);
-                search.ProgressReported += (s, e) => {Console.WriteLine("\t{0}", new ChessMoves(e.Progress.PrincipleVariation).ToString(board,true));};
+                search.ProgressReported += (s, e) => 
+                {
+                    Program.ConsoleWriteline(string.Format("\t{0}", new ChessMoves(e.Progress.PrincipleVariation).ToString(board, true)));
+                };
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var searchResults = search.Search();
                 stopwatch.Stop();
@@ -44,12 +47,12 @@ namespace Sinobyl.CommandLine
                 movesDone.Add(move);
 
                 //double nodesPerSecond = ((double)totalNodes / (double)totalTime.TotalMilliseconds) * 1000;
-                Console.WriteLine("Position {0} of {1}, {2} Nodes {3} Avg Nodes {4} Nodes/Sec",
+                Program.ConsoleWriteline(string.Format("Position {0} of {1}, {2} Nodes {3} Avg Nodes {4} Nodes/Sec",
                     movesDone.Count,
                     pgn.Moves.Count,
                     searchResults.Nodes,
                     totalNodes / movesDone.Count,
-                    (totalNodes / totalTime.TotalMilliseconds) * 1000);
+                    (totalNodes / totalTime.TotalMilliseconds) * 1000));
             }
 
         }
@@ -73,7 +76,7 @@ namespace Sinobyl.CommandLine
                 totalNodes += nodesPerPosition;
                 positionCount++;
                 double nodesPerSecond = ((double)totalNodes / (double)totalTime.TotalMilliseconds) * 1000;
-                Console.WriteLine("Position {0} of {1}, {3}/Sec: {2}", positionCount, pgn.Moves.Count, (int)nodesPerSecond, doEval?"Eval":"Node");
+                Program.ConsoleWriteline(string.Format("Position {0} of {1}, {3}/Sec: {2}", positionCount, pgn.Moves.Count, (int)nodesPerSecond, doEval ? "Eval" : "Node"));
             }
 
 

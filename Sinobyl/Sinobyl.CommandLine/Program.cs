@@ -16,7 +16,10 @@ namespace Sinobyl.CommandLine
         private static object loggerLock = new object();
 		public static string[] commandArgs;
 
-        protected static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Program));
+        protected static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Program));
+        protected static readonly log4net.ILog _logInput = log4net.LogManager.GetLogger(typeof(Program).FullName + ".IO.Input");
+        protected static readonly log4net.ILog _logOutput = log4net.LogManager.GetLogger(typeof(Program).FullName + ".IO.Output");
+        
         
 
 		static bool KeepGoing = true;
@@ -85,7 +88,7 @@ namespace Sinobyl.CommandLine
 					
 					string input = Console.ReadLine();
 					string[] split = input.Split(' ');
-
+                    if (_logInput.IsInfoEnabled) { _logInput.Info(input); }
 					logger.WriteLine("in\t" + input);
 					if (input.ToLower() == "quit")
 					{
@@ -126,7 +129,7 @@ namespace Sinobyl.CommandLine
 		}
 		public static void ConsoleWriteline(string output)
 		{
-            if (_log.IsInfoEnabled) { _log.Info(output); }
+            if (_logOutput.IsInfoEnabled) { _logOutput.Info(output); }
             LogInfo("OUT", output);
             Console.WriteLine(output);
 		}

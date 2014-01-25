@@ -12,8 +12,7 @@ namespace Sinobyl.CommandLine
 		
 		private static readonly BackgroundWorker bwReadInput = new BackgroundWorker();
 		private static Winboard winboard = new Winboard();
-        private static object loggerLock = new object();
-		public static string[] commandArgs;
+
 
         protected static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Program));
         protected static readonly log4net.ILog _logInput = log4net.LogManager.GetLogger(typeof(Program).FullName + ".IO.Input");
@@ -24,7 +23,6 @@ namespace Sinobyl.CommandLine
 		static bool KeepGoing = true;
 		static void Main(string[] args)
 		{
-			commandArgs = args;
 
             Console.WriteLine("Sinobyl");
 			
@@ -77,7 +75,7 @@ namespace Sinobyl.CommandLine
 		{
 			get
 			{
-				foreach (string arg in commandArgs)
+                foreach (string arg in Environment.GetCommandLineArgs())
 				{
 					string[] splits = arg.Split('=');
 					if (splits.GetUpperBound(0) >= 1)
@@ -92,6 +90,7 @@ namespace Sinobyl.CommandLine
 						}
 					}
 				}
+                
 				return 1;
 			}
 		}

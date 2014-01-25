@@ -10,18 +10,17 @@ namespace Sinobyl.CommandLine
 	public class Program
 	{
 		
-		private static readonly BackgroundWorker bwReadInput = new BackgroundWorker();
-		private static Winboard winboard = new Winboard();
+		private static readonly BackgroundWorker _bwReadInput = new BackgroundWorker();
+		private static readonly Winboard _winboard = new Winboard();
 
 
-        protected static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Program));
-        protected static readonly log4net.ILog _logInput = log4net.LogManager.GetLogger(typeof(Program).FullName + ".IO.Input");
-        protected static readonly log4net.ILog _logOutput = log4net.LogManager.GetLogger(typeof(Program).FullName + ".IO.Output");
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Program));
+        private static readonly log4net.ILog _logInput = log4net.LogManager.GetLogger(typeof(Program).FullName + ".IO.Input");
+        private static readonly log4net.ILog _logOutput = log4net.LogManager.GetLogger(typeof(Program).FullName + ".IO.Output");
         
-        
-
-		static bool KeepGoing = true;
-		static void Main(string[] args)
+		private static bool _keepGoing = true;
+		
+        static void Main(string[] args)
 		{
 
             Console.WriteLine("Sinobyl");
@@ -34,16 +33,16 @@ namespace Sinobyl.CommandLine
 
             if (_log.IsInfoEnabled) { _log.InfoFormat("ENGSTRENGTH - {0}", Program.EngineStrength); }
 
-			winboard.EnginePersonality = Sinobyl.Engine.ChessGamePlayerPersonality.FromStrength(Program.EngineStrength);
+			_winboard.EnginePersonality = Sinobyl.Engine.ChessGamePlayerPersonality.FromStrength(Program.EngineStrength);
 			
 
-			bwReadInput.DoWork += new DoWorkEventHandler(bwReadInput_DoWork);
-			bwReadInput.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwReadInput_RunWorkerCompleted);
-			bwReadInput.WorkerReportsProgress = true;
-			bwReadInput.RunWorkerAsync();
+			_bwReadInput.DoWork += new DoWorkEventHandler(bwReadInput_DoWork);
+			_bwReadInput.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwReadInput_RunWorkerCompleted);
+			_bwReadInput.WorkerReportsProgress = true;
+			_bwReadInput.RunWorkerAsync();
 
             
-			while (KeepGoing)
+			while (_keepGoing)
 			{
 				System.Threading.Thread.Sleep(500);
 			}
@@ -70,7 +69,7 @@ namespace Sinobyl.CommandLine
             }
             finally
             {
-                KeepGoing = false;
+                _keepGoing = false;
             }
         }
 
@@ -100,7 +99,7 @@ namespace Sinobyl.CommandLine
 
 		static void bwReadInput_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
-			KeepGoing = false;
+			_keepGoing = false;
 		}
 
 		static void bwReadInput_DoWork(object sender, DoWorkEventArgs e)
@@ -150,7 +149,7 @@ namespace Sinobyl.CommandLine
                     Perft.NodesToDepth(int.Parse(split[1]));
                     break;
                 default:
-                    winboard.ProcessCmd(input);
+                    _winboard.ProcessCmd(input);
                     break;
             }
             return true;
@@ -181,22 +180,22 @@ namespace Sinobyl.CommandLine
 					{
 						if (fullMsgCmd == "new") 
 						{ 
-							winboard.ProcessCmd(fullMsg); 
+							_winboard.ProcessCmd(fullMsg); 
 						}
 						if (fullMsgCmd == "usermove") 
 						{ 
-							winboard.SimulateUsermove(fullMsg.Split(' ')[1]); 
+							_winboard.SimulateUsermove(fullMsg.Split(' ')[1]); 
 						}
 					}
 					if (logType == "out")
 					{
 						if (fullMsgCmd == "move")
 						{
-							winboard.ProcessCmd("usermove "+fullMsg.Split(' ')[1]);
+							_winboard.ProcessCmd("usermove "+fullMsg.Split(' ')[1]);
 						}
 
 					}
-					winboard.GameDoneAnnounce();
+					_winboard.GameDoneAnnounce();
 
 
 				}

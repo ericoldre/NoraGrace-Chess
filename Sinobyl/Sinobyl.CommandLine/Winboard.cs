@@ -8,19 +8,18 @@ namespace Sinobyl.CommandLine
 {
 	public class Winboard: IDisposable
 	{
-
-		readonly ChessGamePlayerMurderhole player = new ChessGamePlayerMurderhole();
-		ChessBoard board = new ChessBoard();
-		ChessPlayer myplayer = ChessPlayer.Black;
-		ChessTimeControl timeControl = ChessTimeControl.Blitz(5, 5);
-		TimeSpan timeLeft = TimeSpan.FromMinutes(5);
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Winboard));
+		private readonly ChessGamePlayerMurderhole _player = new ChessGamePlayerMurderhole();
+		private readonly ChessBoard _board = new ChessBoard();
+		private ChessPlayer _myplayer = ChessPlayer.Black;
+        private ChessTimeControl _timeControl = ChessTimeControl.Blitz(5, 5);
+		private TimeSpan _timeLeft = TimeSpan.FromMinutes(5);
 
 		public Winboard()
 		{
-			player.MovePlayed += player_OnMove;
-			player.Kibitz += player_OnKibitz;
-			player.Resigned += player_OnResign;
+			_player.MovePlayed += player_OnMove;
+			_player.Kibitz += player_OnKibitz;
+			_player.Resigned += player_OnResign;
 		}
 
         public void Dispose()
@@ -33,7 +32,7 @@ namespace Sinobyl.CommandLine
         {
             if (disposing)
             {
-                player.Dispose();
+                _player.Dispose();
                 // Dispose any managed objects
             }
             // Now disposed of any unmanaged objects
@@ -43,11 +42,11 @@ namespace Sinobyl.CommandLine
 		{
 			get
 			{
-				return player.Personality;
+				return _player.Personality;
 			}
 			set
 			{
-				player.Personality = value;
+				_player.Personality = value;
 			}
 		}
 
@@ -79,7 +78,7 @@ namespace Sinobyl.CommandLine
             try
             {
                 Program.ConsoleWriteline(string.Format("move {0}", e.Move.ToString()));
-                board.MoveApply(e.Move);
+                _board.MoveApply(e.Move);
                 GameDoneAnnounce();
 
             }
@@ -93,22 +92,22 @@ namespace Sinobyl.CommandLine
 		}
 		public bool GameDoneAnnounce()
 		{
-			if (board.IsMate())
+			if (_board.IsMate())
 			{
-				Program.ConsoleWriteline(board.WhosTurn == ChessPlayer.White ? "0-1 {Black Mates}" : "1-0 {White Mates}");
+				Program.ConsoleWriteline(_board.WhosTurn == ChessPlayer.White ? "0-1 {Black Mates}" : "1-0 {White Mates}");
 				return true;
 			}
-			else if (board.IsDrawBy50MoveRule())
+			else if (_board.IsDrawBy50MoveRule())
 			{
 				Program.ConsoleWriteline("1/2-1/2 {Draw by 50 move rule}");
 				return true;
 			}
-			else if (board.IsDrawByRepetition())
+			else if (_board.IsDrawByRepetition())
 			{
 				Program.ConsoleWriteline("1/2-1/2 {Draw by repetition}");
 				return true;
 			}
-			else if (board.IsDrawByStalemate())
+			else if (_board.IsDrawByStalemate())
 			{
 				Program.ConsoleWriteline("1/2-1/2 {Draw by stalemate}");
 				return true;
@@ -120,9 +119,9 @@ namespace Sinobyl.CommandLine
 		{
             if (_log.IsInfoEnabled)
             {
-                _log.InfoFormat("THINKING:{0}", board.FEN);
+                _log.InfoFormat("THINKING:{0}", _board.FEN);
             }
-			player.YourTurn(board, timeControl, timeLeft);
+			_player.YourTurn(_board, _timeControl, _timeLeft);
 		}
 	
 
@@ -165,24 +164,24 @@ namespace Sinobyl.CommandLine
                     Program.ConsoleWriteline("feature done=1");
                     break;
                 case "new":
-                    board.FEN = new ChessFEN(ChessFEN.FENStart);
-                    myplayer = ChessPlayer.Black;
+                    _board.FEN = new ChessFEN(ChessFEN.FENStart);
+                    _myplayer = ChessPlayer.Black;
                     break;
                 case "force":
-                    myplayer = ChessPlayer.None;
+                    _myplayer = ChessPlayer.None;
                     break;
                 case "go":
-                    myplayer = board.WhosTurn;
+                    _myplayer = _board.WhosTurn;
                     StartThinking();
                     break;
                 case "time":
-                    timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);
+                    _timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);
                     break;
                 case "usermove":
-                    ChessMove usermove = new ChessMove(board, argument);
-                    board.MoveApply(usermove);
+                    ChessMove usermove = new ChessMove(_board, argument);
+                    _board.MoveApply(usermove);
                     bool done = GameDoneAnnounce();
-                    if (!done && board.WhosTurn == myplayer)
+                    if (!done && _board.WhosTurn == _myplayer)
                     {
                         StartThinking();
                     }
@@ -197,33 +196,33 @@ namespace Sinobyl.CommandLine
                     //If you're playing on ICS, it's possible for the draw offer to have been withdrawn by the time you accept it, so don't assume the game is over because you accept a draw offer. Continue playing until xboard tells you the game is over. See also "offer draw" below.
                     break;
                 case "setboard":
-                    board.FEN = new ChessFEN(argument);
+                    _board.FEN = new ChessFEN(argument);
                     break;
                 case "undo":
-                    board.MoveUndo();
+                    _board.MoveUndo();
                     break;
                 case "remove":
-                    board.MoveUndo();
-                    board.MoveUndo();
+                    _board.MoveUndo();
+                    _board.MoveUndo();
                     break;
                 case "level":
                     string[] args = argument.Split(' ');
-                    timeControl = new ChessTimeControl();
-                    timeControl.BonusEveryXMoves = int.Parse(args[0]);
-                    timeControl.InitialTime = TimeSpan.FromMinutes(int.Parse(args[1]));
-                    timeControl.BonusAmount = TimeSpan.FromSeconds(int.Parse(args[2]));
-                    if (timeControl.BonusAmount.TotalSeconds > 0) { timeControl.BonusEveryXMoves = 1; }
+                    _timeControl = new ChessTimeControl();
+                    _timeControl.BonusEveryXMoves = int.Parse(args[0]);
+                    _timeControl.InitialTime = TimeSpan.FromMinutes(int.Parse(args[1]));
+                    _timeControl.BonusAmount = TimeSpan.FromSeconds(int.Parse(args[2]));
+                    if (_timeControl.BonusAmount.TotalSeconds > 0) { _timeControl.BonusEveryXMoves = 1; }
                     break;
                 case "analyze":
-                    player.YourTurn(board, new ChessTimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));
+                    _player.YourTurn(_board, new ChessTimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));
                     break;
                 //custom stuff for my debugging
                 case "setpos1":
-                    board.FEN = new ChessFEN("3k4/1PR5/8/P7/7P/4K3/2P2P2/6NR w - - 1 48");
+                    _board.FEN = new ChessFEN("3k4/1PR5/8/P7/7P/4K3/2P2P2/6NR w - - 1 48");
                     break;
                 case "eval":
                     ChessEval eval = new ChessEval();
-                    int e = eval.EvalFor(board, board.WhosTurn);
+                    int e = eval.EvalFor(_board, _board.WhosTurn);
                     break;
                 case "nodecounttest":
                     NodeCountTest();
@@ -233,22 +232,22 @@ namespace Sinobyl.CommandLine
 		}
 		public void SimulateUsermove(string usermoveTxt)
 		{
-			ChessMove usermove = new ChessMove(board, usermoveTxt);
-			board.MoveApply(usermove);
+			ChessMove usermove = new ChessMove(_board, usermoveTxt);
+			_board.MoveApply(usermove);
 			bool done = GameDoneAnnounce();
 
 
 			//need to extrapolate previous moves and initial position from board
-			ChessMoves moves = board.HistoryMoves;
+			ChessMoves moves = _board.HistoryMoves;
 			int moveCount = moves.Count;
 			for (int i = 0; i < moveCount; i++)
 			{
-				board.MoveUndo();
+				_board.MoveUndo();
 			}
-			ChessFEN initialPosition = board.FEN;
+			ChessFEN initialPosition = _board.FEN;
 			foreach (ChessMove move in moves)
 			{
-				board.MoveApply(move);
+				_board.MoveApply(move);
 			}
 
 

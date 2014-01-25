@@ -74,6 +74,8 @@ namespace Sinobyl.Engine
 			}
 		}
 	}
+
+
 	public class ChessPGNHeader
 	{
 		private readonly string _key;

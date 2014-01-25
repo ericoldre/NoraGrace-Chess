@@ -16,10 +16,12 @@ namespace Sinobyl.CommandLine
         private static object loggerLock = new object();
 		public static string[] commandArgs;
 
+        protected static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Program));
+        
+
 		static bool KeepGoing = true;
 		static void Main(string[] args)
 		{
-
 			commandArgs = args;
 
             Console.WriteLine("Sinobyl");
@@ -124,6 +126,7 @@ namespace Sinobyl.CommandLine
 		}
 		public static void ConsoleWriteline(string output)
 		{
+            if (_log.IsInfoEnabled) { _log.Info(output); }
             LogInfo("OUT", output);
             Console.WriteLine(output);
 		}

@@ -295,7 +295,7 @@ namespace Sinobyl.Engine
 
         public override int GetHashCode()
         {
-            return SerializeObject<ChessEvalSettings>(this).GetHashCode();
+            return 1;// SerializeObject<ChessEvalSettings>(this).GetHashCode();
         }
 
 

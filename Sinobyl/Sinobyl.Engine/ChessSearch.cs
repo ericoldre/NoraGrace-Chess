@@ -11,12 +11,6 @@ namespace Sinobyl.Engine
 
 	
 
-	#region Search asynch
-
-
-	#endregion
-
-
 	public class ChessSearch
 	{
 
@@ -507,7 +501,7 @@ namespace Sinobyl.Engine
 
 
 
-			ChessMoves moves = ChessMove.GenMoves(board);
+            ChessMoves moves = new ChessMoves(ChessMove.GenMoves(board));
 			ChessMove.Comp moveOrderer = new ChessMove.Comp(board,tt_move,depth > 3);
 			moves.Sort(moveOrderer);
 
@@ -623,11 +617,11 @@ namespace Sinobyl.Engine
 			ChessMoves moves;
 			if (playerincheck)
 			{
-				moves = ChessMove.GenMoves(board);
+                moves = new ChessMoves(ChessMove.GenMoves(board));
 			}
 			else
 			{
-				moves = ChessMove.GenMoves(board, true);
+                moves = new ChessMoves(ChessMove.GenMoves(board, true));
 			}
 
 			ChessMove.Comp moveOrderer = new ChessMove.Comp(board,new ChessMove(),false);

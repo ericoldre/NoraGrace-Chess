@@ -114,12 +114,14 @@ namespace Sinobyl.CommandLine
                 return;
             }
 
-            List<ChessMove> moves = ChessMove.GenMoves(board);
+            IEnumerable<ChessMove> moves = ChessMove.GenMoves(board);
 
             if (doMoveSort)
             {
+                var movelist = moves.ToList();
                 ChessMove.Comp moveOrderer = new ChessMove.Comp(board, new ChessMove(), true);
-                moves.Sort(moveOrderer);
+                movelist.Sort(moveOrderer);
+                moves = movelist;
             }
 
             foreach (ChessMove move in moves)

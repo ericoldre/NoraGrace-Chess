@@ -80,7 +80,7 @@ namespace Sinobyl.Engine.Tests
                 return;
             }
 
-            List<ChessMove> moves = ChessMove.GenMoves(board, false);
+            List<ChessMove> moves = ChessMove.GenMoves(board, false).ToList();
 
             //var oldBoard = new Murderhole.ChessBoard(board.FEN.ToString());
             //var oldMoves = Murderhole.ChessMove.GenMoves(oldBoard);

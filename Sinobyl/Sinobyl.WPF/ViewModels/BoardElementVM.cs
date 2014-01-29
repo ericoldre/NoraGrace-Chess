@@ -20,10 +20,7 @@ namespace Sinobyl.WPF.ViewModels
 
         void  BoardVM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
- 	        switch (e.PropertyName)
-            {
 
-            }
         }
 
         public BoardVM BoardViewModel

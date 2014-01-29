@@ -39,6 +39,25 @@ namespace Sinobyl.Engine
             if (!this.Black.Equals(other.Black)) { return false; }
             return true;
         }
+
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;//randomly choosen prime
+                foreach (var index in ChessPlayerInfo.AllPlayers)
+                {
+                    T field = this[index];
+                    int fieldHash = 6823; //randomly choosen prime
+                    if (field != null)
+                    {
+                        fieldHash = field.GetHashCode();
+                    }
+                    hash = (hash * 23) + fieldHash;
+                }
+                return hash;
+            }
+        }
     }
     
     public static class ChessPlayerInfo

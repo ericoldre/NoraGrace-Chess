@@ -712,7 +712,6 @@ namespace Sinobyl.Engine
             ChessRank myrank8 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank8 : ChessRank.Rank1;
             ChessRank myrank2 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank2 : ChessRank.Rank7;
 
-            ChessPiece targetpiece;
 
             ChessBitboard targetLocations = board.PlayerLocations(board.WhosTurn.PlayerOther());
             if (!CapsOnly)

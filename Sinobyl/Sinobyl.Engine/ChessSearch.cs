@@ -464,8 +464,6 @@ namespace Sinobyl.Engine
 
 			bool in_check_before_move = board.IsCheck();
 
-			bool wouldDoNullCutoff = false;
-
 			//try null move;
 			if (depth > 1
 			&& this.NullSearchOK()

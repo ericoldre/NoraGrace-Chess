@@ -293,6 +293,11 @@ namespace Sinobyl.Engine
             return v1 == v2;
         }
 
+        public override int GetHashCode()
+        {
+            return SerializeObject<ChessEvalSettings>(this).GetHashCode();
+        }
+
 
         public static ChessEvalSettings Load(System.IO.Stream stream, bool applyDefaultSettings = true)
         {

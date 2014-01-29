@@ -389,6 +389,25 @@ namespace Sinobyl.Engine
             return true;
         }
 
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;//randomly choosen prime
+                foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+                {
+                    T field = this[pos];
+                    int fieldHash = 6823; //randomly choosen prime
+                    if (field != null)
+                    {
+                        fieldHash = field.GetHashCode();
+                    }
+                    hash = (hash * 23) + fieldHash;
+                }
+                return hash;
+            }
+        }
+
 
     }
 }

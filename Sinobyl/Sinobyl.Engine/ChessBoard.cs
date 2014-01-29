@@ -4,6 +4,7 @@ using System.Text;
 
 using System.Text.RegularExpressions;
 using System.Collections;
+using System.Linq;
 
 namespace Sinobyl.Engine
 {
@@ -295,7 +296,7 @@ namespace Sinobyl.Engine
 		{
 			if (IsCheck())
 			{
-				if (ChessMove.GenMovesLegal(this).Count == 0)
+				if (!ChessMove.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -307,7 +308,7 @@ namespace Sinobyl.Engine
 		{
 			if (!IsCheck())
 			{
-				if (ChessMove.GenMovesLegal(this).Count == 0)
+				if (!ChessMove.GenMovesLegal(this).Any())
 				{
 					return true;
 				}

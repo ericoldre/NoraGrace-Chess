@@ -39,7 +39,7 @@ namespace Sinobyl.WPF.Models
             _piecesReadonly = new ReadOnlyObservableCollection<IPieceModel>(_pieces);
             _board.BoardChanged += new EventHandler<ChessBoard.BoardChangedEventArgs>(Board_BoardChanged);
             RefreshPieces();
-            _moves.AddRange(ChessMove.GenMovesLegal(_board));
+            _moves.AddRange(ChessMove.GenMovesLegal(_board).ToList());
         }
 
         void Board_BoardChanged(object sender, ChessBoard.BoardChangedEventArgs e)
@@ -80,7 +80,7 @@ namespace Sinobyl.WPF.Models
             }
 
             _moves.RemoveRange(_moves.ToArray());
-            _moves.AddRange(ChessMove.GenMovesLegal(_board));
+            _moves.AddRange(ChessMove.GenMovesLegal(_board).ToList());
 
         }
 

@@ -2,7 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Linq;
 namespace Sinobyl.Engine
 {
 	/// <summary>
@@ -292,7 +292,7 @@ namespace Sinobyl.Engine
             if (fits.Count > 1)
 			{
 				//ambigous moves, one is probably illegal, check against legal move list
-				ChessMoves allLegal = ChessMove.GenMovesLegal(board);
+                ChessMoves allLegal = new ChessMoves(ChessMove.GenMovesLegal(board));
                 fits.Clear();
 				foreach (ChessMove move in allLegal)
 				{
@@ -332,7 +332,7 @@ namespace Sinobyl.Engine
 		}
 		public bool IsLegal(ChessBoard board)
 		{
-			ChessMoves legalmoves = ChessMove.GenMovesLegal(board);
+            ChessMoves legalmoves = new ChessMoves(ChessMove.GenMovesLegal(board));
 			foreach (ChessMove legalmove in legalmoves)
 			{
 				if (legalmove.IsSameAs(this)) { return true; }
@@ -443,7 +443,7 @@ namespace Sinobyl.Engine
 			board.MoveApply(this);
 			if (board.IsCheck())
 			{
-				if (ChessMove.GenMovesLegal(board).Count > 0)
+				if (ChessMove.GenMovesLegal(board).Any())
 				{
 					retval += "+";
 				}
@@ -456,22 +456,19 @@ namespace Sinobyl.Engine
 			return retval;
 		}
 
-        public static ChessMoves GenMovesLegal(ChessBoard board)
+        public static IEnumerable<ChessMove> GenMovesLegal(ChessBoard board)
 		{
 			ChessBoard workingboard = new ChessBoard(board.FEN);
-			ChessMoves retval = new ChessMoves();
-			var semilegal = GenMoves(workingboard);
+			
 			ChessPlayer me = board.WhosTurn;
-			foreach (ChessMove move in semilegal)
+			foreach (ChessMove move in GenMoves(workingboard))
 			{
 				workingboard.MoveApply(move);
-				if (!workingboard.IsCheck(me))
-				{
-					retval.Add(move);
-				}
-				workingboard.MoveUndo();
+                bool resultsInCheck = workingboard.IsCheck(me);
+                workingboard.MoveUndo();
+                if (!resultsInCheck) { yield return move; }
 			}
-			return retval;
+
 		}
 
 		public static IEnumerable<ChessMove> GenMoves(ChessBoard board)

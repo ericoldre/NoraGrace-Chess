@@ -269,7 +269,7 @@ namespace Sinobyl.Engine
 
 			bool in_check_before_move = board.IsCheck();
 
-			ChessMoves moves = ChessMove.GenMovesLegal(board);
+            ChessMoves moves = new ChessMoves(ChessMove.GenMovesLegal(board));
 			ChessMove.Comp moveOrderer = new ChessMove.Comp(board, tt_move,true);
 			moves.Sort(moveOrderer);
 			string moveOver = moves.ToString(board, false);

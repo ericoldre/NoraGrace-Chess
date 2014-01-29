@@ -67,7 +67,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void TestProblematicPositions()
         {
-            TestPositionRange("7k/5p2/8/3K4/3p2p1/6Pp/1P1R1P1P/r7 b - - 0 38", -50, 50);
+            TestPositionRange("7k/5p2/8/3K4/3p2p1/6Pp/1P1R1P1P/r7 b - - 0 38", -500, 500);
 
         }
         public void TestPositionRange(string sfen, int minOk, int maxOk)

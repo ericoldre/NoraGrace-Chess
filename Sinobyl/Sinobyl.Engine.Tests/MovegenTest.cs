@@ -98,7 +98,7 @@ namespace Sinobyl.Engine.Tests
                 //VerifyBoardBitboards(board);
             }
 
-            List<ChessMove> generatedLegalMoves = ChessMove.GenMovesLegal(board);
+            List<ChessMove> generatedLegalMoves = ChessMove.GenMovesLegal(board).ToList();
             Assert.AreEqual<int>(legalMoves.Count, generatedLegalMoves.Count);
             foreach (var generatedLegalMove in generatedLegalMoves)
             {

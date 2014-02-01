@@ -85,19 +85,48 @@ namespace Sinobyl.Engine
 			_key = key;
 			_value = val;
 		}
-		public ChessPGNHeader(string headerline)
-		{
-			string pattern = @"\[(?<key>[\w]+)\s+\""(?<value>[\S\s]+)\""\]";
-			Regex regex = new Regex(pattern);
-			MatchCollection matches = regex.Matches(headerline);
-			if (matches.Count != 1)
-			{
-                throw new ArgumentException("not a valid pgn header: " + headerline);
-			}
-			System.Text.RegularExpressions.Match match = matches[0];
-			_key = match.Groups["key"].Value;
-			_value = match.Groups["value"].Value;
-		}
+        //public ChessPGNHeader(string headerline)
+        //{
+        //    string pattern = @"\[(?<key>[\w]+)\s+\""(?<value>[\S\s]+)\""\]";
+        //    Regex regex = new Regex(pattern);
+        //    MatchCollection matches = regex.Matches(headerline);
+        //    if (matches.Count != 1)
+        //    {
+        //        throw new ArgumentException("not a valid pgn header: " + headerline);
+        //    }
+        //    System.Text.RegularExpressions.Match match = matches[0];
+        //    _key = match.Groups["key"].Value;
+        //    _value = match.Groups["value"].Value;
+        //}
+
+        public static bool TryParse(string headerLine, out ChessPGNHeader header)
+        {
+            string pattern = @"\[(?<key>[\w]+)\s+\""(?<value>[\S\s]+)\""\]";
+            Regex regex = new Regex(pattern);
+            MatchCollection matches = regex.Matches(headerLine);
+            if (matches.Count != 1)
+            {
+                header = null;
+                return false;
+                //throw new ArgumentException("not a valid pgn header: " + headerline);
+            }
+            System.Text.RegularExpressions.Match match = matches[0];
+            header = new ChessPGNHeader(match.Groups["key"].Value, match.Groups["value"].Value);
+            return true;
+        }
+
+        public static ChessPGNHeader Parse(string headerLine)
+        {
+            ChessPGNHeader retval = null;
+            if (TryParse(headerLine, out retval))
+            {
+                return retval;
+            }
+            else
+            {
+                throw new ArgumentException("not a valid pgn header: " + headerLine, "headerLine");
+            }
+        }
 		public string Key
 		{
 			get
@@ -496,7 +525,7 @@ namespace Sinobyl.Engine
 						headerlevel--;
 						if (headerlevel == 0)
 						{
-							ChessPGNHeader header = new ChessPGNHeader("[" + token + "]");
+                            ChessPGNHeader header = ChessPGNHeader.Parse("[" + token + "]");
 							headers.Add(header);
 							if (header.Key.ToUpper() == "FEN")
 							{

@@ -149,7 +149,10 @@ namespace Sinobyl.Engine
                 if (bestMove.IsLegal(board))
                 {
                     board.MoveApply(bestMove);
-                    comments.Add(new ChessPGNComment(board.HistoryCount, moveComment));
+                    if (!string.IsNullOrWhiteSpace(moveComment))
+                    {
+                        comments.Add(new ChessPGNComment(board.HistoryCount, moveComment));
+                    }
                     gameResult = BoardResult(board, out reason);
                 }
                 else

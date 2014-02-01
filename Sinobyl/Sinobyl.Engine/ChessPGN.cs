@@ -329,10 +329,13 @@ namespace Sinobyl.Engine
 
 		public override string ToString()
 		{
-			return this.ToString(45);
+            StringBuilder sb = new StringBuilder();
+            StringWriter writer = new StringWriter(sb);
+            Write(writer);
+            return sb.ToString();
 		}
 
-		public string ToString(int MaxLineLen)
+		public void Write(TextWriter writer, int MaxLineLen = 90)
 		{
 			ChessBoard board = new ChessBoard(this.StartingPosition);
 
@@ -431,7 +434,9 @@ namespace Sinobyl.Engine
 			}
 			sbMoves.Append(currline + Environment.NewLine);
 			//return result
-			return sbHeaders.ToString() + sbMoves.ToString();
+            writer.Write(sbHeaders.ToString());
+            writer.Write(sbMoves.ToString());
+			//return sbHeaders.ToString() + sbMoves.ToString();
 		}
 
         

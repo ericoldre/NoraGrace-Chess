@@ -35,7 +35,7 @@ namespace Sinobyl.EvalTune
 
                 if (pgnWriter != null)
                 {
-                    string sPgn = result.ToString(90);
+                    string sPgn = result.ToString();
                     lock (pgnWriter)
                     {
                         pgnWriter.Write(sPgn);
@@ -90,7 +90,7 @@ namespace Sinobyl.EvalTune
 
                 if (pgnWriter != null)
                 {
-                    string sPgn = result.ToString(90);
+                    string sPgn = result.ToString();
                     lock (pgnWriter)
                     {
                         pgnWriter.Write(sPgn);

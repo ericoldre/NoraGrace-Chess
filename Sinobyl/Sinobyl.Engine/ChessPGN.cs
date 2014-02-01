@@ -78,6 +78,7 @@ namespace Sinobyl.Engine
 
 	public class ChessPGNHeader
 	{
+        
 		private readonly string _key;
 		private readonly string _value;
 		public ChessPGNHeader(string key, string val)
@@ -85,19 +86,6 @@ namespace Sinobyl.Engine
 			_key = key;
 			_value = val;
 		}
-        //public ChessPGNHeader(string headerline)
-        //{
-        //    string pattern = @"\[(?<key>[\w]+)\s+\""(?<value>[\S\s]+)\""\]";
-        //    Regex regex = new Regex(pattern);
-        //    MatchCollection matches = regex.Matches(headerline);
-        //    if (matches.Count != 1)
-        //    {
-        //        throw new ArgumentException("not a valid pgn header: " + headerline);
-        //    }
-        //    System.Text.RegularExpressions.Match match = matches[0];
-        //    _key = match.Groups["key"].Value;
-        //    _value = match.Groups["value"].Value;
-        //}
 
         public static bool TryParse(string headerLine, out ChessPGNHeader header)
         {

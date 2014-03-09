@@ -137,5 +137,31 @@ namespace Sinobyl.CommandLine
             }
         }
         #endregion
+
+        //public static void AnnotatePGNEval(string fileIn, string fileOut)
+        //{
+        //    System.IO.FileInfo fileInfoIn = new System.IO.FileInfo.FileInfo(fileIn);
+        //    if (!System.IO.File.Exists(fileIn))
+        //    {
+        //        ConsoleWriteline("file does not exist");
+        //    }
+
+        //    using (System.IO.StreamReader reader = new System.IO.StreamReader(fileIn))
+        //    {
+        //        using (var writer = new System.IO.FileInfo(fileOut).OpenWrite())
+        //        {
+
+        //        }
+        //    }
+        //}
+
+        //public static void AnnotatePGNWithEval(ChessPGN pgn)
+        //{
+        //    ChessBoard board = new ChessBoard(pgn.StartingPosition);
+        //    foreach (var move in pgn.Moves)
+        //    {
+        //        pgn.co
+        //    }
+        //}
     }
 }

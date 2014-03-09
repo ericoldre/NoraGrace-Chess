@@ -24,30 +24,42 @@ namespace Sinobyl.Engine
     }
 
 
-	public class ChessPGNHeaders : List<ChessPGNHeader>
+	public class ChessPGNHeaders : Dictionary<string,string>
 	{
+        public ChessPGNHeaders(): base(StringComparer.InvariantCultureIgnoreCase)
+        {
 
-		public ChessPGNHeader this[string key]
-		{
-			get
-			{
-				
-				foreach (ChessPGNHeader header in this)
-				{
-					if (header.Key.ToUpper() == key.ToUpper())
-					{
-						return header;
-					}
-				}
-				return null;
-			}
-		}
+        }
 
+        public static bool TryParse(string headerLine, out KeyValuePair<string,string> header)
+        {
+            string pattern = @"\[(?<key>[\w]+)\s+\""(?<value>[\S\s]+)\""\]";
+            Regex regex = new Regex(pattern);
+            MatchCollection matches = regex.Matches(headerLine);
+            if (matches.Count != 1)
+            {
+                header = new KeyValuePair<string, string>();
+                return false;
+                //throw new ArgumentException("not a valid pgn header: " + headerline);
+            }
+            System.Text.RegularExpressions.Match match = matches[0];
+            header = new KeyValuePair<string, string>(match.Groups["key"].Value, match.Groups["value"].Value);
+            return true;
+        }
 
-		public void Add(string key, string value)
-		{
-			Add(new ChessPGNHeader(key, value));
-		}
+        public static KeyValuePair<string, string> Parse(string headerLine)
+        {
+            KeyValuePair<string, string> retval;
+            if (TryParse(headerLine, out retval))
+            {
+                return retval;
+            }
+            else
+            {
+                throw new ArgumentException("not a valid pgn header: " + headerLine, "headerLine");
+            }
+        }
+        
 	}
 
 	public class ChessPGNComment
@@ -87,34 +99,7 @@ namespace Sinobyl.Engine
 			_value = val;
 		}
 
-        public static bool TryParse(string headerLine, out ChessPGNHeader header)
-        {
-            string pattern = @"\[(?<key>[\w]+)\s+\""(?<value>[\S\s]+)\""\]";
-            Regex regex = new Regex(pattern);
-            MatchCollection matches = regex.Matches(headerLine);
-            if (matches.Count != 1)
-            {
-                header = null;
-                return false;
-                //throw new ArgumentException("not a valid pgn header: " + headerline);
-            }
-            System.Text.RegularExpressions.Match match = matches[0];
-            header = new ChessPGNHeader(match.Groups["key"].Value, match.Groups["value"].Value);
-            return true;
-        }
-
-        public static ChessPGNHeader Parse(string headerLine)
-        {
-            ChessPGNHeader retval = null;
-            if (TryParse(headerLine, out retval))
-            {
-                return retval;
-            }
-            else
-            {
-                throw new ArgumentException("not a valid pgn header: " + headerLine, "headerLine");
-            }
-        }
+        
 		public string Key
 		{
 			get
@@ -143,21 +128,37 @@ namespace Sinobyl.Engine
 		private readonly ReadOnlyCollection<ChessMove> _moves;
 		private ChessResult? _result;
 		private ChessResultReason _resultReason;
-		private ChessPGNHeaders _headers;
+        private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 		private List<ChessPGNComment> _comments;
 
-		public ChessPGN(ChessPGNHeaders headers, ChessMoves moves, ChessResult? result, List<ChessPGNComment> comments, ChessResultReason reason)
+
+
+		public ChessPGN(IEnumerable<KeyValuePair<string,string>> headers, IEnumerable<ChessMove> moves, ChessResult? result, List<ChessPGNComment> comments, ChessResultReason reason)
 		{
-			_headers = headers;
-			_moves = new ReadOnlyCollection<ChessMove>(moves);
+            if (_headers != null)
+            {
+                foreach (var header in headers)
+                {
+                    _headers.Add(header.Key, header.Value);
+                }
+            }
+            
+
+			_moves = new ReadOnlyCollection<ChessMove>(moves.ToList());
 			_result = result;
 			_comments = comments;
 			_resultReason = reason;
 		}
-		public ChessPGN(ChessPGNHeaders headers, ChessBoard board)
+        public ChessPGN(IEnumerable<KeyValuePair<string, string>> headers, ChessBoard board)
 		{
-			_headers = headers;
-			_moves = new ReadOnlyCollection<ChessMove>(board.HistoryMoves);
+            if (_headers != null)
+            {
+                foreach (var header in headers)
+                {
+                    _headers.Add(header.Key, header.Value);
+                }
+            }
+            _moves = new ReadOnlyCollection<ChessMove>(board.HistoryMoves);
 			_result = null;
 			_resultReason = ChessResultReason.NotDecided;
 			_comments = new List<ChessPGNComment>();
@@ -186,7 +187,7 @@ namespace Sinobyl.Engine
 
         //}
 
-        public ChessPGNHeaders Headers
+        public Dictionary<string, string> Headers
         {
             get
             {
@@ -201,42 +202,47 @@ namespace Sinobyl.Engine
 				return _moves;
 			}
 		}
-		public List<string> HeaderKeys
-		{
-			get
-			{
-				List<string> retval = new List<string>();
-				foreach (ChessPGNHeader header in _headers)
-				{
-					retval.Add(header.Key);
-				}
-				return retval;
-			}
-		}
-		public string HeaderValue(string key)
-		{
-			ChessPGNHeader h = null;
-			foreach(ChessPGNHeader h1 in _headers)
-			{
-				if (h1.Key.ToLower() == key.ToLower()) { h = h1; }
-			}
+        //public List<string> HeaderKeys
+        //{
+        //    get
+        //    {
+        //        List<string> retval = new List<string>();
+        //        foreach (var header in _headers)
+        //        {
+        //            retval.Add(header.Key);
+        //        }
+        //        return retval;
+        //    }
+        //}
+        //public string HeaderValue(string key)
+        //{
+        //    ChessPGNHeader h = null;
+        //    foreach(var h1 in _headers)
+        //    {
+        //        if (h1.Key.ToLower() == key.ToLower()) { h = h1; }
+        //    }
 			
-			if (h == null)
-			{
-				return "";
-			}
-			else
-			{
-				return h.Value;
-			}
-		}
+        //    if (h == null)
+        //    {
+        //        return "";
+        //    }
+        //    else
+        //    {
+        //        return h.Value;
+        //    }
+        //}
 		public string StartingPosition
 		{
 			get
 			{
-				string retval = this.HeaderValue("FEN");
-                if (retval == "") { retval = ChessFEN.FENStart; }
-				return retval;
+                if (Headers.ContainsKey("FEN"))
+                {
+                    return Headers["FEN"];
+                }
+                else
+                {
+                    return ChessFEN.FENStart;
+                }
 			}
 		}
 
@@ -258,14 +264,14 @@ namespace Sinobyl.Engine
 		{
 			get
 			{
-				return this.HeaderValue("White");
+				return this.Headers["White"];
 			}
 		}
 		public string Black
 		{
 			get
 			{
-				return this.HeaderValue("Black");
+				return this.Headers["Black"];
 			}
 		}
 		public int? WhiteElo
@@ -273,7 +279,7 @@ namespace Sinobyl.Engine
 			get
 			{
 				int retval;
-				if (int.TryParse(this.HeaderValue("WhiteElo"), out retval))
+				if (int.TryParse(this.Headers["WhiteElo"], out retval))
 				{
 					return retval;
 				}
@@ -288,7 +294,7 @@ namespace Sinobyl.Engine
 			get
 			{
 				int retval;
-				if (int.TryParse(this.HeaderValue("BlackElo"), out retval))
+				if (int.TryParse(this.Headers["BlackElo"], out retval))
 				{
 					return retval;
 				}
@@ -303,11 +309,11 @@ namespace Sinobyl.Engine
 			get
 			{
 				DateTime ret;
-				if (DateTime.TryParse(this.HeaderValue("Date"), out ret))
+				if (DateTime.TryParse(this.Headers["Date"], out ret))
 				{
 					return ret;
 				}
-				else if (DateTime.TryParse(this.HeaderValue("EventDate"), out ret))
+				else if (DateTime.TryParse(this.Headers["EventDate"], out ret))
 				{
 					return ret;
 				}
@@ -321,16 +327,18 @@ namespace Sinobyl.Engine
 		{
 			get
 			{
-				return this.HeaderValue("Site");
+				return this.Headers["Site"];
 			}
 		}
+
 		public string EventName
 		{
 			get
 			{
-				return this.HeaderValue("Event");
+				return this.Headers["Event"];
 			}
 		}
+
 		public ChessPGNComment CommentForPly(int iPly)
 		{
 			foreach (ChessPGNComment comment in this._comments)
@@ -370,7 +378,7 @@ namespace Sinobyl.Engine
 			}
 
 			//headers
-			foreach (ChessPGNHeader header in _headers)
+			foreach (var header in _headers)
 			{
 				sbHeaders.Append(header.ToString() + Environment.NewLine);
 			}
@@ -513,8 +521,8 @@ namespace Sinobyl.Engine
 						headerlevel--;
 						if (headerlevel == 0)
 						{
-                            ChessPGNHeader header = ChessPGNHeader.Parse("[" + token + "]");
-							headers.Add(header);
+                            var header = ChessPGNHeaders.Parse("[" + token + "]");
+							headers.Add(header.Key, header.Value);
 							if (header.Key.ToUpper() == "FEN")
 							{
 								board = new ChessBoard(header.Value);

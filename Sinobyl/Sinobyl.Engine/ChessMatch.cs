@@ -164,8 +164,8 @@ namespace Sinobyl.Engine
             }
 
             ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, comments, reason);
-            retval.Headers.Add(new ChessPGNHeader("White", white.Name));
-            retval.Headers.Add(new ChessPGNHeader("Black", black.Name));
+            retval.Headers.Add("White", white.Name);
+            retval.Headers.Add("Black", black.Name);
             return retval;
         }
 

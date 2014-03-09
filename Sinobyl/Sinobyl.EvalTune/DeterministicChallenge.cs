@@ -28,10 +28,10 @@ namespace Sinobyl.EvalTune
                 var result = Match(championEval, challengerEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
                 stopwatch.Stop();
 
-                result.Headers.Add(new ChessPGNHeader("White", "Champion"));
-                result.Headers.Add(new ChessPGNHeader("Black", "Challenger"));
-                result.Headers.Add(new ChessPGNHeader("Event", EventName));
-                result.Headers.Add(new ChessPGNHeader("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString()));
+                result.Headers.Add("White", "Champion");
+                result.Headers.Add("Black", "Challenger");
+                result.Headers.Add("Event", EventName);
+                result.Headers.Add("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString());
 
                 if (pgnWriter != null)
                 {
@@ -83,10 +83,10 @@ namespace Sinobyl.EvalTune
                 result = Match(challengerEval, championEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
                 stopwatch.Stop();
 
-                result.Headers.Add(new ChessPGNHeader("White", "Challenger"));
-                result.Headers.Add(new ChessPGNHeader("Black", "Champion"));
-                result.Headers.Add(new ChessPGNHeader("Event", EventName));
-                result.Headers.Add(new ChessPGNHeader("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString()));
+                result.Headers.Add("White", "Challenger");
+                result.Headers.Add("Black", "Champion");
+                result.Headers.Add("Event", EventName);
+                result.Headers.Add("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString());
 
                 if (pgnWriter != null)
                 {

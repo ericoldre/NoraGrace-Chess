@@ -155,6 +155,8 @@ namespace Sinobyl.CommandLine
             return true;
 
         }
+
+        
 		public static void ConsoleWriteline(string output)
 		{
             if (_logOutput.IsInfoEnabled) { _logOutput.Info(output); }

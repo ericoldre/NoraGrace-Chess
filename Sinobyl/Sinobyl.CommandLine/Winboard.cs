@@ -14,7 +14,7 @@ namespace Sinobyl.CommandLine
 		private ChessPlayer _myplayer = ChessPlayer.Black;
         private ChessTimeControl _timeControl = ChessTimeControl.Blitz(5, 5);
 		private TimeSpan _timeLeft = TimeSpan.FromMinutes(5);
-
+        private readonly ChessEval _staticEval = new ChessEval();
 		public Winboard()
 		{
 			_player.MovePlayed += player_OnMove;
@@ -60,7 +60,11 @@ namespace Sinobyl.CommandLine
             
             try
             {
-                string pvstring = new ChessMoves(e.Progress.PrincipleVariation).ToString(new ChessBoard(e.Progress.FEN), true);
+                ChessBoard board = new ChessBoard(e.Progress.FEN);
+
+                string pvstring = new ChessMoves(e.Progress.PrincipleVariation).ToString(board, true);
+                var eval = _staticEval.EvalDetail(board);
+                pvstring += string.Format("(score:{0} mat{2} pcsq{3} mob{4} pawns{5} eval{1})", eval.Score, eval.StageStartWeight, eval.Material, eval.PcSq, eval.Mobility, eval.Pawns);
                 string output = string.Format("{0} {1} {2} {3} {4}", e.Progress.Depth, e.Progress.Score, Math.Round(e.Progress.Time.TotalMilliseconds / 10), e.Progress.Nodes, pvstring);
                 Program.ConsoleWriteline(output);
             }

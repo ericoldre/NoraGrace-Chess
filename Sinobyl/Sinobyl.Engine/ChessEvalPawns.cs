@@ -12,6 +12,8 @@ namespace Sinobyl.Engine
         public readonly int DoubledPawnValueEnd;
         public readonly int IsolatedPawnValueStart;
         public readonly int IsolatedPawnValueEnd;
+        public readonly int UnconnectedPawnStart;
+        public readonly int UnconnectedPawnEnd;
         public readonly int[,] PawnPassedValuePosStage;
         public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
 
@@ -23,6 +25,8 @@ namespace Sinobyl.Engine
             this.DoubledPawnValueEnd = settings.PawnDoubled.Endgame;
             this.IsolatedPawnValueStart = settings.PawnIsolated.Opening;
             this.IsolatedPawnValueEnd = settings.PawnIsolated.Endgame;
+            this.UnconnectedPawnStart = settings.PawnUnconnected.Opening;
+            this.UnconnectedPawnEnd = settings.PawnUnconnected.Endgame;
 
             //setup passed pawn array
             PawnPassedValuePosStage = new int[64, 2];
@@ -60,24 +64,27 @@ namespace Sinobyl.Engine
         {
             ChessBitboard doubled = ChessBitboard.Empty;
             ChessBitboard isolated = ChessBitboard.Empty;
-            EvalAllPawns(whitePawns, blackPawns, out StartVal, out EndVal, out passedPawns, out doubled, out isolated);
+            ChessBitboard unconnected = ChessBitboard.Empty;
+            EvalAllPawns(whitePawns, blackPawns, out StartVal, out EndVal, out passedPawns, out doubled, out isolated, out unconnected);
         }
-        public void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, out int StartVal, out int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated)
+        public void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, out int StartVal, out int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
         {
             //eval for white
             doubled = ChessBitboard.Empty;
             passed = ChessBitboard.Empty;
             isolated = ChessBitboard.Empty;
+            unconnected = ChessBitboard.Empty;
 
             int WStartVal = 0;
             int WEndVal = 0;
 
-            EvalWhitePawns(whitePawns, blackPawns, ref WStartVal, ref WEndVal, out passed, out doubled, out isolated);
+            EvalWhitePawns(whitePawns, blackPawns, ref WStartVal, ref WEndVal, out passed, out doubled, out isolated, out unconnected);
 
             //create inverse situation
             ChessBitboard bpassed = ChessBitboard.Empty;
             ChessBitboard bdoubled = ChessBitboard.Empty;
             ChessBitboard bisolated = ChessBitboard.Empty;
+            ChessBitboard bunconnected = ChessBitboard.Empty;
 
             ChessBitboard blackRev = blackPawns.Reverse();
             ChessBitboard whiteRev = whitePawns.Reverse();
@@ -86,22 +93,24 @@ namespace Sinobyl.Engine
             int BEndVal = 0;
 
             //actually passing in the black pawns from their own perspective
-            EvalWhitePawns(blackRev, whiteRev, ref BStartVal, ref BEndVal, out bpassed, out bdoubled, out bisolated);
+            EvalWhitePawns(blackRev, whiteRev, ref BStartVal, ref BEndVal, out bpassed, out bdoubled, out bisolated, out bunconnected);
 
             doubled |= bdoubled.Reverse();
             passed |= bpassed.Reverse();
             isolated |= bisolated.Reverse();
+            unconnected |= bunconnected.Reverse();
 
             //set return values;
             StartVal = WStartVal - BStartVal;
             EndVal = WEndVal - BEndVal;
 
         }
-        private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated)
+        private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
         {
             passed = ChessBitboard.Empty;
             doubled = ChessBitboard.Empty;
             isolated = ChessBitboard.Empty;
+            unconnected = ChessBitboard.Empty;
 
             foreach (ChessPosition pos in whitePawns.ToPositions())
             {
@@ -110,20 +119,36 @@ namespace Sinobyl.Engine
                 ChessBitboard bbFile = pos.GetFile().Bitboard();
                 ChessBitboard bbFile2E = bbFile.ShiftDirE();
                 ChessBitboard bbFile2W = bbFile.ShiftDirW();
-
+                ChessBitboard bballNorth = r.BitboardAllNorth() & bbFile;
                 //substract doubled score
-                if (!(bbFile & ~pos.Bitboard() & whitePawns).Empty())
+                if (!(bballNorth & ~pos.Bitboard() & whitePawns).Empty())
                 {
                     StartVal -= this.DoubledPawnValueStart;
                     EndVal -= this.DoubledPawnValueEnd;
                     doubled |= pos.Bitboard();
                 }
 
+                
+
+                //substract isolated score
                 if ((bbFile2E & whitePawns).Empty() && (bbFile2W & whitePawns).Empty())
                 {
                     StartVal -= this.IsolatedPawnValueStart;
                     EndVal -= this.IsolatedPawnValueEnd;
                     isolated |= pos.Bitboard();
+                }
+                else
+                {
+                    //substract unconnected penalty, isolated is not also unconnected
+                    ChessBitboard bbRank = r.Bitboard();
+                    ChessBitboard connectedRanks = bbRank | bbRank.ShiftDirN() | bbRank.ShiftDirS();
+                    ChessBitboard connectedPos = connectedRanks & (bbFile2E | bbFile2W);
+                    if ((whitePawns & connectedPos).Empty())
+                    {
+                        StartVal -= this.UnconnectedPawnStart;
+                        EndVal -= this.UnconnectedPawnEnd;
+                        unconnected |= pos.Bitboard();
+                    }
                 }
 
                 ChessBitboard blockPositions = (bbFile | bbFile2E | bbFile2W) & pos.GetRank().BitboardAllNorth().ShiftDirN();

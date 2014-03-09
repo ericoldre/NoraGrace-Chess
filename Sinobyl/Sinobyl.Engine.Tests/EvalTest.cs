@@ -91,6 +91,7 @@ namespace Sinobyl.Engine.Tests
             ChessBitboard passed;
             ChessBitboard doubled;
             ChessBitboard isolated;
+            ChessBitboard unconnected;
 
             int StartVal = 0;
             int EndVal = 0;
@@ -98,13 +99,32 @@ namespace Sinobyl.Engine.Tests
 
             var pawnEval = new ChessEvalPawns(ChessEvalSettings.Default());
 
-            pawnEval.EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), out StartVal, out EndVal, out passed, out doubled, out isolated);
+            pawnEval.EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), out StartVal, out EndVal, out passed, out doubled, out isolated, out unconnected);
 
             Assert.AreEqual<int>(2, passed.ToPositions().Count());
             Assert.AreEqual<int>(4, doubled.ToPositions().Count());
             Assert.AreEqual<int>(5, isolated.ToPositions().Count());
 
 
+        }
+        [TestMethod]
+        public void PawnTest2()
+        {
+            //
+            ChessBoard board = new ChessBoard("2b2r2/5pk1/rbBppp1p/p7/Pp2P3/1N3R2/1PP2PPP/3R2K1 b - - 4 25 ");  //should Not be giving such a high pawn bonus to white
+            var pawnEval = new ChessEvalPawns(ChessEvalSettings.Default());
+            ChessBitboard passed;
+            ChessBitboard doubled;
+            ChessBitboard isolated;
+            ChessBitboard unconnected;
+
+            int StartVal = 0;
+            int EndVal = 0;
+            var whitepawns = board.PieceLocations(ChessPiece.WPawn);
+            var blackpawns = board.PieceLocations(ChessPiece.BPawn);
+            pawnEval.EvalAllPawns(whitepawns, blackpawns, out StartVal, out EndVal, out passed, out doubled, out isolated, out unconnected);
+            Assert.IsTrue(StartVal < 50);
+            Assert.IsTrue(EndVal < 50);
         }
 
         [TestMethod]

@@ -196,7 +196,8 @@ namespace Sinobyl.CommandLine
             }
             catch (Exception ex)
             {
-
+                Program.LogException(ex);
+                Program.ConsoleWriteline(ex.Message);
             }
             
 

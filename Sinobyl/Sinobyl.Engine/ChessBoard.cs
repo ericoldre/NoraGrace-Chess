@@ -291,6 +291,10 @@ namespace Sinobyl.Engine
 		{
 			return _pieceCount[piece];
 		}
+        public int PieceCount(ChessPlayer player, ChessPieceType pieceType)
+        {
+            return _pieceCount[pieceType.ForPlayer(player)];
+        }
 
 		public bool IsMate()
 		{

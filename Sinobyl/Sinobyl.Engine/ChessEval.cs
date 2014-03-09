@@ -19,6 +19,7 @@ namespace Sinobyl.Engine
         public readonly int[,] _matPieceStage = new int[12,2];
         public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
         public readonly int[] _matBishopPairStage = new int[2];
+        public readonly int[] _endgameMateKingPcSq;
 
         protected readonly int WeightMaterialOpening;
         protected readonly int WeightMaterialEndgame;
@@ -26,6 +27,9 @@ namespace Sinobyl.Engine
         protected readonly int WeightPcSqEndgame;
         protected readonly int WeightMobilityOpening;
         protected readonly int WeightMobilityEndgame;
+
+
+
 
 
         public ChessEval()
@@ -107,6 +111,19 @@ namespace Sinobyl.Engine
                     }
                     
                 }
+            }
+
+            //initialize pcsq for trying to mate king in endgame, try to push it to edge of board.
+            _endgameMateKingPcSq = new int[64];
+            foreach (var pos in ChessPositionInfo.AllPositions)
+            {
+                List<int> distToMid = new List<int>();
+                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.D4));
+                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.D5));
+                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.E4));
+                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.E5));
+                var minDist = distToMid.Min();
+                _endgameMateKingPcSq[(int)pos] = minDist * 50;
             }
             
         }
@@ -217,6 +234,21 @@ namespace Sinobyl.Engine
             //pawns
             PawnInfo pawns = this.PawnEval.PawnEval(board);
 
+
+            //test to see if we are just trying to force the king to the corner for mate.
+            int endGamePcSq = 0;
+            if (UseEndGamePcSq(board, ChessPlayer.White, out endGamePcSq))
+            {
+                valEndPieceSq = endGamePcSq;
+                valEndMobility = 0;
+            }
+            else if (UseEndGamePcSq(board, ChessPlayer.Black, out endGamePcSq))
+            {
+                valEndPieceSq = -endGamePcSq;
+                valEndMobility = 0;
+            }
+
+
             //calculate total start and end values
             int valStart = 
                 (valStartMat * WeightMaterialOpening / 100) 
@@ -270,6 +302,30 @@ namespace Sinobyl.Engine
             }
         }
 
+        protected bool UseEndGamePcSq(ChessBoard board, ChessPlayer winPlayer, out int newPcSq)
+        {
+            ChessPlayer losePlayer = winPlayer.PlayerOther();
+            if (
+                board.PieceCount(losePlayer, ChessPieceType.Pawn) == 0
+                && board.PieceCount(losePlayer, ChessPieceType.Queen) == 0
+                && board.PieceCount(losePlayer, ChessPieceType.Rook) == 0
+                && (board.PieceCount(losePlayer, ChessPieceType.Bishop) + board.PieceCount(losePlayer, ChessPieceType.Knight) <= 1))
+            {
+                if(board.PieceCount(winPlayer, ChessPieceType.Queen) > 0
+                    || board.PieceCount(winPlayer, ChessPieceType.Rook) > 0
+                    || board.PieceCount(winPlayer, ChessPieceType.Bishop) + board.PieceCount(winPlayer, ChessPieceType.Bishop) >= 2)
+                {
+                    ChessPosition loseKing = board.KingPosition(losePlayer);
+                    ChessPosition winKing = board.KingPosition(winPlayer);
+                    newPcSq = _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25);
+                    return true;
+                }
+            }
+            newPcSq = 0;
+            return false;
+        }
+
+        
     }
 
     public class ChessEvalResults

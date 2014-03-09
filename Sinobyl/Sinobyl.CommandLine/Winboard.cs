@@ -219,9 +219,9 @@ namespace Sinobyl.CommandLine
                 case "analyze":
                     _player.YourTurn(_board, new ChessTimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));
                     break;
-                //custom stuff for my debugging
+                //custom stuff for debugging
                 case "setpos1":
-                    _board.FEN = new ChessFEN("3k4/1PR5/8/P7/7P/4K3/2P2P2/6NR w - - 1 48");
+                    _board.FEN = new ChessFEN("8/8/6kP/1p6/p4B2/PbP5/8/3K4 w - - 11 77");
                     break;
                 case "eval":
                     ChessEval eval = new ChessEval();

@@ -39,6 +39,8 @@ namespace Sinobyl.Engine
             public readonly ChessFEN FEN;
 			public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, ChessMoves a_pv, ChessFEN a_fen)
 			{
+                if (a_pv == null) { throw new ArgumentNullException("a_pv"); }
+                if (a_fen == null) { throw new ArgumentNullException("a_fen"); }
 				Depth = a_depth;
 				Nodes = a_nodes;
 				Score = a_score;

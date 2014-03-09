@@ -131,7 +131,7 @@ namespace Sinobyl.Engine
             ChessMoves gameMoves = new ChessMoves();
             //setup init position
             ChessBoard board = new ChessBoard(gameStartPosition);
-            List<ChessPGNComment> comments = new List<ChessPGNComment>();
+            Dictionary<int, string> comments = new Dictionary<int, string>();
             foreach (var move in initalMoves)
             {
                 board.MoveApply(move);
@@ -151,7 +151,7 @@ namespace Sinobyl.Engine
                     board.MoveApply(bestMove);
                     if (!string.IsNullOrWhiteSpace(moveComment))
                     {
-                        comments.Add(new ChessPGNComment(board.HistoryCount, moveComment));
+                        comments.Add(board.HistoryCount - 1, moveComment);
                     }
                     gameResult = BoardResult(board, out reason);
                 }

@@ -155,7 +155,7 @@ namespace Sinobyl.EvalTune
             ChessMoves gameMoves = new ChessMoves();
             //setup init position
             ChessBoard board = new ChessBoard(startingPosition);
-            List<ChessPGNComment> comments = new List<ChessPGNComment>();
+            Dictionary<int, string> comments = new Dictionary<int, string>();
             foreach (var move in initalMoves)
             {
                 board.MoveApply(move);
@@ -186,7 +186,7 @@ namespace Sinobyl.EvalTune
 
                     board.MoveApply(bestMove);
 
-                    comments.Add(new ChessPGNComment(board.HistoryCount, comment));
+                    comments.Add(board.HistoryCount - 1, comment);
                     gameResult = BoardResult(board, out reason);
                 }
                 else

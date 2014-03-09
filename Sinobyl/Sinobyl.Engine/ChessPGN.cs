@@ -62,78 +62,78 @@ namespace Sinobyl.Engine
         
 	}
 
-	public class ChessPGNComment
-	{
-		private int _movenum;
-		private string _text;
-		public ChessPGNComment(int movenum, string text)
-		{
-			_movenum = movenum;
-			_text = text;
-		}
-		public int MoveNum
-		{
-			get
-			{
-				return _movenum;
-			}
-		}
-		public string Text
-		{
-			get
-			{
-				return _text;
-			}
-		}
-	}
+    //public class ChessPGNComment
+    //{
+    //    private int _movenum;
+    //    private string _text;
+    //    public ChessPGNComment(int movenum, string text)
+    //    {
+    //        _movenum = movenum;
+    //        _text = text;
+    //    }
+    //    public int MoveNum
+    //    {
+    //        get
+    //        {
+    //            return _movenum;
+    //        }
+    //    }
+    //    public string Text
+    //    {
+    //        get
+    //        {
+    //            return _text;
+    //        }
+    //    }
+    //}
 
 
-	public class ChessPGNHeader
-	{
+    //public class ChessPGNHeader
+    //{
         
-		private readonly string _key;
-		private readonly string _value;
-		public ChessPGNHeader(string key, string val)
-		{
-			_key = key;
-			_value = val;
-		}
+    //    private readonly string _key;
+    //    private readonly string _value;
+    //    public ChessPGNHeader(string key, string val)
+    //    {
+    //        _key = key;
+    //        _value = val;
+    //    }
 
         
-		public string Key
-		{
-			get
-			{
-				return _key;
-			}
-		}
-		public string Value
-		{
-			get
-			{
-				return _value;
-			}
-		}
-		public override string ToString()
-		{
-			return "[" + this.Key + " \"" + this.Value + "\"]";
-		}
+    //    public string Key
+    //    {
+    //        get
+    //        {
+    //            return _key;
+    //        }
+    //    }
+    //    public string Value
+    //    {
+    //        get
+    //        {
+    //            return _value;
+    //        }
+    //    }
+    //    public override string ToString()
+    //    {
+    //        return "[" + this.Key + " \"" + this.Value + "\"]";
+    //    }
 
 
-	}
+    //}
 	public class ChessPGN
 	{
 
 		
-		private readonly ReadOnlyCollection<ChessMove> _moves;
+		private readonly List<ChessMove> _moves;
 		private ChessResult? _result;
 		private ChessResultReason _resultReason;
         private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-		private List<ChessPGNComment> _comments;
+		private readonly Dictionary<int, string> _comments;
 
 
 
-		public ChessPGN(IEnumerable<KeyValuePair<string,string>> headers, IEnumerable<ChessMove> moves, ChessResult? result, List<ChessPGNComment> comments, ChessResultReason reason)
+        public ChessPGN(IEnumerable<KeyValuePair<string, string>> headers, IEnumerable<ChessMove> moves, ChessResult? result, IEnumerable<KeyValuePair<int, string>> comments, ChessResultReason reason)
 		{
             if (_headers != null)
             {
@@ -142,11 +142,17 @@ namespace Sinobyl.Engine
                     _headers.Add(header.Key, header.Value);
                 }
             }
-            
 
-			_moves = new ReadOnlyCollection<ChessMove>(moves.ToList());
+
+            _moves.AddRange(moves);
 			_result = result;
-			_comments = comments;
+            if (comments != null)
+            {
+                foreach (var comment in comments)
+                {
+                    _comments.Add(comment.Key, comment.Value);
+                }
+            }
 			_resultReason = reason;
 		}
         public ChessPGN(IEnumerable<KeyValuePair<string, string>> headers, ChessBoard board)
@@ -158,10 +164,9 @@ namespace Sinobyl.Engine
                     _headers.Add(header.Key, header.Value);
                 }
             }
-            _moves = new ReadOnlyCollection<ChessMove>(board.HistoryMoves);
+            _moves.AddRange(board.HistoryMoves);
 			_result = null;
 			_resultReason = ChessResultReason.NotDecided;
-			_comments = new List<ChessPGNComment>();
 		}
 
         //public ChessPGN(ChessGame game)
@@ -195,7 +200,7 @@ namespace Sinobyl.Engine
             }
         }
 
-		public ReadOnlyCollection<ChessMove> Moves
+		public List<ChessMove> Moves
 		{
 			get
 			{
@@ -339,17 +344,22 @@ namespace Sinobyl.Engine
 			}
 		}
 
-		public ChessPGNComment CommentForPly(int iPly)
-		{
-			foreach (ChessPGNComment comment in this._comments)
-			{
-				if (comment.MoveNum == iPly)
-				{
-					return comment;
-				}
-			}
-			return null;
-		}
+        public Dictionary<int, string> Comments
+        {
+            get { return _comments; }
+        }
+
+        //public ChessPGNComment CommentForPly(int iPly)
+        //{
+        //    foreach (ChessPGNComment comment in this._comments)
+        //    {
+        //        if (comment.MoveNum == iPly)
+        //        {
+        //            return comment;
+        //        }
+        //    }
+        //    return null;
+        //}
 
 
 		public override string ToString()
@@ -367,35 +377,36 @@ namespace Sinobyl.Engine
 			StringBuilder sbMoves = new StringBuilder();
 			StringBuilder sbHeaders = new StringBuilder();
 
-			//result
-			string sResult = "*";
-			switch (_result)
-			{
-				case ChessResult.WhiteWins: sResult = "1-0"; break;
-				case ChessResult.BlackWins: sResult = "0-1"; break;
-				case ChessResult.Draw: sResult = "1/2-1/2"; break;
-				case null: sResult = "*"; break;
-			}
+            ////result
+            //string sResult = "*";
+            //switch (_result)
+            //{
+            //    case ChessResult.WhiteWins: sResult = "1-0"; break;
+            //    case ChessResult.BlackWins: sResult = "0-1"; break;
+            //    case ChessResult.Draw: sResult = "1/2-1/2"; break;
+            //    case null: sResult = "*"; break;
+            //}
 
 			//headers
 			foreach (var header in _headers)
 			{
-				sbHeaders.Append(header.ToString() + Environment.NewLine);
+				sbHeaders.AppendLine(string.Format(@"[{0} ""{1}""]", header.Key, header.Value));// header.ToString() + Environment.NewLine);
 			}
 			if (_headers["Result"] == null)
 			{
-				sbHeaders.Append(new ChessPGNHeader("Result", sResult).ToString() + Environment.NewLine);
+				//sbHeaders.Append(new ChessPGNHeader("Result", sResult).ToString() + Environment.NewLine);
+                sbHeaders.Append(string.Format(@"[Result ""{0}""]", _headers["Result"]) + Environment.NewLine);
 			}
 			sbHeaders.Append(Environment.NewLine);
 
-			//write any comments before moves
-			ChessPGNComment comment = this.CommentForPly(0);
-			if (comment != null)
-			{
-				sbMoves.Append("{");
-				sbMoves.Append(comment.Text);
-				sbMoves.Append("} ");
-			}
+            ////write any comments before moves
+            //ChessPGNComment comment = this.CommentForPly(0);
+            //if (comment != null)
+            //{
+            //    sbMoves.Append("{");
+            //    sbMoves.Append(comment.Text);
+            //    sbMoves.Append("} ");
+            //}
 
 			//moves
 			int imove = 1;
@@ -409,11 +420,11 @@ namespace Sinobyl.Engine
 				}
 				sbMoves.Append(move.ToString(board) + " ");
 				board.MoveApply(move);
-				comment = this.CommentForPly(imove);
+                string comment = this.Comments[imove - 1];
 				if (comment != null)
 				{
 					sbMoves.Append("{");
-					sbMoves.Append(comment.Text);
+					sbMoves.Append(comment);
 					sbMoves.Append("} ");
 				}
 				iswhite = !iswhite;
@@ -484,7 +495,7 @@ namespace Sinobyl.Engine
 		public static ChessPGN NextGame(StreamReader reader)
 		{
 			ChessPGNHeaders headers = new ChessPGNHeaders();
-			List<ChessPGNComment> comments = new List<ChessPGNComment>();
+            Dictionary<int, string> comments = new Dictionary<int, string>();
 			ChessMoves moves = new ChessMoves();
 			ChessResult? result = null;
 			ChessResultReason reason = ChessResultReason.NotDecided;
@@ -546,7 +557,8 @@ namespace Sinobyl.Engine
 						commentlevel--;
 						if (commentlevel == 0)
 						{
-							comments.Add(new ChessPGNComment(moves.Count, token));
+							//comments.Add(new ChessPGNComment(moves.Count, token));
+                            comments.Add(moves.Count - 1, token);
 						}
 						token = "";
 					}

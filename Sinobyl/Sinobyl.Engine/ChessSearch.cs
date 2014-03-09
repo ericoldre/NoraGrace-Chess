@@ -233,6 +233,11 @@ namespace Sinobyl.Engine
 					MateScoreLast = 0;
 				}
 
+                //add check for time here because in test games we occasionally never hit the time check in the search. assuming do to trans table cutoff returning before time check.
+                if (DateTime.Now > _stopattime)
+                {
+                    _aborting = true;
+                }
 
 				if (_aborting) { break; }
 			

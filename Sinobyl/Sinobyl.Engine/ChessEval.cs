@@ -134,6 +134,7 @@ namespace Sinobyl.Engine
             int valEndPieceSq = 0;
             int valStartMobility = 0;
             int valEndMobility = 0;
+            int basicMaterialCount = 0;
             for (int ipos = 0; ipos < 64; ipos++)
             {
                 ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
@@ -156,15 +157,19 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPiece.WKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
+                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.WBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.WRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        basicMaterialCount += 5;
                         break;
                     case ChessPiece.WQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        basicMaterialCount += 9;
                         break;
                     case ChessPiece.WKing:
                         break;
@@ -172,15 +177,19 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPiece.BKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
+                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.BBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.BRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        basicMaterialCount += 5;
                         break;
                     case ChessPiece.BQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        basicMaterialCount += 9;
                         break;
                     case ChessPiece.BKing:
                         break;
@@ -221,9 +230,8 @@ namespace Sinobyl.Engine
                 + (valEndMobility * WeightMobilityEndgame / 100)
                 + pawns.EndVal;
 
-            float startWeight;
-            float endWeight;
-            CalcStartEndWeights(board, out startWeight, out endWeight);
+            float startWeight = CalcStartWeight(basicMaterialCount);
+            float endWeight = 1 - startWeight;
 
             ChessEvalResults retval = new ChessEvalResults();
             retval.MatStart = valStartMat;
@@ -243,14 +251,23 @@ namespace Sinobyl.Engine
             //return retval;
         }
 
-        protected virtual void CalcStartEndWeights(ChessBoard board, out float startWeight, out float endWeight)
+        protected virtual float CalcStartWeight(int basicMaterialCount)
         {
-            int WhiteCount = board.PieceCount(ChessPiece.WKnight) + board.PieceCount(ChessPiece.WBishop) + board.PieceCount(ChessPiece.WRook) + board.PieceCount(ChessPiece.WQueen);
-            int BlackCount = board.PieceCount(ChessPiece.BKnight) + board.PieceCount(ChessPiece.BBishop) + board.PieceCount(ChessPiece.BRook) + board.PieceCount(ChessPiece.BQueen);
-
-            startWeight = (float)(WhiteCount + BlackCount) / (float)14;
-            endWeight = 1 - startWeight;
-
+            //full material would be 62
+            if (basicMaterialCount >= 56)
+            {
+                return 1;
+            }
+            else if (basicMaterialCount <= 10)
+            {
+                return 0;
+            }
+            else
+            {
+                int rem = basicMaterialCount - 10;
+                float retval = (float)rem / 46f;
+                return retval;
+            }
         }
 
     }

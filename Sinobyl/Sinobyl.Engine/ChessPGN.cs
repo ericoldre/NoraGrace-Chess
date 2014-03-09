@@ -125,11 +125,11 @@ namespace Sinobyl.Engine
 	{
 
 		
-		private readonly List<ChessMove> _moves;
+		private readonly List<ChessMove> _moves = new List<ChessMove>();
 		private ChessResult? _result;
 		private ChessResultReason _resultReason;
         private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-		private readonly Dictionary<int, string> _comments;
+		private readonly Dictionary<int, string> _comments = new Dictionary<int,string>();
 
 
 
@@ -472,6 +472,7 @@ namespace Sinobyl.Engine
 			//return result
             writer.Write(sbHeaders.ToString());
             writer.Write(sbMoves.ToString());
+            writer.WriteLine();
 			//return sbHeaders.ToString() + sbMoves.ToString();
 		}
 
@@ -558,7 +559,13 @@ namespace Sinobyl.Engine
 						if (commentlevel == 0)
 						{
 							//comments.Add(new ChessPGNComment(moves.Count, token));
+                            if (comments.ContainsKey(moves.Count - 1))
+                            {
+                                token = comments[moves.Count - 1] + " " + token;
+                                comments.Remove(moves.Count - 1);
+                            }
                             comments.Add(moves.Count - 1, token);
+                            
 						}
 						token = "";
 					}

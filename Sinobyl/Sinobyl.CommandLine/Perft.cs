@@ -138,30 +138,68 @@ namespace Sinobyl.CommandLine
         }
         #endregion
 
-        //public static void AnnotatePGNEval(string fileIn, string fileOut)
-        //{
-        //    System.IO.FileInfo fileInfoIn = new System.IO.FileInfo.FileInfo(fileIn);
-        //    if (!System.IO.File.Exists(fileIn))
-        //    {
-        //        ConsoleWriteline("file does not exist");
-        //    }
+        public static void AnnotatePGNEval(string fileNameIn, string fileNameOut)
+        {
+            try
+            {
+                
+            
+                if (!System.IO.File.Exists(fileNameIn))
+                {
+                    Program.ConsoleWriteline("file does not exist");
+                }
+                int count = 0;
+                using (System.IO.StreamReader reader = new System.IO.StreamReader(fileNameIn))
+                {
 
-        //    using (System.IO.StreamReader reader = new System.IO.StreamReader(fileIn))
-        //    {
-        //        using (var writer = new System.IO.FileInfo(fileOut).OpenWrite())
-        //        {
+                    using (var writer = new System.IO.StreamWriter(fileNameOut, false))
+                    {
+                        foreach (var pgn in ChessPGN.AllGames(reader))
+                        {
+                            AnnotatePGNWithEval(pgn);
+                            pgn.Write(writer);
+                            count++;
+                            //writer.Write(pgn.ToString());
+                        }
+                    }
+                }
+                Program.ConsoleWriteline("annotated " + count.ToString() + " games");
+            }
+            catch (Exception ex)
+            {
 
-        //        }
-        //    }
-        //}
+            }
+        }
 
-        //public static void AnnotatePGNWithEval(ChessPGN pgn)
-        //{
-        //    ChessBoard board = new ChessBoard(pgn.StartingPosition);
-        //    foreach (var move in pgn.Moves)
-        //    {
-        //        pgn.co
-        //    }
-        //}
+        private static ChessEval _annotateEval;
+        public static void AnnotatePGNWithEval(ChessPGN pgn)
+        {
+            try
+            {
+                if (_annotateEval == null) { _annotateEval = new ChessEval(); }
+                ChessBoard board = new ChessBoard(pgn.StartingPosition);
+
+                foreach (var move in pgn.Moves)
+                {
+                    board.MoveApply(move);
+                    var eval = _annotateEval.EvalDetail(board);
+
+                    string evalComment = string.Format("white:{0} mat:{2} pcsq:{3} mob:{4} pawns:{5} start:{1:F2}", eval.Score, eval.StageStartWeight, eval.Material, eval.PcSq, eval.Mobility, eval.Pawns);
+                    if (pgn.Comments.ContainsKey(board.HistoryMoves.Count - 1))
+                    {
+                        evalComment = pgn.Comments[board.HistoryMoves.Count - 1] + " " + evalComment;
+                        pgn.Comments.Remove(board.HistoryMoves.Count - 1);
+                    }
+                    pgn.Comments.Add(board.HistoryMoves.Count - 1, evalComment);
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            
+
+        }
     }
 }

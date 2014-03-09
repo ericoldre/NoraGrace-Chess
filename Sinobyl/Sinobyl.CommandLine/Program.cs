@@ -22,7 +22,6 @@ namespace Sinobyl.CommandLine
 		
         static void Main(string[] args)
 		{
-
             Console.WriteLine("Sinobyl");
 			
 			foreach (string arg in args)
@@ -147,6 +146,9 @@ namespace Sinobyl.CommandLine
                     break;
                 case "nodestodepth":
                     Perft.NodesToDepth(int.Parse(split[1]));
+                    break;
+                case "annotateeval":
+                    Perft.AnnotatePGNEval(split[1], split[2]);
                     break;
                 default:
                     _winboard.ProcessCmd(input);

@@ -121,6 +121,12 @@ namespace Sinobyl.Engine
 
         public virtual int Eval(ChessBoard board)
         {
+            var result = EvalDetail(board);
+            return result.Score;
+        }
+
+        public virtual ChessEvalResults EvalDetail(ChessBoard board)
+        {
 
             int valStartMat = 0;
             int valEndMat = 0;
@@ -219,9 +225,22 @@ namespace Sinobyl.Engine
             float endWeight;
             CalcStartEndWeights(board, out startWeight, out endWeight);
 
-            int retval = (int)(valStart * startWeight) + (int)(valEnd * endWeight);
+            ChessEvalResults retval = new ChessEvalResults();
+            retval.MatStart = valStartMat;
+            retval.MatEnd = valEndMat;
+            retval.PcSqStart = valStartPieceSq;
+            retval.PcSqEnd = valEndPieceSq;
+            retval.MobStart = valStartMobility;
+            retval.MobEnd = valEndMobility;
+            retval.PawnsStart = pawns.StartVal;
+            retval.PawnsEnd = pawns.EndVal;
+            retval.StageStartWeight = startWeight;
 
             return retval;
+
+            //int retval = (int)(valStart * startWeight) + (int)(valEnd * endWeight);
+
+            //return retval;
         }
 
         protected virtual void CalcStartEndWeights(ChessBoard board, out float startWeight, out float endWeight)
@@ -234,5 +253,78 @@ namespace Sinobyl.Engine
 
         }
 
+    }
+
+    public class ChessEvalResults
+    {
+        public int MatStart = 0;
+        public int MatEnd = 0;
+        public int PcSqStart = 0;
+        public int PcSqEnd = 0;
+        public int MobStart = 0;
+        public int MobEnd = 0;
+        public int PawnsStart = 0;
+        public int PawnsEnd = 0;
+        public float StageStartWeight = 0;
+
+        public float StageEndWeight
+        {
+            get { return 1 - StageStartWeight; }
+        }
+
+        public int ScoreStart
+        {
+            get
+            {
+                return MatStart + PcSqStart + MobStart + PawnsStart;
+            }
+        }
+        public int ScoreEnd
+        {
+            get
+            {
+                return MatEnd + PcSqEnd + MobEnd + PawnsEnd;
+            }
+        }
+        public int Score
+        {
+            get
+            {
+                return (int)(((float)ScoreStart * StageStartWeight) + ((float)ScoreEnd * StageEndWeight));
+            }
+        }
+
+        public int Material
+        {
+            get
+            {
+                return (int)(((float)MatStart * StageStartWeight) + ((float)MatEnd * StageEndWeight));
+            }
+        }
+
+        public int PcSq
+        {
+            get
+            {
+                return (int)(((float)PcSqStart * StageStartWeight) + ((float)PcSqEnd * StageEndWeight));
+            }
+        }
+
+        public int Mobility
+        {
+            get
+            {
+                return (int)(((float)MobStart * StageStartWeight) + ((float)MobEnd * StageEndWeight));
+            }
+        }
+        public int Pawns
+        {
+            get
+            {
+                return (int)(((float)PawnsStart * StageStartWeight) + ((float)PawnsEnd * StageEndWeight));
+            }
+        }
+        
+        
     }
 }

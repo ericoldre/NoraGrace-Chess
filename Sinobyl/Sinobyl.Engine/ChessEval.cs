@@ -142,8 +142,10 @@ namespace Sinobyl.Engine
             return result.Score;
         }
 
-        public virtual ChessEvalResults EvalDetail(ChessBoard board)
+        public virtual ChessEvalInfo EvalDetail(ChessBoard board)
         {
+            ChessEvalInfo evalInfo = new ChessEvalInfo();
+            
 
             int valStartMat = 0;
             int valEndMat = 0;
@@ -152,6 +154,15 @@ namespace Sinobyl.Engine
             int valStartMobility = 0;
             int valEndMobility = 0;
             int basicMaterialCount = 0;
+
+            var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
+            var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
+
+            attacksWhite.PawnEast = board.PieceLocations(ChessPiece.WPawn).ShiftDirNE();
+            attacksWhite.PawnWest = board.PieceLocations(ChessPiece.WPawn).ShiftDirNW();
+            attacksBlack.PawnEast = board.PieceLocations(ChessPiece.BPawn).ShiftDirSE();
+            attacksBlack.PawnWest = board.PieceLocations(ChessPiece.BPawn).ShiftDirSW();
+
             for (int ipos = 0; ipos < 64; ipos++)
             {
                 ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
@@ -168,24 +179,29 @@ namespace Sinobyl.Engine
 
                 //generate attacks
                 ChessBitboard slidingAttacks = ChessBitboard.Empty;
+                
                 switch (piece)
                 {
                     case ChessPiece.WPawn:
                         break;
                     case ChessPiece.WKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
+                        if (attacksWhite.Knight1.Empty()) { attacksWhite.Knight1 = slidingAttacks; } else { attacksWhite.Knight2 = slidingAttacks; }
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.WBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        if (attacksWhite.Bishop1.Empty()) { attacksWhite.Bishop1 = slidingAttacks; } else { attacksWhite.Bishop2 = slidingAttacks; }
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.WRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        if (attacksWhite.Rook1.Empty()) { attacksWhite.Rook1 = slidingAttacks; } else { attacksWhite.Rook2 = slidingAttacks; }
                         basicMaterialCount += 5;
                         break;
                     case ChessPiece.WQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        attacksWhite.Queen = slidingAttacks;
                         basicMaterialCount += 9;
                         break;
                     case ChessPiece.WKing:
@@ -194,24 +210,27 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPiece.BKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
+                        if (attacksBlack.Knight1.Empty()) { attacksBlack.Knight1 = slidingAttacks; } else { attacksBlack.Knight2 = slidingAttacks; }
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.BBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        if (attacksBlack.Bishop1.Empty()) { attacksBlack.Bishop1 = slidingAttacks; } else { attacksBlack.Bishop2 = slidingAttacks; }
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.BRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        if (attacksBlack.Rook1.Empty()) { attacksBlack.Rook1 = slidingAttacks; } else { attacksBlack.Rook2 = slidingAttacks; }
                         basicMaterialCount += 5;
                         break;
                     case ChessPiece.BQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        attacksBlack.Queen = slidingAttacks;
                         basicMaterialCount += 9;
                         break;
                     case ChessPiece.BKing:
                         break;
                 }
-
                 //
                 ChessBitboard slidingMoves = slidingAttacks & ~board.PlayerLocations(piece.PieceToPlayer());
                 int moveCount = slidingMoves.BitCount();
@@ -265,18 +284,18 @@ namespace Sinobyl.Engine
             float startWeight = CalcStartWeight(basicMaterialCount);
             float endWeight = 1 - startWeight;
 
-            ChessEvalResults retval = new ChessEvalResults();
-            retval.MatStart = valStartMat;
-            retval.MatEnd = valEndMat;
-            retval.PcSqStart = valStartPieceSq;
-            retval.PcSqEnd = valEndPieceSq;
-            retval.MobStart = valStartMobility;
-            retval.MobEnd = valEndMobility;
-            retval.PawnsStart = pawns.StartVal;
-            retval.PawnsEnd = pawns.EndVal;
-            retval.StageStartWeight = startWeight;
+            
+            evalInfo.MatStart = valStartMat;
+            evalInfo.MatEnd = valEndMat;
+            evalInfo.PcSqStart = valStartPieceSq;
+            evalInfo.PcSqEnd = valEndPieceSq;
+            evalInfo.MobStart = valStartMobility;
+            evalInfo.MobEnd = valEndMobility;
+            evalInfo.PawnsStart = pawns.StartVal;
+            evalInfo.PawnsEnd = pawns.EndVal;
+            evalInfo.StageStartWeight = startWeight;
 
-            return retval;
+            return evalInfo;
 
             //int retval = (int)(valStart * startWeight) + (int)(valEnd * endWeight);
 
@@ -328,8 +347,27 @@ namespace Sinobyl.Engine
         
     }
 
-    public class ChessEvalResults
+    public class ChessEvalAttackInfo
     {
+        public ChessBitboard PawnEast;
+        public ChessBitboard PawnWest;
+
+        public ChessBitboard Knight1;
+        public ChessBitboard Knight2;
+
+        public ChessBitboard Bishop1;
+        public ChessBitboard Bishop2;
+
+        public ChessBitboard Rook1;
+        public ChessBitboard Rook2;
+
+        public ChessBitboard Queen;
+        public ChessBitboard King2;
+    }
+
+    public class ChessEvalInfo
+    {
+        public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
         public int MatStart = 0;
         public int MatEnd = 0;
         public int PcSqStart = 0;
@@ -338,6 +376,8 @@ namespace Sinobyl.Engine
         public int MobEnd = 0;
         public int PawnsStart = 0;
         public int PawnsEnd = 0;
+        public int PawnsPassedStart = 0;
+        public int PawnsPassedEnd = 0;
         public float StageStartWeight = 0;
 
         public float StageEndWeight
@@ -349,14 +389,14 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return MatStart + PcSqStart + MobStart + PawnsStart;
+                return MatStart + PcSqStart + MobStart + PawnsStart + PawnsPassedStart;
             }
         }
         public int ScoreEnd
         {
             get
             {
-                return MatEnd + PcSqEnd + MobEnd + PawnsEnd;
+                return MatEnd + PcSqEnd + MobEnd + PawnsEnd + PawnsPassedEnd;
             }
         }
         public int Score
@@ -395,6 +435,14 @@ namespace Sinobyl.Engine
             get
             {
                 return (int)(((float)PawnsStart * StageStartWeight) + ((float)PawnsEnd * StageEndWeight));
+            }
+        }
+
+        public int PawnsPassed
+        {
+            get
+            {
+                return (int)(((float)PawnsPassedStart * StageStartWeight) + ((float)PawnsPassedEnd * StageEndWeight));
             }
         }
         

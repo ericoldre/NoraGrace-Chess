@@ -50,6 +50,7 @@
     <Compile Include="ChessBook.cs" />
     <Compile Include="ChessDirection.cs" />
     <Compile Include="ChessEval.cs" />
+    <Compile Include="ChessEvalPassed.cs" />
     <Compile Include="ChessEvalPawns.cs" />
     <Compile Include="ChessEvalSettings.cs" />
     <Compile Include="ChessFEN.cs" />

@@ -205,6 +205,7 @@ namespace Sinobyl.Engine
                         basicMaterialCount += 9;
                         break;
                     case ChessPiece.WKing:
+                        attacksWhite.King = Attacks.KingAttacks(pos);
                         break;
                     case ChessPiece.BPawn:
                         break;
@@ -229,6 +230,7 @@ namespace Sinobyl.Engine
                         basicMaterialCount += 9;
                         break;
                     case ChessPiece.BKing:
+                        attacksBlack.King = Attacks.KingAttacks(pos);
                         break;
                 }
                 //
@@ -254,6 +256,9 @@ namespace Sinobyl.Engine
             PawnInfo pawns = this.PawnEval.PawnEval(board);
 
 
+            //eval passed pawns;
+            ChessEvalPassed.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
+
             //test to see if we are just trying to force the king to the corner for mate.
             int endGamePcSq = 0;
             if (UseEndGamePcSq(board, ChessPlayer.White, out endGamePcSq))
@@ -268,21 +273,21 @@ namespace Sinobyl.Engine
             }
 
 
-            //calculate total start and end values
-            int valStart = 
-                (valStartMat * WeightMaterialOpening / 100) 
-                + (valStartPieceSq * WeightPcSqOpening / 100) 
-                + (valStartMobility * WeightMobilityOpening / 100) 
-                + pawns.StartVal;
+            ////calculate total start and end values
+            //int valStart = 
+            //    (valStartMat * WeightMaterialOpening / 100) 
+            //    + (valStartPieceSq * WeightPcSqOpening / 100) 
+            //    + (valStartMobility * WeightMobilityOpening / 100) 
+            //    + pawns.StartVal;
 
-            int valEnd =
-                (valEndMat * WeightMaterialEndgame / 100)
-                + (valEndPieceSq * WeightPcSqEndgame / 100)
-                + (valEndMobility * WeightMobilityEndgame / 100)
-                + pawns.EndVal;
+            //int valEnd =
+            //    (valEndMat * WeightMaterialEndgame / 100)
+            //    + (valEndPieceSq * WeightPcSqEndgame / 100)
+            //    + (valEndMobility * WeightMobilityEndgame / 100)
+            //    + pawns.EndVal;
 
-            float startWeight = CalcStartWeight(basicMaterialCount);
-            float endWeight = 1 - startWeight;
+            //float startWeight = 
+            //float endWeight = 1 - startWeight;
 
             
             evalInfo.MatStart = valStartMat;
@@ -293,7 +298,7 @@ namespace Sinobyl.Engine
             evalInfo.MobEnd = valEndMobility;
             evalInfo.PawnsStart = pawns.StartVal;
             evalInfo.PawnsEnd = pawns.EndVal;
-            evalInfo.StageStartWeight = startWeight;
+            evalInfo.StageStartWeight = CalcStartWeight(basicMaterialCount);
 
             return evalInfo;
 
@@ -362,7 +367,29 @@ namespace Sinobyl.Engine
         public ChessBitboard Rook2;
 
         public ChessBitboard Queen;
-        public ChessBitboard King2;
+        public ChessBitboard King;
+
+        public ChessBitboard All()
+        {
+            return PawnEast | PawnWest | Knight1 | Knight2 | Bishop1 | Bishop2 | Rook1 | Rook2 | Queen | King;
+        }
+
+        public ChessEvalAttackInfo Reverse()
+        {
+            return new ChessEvalAttackInfo()
+            {
+                PawnEast = PawnEast.Reverse(),
+                PawnWest = PawnWest.Reverse(),
+                Knight1 = Knight1.Reverse(),
+                Knight2 = Knight2.Reverse(),
+                Bishop1 = Bishop1.Reverse(),
+                Bishop2 = Bishop2.Reverse(),
+                Rook1 = Rook1.Reverse(),
+                Rook2 = Rook2.Reverse(),
+                Queen = Queen.Reverse(),
+                King = King.Reverse()
+            };
+        }
     }
 
     public class ChessEvalInfo

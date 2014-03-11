@@ -154,8 +154,8 @@ namespace Sinobyl.Engine
                 ChessBitboard blockPositions = (bbFile | bbFile2E | bbFile2W) & pos.GetRank().BitboardAllNorth().ShiftDirN();
                 if ((blockPositions & blackPawns).Empty())
                 {
-                    StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
-                    EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
+                    //StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
+                    //EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
                     passed |= pos.Bitboard();
                 }
             }

@@ -462,6 +462,10 @@ namespace Sinobyl.Engine
         {
             return _pieces[piece];
         }
+        public ChessBitboard PieceLocations(ChessPieceType pieceType, ChessPlayer player)
+        {
+            return _pieces[pieceType.ForPlayer(player)];
+        }
         public ChessBitboard PlayerLocations(ChessPlayer player)
         {
             return _playerBoards[player];

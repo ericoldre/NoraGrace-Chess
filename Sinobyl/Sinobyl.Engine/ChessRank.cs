@@ -105,5 +105,30 @@ namespace Sinobyl.Engine
             }
         }
 
+        public static ChessBitboard BitboardAllSouth(this ChessRank rank)
+        {
+            switch (rank)
+            {
+                case ChessRank.Rank1:
+                    return ChessBitboard.Rank1;
+                case ChessRank.Rank2:
+                    return ChessBitboard.Rank1 | ChessBitboard.Rank2;
+                case ChessRank.Rank3:
+                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3;
+                case ChessRank.Rank4:
+                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4;
+                case ChessRank.Rank5:
+                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5;
+                case ChessRank.Rank6:
+                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6;
+                case ChessRank.Rank7:
+                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6  | ChessBitboard.Rank7;
+                case ChessRank.Rank8:
+                    return ChessBitboard.Full;
+                default:
+                    return 0;
+            }
+        }
+
     }
 }

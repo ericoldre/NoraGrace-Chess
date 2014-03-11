@@ -178,7 +178,10 @@ namespace Sinobyl.Engine
             return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileA) >> 9);
         }
 
-
+        public static bool Contains(this ChessBitboard bits, ChessPosition position)
+        {
+            return (bits & position.Bitboard()) != ChessBitboard.Empty;
+        }
 
         public static bool Empty(this ChessBitboard bitboard)
         {

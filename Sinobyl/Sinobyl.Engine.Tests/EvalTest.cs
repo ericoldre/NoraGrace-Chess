@@ -181,6 +181,7 @@ namespace Sinobyl.Engine.Tests
                     if (e1 != -e2)
                     {
                         int redo = eval.Eval(board);
+                        int redo2 = eval.Eval(boardRev);
                     }
 
                     Assert.AreEqual<int>(e1, -e2);

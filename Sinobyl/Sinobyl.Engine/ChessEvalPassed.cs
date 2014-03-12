@@ -114,8 +114,8 @@ namespace Sinobyl.Engine
 
             if (rr > 0)
             {
-                ebonus += myKing.DistanceTo(blockSq) * 2 * rr;
-                ebonus -= hisKing.DistanceTo(blockSq) * 1 * rr;
+                ebonus += myKing.DistanceTo(blockSq) * 3 * rr;
+                ebonus -= hisKing.DistanceTo(blockSq) * 2 * rr;
 
                 if (!allPieces.Contains(blockSq))
                 {

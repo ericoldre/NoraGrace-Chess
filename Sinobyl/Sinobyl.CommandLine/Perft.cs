@@ -184,7 +184,7 @@ namespace Sinobyl.CommandLine
                     board.MoveApply(move);
                     var eval = _annotateEval.EvalDetail(board);
 
-                    string evalComment = string.Format("white:{0} mat:{2} pcsq:{3} mob:{4} pawns:{5} start:{1:F2}", eval.Score, eval.StageStartWeight, eval.Material, eval.PcSq, eval.Mobility, eval.Pawns);
+                    string evalComment = string.Format("white:{0} mat:{2} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", eval.Score, eval.StageStartWeight, eval.Material, eval.PcSq, eval.Mobility, eval.Pawns, eval.PawnsPassed);
                     if (pgn.Comments.ContainsKey(board.HistoryMoves.Count - 1))
                     {
                         evalComment = pgn.Comments[board.HistoryMoves.Count - 1] + " " + evalComment;

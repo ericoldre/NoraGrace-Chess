@@ -627,12 +627,12 @@ namespace Sinobyl.Engine
 				if (this._castleWS)
 				{
 					this._castleWS = false;
-					_zob ^= ChessZobrist._castleWS;
+					_zob ^= ChessZobrist.CastleWS;
 				}
 				if (this._castleWL)
 				{
 					this._castleWL = false;
-					_zob ^= ChessZobrist._castleWL;
+					_zob ^= ChessZobrist.CastleWL;
 				}
 			}
 			if (piece == ChessPiece.BKing)
@@ -640,33 +640,33 @@ namespace Sinobyl.Engine
 				if (this._castleBS)
 				{
 					this._castleBS = false;
-					_zob ^= ChessZobrist._castleBS;
+					_zob ^= ChessZobrist.CastleBS;
 				}
 				if (this._castleBL)
 				{
 					this._castleBL = false;
-					_zob ^= ChessZobrist._castleBL;
+					_zob ^= ChessZobrist.CastleBL;
 				}
 			}
 			if (from == ChessPosition.H1 && this._castleWS)
 			{
 				this._castleWS = false;
-				_zob ^= ChessZobrist._castleWS;
+				_zob ^= ChessZobrist.CastleWS;
 			}
 			if (from == ChessPosition.A1 && this._castleWL)
 			{
 				this._castleWL = false;
-				_zob ^= ChessZobrist._castleWL;
+				_zob ^= ChessZobrist.CastleWL;
 			}
 			if (from == ChessPosition.H8 && this._castleBS)
 			{
 				this._castleBS = false;
-				_zob ^= ChessZobrist._castleBS;
+				_zob ^= ChessZobrist.CastleBS;
 			}
 			if (from == ChessPosition.A8 && this._castleBL)
 			{
 				this._castleBL = false;
-				_zob ^= ChessZobrist._castleBL;
+				_zob ^= ChessZobrist.CastleBL;
 			}
 
 
@@ -716,7 +716,7 @@ namespace Sinobyl.Engine
 
 			//switch whos turn
             _whosturn = _whosturn.PlayerOther();
-			_zob ^= ChessZobrist._player;
+			_zob ^= ChessZobrist.Player;
 
             if (handler != null)
             {
@@ -852,7 +852,7 @@ namespace Sinobyl.Engine
 
 			//switch whos turn
             _whosturn = _whosturn.PlayerOther();
-			_zob ^= ChessZobrist._player;
+			_zob ^= ChessZobrist.Player;
 
             var handler = this.BoardChanged;
             if (handler != null)

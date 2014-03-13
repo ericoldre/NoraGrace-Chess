@@ -13,11 +13,11 @@ namespace Sinobyl.Engine
 		private static readonly Int64[,] _piecepos = new Int64[12, 120];
 		private static readonly Int64[] _enpassant = new Int64[120];
 
-		public static readonly Int64 _castleWS;
-		public static readonly Int64 _castleWL;
-		public static readonly Int64 _castleBS;
-		public static readonly Int64 _castleBL;
-		public static readonly Int64 _player;
+        private static readonly Int64 _castleWS;
+        private static readonly Int64 _castleWL;
+        private static readonly Int64 _castleBS;
+        private static readonly Int64 _castleBL;
+        private static readonly Int64 _player;
 
 		static ChessZobrist()
 		{
@@ -66,25 +66,26 @@ namespace Sinobyl.Engine
 			//Chess.AssertPosition(pos);
 			return _enpassant[(int)pos];
 		}
-		public static Int64 CastleWS()
+		public static Int64 CastleWS
 		{
-			return _castleWS;
+            get { return _castleWS; }
 		}
-		public static Int64 CastleWL()
+		public static Int64 CastleWL
 		{
-			return _castleWL;
+            get { return _castleWL; }
 		}
-		public static Int64 CastleBS()
+		public static Int64 CastleBS
 		{
-			return _castleBS;
+            get { return _castleBS; }
 		}
-		public static Int64 CastleBL()
+		public static Int64 CastleBL
 		{
-			return _castleBL;
+            get { return _castleBL; }
+			
 		}
-		public static Int64 Player()
+		public static Int64 Player
 		{
-			return _player;
+            get { return _player; }
 		}
 		public static Int64 BoardZobPawn(ChessBoard board)
 		{
@@ -112,23 +113,23 @@ namespace Sinobyl.Engine
 			}
 			if (board.WhosTurn == ChessPlayer.Black)
 			{
-				retval ^= ChessZobrist.Player();
+				retval ^= ChessZobrist.Player;
 			}
 			if (board.CastleAvailWS)
 			{
-				retval ^= ChessZobrist.CastleWS();
+				retval ^= ChessZobrist.CastleWS;
 			}
 			if (board.CastleAvailWL)
 			{
-				retval ^= ChessZobrist.CastleWL();
+				retval ^= ChessZobrist.CastleWL;
 			}
 			if (board.CastleAvailBS)
 			{
-				retval ^= ChessZobrist.CastleBS();
+				retval ^= ChessZobrist.CastleBS;
 			}
 			if (board.CastleAvailBL)
 			{
-				retval ^= ChessZobrist.CastleBL();
+				retval ^= ChessZobrist.CastleBL;
 			}
 			if (board.EnPassant.IsInBounds())
 			{

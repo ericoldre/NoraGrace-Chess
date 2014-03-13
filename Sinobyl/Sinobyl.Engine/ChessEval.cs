@@ -28,7 +28,7 @@ namespace Sinobyl.Engine
         protected readonly int WeightMobilityOpening;
         protected readonly int WeightMobilityEndgame;
 
-
+        protected readonly ChessEvalSettings _settings;
 
 
 
@@ -40,6 +40,8 @@ namespace Sinobyl.Engine
 
         public ChessEval(ChessEvalSettings settings)
         {
+            _settings = settings.CloneDeep();
+
             //setup pawn evaluation
             PawnEval = new ChessEvalPawns(settings, 1000);
 
@@ -80,11 +82,11 @@ namespace Sinobyl.Engine
                     {
                         if (piece.PieceToPlayer() == ChessPlayer.White)
                         {
-                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos];
+                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = settings.PcSqTables[piece.ToPieceType()][stage][pos];
                         }
                         else
                         {
-                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = -settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos.Reverse()];
+                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = -settings.PcSqTables[piece.ToPieceType()][stage][pos.Reverse()];
                         }
                     }
                     
@@ -163,6 +165,7 @@ namespace Sinobyl.Engine
             attacksBlack.PawnEast = board.PieceLocations(ChessPiece.BPawn).ShiftDirSE();
             attacksBlack.PawnWest = board.PieceLocations(ChessPiece.BPawn).ShiftDirSW();
 
+
             for (int ipos = 0; ipos < 64; ipos++)
             {
                 ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
@@ -172,6 +175,7 @@ namespace Sinobyl.Engine
                 //add material score
                 valStartMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Opening];
                 valEndMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Endgame];
+
 
                 //add pcsq score;
                 valStartPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
@@ -186,22 +190,22 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPiece.WKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
-                        if (attacksWhite.Knight1.Empty()) { attacksWhite.Knight1 = slidingAttacks; } else { attacksWhite.Knight2 = slidingAttacks; }
+                        attacksWhite.Knight |= slidingAttacks;
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.WBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        if (attacksWhite.Bishop1.Empty()) { attacksWhite.Bishop1 = slidingAttacks; } else { attacksWhite.Bishop2 = slidingAttacks; }
+                        attacksWhite.Bishop |= slidingAttacks;
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.WRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
-                        if (attacksWhite.Rook1.Empty()) { attacksWhite.Rook1 = slidingAttacks; } else { attacksWhite.Rook2 = slidingAttacks; }
+                        attacksWhite.RookQueen |= slidingAttacks;
                         basicMaterialCount += 5;
                         break;
                     case ChessPiece.WQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        attacksWhite.Queen = slidingAttacks;
+                        attacksWhite.RookQueen |= slidingAttacks;
                         basicMaterialCount += 9;
                         break;
                     case ChessPiece.WKing:
@@ -211,22 +215,22 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPiece.BKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
-                        if (attacksBlack.Knight1.Empty()) { attacksBlack.Knight1 = slidingAttacks; } else { attacksBlack.Knight2 = slidingAttacks; }
+                        attacksBlack.Knight |= slidingAttacks;
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.BBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        if (attacksBlack.Bishop1.Empty()) { attacksBlack.Bishop1 = slidingAttacks; } else { attacksBlack.Bishop2 = slidingAttacks; }
+                        attacksBlack.Bishop |= slidingAttacks;
                         basicMaterialCount += 3;
                         break;
                     case ChessPiece.BRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
-                        if (attacksBlack.Rook1.Empty()) { attacksBlack.Rook1 = slidingAttacks; } else { attacksBlack.Rook2 = slidingAttacks; }
+                        attacksBlack.RookQueen |= slidingAttacks;
                         basicMaterialCount += 5;
                         break;
                     case ChessPiece.BQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        attacksBlack.Queen = slidingAttacks;
+                        attacksBlack.RookQueen |= slidingAttacks;
                         basicMaterialCount += 9;
                         break;
                     case ChessPiece.BKing:
@@ -253,11 +257,10 @@ namespace Sinobyl.Engine
             }
 
             //pawns
-            PawnInfo pawns = this.PawnEval.PawnEval(board);
-
+            PawnInfo pawns = this.PawnEval.PawnEval(board);            
 
             //eval passed pawns;
-            ChessEvalPassed.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
+            //ChessEvalPassed.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
 
             //test to see if we are just trying to force the king to the corner for mate.
             int endGamePcSq = 0;
@@ -357,21 +360,16 @@ namespace Sinobyl.Engine
         public ChessBitboard PawnEast;
         public ChessBitboard PawnWest;
 
-        public ChessBitboard Knight1;
-        public ChessBitboard Knight2;
+        public ChessBitboard Knight;
+        public ChessBitboard Bishop;
 
-        public ChessBitboard Bishop1;
-        public ChessBitboard Bishop2;
+        public ChessBitboard RookQueen;
 
-        public ChessBitboard Rook1;
-        public ChessBitboard Rook2;
-
-        public ChessBitboard Queen;
         public ChessBitboard King;
 
         public ChessBitboard All()
         {
-            return PawnEast | PawnWest | Knight1 | Knight2 | Bishop1 | Bishop2 | Rook1 | Rook2 | Queen | King;
+            return PawnEast | PawnWest | Knight | Bishop | RookQueen | King;
         }
 
         public ChessEvalAttackInfo Reverse()
@@ -380,13 +378,9 @@ namespace Sinobyl.Engine
             {
                 PawnEast = PawnEast.Reverse(),
                 PawnWest = PawnWest.Reverse(),
-                Knight1 = Knight1.Reverse(),
-                Knight2 = Knight2.Reverse(),
-                Bishop1 = Bishop1.Reverse(),
-                Bishop2 = Bishop2.Reverse(),
-                Rook1 = Rook1.Reverse(),
-                Rook2 = Rook2.Reverse(),
-                Queen = Queen.Reverse(),
+                Knight = Knight.Reverse(),
+                Bishop = Bishop.Reverse(),
+                RookQueen = RookQueen.Reverse(),
                 King = King.Reverse()
             };
         }

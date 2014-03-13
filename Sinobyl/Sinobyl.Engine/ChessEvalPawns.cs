@@ -14,9 +14,10 @@ namespace Sinobyl.Engine
         public readonly int IsolatedPawnValueEnd;
         public readonly int UnconnectedPawnStart;
         public readonly int UnconnectedPawnEnd;
+        public readonly int[,] PcSqValuePosStage;
         public readonly int[,] PawnPassedValuePosStage;
         public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
-
+        
         public ChessEvalPawns(ChessEvalSettings settings, uint hashSize = 1000)
         {
             pawnHash = new PawnInfo[hashSize];
@@ -29,11 +30,13 @@ namespace Sinobyl.Engine
             this.UnconnectedPawnEnd = settings.PawnUnconnected.Endgame;
 
             //setup passed pawn array
+            PcSqValuePosStage = new int[64, 2];
             PawnPassedValuePosStage = new int[64, 2];
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
                 {
+                    PcSqValuePosStage[(int)pos, (int)stage] = settings.PcSqTables.Pawn[stage][pos];
                     PawnPassedValuePosStage[(int)pos, (int)stage] = settings.PawnPassedValues[stage][pos];
                 }
             }
@@ -50,35 +53,27 @@ namespace Sinobyl.Engine
             {
                 return retval;
             }
-            //not in the hash
-            ChessBitboard passedPawns;
-            int startVal;
-            int endVal;
-            EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), out startVal, out endVal, out passedPawns);
-            retval = new PawnInfo(board.ZobristPawn, startVal, endVal, passedPawns);
+
+            retval = EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), board.ZobristPawn);
             pawnHash[idx] = retval;
             return retval;
         }
 
-        public void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, out int StartVal, out int EndVal, out ChessBitboard passedPawns)
-        {
-            ChessBitboard doubled = ChessBitboard.Empty;
-            ChessBitboard isolated = ChessBitboard.Empty;
-            ChessBitboard unconnected = ChessBitboard.Empty;
-            EvalAllPawns(whitePawns, blackPawns, out StartVal, out EndVal, out passedPawns, out doubled, out isolated, out unconnected);
-        }
-        public void EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, out int StartVal, out int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
+        public PawnInfo EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, long pawnZobrist)
         {
             //eval for white
-            doubled = ChessBitboard.Empty;
-            passed = ChessBitboard.Empty;
-            isolated = ChessBitboard.Empty;
-            unconnected = ChessBitboard.Empty;
+            ChessBitboard doubled = ChessBitboard.Empty;
+            ChessBitboard passed = ChessBitboard.Empty;
+            ChessBitboard isolated = ChessBitboard.Empty;
+            ChessBitboard unconnected = ChessBitboard.Empty;
 
+            
             int WStartVal = 0;
             int WEndVal = 0;
+            int wpcSqStart = 0;
+            int wpcSqEnd = 0;
 
-            EvalWhitePawns(whitePawns, blackPawns, ref WStartVal, ref WEndVal, out passed, out doubled, out isolated, out unconnected);
+            EvalWhitePawns(whitePawns, blackPawns, ref WStartVal, ref WEndVal, ref wpcSqStart, ref wpcSqEnd ,out passed, out doubled, out isolated, out unconnected);
 
             //create inverse situation
             ChessBitboard bpassed = ChessBitboard.Empty;
@@ -91,9 +86,11 @@ namespace Sinobyl.Engine
 
             int BStartVal = 0;
             int BEndVal = 0;
+            int bPcSqStart = 0;
+            int bPcSqEnd = 0;
 
             //actually passing in the black pawns from their own perspective
-            EvalWhitePawns(blackRev, whiteRev, ref BStartVal, ref BEndVal, out bpassed, out bdoubled, out bisolated, out bunconnected);
+            EvalWhitePawns(blackRev, whiteRev, ref BStartVal, ref BEndVal, ref bPcSqStart, ref bPcSqEnd, out bpassed, out bdoubled, out bisolated, out bunconnected);
 
             doubled |= bdoubled.Reverse();
             passed |= bpassed.Reverse();
@@ -101,11 +98,15 @@ namespace Sinobyl.Engine
             unconnected |= bunconnected.Reverse();
 
             //set return values;
-            StartVal = WStartVal - BStartVal;
-            EndVal = WEndVal - BEndVal;
+            int StartVal = WStartVal - BStartVal;
+            int EndVal = WEndVal - BEndVal;
+            int pcSqStart = wpcSqStart - bPcSqStart;
+            int pcSqEnd = wpcSqEnd - bPcSqEnd;
+
+            return new PawnInfo(pawnZobrist, StartVal, EndVal, passed, pcSqStart, pcSqEnd, doubled, isolated, unconnected);
 
         }
-        private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
+        private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, ref int pcSqStart, ref int pcSqEnd, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
         {
             passed = ChessBitboard.Empty;
             doubled = ChessBitboard.Empty;
@@ -120,6 +121,11 @@ namespace Sinobyl.Engine
                 ChessBitboard bbFile2E = bbFile.ShiftDirE();
                 ChessBitboard bbFile2W = bbFile.ShiftDirW();
                 ChessBitboard bballNorth = r.BitboardAllNorth() & bbFile;
+
+                //pcsq values
+                pcSqStart += this.PcSqValuePosStage[(int)pos, (int)ChessGameStage.Opening];
+                pcSqEnd += this.PcSqValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
+
                 //substract doubled score
                 if (!(bballNorth & ~pos.Bitboard() & whitePawns).Empty())
                 {
@@ -154,8 +160,8 @@ namespace Sinobyl.Engine
                 ChessBitboard blockPositions = (bbFile | bbFile2E | bbFile2W) & pos.GetRank().BitboardAllNorth().ShiftDirN();
                 if ((blockPositions & blackPawns).Empty())
                 {
-                    //StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
-                    //EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
+                    StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
+                    EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
                     passed |= pos.Bitboard();
                 }
             }
@@ -196,13 +202,23 @@ namespace Sinobyl.Engine
         public readonly int StartVal;
         public readonly int EndVal;
         public readonly ChessBitboard PassedPawns;
+        public readonly int StartValPcSq;
+        public readonly int EndValPcSq;
+        public readonly ChessBitboard Doubled;
+        public readonly ChessBitboard Isolated;
+        public readonly ChessBitboard Unconnected;
 
-        public PawnInfo(Int64 pawnZobrist, int startVal, int endVal, ChessBitboard passedPawns)
+        public PawnInfo(Int64 pawnZobrist, int startVal, int endVal, ChessBitboard passedPawns, int startValPcSq, int endValPcSq, ChessBitboard doubled, ChessBitboard isolated, ChessBitboard unconnected)
         {
             PawnZobrist = pawnZobrist;
             StartVal = startVal;
             EndVal = endVal;
             PassedPawns = passedPawns;
+            StartValPcSq = startValPcSq;
+            EndValPcSq = endValPcSq;
+            Doubled = doubled;
+            Isolated = isolated;
+            Unconnected = unconnected;
         }
 
     }

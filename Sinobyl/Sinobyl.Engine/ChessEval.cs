@@ -13,7 +13,8 @@ namespace Sinobyl.Engine
     public class ChessEval: IChessEval
     {
 
-        protected readonly ChessEvalPawns PawnEval;
+        protected readonly ChessEvalPawns _evalPawns;
+        protected readonly ChessEvalMaterial _evalMaterial;
 
         public readonly int[,,] _pcsqPiecePosStage = new int[12,64,2];
         public readonly int[,] _matPieceStage = new int[12,2];
@@ -43,7 +44,8 @@ namespace Sinobyl.Engine
             _settings = settings.CloneDeep();
 
             //setup pawn evaluation
-            PawnEval = new ChessEvalPawns(settings, 1000);
+            _evalPawns = new ChessEvalPawns(_settings, 1000);
+            _evalMaterial = new ChessEvalMaterial(_settings);
 
             //setup weight values;
             WeightMaterialOpening = settings.Weight.Material.Opening;
@@ -148,14 +150,10 @@ namespace Sinobyl.Engine
         {
             ChessEvalInfo evalInfo = new ChessEvalInfo();
             
-
-            int valStartMat = 0;
-            int valEndMat = 0;
             int valStartPieceSq = 0;
             int valEndPieceSq = 0;
             int valStartMobility = 0;
             int valEndMobility = 0;
-            int basicMaterialCount = 0;
 
             var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
             var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
@@ -166,16 +164,12 @@ namespace Sinobyl.Engine
             attacksBlack.PawnWest = board.PieceLocations(ChessPiece.BPawn).ShiftDirSW();
 
 
+
             for (int ipos = 0; ipos < 64; ipos++)
             {
                 ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
                 ChessPiece piece = board.PieceAt(pos);
                 if (piece == ChessPiece.EMPTY) { continue; }
-
-                //add material score
-                valStartMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Opening];
-                valEndMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Endgame];
-
 
                 //add pcsq score;
                 valStartPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
@@ -191,22 +185,18 @@ namespace Sinobyl.Engine
                     case ChessPiece.WKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
                         attacksWhite.Knight |= slidingAttacks;
-                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.WBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         attacksWhite.Bishop |= slidingAttacks;
-                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.WRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
                         attacksWhite.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 5;
                         break;
                     case ChessPiece.WQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         attacksWhite.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 9;
                         break;
                     case ChessPiece.WKing:
                         attacksWhite.King = Attacks.KingAttacks(pos);
@@ -216,22 +206,18 @@ namespace Sinobyl.Engine
                     case ChessPiece.BKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
                         attacksBlack.Knight |= slidingAttacks;
-                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.BBishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         attacksBlack.Bishop |= slidingAttacks;
-                        basicMaterialCount += 3;
                         break;
                     case ChessPiece.BRook:
                         slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
                         attacksBlack.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 5;
                         break;
                     case ChessPiece.BQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         attacksBlack.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 9;
                         break;
                     case ChessPiece.BKing:
                         attacksBlack.King = Attacks.KingAttacks(pos);
@@ -244,20 +230,12 @@ namespace Sinobyl.Engine
                 valEndMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Endgame];
             }
             
-            //bishop pairs
-            if (board.PieceCount(ChessPiece.WBishop) > 1)
-            {
-                valStartMat += _matBishopPairStage[(int)ChessGameStage.Opening];
-                valEndMat += _matBishopPairStage[(int)ChessGameStage.Endgame];
-            }
-            if (board.PieceCount(ChessPiece.BBishop) > 1)
-            {
-                valStartMat -= _matBishopPairStage[(int)ChessGameStage.Opening];
-                valEndMat -= _matBishopPairStage[(int)ChessGameStage.Endgame];
-            }
+
+            //material
+            var material = _evalMaterial.EvalMaterialHash(board);
 
             //pawns
-            PawnInfo pawns = this.PawnEval.PawnEval(board);            
+            PawnInfo pawns = this._evalPawns.PawnEval(board);            
 
             //eval passed pawns;
             //ChessEvalPassed.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
@@ -292,16 +270,16 @@ namespace Sinobyl.Engine
             //float startWeight = 
             //float endWeight = 1 - startWeight;
 
-            
-            evalInfo.MatStart = valStartMat;
-            evalInfo.MatEnd = valEndMat;
+
+            evalInfo.MatStart = material.MaterialScore;
+            evalInfo.MatEnd = material.MaterialScore;
             evalInfo.PcSqStart = valStartPieceSq;
             evalInfo.PcSqEnd = valEndPieceSq;
             evalInfo.MobStart = valStartMobility;
             evalInfo.MobEnd = valEndMobility;
             evalInfo.PawnsStart = pawns.StartVal;
             evalInfo.PawnsEnd = pawns.EndVal;
-            evalInfo.StageStartWeight = CalcStartWeight(basicMaterialCount);
+            evalInfo.StageStartWeight = material.StartWeight;
 
             return evalInfo;
 

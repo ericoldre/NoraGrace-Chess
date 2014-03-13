@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
     {
 
         protected readonly ChessEvalPawns _evalPawns;
-        protected readonly ChessEvalMaterial _evalMaterial;
+        public readonly ChessEvalMaterial _evalMaterial;
 
         public readonly int[,,] _pcsqPiecePosStage = new int[12,64,2];
         public readonly int[,] _matPieceStage = new int[12,2];
@@ -271,8 +271,8 @@ namespace Sinobyl.Engine
             //float endWeight = 1 - startWeight;
 
 
-            evalInfo.MatStart = material.MaterialScore;
-            evalInfo.MatEnd = material.MaterialScore;
+            evalInfo.MatStart = material.ScoreStart;
+            evalInfo.MatEnd = material.ScoreEnd;
             evalInfo.PcSqStart = valStartPieceSq;
             evalInfo.PcSqEnd = valEndPieceSq;
             evalInfo.MobStart = valStartMobility;

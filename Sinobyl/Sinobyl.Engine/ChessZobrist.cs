@@ -10,8 +10,8 @@ namespace Sinobyl.Engine
 	/// </summary>
 	public class ChessZobrist
 	{
-		private static readonly Int64[,] _piecepos = new Int64[12, 120];
-		private static readonly Int64[] _enpassant = new Int64[120];
+		private static readonly Int64[,] _piecepos = new Int64[12, 64];
+		private static readonly Int64[] _enpassant = new Int64[64];
 
         private static readonly Int64 _castleWS;
         private static readonly Int64 _castleWL;
@@ -66,6 +66,11 @@ namespace Sinobyl.Engine
 			//Chess.AssertPosition(pos);
 			return _enpassant[(int)pos];
 		}
+
+        public static Int64 Material(ChessPiece piece)
+        {
+            return _piecepos[(int)piece, 0];
+        }
 		public static Int64 CastleWS
 		{
             get { return _castleWS; }
@@ -100,6 +105,20 @@ namespace Sinobyl.Engine
 			}
 			return retval;
 		}
+        public static Int64 BoardZobMaterial(ChessBoard board)
+        {
+            Int64 retval = 0;
+            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            {
+                ChessPiece piece = board.PieceAt(pos);
+                if (piece != ChessPiece.EMPTY)
+                {
+                    retval ^= Material(piece);
+                }
+            }
+            return retval;
+
+        }
 		public static Int64 BoardZob(ChessBoard board)
 		{
 			Int64 retval = 0;

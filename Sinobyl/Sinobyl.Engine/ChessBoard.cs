@@ -28,7 +28,9 @@ namespace Sinobyl.Engine
 		public readonly int MovesSinceNull;
 		public readonly Int64 Zobrist;
 		public readonly Int64 ZobristPawn;
-		public ChessMoveHistory(ChessPosition from, ChessPosition to, ChessPiece piecemoved, ChessPiece promote, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn)
+        public readonly Int64 ZobristMaterial;
+
+        public ChessMoveHistory(ChessPosition from, ChessPosition to, ChessPiece piecemoved, ChessPiece promote, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
 		{
 			this.From = from;
 			this.To = to;
@@ -44,6 +46,7 @@ namespace Sinobyl.Engine
 			this.MovesSinceNull = sinceNull;
 			this.Zobrist = zob;
 			this.ZobristPawn = zobPawn;
+            this.ZobristMaterial = zobMaterial;
 		}
 	}
 
@@ -141,6 +144,8 @@ namespace Sinobyl.Engine
 		private int _fullmove = 0;
 		private Int64 _zob;
 		private Int64 _zobPawn;
+        private Int64 _zobMaterial;
+
 		private ChessMoveHistoryCollection _hist = new ChessMoveHistoryCollection();
 		private int _movesSinceNull = 100;
 
@@ -240,6 +245,7 @@ namespace Sinobyl.Engine
             }
             _pieceat[pos] = piece;
             _zob ^= ChessZobrist.PiecePosition(piece, pos);
+            _zobMaterial ^= ChessZobrist.Material(piece);
 			_pieceCount[piece]++;
 
             _pieces[piece] |= pos.Bitboard();
@@ -273,6 +279,7 @@ namespace Sinobyl.Engine
             
 			_pieceat[pos] = ChessPiece.EMPTY;
 			_zob ^= ChessZobrist.PiecePosition(piece, pos);
+            _zobMaterial ^= ChessZobrist.Material(piece);
 			_pieceCount[piece]--;
 
             _pieces[piece] &= ~pos.Bitboard();
@@ -425,6 +432,7 @@ namespace Sinobyl.Engine
 				_fullmove = value.fullmove;
 				_zob = ChessZobrist.BoardZob(this);
 				_zobPawn = ChessZobrist.BoardZobPawn(this);
+                _zobMaterial = ChessZobrist.BoardZobMaterial(this);
 
                 //raise changed event.
                 if (handler != null)
@@ -446,18 +454,19 @@ namespace Sinobyl.Engine
 		//}
 		public Int64 Zobrist
 		{
-			get
-			{
-				return _zob;
-			}
+            get { return _zob; }
 		}
+
 		public Int64 ZobristPawn
 		{
-			get
-			{
-				return _zobPawn;
-			}
+            get { return _zobPawn; }
 		}
+
+        public Int64 ZobristMaterial
+        {
+            get { return _zobMaterial; }
+        }
+
         public ChessBitboard PieceLocations(ChessPiece piece)
         {
             return _pieces[piece];
@@ -520,6 +529,7 @@ namespace Sinobyl.Engine
 			_fullmove = 1;
 			_zob = 0;
 			_zobPawn = 0;
+            _zobMaterial = 0;
 		}
 		
 		public bool CastleAvailWS
@@ -584,7 +594,7 @@ namespace Sinobyl.Engine
 			ChessFile fromfile = from.GetFile();
 			ChessFile tofile = to.GetFile();
 
-			ChessMoveHistory histobj = new ChessMoveHistory(from, to, piece, promote, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove,_movesSinceNull, _zob, _zobPawn);
+			ChessMoveHistory histobj = new ChessMoveHistory(from, to, piece, promote, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial);
 			_hist.Add(histobj);
 
 			//increment since null count;
@@ -826,6 +836,7 @@ namespace Sinobyl.Engine
             _whosturn = _whosturn.PlayerOther();
 			_zob = movehist.Zobrist;
 			_zobPawn = movehist.ZobristPawn;
+            _zobMaterial = movehist.ZobristMaterial;
 
             if (handler != null)
             {
@@ -837,7 +848,7 @@ namespace Sinobyl.Engine
 		public void MoveNullApply()
 		{
 			//save move history
-            ChessMoveHistory histobj = new ChessMoveHistory((ChessPosition.OUTOFBOUNDS), (ChessPosition.OUTOFBOUNDS), (ChessPiece.EMPTY), (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn);
+            ChessMoveHistory histobj = new ChessMoveHistory((ChessPosition.OUTOFBOUNDS), (ChessPosition.OUTOFBOUNDS), (ChessPiece.EMPTY), (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
 			_hist.Add(histobj);
 
 			//reset since null count;
@@ -877,6 +888,7 @@ namespace Sinobyl.Engine
             _whosturn = _whosturn.PlayerOther();
 			_zob = movehist.Zobrist;
 			_zobPawn = movehist.ZobristPawn;
+            _zobMaterial = movehist.ZobristMaterial;
 
             var handler = this.BoardChanged;
             if (handler != null)

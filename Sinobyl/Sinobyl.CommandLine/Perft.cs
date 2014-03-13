@@ -108,23 +108,24 @@ namespace Sinobyl.CommandLine
             nodesDone++;
             if (doEval)
             {
+                
                 var newEval = eval.EvalDetail(board);
-                var oldEval = evalOld.EvalDetail(board);
-                var diffPct = (1f - (float)newEval.Score / (float)oldEval.Score);
 
-                if (Math.Abs(newEval.Score - oldEval.Score) > 10)
-                {
-                    if(Math.Abs(diffPct) > .02f)
-                    {
-                        int newStart = newEval.MatStart;
-                        int newEnd = newEval.MatEnd;
-                        int oldStart = oldEval.MatStart;
-                        int oldEnd = oldEval.MatEnd;
-                        var x = eval._evalMaterial.EvalMaterialHash(board);
-                        throw new Exception();
-                    }
-                    
-                }
+                //var oldEval = evalOld.EvalDetail(board);
+                //var diffPct = (1f - (float)newEval.Score / (float)oldEval.Score);
+
+                //if (Math.Abs(newEval.Score - oldEval.Score) > 10)
+                //{
+                //    if(Math.Abs(diffPct) > .02f)
+                //    {
+                //        int newStart = newEval.MatStart;
+                //        int newEnd = newEval.MatEnd;
+                //        int oldStart = oldEval.MatStart;
+                //        int oldEnd = oldEval.MatEnd;
+                //        var x = eval._evalMaterial.EvalMaterialHash(board);
+                //        throw new Exception();
+                //    }
+                //}
             }
             if (depth_remaining <= 0 || nodesDone >= nodeCount)
             {

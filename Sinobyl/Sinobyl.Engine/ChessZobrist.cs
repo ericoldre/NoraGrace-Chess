@@ -67,9 +67,13 @@ namespace Sinobyl.Engine
 			return _enpassant[(int)pos];
 		}
 
-        public static Int64 Material(ChessPiece piece)
+        public static Int64 Material(ChessPiece piece, int pieceCountBesidesThis)
         {
-            return _piecepos[(int)piece, 0];
+            if (pieceCountBesidesThis < 0)
+            {
+                throw new Exception();
+            }
+            return _piecepos[(int)piece, pieceCountBesidesThis];
         }
 		public static Int64 CastleWS
 		{
@@ -108,12 +112,11 @@ namespace Sinobyl.Engine
         public static Int64 BoardZobMaterial(ChessBoard board)
         {
             Int64 retval = 0;
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
-                ChessPiece piece = board.PieceAt(pos);
-                if (piece != ChessPiece.EMPTY)
+                for (int i = 0; i < board.PieceCount(piece); i++)
                 {
-                    retval ^= Material(piece);
+                    retval ^= Material(piece, i);
                 }
             }
             return retval;

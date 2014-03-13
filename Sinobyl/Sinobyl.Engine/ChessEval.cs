@@ -270,7 +270,6 @@ namespace Sinobyl.Engine
             //float startWeight = 
             //float endWeight = 1 - startWeight;
 
-
             evalInfo.MatStart = material.ScoreStart;
             evalInfo.MatEnd = material.ScoreEnd;
             evalInfo.PcSqStart = valStartPieceSq;

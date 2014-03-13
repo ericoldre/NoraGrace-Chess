@@ -161,10 +161,12 @@ namespace Sinobyl.Engine
 		}
 		public ChessBoard(ChessFEN fen)
 		{
+            initPieceAtArray();
 			this.FEN = fen;
 		}
 		public ChessBoard(ChessFEN fen, IEnumerable<ChessMove> prevMoves)
 		{
+            initPieceAtArray();
 			this.FEN = fen;
 			foreach (ChessMove move in prevMoves)
 			{
@@ -245,7 +247,7 @@ namespace Sinobyl.Engine
             }
             _pieceat[pos] = piece;
             _zob ^= ChessZobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= ChessZobrist.Material(piece);
+            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[piece]);
 			_pieceCount[piece]++;
 
             _pieces[piece] |= pos.Bitboard();
@@ -279,7 +281,7 @@ namespace Sinobyl.Engine
             
 			_pieceat[pos] = ChessPiece.EMPTY;
 			_zob ^= ChessZobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= ChessZobrist.Material(piece);
+            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[piece] - 1);
 			_pieceCount[piece]--;
 
             _pieces[piece] &= ~pos.Bitboard();

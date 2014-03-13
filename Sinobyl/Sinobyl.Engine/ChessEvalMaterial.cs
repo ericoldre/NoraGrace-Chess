@@ -19,15 +19,20 @@ namespace Sinobyl.Engine
         public Results EvalMaterialHash(ChessBoard board)
         {
             long idx = board.ZobristMaterial % _hash.GetUpperBound(0);
+
+            if (board.ZobristMaterial != ChessZobrist.BoardZobMaterial(board))
+            {
+                throw new Exception();
+            }
             if (idx < 0) { idx = -idx; }
 
-            //Results retval = _hash[idx];
-            //if (retval != null && retval.ZobristMaterial == board.ZobristMaterial)
-            //{
-            //    return retval;
-            //}
+            Results retval = _hash[idx];
+            if (retval != null && retval.ZobristMaterial == board.ZobristMaterial)
+            {
+                return retval;
+            }
 
-            var retval = EvalMaterial(
+            retval = EvalMaterial(
                 zob: board.ZobristMaterial,
                 wp: board.PieceCount(ChessPiece.WPawn),
                 wn: board.PieceCount(ChessPiece.WKnight),
@@ -92,6 +97,7 @@ namespace Sinobyl.Engine
             //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
 
             return new Results(zob, startWeight, startScore, endScore, basicCount);
+            //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
         }
 
         protected virtual float CalcStartWeight(int basicMaterialCount)
@@ -121,14 +127,36 @@ namespace Sinobyl.Engine
             public readonly int ScoreStart;
             public readonly int ScoreEnd;
             public readonly int BasicMaterialCount;
+            public readonly int Wp;
+            public readonly int Wn;
+            public readonly int Wb;
+            public readonly int Wr;
+            public readonly int Wq;
+            public readonly int Bp;
+            public readonly int Bn;
+            public readonly int Bb;
+            public readonly int Br;
+            public readonly int Bq;
 
-            public Results(Int64 zobristMaterial, float startWeight, int scoreStart, int scoreEnd, int basicMateralCount)
+            public Results(Int64 zobristMaterial, float startWeight, int scoreStart, int scoreEnd, int basicMateralCount /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
             {
                 ZobristMaterial = zobristMaterial;
                 StartWeight = startWeight;
                 ScoreStart = scoreStart;
                 ScoreEnd = scoreEnd;
                 BasicMaterialCount = basicMateralCount;
+
+                //Wp = wp;
+                //Wn = wn;
+                //Wb = wb;
+                //Wr = wr;
+                //Wq = wq;
+                //Bp = bp;
+                //Bn = bn;
+                //Bb = bb;
+                //Br = br;
+                //Bq = bq;
+
             }
 
         }

@@ -10,8 +10,8 @@ namespace Sinobyl.Engine
 	/// </summary>
 	public class ChessZobrist
 	{
-		public static readonly Int64[,] _piecepos = new Int64[12, 120];
-		public static readonly Int64[] _enpassant = new Int64[120];
+		private static readonly Int64[,] _piecepos = new Int64[12, 120];
+		private static readonly Int64[] _enpassant = new Int64[120];
 
 		public static readonly Int64 _castleWS;
 		public static readonly Int64 _castleWL;
@@ -39,14 +39,9 @@ namespace Sinobyl.Engine
 					_piecepos[(int)piece, (int)pos] = Rand64(rand);
 				}
 			}
+		}
+        
 
-		}
-		private static int PiecePositionIndex(ChessPiece piece, ChessPosition pos)
-		{
-			//Chess.AssertPiece(piece);
-			//Chess.AssertPosition(pos);
-			return ((int)piece * 120) + (int)pos;
-		}
 		private static Int64 Rand64(Random rand)
 		{
 			byte[] bytes = new byte[8];

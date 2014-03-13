@@ -239,7 +239,7 @@ namespace Sinobyl.Engine
                 log.Added.Add(new BoardChangeEventItemAdded(piece, pos));
             }
             _pieceat[pos] = piece;
-			_zob ^= ChessZobrist._piecepos[(int)piece, (int)pos];
+            _zob ^= ChessZobrist.PiecePosition(piece, pos);
 			_pieceCount[piece]++;
 
             _pieces[piece] |= pos.Bitboard();
@@ -251,7 +251,7 @@ namespace Sinobyl.Engine
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
-				_zobPawn ^= ChessZobrist._piecepos[(int)piece, (int)pos];
+                _zobPawn ^= ChessZobrist.PiecePosition(piece, pos);
 			}
 			else if (piece == ChessPiece.WKing)
 			{
@@ -272,7 +272,7 @@ namespace Sinobyl.Engine
             }
             
 			_pieceat[pos] = ChessPiece.EMPTY;
-			_zob ^= ChessZobrist._piecepos[(int)piece, (int)pos];
+			_zob ^= ChessZobrist.PiecePosition(piece, pos);
 			_pieceCount[piece]--;
 
             _pieces[piece] &= ~pos.Bitboard();
@@ -284,7 +284,7 @@ namespace Sinobyl.Engine
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
-				_zobPawn ^= ChessZobrist._piecepos[(int)piece, (int)pos];
+                _zobPawn ^= ChessZobrist.PiecePosition(piece, pos); 
 			}
 		}
 		public int PieceCount(ChessPiece piece)
@@ -684,7 +684,7 @@ namespace Sinobyl.Engine
 			//unmark enpassant sq
 			if (_enpassant.IsInBounds())
 			{
-				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
+				_zob ^= ChessZobrist.Enpassant(_enpassant);
 				_enpassant = (ChessPosition.OUTOFBOUNDS);
 			}
 
@@ -692,12 +692,12 @@ namespace Sinobyl.Engine
 			if (piece == ChessPiece.WPawn && fromrank == ChessRank.Rank2 && torank == ChessRank.Rank4)
 			{
 				_enpassant = fromfile.ToPosition(ChessRank.Rank3);
-				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
+                _zob ^= ChessZobrist.Enpassant(_enpassant);
 			}
 			else if (piece == ChessPiece.BPawn && fromrank == ChessRank.Rank7 && torank == ChessRank.Rank5)
 			{
 				_enpassant = fromfile.ToPosition(ChessRank.Rank6);
-				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
+                _zob ^= ChessZobrist.Enpassant(_enpassant);
 			}
 
 			//increment the move count
@@ -846,7 +846,7 @@ namespace Sinobyl.Engine
 			//unmark enpassant sq
 			if (_enpassant.IsInBounds())
 			{
-				_zob ^= ChessZobrist._enpassant[(int)_enpassant];
+				_zob ^= ChessZobrist.Enpassant(_enpassant);
 				_enpassant = (ChessPosition.OUTOFBOUNDS);
 			}
 

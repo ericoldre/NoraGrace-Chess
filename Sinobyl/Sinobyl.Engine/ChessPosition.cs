@@ -278,7 +278,7 @@ namespace Sinobyl.Engine
 
     }
 
-    public class ChessPositionDictionary<T>
+    public sealed class ChessPositionDictionary<T>
     {
         [System.Xml.Serialization.XmlIgnore()]
         private T[] _values = new T[64];
@@ -301,11 +301,11 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return _values[pos.GetIndex64()];
+                return _values[(int)pos];
             }
             set
             {
-                _values[pos.GetIndex64()] = value;
+                _values[(int)pos] = value;
             }
         }
 

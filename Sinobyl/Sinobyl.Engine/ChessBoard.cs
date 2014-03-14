@@ -12,7 +12,7 @@ namespace Sinobyl.Engine
 	/// Summary description for Class1.
 	/// </summary>
 
-	public class ChessMoveHistory
+	public sealed class ChessMoveHistory
 	{
 		public readonly ChessPosition From;
 		public readonly ChessPosition To;
@@ -50,12 +50,12 @@ namespace Sinobyl.Engine
 		}
 	}
 
-	public class ChessMoveHistoryCollection : List<ChessMoveHistory>
+	public sealed class ChessMoveHistoryCollection : List<ChessMoveHistory>
 	{
 
 	}
 
-	public class ChessBoard
+	public sealed class ChessBoard
 	{
 
         public class BoardChangedEventArgs : EventArgs
@@ -65,6 +65,7 @@ namespace Sinobyl.Engine
             public List<BoardChangeEventItemAdded> Added = new List<BoardChangeEventItemAdded>();
             public List<BoardChangeEventItemChanged> Changed = new List<BoardChangeEventItemChanged>();
         }
+
         public struct BoardChangeEventItemRemoved
         {
             public readonly ChessPiece Piece;
@@ -75,6 +76,7 @@ namespace Sinobyl.Engine
                 Position = position;
             }
         }
+
         public struct BoardChangeEventItemMoved
         {
             public readonly ChessPiece Piece;
@@ -87,6 +89,7 @@ namespace Sinobyl.Engine
                 NewPosition = newPosition;
             }
         }
+
         public struct BoardChangeEventItemAdded
         {
             public readonly ChessPiece Piece;
@@ -97,6 +100,7 @@ namespace Sinobyl.Engine
                 Position = position;
             }
         }
+
         public struct BoardChangeEventItemChanged
         {
             public readonly ChessPiece OldPiece;

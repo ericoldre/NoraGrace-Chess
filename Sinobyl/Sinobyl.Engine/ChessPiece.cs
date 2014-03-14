@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
     }
 
     
-    public class ChessPieceDictionary<T> where T: new()
+    public sealed class ChessPieceDictionary<T> where T: new()
     {
 
 

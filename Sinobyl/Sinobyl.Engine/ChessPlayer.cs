@@ -11,7 +11,7 @@ namespace Sinobyl.Engine
         White = 0, Black = 1
     }
 
-    public class ChessPlayerDictionary<T>
+    public sealed class ChessPlayerDictionary<T>
     {
         private T[] _values = new T[2];
 

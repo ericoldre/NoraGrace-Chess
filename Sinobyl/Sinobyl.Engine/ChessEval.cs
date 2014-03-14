@@ -254,22 +254,6 @@ namespace Sinobyl.Engine
             }
 
 
-            ////calculate total start and end values
-            //int valStart = 
-            //    (valStartMat * WeightMaterialOpening / 100) 
-            //    + (valStartPieceSq * WeightPcSqOpening / 100) 
-            //    + (valStartMobility * WeightMobilityOpening / 100) 
-            //    + pawns.StartVal;
-
-            //int valEnd =
-            //    (valEndMat * WeightMaterialEndgame / 100)
-            //    + (valEndPieceSq * WeightPcSqEndgame / 100)
-            //    + (valEndMobility * WeightMobilityEndgame / 100)
-            //    + pawns.EndVal;
-
-            //float startWeight = 
-            //float endWeight = 1 - startWeight;
-
             evalInfo.MatStart = material.ScoreStart;
             evalInfo.MatEnd = material.ScoreEnd;
             evalInfo.PcSqStart = valStartPieceSq;

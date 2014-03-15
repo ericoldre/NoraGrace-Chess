@@ -270,7 +270,7 @@ namespace Sinobyl.Engine
 
 			//get trans table move
 			int tt_score = 0;
-			ChessMove tt_move = new ChessMove();
+            ChessMove tt_move = ChessMove.NULL_MOVE;
 			SearchArgs.TransTable.QueryCutoff(board, depth, -INFINITY, INFINITY, ref tt_move, ref tt_score);
 			
 
@@ -285,7 +285,7 @@ namespace Sinobyl.Engine
 			int alpha = -INFINITY;
 			int beta = INFINITY;
 
-			ChessMove bestmove = new ChessMove();
+            ChessMove bestmove = ChessMove.NULL_MOVE;
 
 			foreach (ChessMove move in moves)
 			{
@@ -456,7 +456,7 @@ namespace Sinobyl.Engine
 			}
 
 			//check trans table
-			ChessMove tt_move = new ChessMove();
+			ChessMove tt_move = ChessMove.NULL_MOVE;
 			if (SearchArgs.TransTable.QueryCutoff(board, depth, alpha, beta, ref tt_move, ref score))
 			{
 				//if last two moves were null this is a verification search. 
@@ -517,7 +517,7 @@ namespace Sinobyl.Engine
 			//bool haslegalmove = false;
 			int legalMovesTried = 0;
 			int blunders = 0;
-			ChessMove bestmove = new ChessMove();
+            ChessMove bestmove = ChessMove.NULL_MOVE;
 			ChessMoves subline = new ChessMoves();
 
 			foreach (ChessMove move in moves)
@@ -547,7 +547,7 @@ namespace Sinobyl.Engine
 
 
 				//check for blunder
-				bool isRecapture = (move.To == board.HistMove(2).To);
+                bool isRecapture = (move.To() == board.HistMove(2).To());
 				if (SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, depth, isRecapture, legalMovesTried, moves.Count,alpha,beta))
 				{
 					if (!in_check_before_move)  //weird behavior if doing blunder when player in check
@@ -629,7 +629,7 @@ namespace Sinobyl.Engine
                 moves = new ChessMoves(ChessMoveInfo.GenMoves(board, true));
 			}
 
-            ChessMoveInfo.Comp moveOrderer = new ChessMoveInfo.Comp(board, new ChessMove(), false);
+            ChessMoveInfo.Comp moveOrderer = new ChessMoveInfo.Comp(board, ChessMove.NULL_MOVE, false);
 			moves.Sort(moveOrderer);
 
 
@@ -656,7 +656,7 @@ namespace Sinobyl.Engine
 				int move_score = -ValSearchQ(ply + 1, -beta, -alpha, subline);
 
 				//check for blunder
-				bool isRecapture = (move.To == board.HistMove(2).To);
+                bool isRecapture = (move.To() == board.HistMove(2).To());
 				if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, 0, isRecapture, tried_move_count, moves.Count,alpha,beta))
 				{
 					if (!playerincheck) //weird behavior if doing blunder when player in check

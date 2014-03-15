@@ -6,6 +6,62 @@ using System.Text.RegularExpressions;
 
 namespace Sinobyl.Engine
 {
+    public enum ChessNotationType
+    {
+        Coord,
+        San,
+        Detailed
+    }
+
+    public class ChessMoves : List<ChessMove>
+    {
+        public ChessMoves()
+        {
+
+        }
+        public ChessMoves(IEnumerable<ChessMove> moves)
+            : base(moves)
+        {
+
+        }
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (ChessMove move in this)
+            {
+                sb.Append(move.Write() + " ");
+            }
+            return sb.ToString();
+        }
+        public string ToString(ChessBoard board, bool isVariation)
+        {
+            StringBuilder sb = new StringBuilder();
+            long zobInit = board.Zobrist;
+            foreach (ChessMove move in this)
+            {
+                if (isVariation && board.WhosTurn == ChessPlayer.White)
+                {
+                    sb.Append(board.FullMoveCount.ToString() + ". ");
+                }
+                sb.Append(move.Write(board) + " ");
+                if (isVariation)
+                {
+                    board.MoveApply(move);
+                }
+            }
+            if (isVariation)
+            {
+                foreach (ChessMove move in this)
+                {
+                    board.MoveUndo();
+                }
+            }
+            return sb.ToString();
+        }
+
+    }
+
+
     public static partial class ChessMoveInfo
     {
         public static ChessMove Parse(ChessBoard board, string movetext)
@@ -199,11 +255,11 @@ namespace Sinobyl.Engine
                 fits.Clear();
                 foreach (ChessMove move in allLegal)
                 {
-                    if (move.To != attackto) { continue; }
-                    if (board.PieceAt(move.From) != piece) { continue; }
-                    if (file != ChessFile.EMPTY && move.From.GetFile() != file) { continue; }
-                    if (rank != ChessRank.EMPTY && move.From.GetRank() != rank) { continue; }
-                    fits.Add(move.From);
+                    if (move.To() != attackto) { continue; }
+                    if (board.PieceAt(move.From()) != piece) { continue; }
+                    if (file != ChessFile.EMPTY && move.From().GetFile() != file) { continue; }
+                    if (rank != ChessRank.EMPTY && move.From().GetRank() != rank) { continue; }
+                    fits.Add(move.From());
                 }
             }
 
@@ -219,13 +275,13 @@ namespace Sinobyl.Engine
         public static string Write(this ChessMove move)
         {
             string retval = "";
-            if (move.Promote == ChessPiece.EMPTY)
+            if (move.Promote() == ChessPiece.EMPTY)
             {
-                retval = move.From.PositionToString().ToLower() + move.To.PositionToString().ToLower();
+                retval = move.From().PositionToString().ToLower() + move.To().PositionToString().ToLower();
             }
             else
             {
-                retval = move.From.PositionToString().ToLower() + move.To.PositionToString().ToLower() + move.Promote.PieceToString().ToLower();
+                retval = move.From().PositionToString().ToLower() + move.To().PositionToString().ToLower() + move.Promote().PieceToString().ToLower();
             }
             return retval;
         }

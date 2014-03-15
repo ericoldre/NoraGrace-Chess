@@ -48,7 +48,7 @@ namespace Sinobyl.Engine
 				//undo the move
 				board.MoveUndo();
 			}
-			if (infos.Count == 0) { return null; }
+			if (infos.Count == 0) { return ChessMove.NULL_MOVE; }
 			Random rand = new Random();
 			int i = rand.Next(1, totalPop);
 			while (infos.Count>0)
@@ -66,7 +66,7 @@ namespace Sinobyl.Engine
 					infos.Remove(info);
 				}
 			}
-			return null;
+            return ChessMove.NULL_MOVE;
 			
 			
 		}

@@ -14,10 +14,13 @@ namespace Sinobyl.Engine
 
 	public sealed class ChessMoveHistory
 	{
-		public readonly ChessPosition From;
-		public readonly ChessPosition To;
-		public readonly ChessPiece PieceMoved;
-		public readonly ChessPiece Promote;
+        public readonly ChessMove Move;
+		//public readonly ChessPosition From;
+		//public readonly ChessPosition To;
+        //public readonly ChessPiece Promote;
+
+        public readonly ChessPiece PieceMoved;
+		
 		public readonly ChessPiece Captured;
 		public readonly ChessPosition Enpassant;
 		public readonly bool CastleWS;
@@ -30,12 +33,10 @@ namespace Sinobyl.Engine
 		public readonly Int64 ZobristPawn;
         public readonly Int64 ZobristMaterial;
 
-        public ChessMoveHistory(ChessPosition from, ChessPosition to, ChessPiece piecemoved, ChessPiece promote, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
+        public ChessMoveHistory(ChessMove move, ChessPiece piecemoved, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
 		{
-			this.From = from;
-			this.To = to;
-			this.PieceMoved = piecemoved;
-			this.Promote = promote;
+            this.Move = move;
+            this.PieceMoved = piecemoved;
 			this.Captured = captured;
 			this.Enpassant = enpassant;
 			this.CastleWS = cws;
@@ -552,17 +553,17 @@ namespace Sinobyl.Engine
 		{
             //initialize event handler and log.
 
-			ChessPosition from = move.From;
-			ChessPosition to = move.To;
+            ChessPosition from = move.From();
+            ChessPosition to = move.To();
 			ChessPiece piece = this.PieceAt(from);
 			ChessPiece capture = this.PieceAt(to);
-			ChessPiece promote = move.Promote;
+            ChessPiece promote = move.Promote();
             ChessRank fromrank = from.GetRank();
 			ChessRank torank = to.GetRank();
 			ChessFile fromfile = from.GetFile();
 			ChessFile tofile = to.GetFile();
 
-			ChessMoveHistory histobj = new ChessMoveHistory(from, to, piece, promote, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial);
+			ChessMoveHistory histobj = new ChessMoveHistory(move, piece, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial);
 			_hist.Add(histobj);
 
 			//increment since null count;
@@ -712,15 +713,16 @@ namespace Sinobyl.Engine
 				ChessMoves retval = new ChessMoves();
 				foreach (ChessMoveHistory hist in _hist)
 				{
-					retval.Add(new ChessMove(hist.From, hist.To, hist.Promote));
+					retval.Add(hist.Move);
 				}
 				return retval;
 			}
 		}
+
 		public ChessMove HistMove(int MovesAgo)
 		{
 			ChessMoveHistory hist = _hist[_hist.Count - MovesAgo];
-			return new ChessMove(hist.From, hist.To, hist.Promote);
+            return hist.Move;
 		}
 
 		public void MoveUndo()
@@ -729,50 +731,57 @@ namespace Sinobyl.Engine
 			ChessMoveHistory movehist = _hist[_hist.Count - 1];
 			_hist.RemoveAt(_hist.Count - 1);
 
+            ChessMove prevMove = movehist.Move;
+
+            var prevMoveFrom = prevMove.From();
+            var prevMoveTo = prevMove.To();
+            var prevMoveProm = prevMove.Promote();
+
+
             //undo promotion
-            if (movehist.Promote != ChessPiece.EMPTY)
+            if (prevMoveProm != ChessPiece.EMPTY)
             {
-                PieceChange(movehist.To, movehist.PieceMoved);
+                PieceChange(prevMoveTo, movehist.PieceMoved);
             }
 			
             //move piece to it's original location
-            PieceMove(movehist.To, movehist.From);
+            PieceMove(prevMoveTo, prevMoveFrom);
 
 
 
 			//replace the captured piece
 			if (movehist.Captured != ChessPiece.EMPTY)
 			{
-				PieceAdd(movehist.To, movehist.Captured);
+                PieceAdd(prevMoveTo, movehist.Captured);
 			}
 
 			//move rook back if castle
-			if (movehist.PieceMoved == ChessPiece.WKing && movehist.From == ChessPosition.E1 && movehist.To == ChessPosition.G1)
+            if (movehist.PieceMoved == ChessPiece.WKing && prevMoveFrom == ChessPosition.E1 && prevMoveTo == ChessPosition.G1)
 			{
                 this.PieceMove(ChessPosition.F1, ChessPosition.H1);
 			}
-			if (movehist.PieceMoved == ChessPiece.WKing && movehist.From == ChessPosition.E1 && movehist.To == ChessPosition.C1)
+            if (movehist.PieceMoved == ChessPiece.WKing && prevMoveFrom == ChessPosition.E1 && prevMoveTo == ChessPosition.C1)
 			{
                 this.PieceMove(ChessPosition.D1, ChessPosition.A1);
 			}
-			if (movehist.PieceMoved == ChessPiece.BKing && movehist.From == ChessPosition.E8 && movehist.To == ChessPosition.G8)
+            if (movehist.PieceMoved == ChessPiece.BKing && prevMoveFrom == ChessPosition.E8 && prevMoveTo == ChessPosition.G8)
 			{
                 this.PieceMove(ChessPosition.F8, ChessPosition.H8);
 			}
-			if (movehist.PieceMoved == ChessPiece.BKing && movehist.From == ChessPosition.E8 && movehist.To == ChessPosition.C8)
+            if (movehist.PieceMoved == ChessPiece.BKing && prevMoveFrom == ChessPosition.E8 && prevMoveTo == ChessPosition.C8)
 			{
                 this.PieceMove(ChessPosition.D8, ChessPosition.A8);
 			}
 
 			//put back pawn if enpassant capture
-			if (movehist.PieceMoved == ChessPiece.WPawn && movehist.To == movehist.Enpassant)
+            if (movehist.PieceMoved == ChessPiece.WPawn && prevMoveTo == movehist.Enpassant)
 			{
-                ChessFile tofile = movehist.To.GetFile();
+                ChessFile tofile = prevMoveTo.GetFile();
                 PieceAdd(tofile.ToPosition(ChessRank.Rank5), ChessPiece.BPawn);
 			}
-			if (movehist.PieceMoved == ChessPiece.BPawn && movehist.To == movehist.Enpassant)
+            if (movehist.PieceMoved == ChessPiece.BPawn && prevMoveTo == movehist.Enpassant)
 			{
-				ChessFile tofile = movehist.To.GetFile();
+                ChessFile tofile = prevMoveTo.GetFile();
 				PieceAdd(tofile.ToPosition(ChessRank.Rank4), ChessPiece.WPawn);
 			}
 
@@ -799,7 +808,7 @@ namespace Sinobyl.Engine
 		public void MoveNullApply()
 		{
 			//save move history
-            ChessMoveHistory histobj = new ChessMoveHistory((ChessPosition.OUTOFBOUNDS), (ChessPosition.OUTOFBOUNDS), (ChessPiece.EMPTY), (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
+            ChessMoveHistory histobj = new ChessMoveHistory(ChessMove.NULL_MOVE, (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
 			_hist.Add(histobj);
 
 			//reset since null count;
@@ -846,9 +855,9 @@ namespace Sinobyl.Engine
 		}
 		public bool LastTwoMovesNull()
 		{
-			return MovesSinceNull == 0 
-				&& this._hist.Count>=2 
-				&& this._hist[_hist.Count - 2].From == (ChessPosition.OUTOFBOUNDS);
+            return MovesSinceNull == 0
+                && this._hist.Count >= 2
+                && this._hist[_hist.Count - 2].Move == ChessMove.NULL_MOVE;
 		}
 
 		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, ref ChessPosition pos)

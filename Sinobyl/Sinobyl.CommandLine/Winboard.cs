@@ -80,7 +80,7 @@ namespace Sinobyl.CommandLine
             
             try
             {
-                Program.ConsoleWriteline(string.Format("move {0}", e.Move.ToString()));
+                Program.ConsoleWriteline(string.Format("move {0}", ChessMoveInfo.Write(e.Move)));
                 _board.MoveApply(e.Move);
                 GameDoneAnnounce();
 
@@ -181,7 +181,7 @@ namespace Sinobyl.CommandLine
                     _timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);
                     break;
                 case "usermove":
-                    ChessMove usermove = new ChessMove(_board, argument);
+                    ChessMove usermove = ChessMoveInfo.Parse(_board, argument);
                     _board.MoveApply(usermove);
                     bool done = GameDoneAnnounce();
                     if (!done && _board.WhosTurn == _myplayer)
@@ -235,7 +235,7 @@ namespace Sinobyl.CommandLine
 		}
 		public void SimulateUsermove(string usermoveTxt)
 		{
-			ChessMove usermove = new ChessMove(_board, usermoveTxt);
+            ChessMove usermove = ChessMoveInfo.Parse(_board, usermoveTxt);
 			_board.MoveApply(usermove);
 			bool done = GameDoneAnnounce();
 

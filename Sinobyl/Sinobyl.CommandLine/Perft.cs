@@ -132,12 +132,12 @@ namespace Sinobyl.CommandLine
                 return;
             }
 
-            IEnumerable<ChessMove> moves = ChessMove.GenMoves(board);
+            IEnumerable<ChessMove> moves = ChessMoveInfo.GenMoves(board);
 
             if (doMoveSort)
             {
                 var movelist = moves.ToList();
-                ChessMove.Comp moveOrderer = new ChessMove.Comp(board, new ChessMove(), true);
+                ChessMoveInfo.Comp moveOrderer = new ChessMoveInfo.Comp(board, new ChessMove(), true);
                 movelist.Sort(moveOrderer);
                 moves = movelist;
             }

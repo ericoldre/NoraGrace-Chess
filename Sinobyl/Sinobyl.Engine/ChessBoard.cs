@@ -113,8 +113,6 @@ namespace Sinobyl.Engine
             }
         }
 
-        public event EventHandler<BoardChangedEventArgs> BoardChanged;
-
     }
 	public sealed class ChessBoard
 	{
@@ -301,7 +299,7 @@ namespace Sinobyl.Engine
 		{
 			if (IsCheck())
 			{
-				if (!ChessMove.GenMovesLegal(this).Any())
+                if (!ChessMoveInfo.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -313,7 +311,7 @@ namespace Sinobyl.Engine
 		{
 			if (!IsCheck())
 			{
-				if (!ChessMove.GenMovesLegal(this).Any())
+                if (!ChessMoveInfo.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -549,11 +547,6 @@ namespace Sinobyl.Engine
 			}
 		}
 
-		public void MoveApply(string movedesc)
-		{
-			ChessMove move = new ChessMove(this, movedesc);
-			this.MoveApply(move);
-		}
 
 		public void MoveApply(ChessMove move)
 		{

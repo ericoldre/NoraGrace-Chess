@@ -276,8 +276,8 @@ namespace Sinobyl.Engine
 
 			bool in_check_before_move = board.IsCheck();
 
-            ChessMoves moves = new ChessMoves(ChessMove.GenMovesLegal(board));
-			ChessMove.Comp moveOrderer = new ChessMove.Comp(board, tt_move,true);
+            ChessMoves moves = new ChessMoves(ChessMoveInfo.GenMovesLegal(board));
+            ChessMoveInfo.Comp moveOrderer = new ChessMoveInfo.Comp(board, tt_move, true);
 			moves.Sort(moveOrderer);
 			string moveOver = moves.ToString(board, false);
 
@@ -506,8 +506,8 @@ namespace Sinobyl.Engine
 
 
 
-            ChessMoves moves = new ChessMoves(ChessMove.GenMoves(board));
-			ChessMove.Comp moveOrderer = new ChessMove.Comp(board,tt_move,depth > 3);
+            ChessMoves moves = new ChessMoves(ChessMoveInfo.GenMoves(board));
+            ChessMoveInfo.Comp moveOrderer = new ChessMoveInfo.Comp(board, tt_move, depth > 3);
 			moves.Sort(moveOrderer);
 
 
@@ -622,14 +622,14 @@ namespace Sinobyl.Engine
 			ChessMoves moves;
 			if (playerincheck)
 			{
-                moves = new ChessMoves(ChessMove.GenMoves(board));
+                moves = new ChessMoves(ChessMoveInfo.GenMoves(board));
 			}
 			else
 			{
-                moves = new ChessMoves(ChessMove.GenMoves(board, true));
+                moves = new ChessMoves(ChessMoveInfo.GenMoves(board, true));
 			}
 
-			ChessMove.Comp moveOrderer = new ChessMove.Comp(board,new ChessMove(),false);
+            ChessMoveInfo.Comp moveOrderer = new ChessMoveInfo.Comp(board, new ChessMove(), false);
 			moves.Sort(moveOrderer);
 
 

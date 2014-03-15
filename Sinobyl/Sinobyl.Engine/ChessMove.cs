@@ -32,7 +32,7 @@ namespace Sinobyl.Engine
             StringBuilder sb = new StringBuilder();
             foreach (ChessMove move in this)
             {
-                sb.Append(move.ToString()+ " ");
+                sb.Append(move.Write()+ " ");
             }
             return sb.ToString();
         }
@@ -46,7 +46,7 @@ namespace Sinobyl.Engine
 				{
 					sb.Append(board.FullMoveCount.ToString() + ". ");
 				}
-				sb.Append(move.ToString(board) + " ");
+				sb.Append(move.Write(board) + " ");
 				if (isVariation)
 				{
 					board.MoveApply(move);
@@ -63,6 +63,9 @@ namespace Sinobyl.Engine
 		}
 
 	}
+
+
+
 
 	public class ChessMove
 	{
@@ -107,12 +110,31 @@ namespace Sinobyl.Engine
 			this.Promote = promote;
 			this.EstScore = null;
 		}
-		public ChessMove(ChessBoard board, string movetext)
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
+
+
+	}
+
+    public static class ChessMoveInfo
+    {
+        public static ChessMove Create(ChessPosition from, ChessPosition to)
+        {
+            return new ChessMove(from, to);
+        }
+        public static ChessMove Create(ChessPosition from, ChessPosition to, ChessPiece promote)
+        {
+            return new ChessMove(from, to, promote);
+        }
+
+        public static ChessMove Parse(ChessBoard board, string movetext)
 		{
-			this.Promote = ChessPiece.EMPTY;//unless changed below
-			this.From = (ChessPosition.OUTOFBOUNDS);
-			this.To = (ChessPosition.OUTOFBOUNDS);
-			this.EstScore = null;
+			ChessPiece Promote = ChessPiece.EMPTY;//unless changed below
+			ChessPosition From = (ChessPosition.OUTOFBOUNDS);
+            ChessPosition To = (ChessPosition.OUTOFBOUNDS);
 			Regex regex = new Regex("");
 
 			movetext = movetext.Replace("+", "");
@@ -141,51 +163,51 @@ namespace Sinobyl.Engine
 			if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][abcdefgh][12345678]$", RegexOptions.IgnoreCase))
 			{
 				//coordinate notation, will not verify legality for now
-                this.From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
-                this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+                From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+                To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][abcdefgh][12345678][BNRQK]$", RegexOptions.IgnoreCase))
 			{
 				//coordinate notation, with promotion
-                this.From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
-				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
-				this.Promote = movetext[4].ParseAsPiece(me);
+                From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+				To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+				Promote = movetext[4].ParseAsPiece(me);
 			}
 			else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
 			{
 				if (me == ChessPlayer.White)
 				{
-					this.From = ChessPosition.E1;
-					this.To = ChessPosition.G1;
+					From = ChessPosition.E1;
+					To = ChessPosition.G1;
 				}
 				else
 				{
-					this.From = ChessPosition.E8;
-					this.To = ChessPosition.G8;
+					From = ChessPosition.E8;
+					To = ChessPosition.G8;
 				}
 			}
 			else if (movetext == "0-0-0" || movetext == "O-O-O" || movetext == "o-o-o")
 			{
 				if (me == ChessPlayer.White)
 				{
-					this.From = ChessPosition.E1;
-					this.To = ChessPosition.C1;
+					From = ChessPosition.E1;
+					To = ChessPosition.C1;
 				}
 				else
 				{
-					this.From = ChessPosition.E8;
-					this.To = ChessPosition.C8;
+					From = ChessPosition.E8;
+					To = ChessPosition.C8;
 				}
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678]$"))
 			{
 				//pawn forward
-                this.To = ChessPositionInfo.Parse(movetext);
+                To = ChessPositionInfo.Parse(movetext);
                 tmppos = To.PositionInDirection(mysouth);
 				if (board.PieceAt(tmppos) == mypawn)
 				{
 					From = tmppos;
-					return;
+                    return Create(From, To);
 				}
 				else if (board.PieceAt(tmppos) == ChessPiece.EMPTY && To.GetRank() == myrank4)
 				{
@@ -193,7 +215,7 @@ namespace Sinobyl.Engine
 					if (board.PieceAt(tmppos) == mypawn)
 					{
 						From = tmppos;
-						return;
+                        return Create(From, To);
 					}
 				}
                 throw new ArgumentException("no pawn can move to " + movetext);
@@ -202,73 +224,76 @@ namespace Sinobyl.Engine
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][BNRQK]$"))
 			{
 				//pawn forward, promotion
-                this.To = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+                To = ChessPositionInfo.Parse(movetext.Substring(0, 2));
                 tmppos = To.PositionInDirection(mysouth);
 				if (board.PieceAt(tmppos) == mypawn)
 				{
 					From = tmppos;
 					Promote = movetext[2].ParseAsPiece(me);
-					return;
+                    return Create(From, To, Promote);
 				}
                 throw new ArgumentException("no pawn can promoted to " + movetext.Substring(0, 2));
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678]$"))
 			{
 				//pawn attack
-                this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
+                To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
 				tmpfile = ChessFileInfo.Parse(movetext[0]);
-				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
-				return;
+				From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
+                return Create(From, To);
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678][BNRQK]$"))
 			{
 				//pawn attack, promote
-				this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
+				To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
                 tmpfile = ChessFileInfo.Parse(movetext[0]);
-				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
-				this.Promote = movetext[3].ParseAsPiece(me);
-				return;
+				From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
+				Promote = movetext[3].ParseAsPiece(me);
+                return Create(From, To);
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678]$"))
 			{
 				//normal attack
-				this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
+				To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
-				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
-				return;
+				From = filter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
+                return Create(From, To);
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][abcdefgh][12345678]$"))
 			{
 				//normal, specify file
-				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+				To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmpfile = ChessFileInfo.Parse(movetext[1]);
-				this.From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
-				return;
+				From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
+                return Create(From, To);
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][12345678][abcdefgh][12345678]$"))
 			{
 				//normal, specify rank
-				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+				To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmprank = ChessRankInfo.Parse(movetext[1]);
-				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
-				return;
+				From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
+                return Create(From, To);
 
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678][abcdefgh][12345678]$"))
 			{
 				//normal, specify rank and file
-				this.To = ChessPositionInfo.Parse(movetext.Substring(3, 2));
+				To = ChessPositionInfo.Parse(movetext.Substring(3, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmpfile = ChessFileInfo.Parse(movetext[1]);
                 tmprank = ChessRankInfo.Parse(movetext[2]);
-				this.From = filter(board, To, tmppiece, tmpfile, tmprank);
-				return;
+				From = filter(board, To, tmppiece, tmpfile, tmprank);
+                return Create(From, To);
 			}
+            return Create(From, To);
+            //throw new ArgumentException(movetext + " not a valid move string");
 
 		}
-		private ChessPosition filter(ChessBoard board, ChessPosition attackto, ChessPiece piece, ChessFile file, ChessRank rank)
+
+		private static ChessPosition filter(ChessBoard board, ChessPosition attackto, ChessPiece piece, ChessFile file, ChessRank rank)
 		{
             List<ChessPosition> fits = new List<ChessPosition>();
             var attacksTo = board.AttacksTo(attackto, board.WhosTurn);
@@ -292,7 +317,7 @@ namespace Sinobyl.Engine
             if (fits.Count > 1)
 			{
 				//ambigous moves, one is probably illegal, check against legal move list
-                ChessMoves allLegal = new ChessMoves(ChessMove.GenMovesLegal(board));
+                ChessMoves allLegal = new ChessMoves(ChessMoveInfo.GenMovesLegal(board));
                 fits.Clear();
 				foreach (ChessMove move in allLegal)
 				{
@@ -313,57 +338,60 @@ namespace Sinobyl.Engine
             return fits[0];
 		}
 
-		public override string ToString()
+		public static string Write(this ChessMove move)
 		{
 			string retval = "";
-			if (Promote == ChessPiece.EMPTY)
+			if (move.Promote == ChessPiece.EMPTY)
 			{
-				retval = From.PositionToString().ToLower() + To.PositionToString().ToLower();
+				retval = move.From.PositionToString().ToLower() + move.To.PositionToString().ToLower();
 			}
 			else
 			{
-                retval = From.PositionToString().ToLower() + To.PositionToString().ToLower() + Promote.PieceToString().ToLower();
+                retval = move.From.PositionToString().ToLower() + move.To.PositionToString().ToLower() + move.Promote.PieceToString().ToLower();
 			}
 			return retval;
 		}
-		public bool IsSameAs(ChessMove move)
+
+		public static bool IsSameAs(this ChessMove move, ChessMove otherMove)
 		{
-			return this.From == move.From && this.To == move.To && this.Promote == move.Promote;
+			return move.From == otherMove.From && move.To == otherMove.To && move.Promote == otherMove.Promote;
 		}
-		public bool IsLegal(ChessBoard board)
+
+		public static bool IsLegal(this ChessMove move, ChessBoard board)
 		{
-            ChessMoves legalmoves = new ChessMoves(ChessMove.GenMovesLegal(board));
+            ChessMoves legalmoves = new ChessMoves(ChessMoveInfo.GenMovesLegal(board));
 			foreach (ChessMove legalmove in legalmoves)
 			{
-				if (legalmove.IsSameAs(this)) { return true; }
+				if (legalmove.IsSameAs(move)) { return true; }
 			}
 			return false;
 		}
-		public string ToString(ChessBoard board)
+
+		public static string Write(this ChessMove move, ChessBoard board)
 		{
 			string retval = "";
-			ChessPiece piece = board.PieceAt(this.From);
-			bool iscap = (board.PieceAt(this.To) != ChessPiece.EMPTY);
+			ChessPiece piece = board.PieceAt(move.From);
+			bool iscap = (board.PieceAt(move.To) != ChessPiece.EMPTY);
 			
-			ChessRank fromrank = this.From.GetRank();
-			ChessFile fromfile = this.From.GetFile();
-			bool isprom = this.Promote != ChessPiece.EMPTY;
+			ChessRank fromrank = move.From.GetRank();
+			ChessFile fromfile = move.From.GetFile();
+			bool isprom = move.Promote != ChessPiece.EMPTY;
 
-			string sTo = (this.To.PositionToString());
+			string sTo = (move.To.PositionToString());
             string sPiece = piece.PieceToString().ToUpper();
             string sRank = fromrank.RankToString().ToLower();
             string sFile = fromfile.FileToString().ToLower();
 			string sProm = "";
 			
 			//enpassant cap
-			if(this.To==board.EnPassant && (piece==ChessPiece.WPawn || piece==ChessPiece.BPawn))
+			if(move.To==board.EnPassant && (piece==ChessPiece.WPawn || piece==ChessPiece.BPawn))
 			{
 				iscap = true;
 			}
 			
 			if (isprom)
 			{
-                sProm = this.Promote.PieceToString().ToUpper();
+                sProm = move.Promote.PieceToString().ToUpper();
 			}
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
@@ -378,19 +406,19 @@ namespace Sinobyl.Engine
 					retval += sProm;
 				}
 			}
-			else if (piece == ChessPiece.WKing && this.From == ChessPosition.E1 && this.To == ChessPosition.G1)
+			else if (piece == ChessPiece.WKing && move.From == ChessPosition.E1 && move.To == ChessPosition.G1)
 			{
 				retval += "O-O";
 			}
-			else if (piece == ChessPiece.BKing && this.From == ChessPosition.E8 && this.To == ChessPosition.G8)
+            else if (piece == ChessPiece.BKing && move.From == ChessPosition.E8 && move.To == ChessPosition.G8)
 			{
 				retval += "O-O";
 			}
-			else if (piece == ChessPiece.WKing && this.From == ChessPosition.E1 && this.To == ChessPosition.C1)
+            else if (piece == ChessPiece.WKing && move.From == ChessPosition.E1 && move.To == ChessPosition.C1)
 			{
 				retval += "O-O-O";
 			}
-			else if (piece == ChessPiece.BKing && this.From == ChessPosition.E8 && this.To == ChessPosition.C8)
+            else if (piece == ChessPiece.BKing && move.From == ChessPosition.E8 && move.To == ChessPosition.C8)
 			{
 				retval += "O-O-O";
 			}
@@ -399,9 +427,9 @@ namespace Sinobyl.Engine
 				bool pieceunique = true;
 				bool fileunique = true;
 				bool rankunique = true;
-                foreach (ChessPosition pos in board.AttacksTo(this.To, piece.PieceToPlayer()).ToPositions())
+                foreach (ChessPosition pos in board.AttacksTo(move.To, piece.PieceToPlayer()).ToPositions())
 				{
-					if (pos == this.From) { continue; }
+					if (pos == move.From) { continue; }
 
 					ChessPiece otherpiece = board.PieceAt(pos);
 					if (otherpiece == piece)
@@ -440,10 +468,11 @@ namespace Sinobyl.Engine
 				}
 				retval += sTo;
 			}
-			board.MoveApply(this);
+			board.MoveApply(move);
+
 			if (board.IsCheck())
 			{
-				if (ChessMove.GenMovesLegal(board).Any())
+				if (ChessMoveInfo.GenMovesLegal(board).Any())
 				{
 					retval += "+";
 				}
@@ -771,58 +800,7 @@ namespace Sinobyl.Engine
                     }
                     continue;
                 }
-                //pawn moves
-                //if (piece == mypawn)
-                //{
-                //    //pawn attacks
-                //    foreach (var attackPos in (Attacks.PawnAttacks(piecepos, board.WhosTurn) & pawnTargets).ToPositions())
-                //    {
-                //        if (attackPos.GetRank() == myrank8)
-                //        {
-                //            retval.Add(new ChessMove(piecepos, attackPos, myqueen));
-                //            retval.Add(new ChessMove(piecepos, attackPos, myrook));
-                //            retval.Add(new ChessMove(piecepos, attackPos, mybishop));
-                //            retval.Add(new ChessMove(piecepos, attackPos, myknight));
-                //        }
-                //        else
-                //        {
-                //            retval.Add(new ChessMove(piecepos, attackPos));
-                //        }
-                //    }
 
-                //    ////pawn jumps
-                //    //if (!CapsOnly)
-                //    //{
-                //    //    //pawn jump
-                //    //    ChessPosition targetpos = Chess.PositionInDirection(piecepos, mypawnnorth);
-                //    //    targetpiece = board.PieceAt(targetpos);
-                //    //    if (targetpiece == ChessPiece.EMPTY)
-                //    //    {
-                //    //        if (targetpos.GetRank() == myrank8)
-                //    //        {
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, myqueen));
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, myrook));
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, mybishop));
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, myknight));
-                //    //        }
-                //    //        else
-                //    //        {
-                //    //            retval.Add(new ChessMove(piecepos, targetpos));
-                //    //        }
-
-                //    //        //double jump
-                //    //        if (piecepos.GetRank() == myrank2)
-                //    //        {
-                //    //            targetpos = Chess.PositionInDirection(targetpos, mypawnnorth);
-                //    //            targetpiece = board.PieceAt(targetpos);
-                //    //            if (targetpiece == ChessPiece.EMPTY)
-                //    //            {
-                //    //                retval.Add(new ChessMove(piecepos, targetpos));
-                //    //            }
-                //    //        }
-                //    //    }
-                //    //}
-                //}
             }
 
             
@@ -1216,8 +1194,7 @@ namespace Sinobyl.Engine
 		}
 		private static ChessEval eval = new ChessEval();
 
-
-	}
+    }
 
 
 }

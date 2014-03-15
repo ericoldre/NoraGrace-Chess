@@ -5,234 +5,14 @@ using System.Text;
 using System.Linq;
 namespace Sinobyl.Engine
 {
-    [Flags]
-    public enum ChessMove
-    {
-        NULL_MOVE = 0,
-        NOT_NULL_MOVE = 1,
 
-        ToA1 = ChessPosition.A1 << ChessMoveInfo.SHIFT_TO,
-        ToB1 = ChessPosition.B1 << ChessMoveInfo.SHIFT_TO,
-        ToC1 = ChessPosition.C1 << ChessMoveInfo.SHIFT_TO,
-        ToD1 = ChessPosition.D1 << ChessMoveInfo.SHIFT_TO,
-        ToE1 = ChessPosition.E1 << ChessMoveInfo.SHIFT_TO,
-        ToF1 = ChessPosition.F1 << ChessMoveInfo.SHIFT_TO,
-        ToG1 = ChessPosition.G1 << ChessMoveInfo.SHIFT_TO,
-        ToH1 = ChessPosition.H1 << ChessMoveInfo.SHIFT_TO,
-
-        ToA2 = ChessPosition.A2 << ChessMoveInfo.SHIFT_TO,
-        ToB2 = ChessPosition.B2 << ChessMoveInfo.SHIFT_TO,
-        ToC2 = ChessPosition.C2 << ChessMoveInfo.SHIFT_TO,
-        ToD2 = ChessPosition.D2 << ChessMoveInfo.SHIFT_TO,
-        ToE2 = ChessPosition.E2 << ChessMoveInfo.SHIFT_TO,
-        ToF2 = ChessPosition.F2 << ChessMoveInfo.SHIFT_TO,
-        ToG2 = ChessPosition.G2 << ChessMoveInfo.SHIFT_TO,
-        ToH2 = ChessPosition.H2 << ChessMoveInfo.SHIFT_TO,
-
-        ToA3 = ChessPosition.A3 << ChessMoveInfo.SHIFT_TO,
-        ToB3 = ChessPosition.B3 << ChessMoveInfo.SHIFT_TO,
-        ToC3 = ChessPosition.C3 << ChessMoveInfo.SHIFT_TO,
-        ToD3 = ChessPosition.D3 << ChessMoveInfo.SHIFT_TO,
-        ToE3 = ChessPosition.E3 << ChessMoveInfo.SHIFT_TO,
-        ToF3 = ChessPosition.F3 << ChessMoveInfo.SHIFT_TO,
-        ToG3 = ChessPosition.G3 << ChessMoveInfo.SHIFT_TO,
-        ToH3 = ChessPosition.H3 << ChessMoveInfo.SHIFT_TO,
-
-        ToA4 = ChessPosition.A4 << ChessMoveInfo.SHIFT_TO,
-        ToB4 = ChessPosition.B4 << ChessMoveInfo.SHIFT_TO,
-        ToC4 = ChessPosition.C4 << ChessMoveInfo.SHIFT_TO,
-        ToD4 = ChessPosition.D4 << ChessMoveInfo.SHIFT_TO,
-        ToE4 = ChessPosition.E4 << ChessMoveInfo.SHIFT_TO,
-        ToF4 = ChessPosition.F4 << ChessMoveInfo.SHIFT_TO,
-        ToG4 = ChessPosition.G4 << ChessMoveInfo.SHIFT_TO,
-        ToH4 = ChessPosition.H4 << ChessMoveInfo.SHIFT_TO,
-
-        ToA5 = ChessPosition.A5 << ChessMoveInfo.SHIFT_TO,
-        ToB5 = ChessPosition.B5 << ChessMoveInfo.SHIFT_TO,
-        ToC5 = ChessPosition.C5 << ChessMoveInfo.SHIFT_TO,
-        ToD5 = ChessPosition.D5 << ChessMoveInfo.SHIFT_TO,
-        ToE5 = ChessPosition.E5 << ChessMoveInfo.SHIFT_TO,
-        ToF5 = ChessPosition.F5 << ChessMoveInfo.SHIFT_TO,
-        ToG5 = ChessPosition.G5 << ChessMoveInfo.SHIFT_TO,
-        ToH5 = ChessPosition.H5 << ChessMoveInfo.SHIFT_TO,
-
-        ToA6 = ChessPosition.A6 << ChessMoveInfo.SHIFT_TO,
-        ToB6 = ChessPosition.B6 << ChessMoveInfo.SHIFT_TO,
-        ToC6 = ChessPosition.C6 << ChessMoveInfo.SHIFT_TO,
-        ToD6 = ChessPosition.D6 << ChessMoveInfo.SHIFT_TO,
-        ToE6 = ChessPosition.E6 << ChessMoveInfo.SHIFT_TO,
-        ToF6 = ChessPosition.F6 << ChessMoveInfo.SHIFT_TO,
-        ToG6 = ChessPosition.G6 << ChessMoveInfo.SHIFT_TO,
-        ToH6 = ChessPosition.H6 << ChessMoveInfo.SHIFT_TO,
-
-        ToA7 = ChessPosition.A7 << ChessMoveInfo.SHIFT_TO,
-        ToB7 = ChessPosition.B7 << ChessMoveInfo.SHIFT_TO,
-        ToC7 = ChessPosition.C7 << ChessMoveInfo.SHIFT_TO,
-        ToD7 = ChessPosition.D7 << ChessMoveInfo.SHIFT_TO,
-        ToE7 = ChessPosition.E7 << ChessMoveInfo.SHIFT_TO,
-        ToF7 = ChessPosition.F7 << ChessMoveInfo.SHIFT_TO,
-        ToG7 = ChessPosition.G7 << ChessMoveInfo.SHIFT_TO,
-        ToH7 = ChessPosition.H7 << ChessMoveInfo.SHIFT_TO,
-
-        ToA8 = ChessPosition.A8 << ChessMoveInfo.SHIFT_TO,
-        ToB8 = ChessPosition.B8 << ChessMoveInfo.SHIFT_TO,
-        ToC8 = ChessPosition.C8 << ChessMoveInfo.SHIFT_TO,
-        ToD8 = ChessPosition.D8 << ChessMoveInfo.SHIFT_TO,
-        ToE8 = ChessPosition.E8 << ChessMoveInfo.SHIFT_TO,
-        ToF8 = ChessPosition.F8 << ChessMoveInfo.SHIFT_TO,
-        ToG8 = ChessPosition.G8 << ChessMoveInfo.SHIFT_TO,
-        ToH8 = ChessPosition.H8 << ChessMoveInfo.SHIFT_TO,
-
-
-        //from
-
-        FromA1 = ChessPosition.A1 << ChessMoveInfo.SHIFT_FROM,
-        FromB1 = ChessPosition.B1 << ChessMoveInfo.SHIFT_FROM,
-        FromC1 = ChessPosition.C1 << ChessMoveInfo.SHIFT_FROM,
-        FromD1 = ChessPosition.D1 << ChessMoveInfo.SHIFT_FROM,
-        FromE1 = ChessPosition.E1 << ChessMoveInfo.SHIFT_FROM,
-        FromF1 = ChessPosition.F1 << ChessMoveInfo.SHIFT_FROM,
-        FromG1 = ChessPosition.G1 << ChessMoveInfo.SHIFT_FROM,
-        FromH1 = ChessPosition.H1 << ChessMoveInfo.SHIFT_FROM,
-
-        FromA2 = ChessPosition.A2 << ChessMoveInfo.SHIFT_FROM,
-        FromB2 = ChessPosition.B2 << ChessMoveInfo.SHIFT_FROM,
-        FromC2 = ChessPosition.C2 << ChessMoveInfo.SHIFT_FROM,
-        FromD2 = ChessPosition.D2 << ChessMoveInfo.SHIFT_FROM,
-        FromE2 = ChessPosition.E2 << ChessMoveInfo.SHIFT_FROM,
-        FromF2 = ChessPosition.F2 << ChessMoveInfo.SHIFT_FROM,
-        FromG2 = ChessPosition.G2 << ChessMoveInfo.SHIFT_FROM,
-        FromH2 = ChessPosition.H2 << ChessMoveInfo.SHIFT_FROM,
-
-        FromA3 = ChessPosition.A3 << ChessMoveInfo.SHIFT_FROM,
-        FromB3 = ChessPosition.B3 << ChessMoveInfo.SHIFT_FROM,
-        FromC3 = ChessPosition.C3 << ChessMoveInfo.SHIFT_FROM,
-        FromD3 = ChessPosition.D3 << ChessMoveInfo.SHIFT_FROM,
-        FromE3 = ChessPosition.E3 << ChessMoveInfo.SHIFT_FROM,
-        FromF3 = ChessPosition.F3 << ChessMoveInfo.SHIFT_FROM,
-        FromG3 = ChessPosition.G3 << ChessMoveInfo.SHIFT_FROM,
-        FromH3 = ChessPosition.H3 << ChessMoveInfo.SHIFT_FROM,
-
-        FromA4 = ChessPosition.A4 << ChessMoveInfo.SHIFT_FROM,
-        FromB4 = ChessPosition.B4 << ChessMoveInfo.SHIFT_FROM,
-        FromC4 = ChessPosition.C4 << ChessMoveInfo.SHIFT_FROM,
-        FromD4 = ChessPosition.D4 << ChessMoveInfo.SHIFT_FROM,
-        FromE4 = ChessPosition.E4 << ChessMoveInfo.SHIFT_FROM,
-        FromF4 = ChessPosition.F4 << ChessMoveInfo.SHIFT_FROM,
-        FromG4 = ChessPosition.G4 << ChessMoveInfo.SHIFT_FROM,
-        FromH4 = ChessPosition.H4 << ChessMoveInfo.SHIFT_FROM,
-
-        FromA5 = ChessPosition.A5 << ChessMoveInfo.SHIFT_FROM,
-        FromB5 = ChessPosition.B5 << ChessMoveInfo.SHIFT_FROM,
-        FromC5 = ChessPosition.C5 << ChessMoveInfo.SHIFT_FROM,
-        FromD5 = ChessPosition.D5 << ChessMoveInfo.SHIFT_FROM,
-        FromE5 = ChessPosition.E5 << ChessMoveInfo.SHIFT_FROM,
-        FromF5 = ChessPosition.F5 << ChessMoveInfo.SHIFT_FROM,
-        FromG5 = ChessPosition.G5 << ChessMoveInfo.SHIFT_FROM,
-        FromH5 = ChessPosition.H5 << ChessMoveInfo.SHIFT_FROM,
-
-        FromA6 = ChessPosition.A6 << ChessMoveInfo.SHIFT_FROM,
-        FromB6 = ChessPosition.B6 << ChessMoveInfo.SHIFT_FROM,
-        FromC6 = ChessPosition.C6 << ChessMoveInfo.SHIFT_FROM,
-        FromD6 = ChessPosition.D6 << ChessMoveInfo.SHIFT_FROM,
-        FromE6 = ChessPosition.E6 << ChessMoveInfo.SHIFT_FROM,
-        FromF6 = ChessPosition.F6 << ChessMoveInfo.SHIFT_FROM,
-        FromG6 = ChessPosition.G6 << ChessMoveInfo.SHIFT_FROM,
-        FromH6 = ChessPosition.H6 << ChessMoveInfo.SHIFT_FROM,
-
-        FromA7 = ChessPosition.A7 << ChessMoveInfo.SHIFT_FROM,
-        FromB7 = ChessPosition.B7 << ChessMoveInfo.SHIFT_FROM,
-        FromC7 = ChessPosition.C7 << ChessMoveInfo.SHIFT_FROM,
-        FromD7 = ChessPosition.D7 << ChessMoveInfo.SHIFT_FROM,
-        FromE7 = ChessPosition.E7 << ChessMoveInfo.SHIFT_FROM,
-        FromF7 = ChessPosition.F7 << ChessMoveInfo.SHIFT_FROM,
-        FromG7 = ChessPosition.G7 << ChessMoveInfo.SHIFT_FROM,
-        FromH7 = ChessPosition.H7 << ChessMoveInfo.SHIFT_FROM,
-
-        FromA8 = ChessPosition.A8 << ChessMoveInfo.SHIFT_FROM,
-        FromB8 = ChessPosition.B8 << ChessMoveInfo.SHIFT_FROM,
-        FromC8 = ChessPosition.C8 << ChessMoveInfo.SHIFT_FROM,
-        FromD8 = ChessPosition.D8 << ChessMoveInfo.SHIFT_FROM,
-        FromE8 = ChessPosition.E8 << ChessMoveInfo.SHIFT_FROM,
-        FromF8 = ChessPosition.F8 << ChessMoveInfo.SHIFT_FROM,
-        FromG8 = ChessPosition.G8 << ChessMoveInfo.SHIFT_FROM,
-        FromH8 = ChessPosition.H8 << ChessMoveInfo.SHIFT_FROM,
-
-        PromWPawn = ChessPiece.WPawn << ChessMoveInfo.SHIFT_PROM,
-        PromWBishop = ChessPiece.WBishop << ChessMoveInfo.SHIFT_PROM,
-        PromWKnight = ChessPiece.WKnight << ChessMoveInfo.SHIFT_PROM,
-        PromWRook = ChessPiece.WRook << ChessMoveInfo.SHIFT_PROM,
-        PromWQueen = ChessPiece.WQueen << ChessMoveInfo.SHIFT_PROM,
-        PromWKing = ChessPiece.WKing << ChessMoveInfo.SHIFT_PROM,
-
-        PromBPawn = ChessPiece.BPawn << ChessMoveInfo.SHIFT_PROM,
-        PromBBishop = ChessPiece.BBishop << ChessMoveInfo.SHIFT_PROM,
-        PromBKnight = ChessPiece.BKnight << ChessMoveInfo.SHIFT_PROM,
-        PromBRook = ChessPiece.BRook << ChessMoveInfo.SHIFT_PROM,
-        PromBQueen = ChessPiece.BQueen << ChessMoveInfo.SHIFT_PROM,
-        PromBKing = ChessPiece.BKing << ChessMoveInfo.SHIFT_PROM,
-
-    }
-
-
-
-	public class ChessMoveOld
-	{
-		public readonly ChessPosition From;
-		public readonly ChessPosition To;
-		public readonly ChessPiece Promote;
-		public int? EstScore;
-
-        //public override bool Equals(object obj)
-        //{
-        //    ChessMove other = (ChessMove)obj;
-        //    if (other.From==this.From && other.To==this.To && other.Promote==this.Promote)
-        //    {
-        //        return true;
-        //    }
-        //    return false;
-        //}
-        //public override int GetHashCode()
-        //{
-        //    //return (To.GetHashCode() ^ From.GetHashCode() >> 1) + this.Promote.GetHashCode();
-        //    return (int)To | ((int)From << 8) | ((int)Promote << 16);
-        //}
-
-		public ChessMoveOld()
-		{
-			this.Promote = ChessPiece.EMPTY;
-			this.From = (ChessPosition.OUTOFBOUNDS);
-			this.To = (ChessPosition.OUTOFBOUNDS);
-			this.EstScore = null;
-		}
-		public ChessMoveOld(ChessPosition from, ChessPosition to)
-		{
-			this.Promote = ChessPiece.EMPTY;
-			this.From = from;
-			this.To = to;
-			this.EstScore = null;
-		}
-        public ChessMoveOld(ChessPosition from, ChessPosition to, ChessPiece promote)
-		{
-			this.From = from;
-			this.To = to;
-			this.Promote = promote;
-			this.EstScore = null;
-		}
-
-        public override string ToString()
-        {
-            return base.ToString();
-        }
-
-
-	}
 
     public static partial class ChessMoveInfo
     {
         public const int SHIFT_TO = 1;
         public const int SHIFT_FROM = 7;
         public const int SHIFT_PROM = 13;
+        public const int MASK_SIXBITS = 0x3F;
 
         public static ChessMove Create(ChessPosition from, ChessPosition to)
         {
@@ -242,38 +22,36 @@ namespace Sinobyl.Engine
 
         public static ChessMove Create(ChessPosition from, ChessPosition to, ChessPiece promote)
         {
-            int mask = 0x3F;
 
-            
-            if (((int)from & mask) != (int)from) { throw new ArgumentOutOfRangeException("from"); }
-            if (((int)to & mask) != (int)to) { throw new ArgumentOutOfRangeException("to"); }
-            if (((int)promote & mask) != (int)promote) { throw new ArgumentOutOfRangeException("promote"); }
+            if (((int)from & MASK_SIXBITS) != (int)from) { throw new ArgumentOutOfRangeException("from"); }
+            if (((int)to & MASK_SIXBITS) != (int)to) { throw new ArgumentOutOfRangeException("to"); }
+            if (((int)promote & MASK_SIXBITS) != (int)promote) { throw new ArgumentOutOfRangeException("promote"); }
 
-            int ito = (int)to << 1;
-            int ifrom = (int)from << 7;
-            int iprom = (int)promote << 13;
+            int ito = (int)to << SHIFT_TO;
+            int ifrom = (int)from << SHIFT_FROM;
+            int iprom = (int)promote << SHIFT_PROM;
 
-            return (ChessMove)(ito | ifrom | iprom | 1);
+            return (ChessMove)(ito | ifrom | iprom) | ChessMove.NOT_NULL_MOVE;
             //return ChessMoveInfo.Create(from, to, promote);
         }
 
         public static ChessPosition To(this ChessMove move)
         {
-            int mask = ((int)move >> 1) & 0x3F;
+            int mask = ((int)move >> SHIFT_TO) & MASK_SIXBITS;
             return (ChessPosition)mask;
         }
 
         public static ChessPosition From(this ChessMove move)
         {
-            var shift = (int)move >> 7;
-            int mask = shift & 0x3F;
+            var shift = (int)move >> SHIFT_FROM;
+            int mask = shift & MASK_SIXBITS;
             return (ChessPosition)mask;
         }
 
         public static ChessPiece Promote(this ChessMove move)
         {
-            var shift = (int)move >> 13;
-            int mask = shift & 0x3F;
+            var shift = (int)move >> SHIFT_PROM;
+            int mask = shift & MASK_SIXBITS;
             return (ChessPiece)mask;
         }
 
@@ -1127,5 +905,175 @@ namespace Sinobyl.Engine
 
     }
 
+    [Flags]
+    public enum ChessMove
+    {
+        NULL_MOVE = 0,
+        NOT_NULL_MOVE = 1,
+        //TO_FLAG = 1 << 19,
+        //FROM_MARKER = 1 << 20,
+        //PROM_MARKER = 1 << 21,
 
+        //ToA1 = (ChessPosition.A1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB1 = (ChessPosition.B1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC1 = (ChessPosition.C1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD1 = (ChessPosition.D1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE1 = (ChessPosition.E1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF1 = (ChessPosition.F1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG1 = (ChessPosition.G1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH1 = (ChessPosition.H1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+        //ToA2 = (ChessPosition.A2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB2 = (ChessPosition.B2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC2 = (ChessPosition.C2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD2 = (ChessPosition.D2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE2 = (ChessPosition.E2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF2 = (ChessPosition.F2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG2 = (ChessPosition.G2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH2 = (ChessPosition.H2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+        //ToA3 = (ChessPosition.A3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB3 = (ChessPosition.B3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC3 = (ChessPosition.C3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD3 = (ChessPosition.D3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE3 = (ChessPosition.E3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF3 = (ChessPosition.F3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG3 = (ChessPosition.G3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH3 = (ChessPosition.H3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+        //ToA4 = (ChessPosition.A4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB4 = (ChessPosition.B4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC4 = (ChessPosition.C4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD4 = (ChessPosition.D4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE4 = (ChessPosition.E4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF4 = (ChessPosition.F4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG4 = (ChessPosition.G4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH4 = (ChessPosition.H4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+        //ToA5 = (ChessPosition.A5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB5 = (ChessPosition.B5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC5 = (ChessPosition.C5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD5 = (ChessPosition.D5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE5 = (ChessPosition.E5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF5 = (ChessPosition.F5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG5 = (ChessPosition.G5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH5 = (ChessPosition.H5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+        //ToA6 = (ChessPosition.A6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB6 = (ChessPosition.B6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC6 = (ChessPosition.C6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD6 = (ChessPosition.D6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE6 = (ChessPosition.E6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF6 = (ChessPosition.F6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG6 = (ChessPosition.G6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH6 = (ChessPosition.H6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+        //ToA7 = (ChessPosition.A7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB7 = (ChessPosition.B7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC7 = (ChessPosition.C7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD7 = (ChessPosition.D7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE7 = (ChessPosition.E7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF7 = (ChessPosition.F7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG7 = (ChessPosition.G7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH7 = (ChessPosition.H7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+        //ToA8 = (ChessPosition.A8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToB8 = (ChessPosition.B8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToC8 = (ChessPosition.C8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToD8 = (ChessPosition.D8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToE8 = (ChessPosition.E8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToF8 = (ChessPosition.F8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToG8 = (ChessPosition.G8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+        //ToH8 = (ChessPosition.H8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+
+
+        ////from
+
+        //FromA1 = ChessPosition.A1 << ChessMoveInfo.SHIFT_FROM,
+        //FromB1 = ChessPosition.B1 << ChessMoveInfo.SHIFT_FROM,
+        //FromC1 = ChessPosition.C1 << ChessMoveInfo.SHIFT_FROM,
+        //FromD1 = ChessPosition.D1 << ChessMoveInfo.SHIFT_FROM,
+        //FromE1 = ChessPosition.E1 << ChessMoveInfo.SHIFT_FROM,
+        //FromF1 = ChessPosition.F1 << ChessMoveInfo.SHIFT_FROM,
+        //FromG1 = ChessPosition.G1 << ChessMoveInfo.SHIFT_FROM,
+        //FromH1 = ChessPosition.H1 << ChessMoveInfo.SHIFT_FROM,
+
+        //FromA2 = ChessPosition.A2 << ChessMoveInfo.SHIFT_FROM,
+        //FromB2 = ChessPosition.B2 << ChessMoveInfo.SHIFT_FROM,
+        //FromC2 = ChessPosition.C2 << ChessMoveInfo.SHIFT_FROM,
+        //FromD2 = ChessPosition.D2 << ChessMoveInfo.SHIFT_FROM,
+        //FromE2 = ChessPosition.E2 << ChessMoveInfo.SHIFT_FROM,
+        //FromF2 = ChessPosition.F2 << ChessMoveInfo.SHIFT_FROM,
+        //FromG2 = ChessPosition.G2 << ChessMoveInfo.SHIFT_FROM,
+        //FromH2 = ChessPosition.H2 << ChessMoveInfo.SHIFT_FROM,
+
+        //FromA3 = ChessPosition.A3 << ChessMoveInfo.SHIFT_FROM,
+        //FromB3 = ChessPosition.B3 << ChessMoveInfo.SHIFT_FROM,
+        //FromC3 = ChessPosition.C3 << ChessMoveInfo.SHIFT_FROM,
+        //FromD3 = ChessPosition.D3 << ChessMoveInfo.SHIFT_FROM,
+        //FromE3 = ChessPosition.E3 << ChessMoveInfo.SHIFT_FROM,
+        //FromF3 = ChessPosition.F3 << ChessMoveInfo.SHIFT_FROM,
+        //FromG3 = ChessPosition.G3 << ChessMoveInfo.SHIFT_FROM,
+        //FromH3 = ChessPosition.H3 << ChessMoveInfo.SHIFT_FROM,
+
+        //FromA4 = ChessPosition.A4 << ChessMoveInfo.SHIFT_FROM,
+        //FromB4 = ChessPosition.B4 << ChessMoveInfo.SHIFT_FROM,
+        //FromC4 = ChessPosition.C4 << ChessMoveInfo.SHIFT_FROM,
+        //FromD4 = ChessPosition.D4 << ChessMoveInfo.SHIFT_FROM,
+        //FromE4 = ChessPosition.E4 << ChessMoveInfo.SHIFT_FROM,
+        //FromF4 = ChessPosition.F4 << ChessMoveInfo.SHIFT_FROM,
+        //FromG4 = ChessPosition.G4 << ChessMoveInfo.SHIFT_FROM,
+        //FromH4 = ChessPosition.H4 << ChessMoveInfo.SHIFT_FROM,
+
+        //FromA5 = ChessPosition.A5 << ChessMoveInfo.SHIFT_FROM,
+        //FromB5 = ChessPosition.B5 << ChessMoveInfo.SHIFT_FROM,
+        //FromC5 = ChessPosition.C5 << ChessMoveInfo.SHIFT_FROM,
+        //FromD5 = ChessPosition.D5 << ChessMoveInfo.SHIFT_FROM,
+        //FromE5 = ChessPosition.E5 << ChessMoveInfo.SHIFT_FROM,
+        //FromF5 = ChessPosition.F5 << ChessMoveInfo.SHIFT_FROM,
+        //FromG5 = ChessPosition.G5 << ChessMoveInfo.SHIFT_FROM,
+        //FromH5 = ChessPosition.H5 << ChessMoveInfo.SHIFT_FROM,
+
+        //FromA6 = ChessPosition.A6 << ChessMoveInfo.SHIFT_FROM,
+        //FromB6 = ChessPosition.B6 << ChessMoveInfo.SHIFT_FROM,
+        //FromC6 = ChessPosition.C6 << ChessMoveInfo.SHIFT_FROM,
+        //FromD6 = ChessPosition.D6 << ChessMoveInfo.SHIFT_FROM,
+        //FromE6 = ChessPosition.E6 << ChessMoveInfo.SHIFT_FROM,
+        //FromF6 = ChessPosition.F6 << ChessMoveInfo.SHIFT_FROM,
+        //FromG6 = ChessPosition.G6 << ChessMoveInfo.SHIFT_FROM,
+        //FromH6 = ChessPosition.H6 << ChessMoveInfo.SHIFT_FROM,
+
+        //FromA7 = ChessPosition.A7 << ChessMoveInfo.SHIFT_FROM,
+        //FromB7 = ChessPosition.B7 << ChessMoveInfo.SHIFT_FROM,
+        //FromC7 = ChessPosition.C7 << ChessMoveInfo.SHIFT_FROM,
+        //FromD7 = ChessPosition.D7 << ChessMoveInfo.SHIFT_FROM,
+        //FromE7 = ChessPosition.E7 << ChessMoveInfo.SHIFT_FROM,
+        //FromF7 = ChessPosition.F7 << ChessMoveInfo.SHIFT_FROM,
+        //FromG7 = ChessPosition.G7 << ChessMoveInfo.SHIFT_FROM,
+        //FromH7 = ChessPosition.H7 << ChessMoveInfo.SHIFT_FROM,
+
+        //FromA8 = ChessPosition.A8 << ChessMoveInfo.SHIFT_FROM,
+        //FromB8 = ChessPosition.B8 << ChessMoveInfo.SHIFT_FROM,
+        //FromC8 = ChessPosition.C8 << ChessMoveInfo.SHIFT_FROM,
+        //FromD8 = ChessPosition.D8 << ChessMoveInfo.SHIFT_FROM,
+        //FromE8 = ChessPosition.E8 << ChessMoveInfo.SHIFT_FROM,
+        //FromF8 = ChessPosition.F8 << ChessMoveInfo.SHIFT_FROM,
+        //FromG8 = ChessPosition.G8 << ChessMoveInfo.SHIFT_FROM,
+        //FromH8 = ChessPosition.H8 << ChessMoveInfo.SHIFT_FROM,
+
+        //PromWPawn = ChessPiece.WPawn << ChessMoveInfo.SHIFT_PROM,
+        //PromWBishop = ChessPiece.WBishop << ChessMoveInfo.SHIFT_PROM,
+        //PromWKnight = ChessPiece.WKnight << ChessMoveInfo.SHIFT_PROM,
+        //PromWRook = ChessPiece.WRook << ChessMoveInfo.SHIFT_PROM,
+        //PromWQueen = ChessPiece.WQueen << ChessMoveInfo.SHIFT_PROM,
+        //PromWKing = ChessPiece.WKing << ChessMoveInfo.SHIFT_PROM,
+
+        //PromBPawn = ChessPiece.BPawn << ChessMoveInfo.SHIFT_PROM,
+        //PromBBishop = ChessPiece.BBishop << ChessMoveInfo.SHIFT_PROM,
+        //PromBKnight = ChessPiece.BKnight << ChessMoveInfo.SHIFT_PROM,
+        //PromBRook = ChessPiece.BRook << ChessMoveInfo.SHIFT_PROM,
+        //PromBQueen = ChessPiece.BQueen << ChessMoveInfo.SHIFT_PROM,
+        //PromBKing = ChessPiece.BKing << ChessMoveInfo.SHIFT_PROM,
+
+    }
 }

@@ -5,7 +5,14 @@ using System.Linq;
 
 namespace Sinobyl.Engine.Tests
 {
-    
+    [Flags]
+    public enum TestEnum
+    {
+        ab = 1 << 2,
+        a = 1 << 0,
+        b = 1 << 1,
+        c = 1 << 3
+    }
     
     /// <summary>
     ///This is a test class for ChessMoveTest and is intended
@@ -23,6 +30,11 @@ namespace Sinobyl.Engine.Tests
                 {
                     foreach (ChessPiece prom in ChessPieceInfo.AllPieces.Concat(new ChessPiece[] {ChessPiece.EMPTY}))
                     {
+                        //TestEnum t1 = TestEnum.a;
+                        //TestEnum t2 = TestEnum.b;
+                        //TestEnum t3 = TestEnum.ab;
+                        //TestEnum tabc = TestEnum.ab | TestEnum.c;
+                        
                         ChessMove move = ChessMoveInfo.Create(from, to, prom);
 
                         var from2 = move.From();

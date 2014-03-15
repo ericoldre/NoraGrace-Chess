@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sinobyl.Engine
 {
+
     public static partial class ChessMoveInfo
     {
 
@@ -15,6 +16,7 @@ namespace Sinobyl.Engine
             public readonly ChessBoard board;
             public readonly ChessMove tt_move;
             public readonly bool UseSEE;
+            private readonly Dictionary<ChessMove, int> _seeScores = new Dictionary<ChessMove, int>(60);
 
             public Comp(ChessBoard a_board, ChessMove a_tt_move, bool a_see)
             {
@@ -47,28 +49,44 @@ namespace Sinobyl.Engine
                     return 1;
                 }
 
-                if (!x.EstScore().HasValue)
+                int xScore;
+                if (!_seeScores.ContainsKey(x))
                 {
                     if (UseSEE)
                     {
-                        //x.EstScore = CompEstScoreSEE(x, board);
+                        xScore = CompEstScoreSEE(x, board);
+                        _seeScores.Add(x, xScore);
                     }
                     else
                     {
-                        //x.EstScore = CompEstScore(x, board);
+                        xScore = CompEstScore(x, board);
+                        _seeScores.Add(x, xScore);
                     }
                 }
-                if (!y.EstScore().HasValue)
+                else
+                {
+                    xScore = _seeScores[x];
+                }
+
+                int yScore;
+                if (!_seeScores.ContainsKey(y))
                 {
                     if (UseSEE)
                     {
-                        //y.EstScore = CompEstScoreSEE(y, board);
+                        yScore = CompEstScoreSEE(y, board);
+                        _seeScores.Add(y, yScore);
                     }
                     else
                     {
-                        //y.EstScore = CompEstScore(y, board);
+                        yScore = CompEstScore(y, board);
+                        _seeScores.Add(y, yScore);
                     }
                 }
+                else
+                {
+                    yScore = _seeScores[y];
+                }
+
                 if (x.EstScore() > y.EstScore()) { return -1; }
                 if (x.EstScore() < y.EstScore()) { return 1; }
                 return 0;

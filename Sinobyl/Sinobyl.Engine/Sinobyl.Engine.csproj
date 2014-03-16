@@ -64,7 +64,6 @@
     <Compile Include="ChessGamePlayer.cs" />
     <Compile Include="ChessGameStage.cs" />
     <Compile Include="ChessMatch.cs" />
-    <Compile Include="ChessMove.Comparer.cs" />
     <Compile Include="ChessMove.cs" />
     <Compile Include="ChessOpening.cs" />
     <Compile Include="ChessPGN.cs" />
@@ -82,7 +81,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChessMove.Text.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

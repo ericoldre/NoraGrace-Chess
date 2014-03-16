@@ -1,108 +1,369 @@
 using System;
-
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 namespace Sinobyl.Engine
 {
+	/// <summary>
+	/// Summary description for ChessMove.
+	/// </summary>
+	/// 
+	public enum ChessNotationType
+	{
+		Coord,
+		San,
+		Detailed
+	}
 
-
-    public static partial class ChessMoveInfo
-    {
-        public const int SHIFT_TO = 1;
-        public const int SHIFT_FROM = 7;
-        public const int SHIFT_PROM = 13;
-        public const int MASK_SIXBITS = 0x3F;
-        public const int SHIFT_TOTAL = 19;
-        public const int TOTAL_MASK = 0x7FFFF;
-
-        public static ChessMove Create(ChessPosition from, ChessPosition to)
-        {
-            return Create(from, to, ChessPiece.EMPTY);
-
-        }
-
-        public static ChessMove Create(ChessPosition from, ChessPosition to, ChessPiece promote)
-        {
-
-            if (((int)from & MASK_SIXBITS) != (int)from) { throw new ArgumentOutOfRangeException("from"); }
-            if (((int)to & MASK_SIXBITS) != (int)to) { throw new ArgumentOutOfRangeException("to"); }
-            if (((int)promote & MASK_SIXBITS) != (int)promote) { throw new ArgumentOutOfRangeException("promote"); }
-
-            int ito = (int)to << SHIFT_TO;
-            int ifrom = (int)from << SHIFT_FROM;
-            int iprom = (int)promote << SHIFT_PROM;
-
-            return (ChessMove)(ito | ifrom | iprom) | ChessMove.NOT_NULL_MOVE;
-            //return ChessMoveInfo.Create(from, to, promote);
-        }
-
-        public static ChessPosition To(this ChessMove move)
-        {
-            int mask = ((int)move >> SHIFT_TO) & MASK_SIXBITS;
-            return (ChessPosition)mask;
-        }
-
-        public static ChessPosition From(this ChessMove move)
-        {
-            var shift = (int)move >> SHIFT_FROM;
-            int mask = shift & MASK_SIXBITS;
-            return (ChessPosition)mask;
-        }
-
-        public static ChessPiece Promote(this ChessMove move)
-        {
-            var shift = (int)move >> SHIFT_PROM;
-            int mask = shift & MASK_SIXBITS;
-            return (ChessPiece)mask;
-        }
-
-        public static int? EstScore(this ChessMove move)
-        {
-            return 0;
-        }
-
-
-		public static bool IsSameAs(this ChessMove move, ChessMove otherMove)
+	public class ChessMoves : List<ChessMove>
+	{
+		public ChessMoves()
 		{
-            return ((int)move & TOTAL_MASK) == ((int)otherMove & TOTAL_MASK);
+
+		}
+		public ChessMoves(IEnumerable<ChessMove> moves)
+			: base(moves)
+		{
+
+		}
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (ChessMove move in this)
+            {
+                sb.Append(move.ToString()+ " ");
+            }
+            return sb.ToString();
+        }
+		public string ToString(ChessBoard board, bool isVariation)
+		{
+			StringBuilder sb = new StringBuilder();
+			long zobInit = board.Zobrist;
+			foreach (ChessMove move in this)
+			{
+				if (isVariation && board.WhosTurn==ChessPlayer.White)
+				{
+					sb.Append(board.FullMoveCount.ToString() + ". ");
+				}
+				sb.Append(move.ToString(board) + " ");
+				if (isVariation)
+				{
+					board.MoveApply(move);
+				}
+			}
+			if (isVariation)
+			{
+				foreach (ChessMove move in this)
+				{
+					board.MoveUndo();
+				}
+			}
+			return sb.ToString();
 		}
 
-		public static bool IsLegal(this ChessMove move, ChessBoard board)
+	}
+
+	public class ChessMove
+	{
+		public readonly ChessPosition From;
+		public readonly ChessPosition To;
+		public readonly ChessPiece Promote;
+		public int? EstScore;
+
+		public override bool Equals(object obj)
 		{
-            ChessMoves legalmoves = new ChessMoves(ChessMoveInfo.GenMovesLegal(board));
-			foreach (ChessMove legalmove in legalmoves)
+			ChessMove other = (ChessMove)obj;
+			if (other.From==this.From && other.To==this.To && other.Promote==this.Promote)
 			{
-				if (legalmove.IsSameAs(move)) { return true; }
+				return true;
 			}
 			return false;
 		}
+        public override int GetHashCode()
+        {
+            //return (To.GetHashCode() ^ From.GetHashCode() >> 1) + this.Promote.GetHashCode();
+            return (int)To | ((int)From << 8) | ((int)Promote << 16);
+        }
 
-		public static string Write(this ChessMove move, ChessBoard board)
+		public ChessMove()
+		{
+			this.Promote = ChessPiece.EMPTY;
+			this.From = (ChessPosition.OUTOFBOUNDS);
+			this.To = (ChessPosition.OUTOFBOUNDS);
+			this.EstScore = null;
+		}
+		public ChessMove(ChessPosition from, ChessPosition to)
+		{
+			this.Promote = ChessPiece.EMPTY;
+			this.From = from;
+			this.To = to;
+			this.EstScore = null;
+		}
+		public ChessMove(ChessPosition from, ChessPosition to, ChessPiece promote)
+		{
+			this.From = from;
+			this.To = to;
+			this.Promote = promote;
+			this.EstScore = null;
+		}
+		public ChessMove(ChessBoard board, string movetext)
+		{
+			this.Promote = ChessPiece.EMPTY;//unless changed below
+			this.From = (ChessPosition.OUTOFBOUNDS);
+			this.To = (ChessPosition.OUTOFBOUNDS);
+			this.EstScore = null;
+			Regex regex = new Regex("");
+
+			movetext = movetext.Replace("+", "");
+			movetext = movetext.Replace("x", "");
+			movetext = movetext.Replace("#", "");
+			movetext = movetext.Replace("=", "");
+
+			ChessPlayer me = board.WhosTurn;
+			ChessPiece mypawn = board.WhosTurn == ChessPlayer.White ? ChessPiece.WPawn : ChessPiece.BPawn;
+			ChessPiece myknight = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKnight : ChessPiece.BKnight;
+			ChessPiece mybishop = board.WhosTurn == ChessPlayer.White ? ChessPiece.WBishop : ChessPiece.BBishop;
+			ChessPiece myrook = board.WhosTurn == ChessPlayer.White ? ChessPiece.WRook : ChessPiece.BRook;
+			ChessPiece myqueen = board.WhosTurn == ChessPlayer.White ? ChessPiece.WQueen : ChessPiece.BQueen;
+			ChessPiece myking = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKing : ChessPiece.BKing;
+
+			ChessDirection mynorth = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirN : ChessDirection.DirS;
+			ChessDirection mysouth = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirS : ChessDirection.DirN;
+			ChessRank myrank4 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank4 : ChessRank.Rank5;
+
+
+			ChessPosition tmppos;
+			ChessPiece tmppiece;
+			ChessFile tmpfile;
+			ChessRank tmprank;
+
+			if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][abcdefgh][12345678]$", RegexOptions.IgnoreCase))
+			{
+				//coordinate notation, will not verify legality for now
+                this.From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+                this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+			}
+			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][abcdefgh][12345678][BNRQK]$", RegexOptions.IgnoreCase))
+			{
+				//coordinate notation, with promotion
+                this.From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+				this.Promote = movetext[4].ParseAsPiece(me);
+			}
+			else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
+			{
+				if (me == ChessPlayer.White)
+				{
+					this.From = ChessPosition.E1;
+					this.To = ChessPosition.G1;
+				}
+				else
+				{
+					this.From = ChessPosition.E8;
+					this.To = ChessPosition.G8;
+				}
+			}
+			else if (movetext == "0-0-0" || movetext == "O-O-O" || movetext == "o-o-o")
+			{
+				if (me == ChessPlayer.White)
+				{
+					this.From = ChessPosition.E1;
+					this.To = ChessPosition.C1;
+				}
+				else
+				{
+					this.From = ChessPosition.E8;
+					this.To = ChessPosition.C8;
+				}
+			}
+			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678]$"))
+			{
+				//pawn forward
+                this.To = ChessPositionInfo.Parse(movetext);
+                tmppos = To.PositionInDirection(mysouth);
+				if (board.PieceAt(tmppos) == mypawn)
+				{
+					From = tmppos;
+					return;
+				}
+				else if (board.PieceAt(tmppos) == ChessPiece.EMPTY && To.GetRank() == myrank4)
+				{
+                    tmppos = tmppos.PositionInDirection(mysouth);
+					if (board.PieceAt(tmppos) == mypawn)
+					{
+						From = tmppos;
+						return;
+					}
+				}
+                throw new ArgumentException("no pawn can move to " + movetext);
+
+			}
+			else if (Regex.IsMatch(movetext, "^[abcdefgh][12345678][BNRQK]$"))
+			{
+				//pawn forward, promotion
+                this.To = ChessPositionInfo.Parse(movetext.Substring(0, 2));
+                tmppos = To.PositionInDirection(mysouth);
+				if (board.PieceAt(tmppos) == mypawn)
+				{
+					From = tmppos;
+					Promote = movetext[2].ParseAsPiece(me);
+					return;
+				}
+                throw new ArgumentException("no pawn can promoted to " + movetext.Substring(0, 2));
+			}
+			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678]$"))
+			{
+				//pawn attack
+                this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
+				tmpfile = ChessFileInfo.Parse(movetext[0]);
+				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
+				return;
+			}
+			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678][BNRQK]$"))
+			{
+				//pawn attack, promote
+				this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
+                tmpfile = ChessFileInfo.Parse(movetext[0]);
+				this.From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
+				this.Promote = movetext[3].ParseAsPiece(me);
+				return;
+			}
+			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678]$"))
+			{
+				//normal attack
+				this.To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
+				tmppiece = movetext[0].ParseAsPiece(me);
+				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
+				return;
+			}
+			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][abcdefgh][12345678]$"))
+			{
+				//normal, specify file
+				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+				tmppiece = movetext[0].ParseAsPiece(me);
+                tmpfile = ChessFileInfo.Parse(movetext[1]);
+				this.From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
+				return;
+			}
+			else if (Regex.IsMatch(movetext, "^[BNRQK][12345678][abcdefgh][12345678]$"))
+			{
+				//normal, specify rank
+				this.To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
+				tmppiece = movetext[0].ParseAsPiece(me);
+                tmprank = ChessRankInfo.Parse(movetext[1]);
+				this.From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
+				return;
+
+			}
+			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678][abcdefgh][12345678]$"))
+			{
+				//normal, specify rank and file
+				this.To = ChessPositionInfo.Parse(movetext.Substring(3, 2));
+				tmppiece = movetext[0].ParseAsPiece(me);
+                tmpfile = ChessFileInfo.Parse(movetext[1]);
+                tmprank = ChessRankInfo.Parse(movetext[2]);
+				this.From = filter(board, To, tmppiece, tmpfile, tmprank);
+				return;
+			}
+
+		}
+		private ChessPosition filter(ChessBoard board, ChessPosition attackto, ChessPiece piece, ChessFile file, ChessRank rank)
+		{
+            List<ChessPosition> fits = new List<ChessPosition>();
+            var attacksTo = board.AttacksTo(attackto, board.WhosTurn);
+			foreach(ChessPosition pos in attacksTo.ToPositions())
+			{
+				if (piece != ChessPiece.EMPTY && piece != board.PieceAt(pos))
+				{
+                    continue;
+				}
+				if (rank != ChessRank.EMPTY && rank != pos.GetRank())
+				{
+                    continue;
+				}
+				if (file != ChessFile.EMPTY && file != pos.GetFile())
+				{
+                    continue;
+				}
+                fits.Add(pos);
+			}
+
+            if (fits.Count > 1)
+			{
+				//ambigous moves, one is probably illegal, check against legal move list
+                ChessMoves allLegal = new ChessMoves(ChessMove.GenMovesLegal(board));
+                fits.Clear();
+				foreach (ChessMove move in allLegal)
+				{
+					if (move.To != attackto) { continue; }
+					if (board.PieceAt(move.From) != piece) { continue; }
+					if (file != ChessFile.EMPTY && move.From.GetFile() != file) { continue; }
+					if (rank != ChessRank.EMPTY && move.From.GetRank() != rank) { continue; }
+                    fits.Add(move.From);
+				}
+			}
+
+            if (fits.Count != 1)
+			{
+                throw new ArgumentException("invalid move input");
+				
+			}
+
+            return fits[0];
+		}
+
+		public override string ToString()
 		{
 			string retval = "";
-            ChessPiece piece = board.PieceAt(move.From());
-            bool iscap = (board.PieceAt(move.To()) != ChessPiece.EMPTY);
+			if (Promote == ChessPiece.EMPTY)
+			{
+				retval = From.PositionToString().ToLower() + To.PositionToString().ToLower();
+			}
+			else
+			{
+                retval = From.PositionToString().ToLower() + To.PositionToString().ToLower() + Promote.PieceToString().ToLower();
+			}
+			return retval;
+		}
+		public bool IsSameAs(ChessMove move)
+		{
+			return this.From == move.From && this.To == move.To && this.Promote == move.Promote;
+		}
+		public bool IsLegal(ChessBoard board)
+		{
+            ChessMoves legalmoves = new ChessMoves(ChessMove.GenMovesLegal(board));
+			foreach (ChessMove legalmove in legalmoves)
+			{
+				if (legalmove.IsSameAs(this)) { return true; }
+			}
+			return false;
+		}
+		public string ToString(ChessBoard board)
+		{
+			string retval = "";
+			ChessPiece piece = board.PieceAt(this.From);
+			bool iscap = (board.PieceAt(this.To) != ChessPiece.EMPTY);
+			
+			ChessRank fromrank = this.From.GetRank();
+			ChessFile fromfile = this.From.GetFile();
+			bool isprom = this.Promote != ChessPiece.EMPTY;
 
-            ChessRank fromrank = move.From().GetRank();
-            ChessFile fromfile = move.From().GetFile();
-            bool isprom = move.Promote() != ChessPiece.EMPTY;
-
-            string sTo = (move.To().PositionToString());
+			string sTo = (this.To.PositionToString());
             string sPiece = piece.PieceToString().ToUpper();
             string sRank = fromrank.RankToString().ToLower();
             string sFile = fromfile.FileToString().ToLower();
 			string sProm = "";
 			
 			//enpassant cap
-            if (move.To() == board.EnPassant && (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn))
+			if(this.To==board.EnPassant && (piece==ChessPiece.WPawn || piece==ChessPiece.BPawn))
 			{
 				iscap = true;
 			}
 			
 			if (isprom)
 			{
-                sProm = move.Promote().PieceToString().ToUpper();
+                sProm = this.Promote.PieceToString().ToUpper();
 			}
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
@@ -117,19 +378,19 @@ namespace Sinobyl.Engine
 					retval += sProm;
 				}
 			}
-            else if (piece == ChessPiece.WKing && move.From() == ChessPosition.E1 && move.To() == ChessPosition.G1)
+			else if (piece == ChessPiece.WKing && this.From == ChessPosition.E1 && this.To == ChessPosition.G1)
 			{
 				retval += "O-O";
 			}
-            else if (piece == ChessPiece.BKing && move.From() == ChessPosition.E8 && move.To() == ChessPosition.G8)
+			else if (piece == ChessPiece.BKing && this.From == ChessPosition.E8 && this.To == ChessPosition.G8)
 			{
 				retval += "O-O";
 			}
-            else if (piece == ChessPiece.WKing && move.From() == ChessPosition.E1 && move.To() == ChessPosition.C1)
+			else if (piece == ChessPiece.WKing && this.From == ChessPosition.E1 && this.To == ChessPosition.C1)
 			{
 				retval += "O-O-O";
 			}
-            else if (piece == ChessPiece.BKing && move.From() == ChessPosition.E8 && move.To() == ChessPosition.C8)
+			else if (piece == ChessPiece.BKing && this.From == ChessPosition.E8 && this.To == ChessPosition.C8)
 			{
 				retval += "O-O-O";
 			}
@@ -138,9 +399,9 @@ namespace Sinobyl.Engine
 				bool pieceunique = true;
 				bool fileunique = true;
 				bool rankunique = true;
-                foreach (ChessPosition pos in board.AttacksTo(move.To(), piece.PieceToPlayer()).ToPositions())
+                foreach (ChessPosition pos in board.AttacksTo(this.To, piece.PieceToPlayer()).ToPositions())
 				{
-                    if (pos == move.From()) { continue; }
+					if (pos == this.From) { continue; }
 
 					ChessPiece otherpiece = board.PieceAt(pos);
 					if (otherpiece == piece)
@@ -179,11 +440,10 @@ namespace Sinobyl.Engine
 				}
 				retval += sTo;
 			}
-			board.MoveApply(move);
-
+			board.MoveApply(this);
 			if (board.IsCheck())
 			{
-				if (ChessMoveInfo.GenMovesLegal(board).Any())
+				if (ChessMove.GenMovesLegal(board).Any())
 				{
 					retval += "+";
 				}
@@ -203,9 +463,6 @@ namespace Sinobyl.Engine
 			ChessPlayer me = board.WhosTurn;
 			foreach (ChessMove move in GenMoves(workingboard))
 			{
-                var f = move.From();
-                var t = move.To();
-                var p = move.Promote();
 				workingboard.MoveApply(move);
                 bool resultsInCheck = workingboard.IsCheck(me);
                 workingboard.MoveUndo();
@@ -301,19 +558,19 @@ namespace Sinobyl.Engine
                         {
                             if (targetpos.GetRank() == myrank8)
                             {
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myqueen));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myrook));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, mybishop));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myknight));
+                                retval.Add(new ChessMove(piecepos, targetpos, myqueen));
+                                retval.Add(new ChessMove(piecepos, targetpos, myrook));
+                                retval.Add(new ChessMove(piecepos, targetpos, mybishop));
+                                retval.Add(new ChessMove(piecepos, targetpos, myknight));
                             }
                             else
                             {
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos));
+                                retval.Add(new ChessMove(piecepos, targetpos));
                             }
                         }
                         else if (targetpos == board.EnPassant)
                         {
-                            retval.Add(ChessMoveInfo.Create(piecepos, targetpos));
+                            retval.Add(new ChessMove(piecepos, targetpos));
                         }
                     }
 
@@ -326,19 +583,19 @@ namespace Sinobyl.Engine
                         {
                             if (targetpos.GetRank() == myrank8)
                             {
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myqueen));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myrook));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, mybishop));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myknight));
+                                retval.Add(new ChessMove(piecepos, targetpos, myqueen));
+                                retval.Add(new ChessMove(piecepos, targetpos, myrook));
+                                retval.Add(new ChessMove(piecepos, targetpos, mybishop));
+                                retval.Add(new ChessMove(piecepos, targetpos, myknight));
                             }
                             else
                             {
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos));
+                                retval.Add(new ChessMove(piecepos, targetpos));
                             }
                         }
                         else if (targetpos == board.EnPassant)
                         {
-                            retval.Add(ChessMoveInfo.Create(piecepos, targetpos));
+                            retval.Add(new ChessMove(piecepos, targetpos));
                         }
                     }
 
@@ -351,14 +608,14 @@ namespace Sinobyl.Engine
                         {
                             if (targetpos.GetRank() == myrank8)
                             {
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myqueen));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myrook));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, mybishop));
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos, myknight));
+                                retval.Add(new ChessMove(piecepos, targetpos, myqueen));
+                                retval.Add(new ChessMove(piecepos, targetpos, myrook));
+                                retval.Add(new ChessMove(piecepos, targetpos, mybishop));
+                                retval.Add(new ChessMove(piecepos, targetpos, myknight));
                             }
                             else
                             {
-                                retval.Add(ChessMoveInfo.Create(piecepos, targetpos));
+                                retval.Add(new ChessMove(piecepos, targetpos));
                             }
 
                             //double jump
@@ -368,7 +625,7 @@ namespace Sinobyl.Engine
                                 targetpiece = board.PieceAt(targetpos);
                                 if (targetpiece == ChessPiece.EMPTY)
                                 {
-                                    retval.Add(ChessMoveInfo.Create(piecepos, targetpos));
+                                    retval.Add(new ChessMove(piecepos, targetpos));
                                 }
                             }
                         }
@@ -392,7 +649,7 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.F1, ChessPlayer.Black)
                         && !board.PositionAttacked(ChessPosition.G1, ChessPlayer.Black))
                     {
-                        retval.Add(ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.G1));
+                        retval.Add(new ChessMove(ChessPosition.E1, ChessPosition.G1));
                     }
                     if (board.CastleAvailWL
                         && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
@@ -404,7 +661,7 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.D1, ChessPlayer.Black)
                         && !board.PositionAttacked(ChessPosition.C1, ChessPlayer.Black))
                     {
-                        retval.Add(ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.C1));
+                        retval.Add(new ChessMove(ChessPosition.E1, ChessPosition.C1));
                     }
                 }
                 else
@@ -418,7 +675,7 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.F8, ChessPlayer.White)
                         && !board.PositionAttacked(ChessPosition.G8, ChessPlayer.White))
                     {
-                        retval.Add(ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.G8));
+                        retval.Add(new ChessMove(ChessPosition.E8, ChessPosition.G8));
                     }
                     if (board.CastleAvailBL
                         && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
@@ -430,7 +687,7 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.D8, ChessPlayer.White)
                         && !board.PositionAttacked(ChessPosition.C8, ChessPlayer.White))
                     {
-                        retval.Add(ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.C8));
+                        retval.Add(new ChessMove(ChessPosition.E8, ChessPosition.C8));
                     }
 
                 }
@@ -439,8 +696,6 @@ namespace Sinobyl.Engine
             return retval;
 
         }
-        
-        
         public static IEnumerable<ChessMove> GenMoves(ChessBoard board, bool CapsOnly)
         {
 
@@ -476,7 +731,7 @@ namespace Sinobyl.Engine
                 {
                     foreach (ChessPosition attackPos in (Attacks.KnightAttacks(piecepos) & targetLocations).ToPositions())
                     {
-                        yield return ChessMoveInfo.Create(piecepos, attackPos);
+                        yield return new ChessMove(piecepos, attackPos);
                     }
                     continue;
                 }
@@ -485,7 +740,7 @@ namespace Sinobyl.Engine
                 {
                     foreach (ChessPosition attackPos in (Attacks.BishopAttacks(piecepos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8) & targetLocations).ToPositions())
                     {
-                        yield return ChessMoveInfo.Create(piecepos, attackPos);
+                        yield return new ChessMove(piecepos, attackPos);
                     }
                     continue;
                 }
@@ -494,7 +749,7 @@ namespace Sinobyl.Engine
                 {
                     foreach (ChessPosition attackPos in (Attacks.RookAttacks(piecepos, board.PieceLocationsAll, board.PieceLocationsAllVert) & targetLocations).ToPositions())
                     {
-                        yield return ChessMoveInfo.Create(piecepos, attackPos);
+                        yield return new ChessMove(piecepos, attackPos);
                     }
                     continue;
                 }
@@ -503,7 +758,7 @@ namespace Sinobyl.Engine
                 {
                     foreach (ChessPosition attackPos in (Attacks.QueenAttacks(piecepos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8) & targetLocations).ToPositions())
                     {
-                        yield return ChessMoveInfo.Create(piecepos, attackPos);
+                        yield return new ChessMove(piecepos, attackPos);
                     }
                     continue;
                 }
@@ -512,11 +767,62 @@ namespace Sinobyl.Engine
                 {
                     foreach (ChessPosition attackPos in (Attacks.KingAttacks(piecepos) & targetLocations).ToPositions())
                     {
-                        yield return ChessMoveInfo.Create(piecepos, attackPos);
+                        yield return new ChessMove(piecepos, attackPos);
                     }
                     continue;
                 }
+                //pawn moves
+                //if (piece == mypawn)
+                //{
+                //    //pawn attacks
+                //    foreach (var attackPos in (Attacks.PawnAttacks(piecepos, board.WhosTurn) & pawnTargets).ToPositions())
+                //    {
+                //        if (attackPos.GetRank() == myrank8)
+                //        {
+                //            retval.Add(new ChessMove(piecepos, attackPos, myqueen));
+                //            retval.Add(new ChessMove(piecepos, attackPos, myrook));
+                //            retval.Add(new ChessMove(piecepos, attackPos, mybishop));
+                //            retval.Add(new ChessMove(piecepos, attackPos, myknight));
+                //        }
+                //        else
+                //        {
+                //            retval.Add(new ChessMove(piecepos, attackPos));
+                //        }
+                //    }
 
+                //    ////pawn jumps
+                //    //if (!CapsOnly)
+                //    //{
+                //    //    //pawn jump
+                //    //    ChessPosition targetpos = Chess.PositionInDirection(piecepos, mypawnnorth);
+                //    //    targetpiece = board.PieceAt(targetpos);
+                //    //    if (targetpiece == ChessPiece.EMPTY)
+                //    //    {
+                //    //        if (targetpos.GetRank() == myrank8)
+                //    //        {
+                //    //            retval.Add(new ChessMove(piecepos, targetpos, myqueen));
+                //    //            retval.Add(new ChessMove(piecepos, targetpos, myrook));
+                //    //            retval.Add(new ChessMove(piecepos, targetpos, mybishop));
+                //    //            retval.Add(new ChessMove(piecepos, targetpos, myknight));
+                //    //        }
+                //    //        else
+                //    //        {
+                //    //            retval.Add(new ChessMove(piecepos, targetpos));
+                //    //        }
+
+                //    //        //double jump
+                //    //        if (piecepos.GetRank() == myrank2)
+                //    //        {
+                //    //            targetpos = Chess.PositionInDirection(targetpos, mypawnnorth);
+                //    //            targetpiece = board.PieceAt(targetpos);
+                //    //            if (targetpiece == ChessPiece.EMPTY)
+                //    //            {
+                //    //                retval.Add(new ChessMove(piecepos, targetpos));
+                //    //            }
+                //    //        }
+                //    //    }
+                //    //}
+                //}
             }
 
             
@@ -529,14 +835,14 @@ namespace Sinobyl.Engine
                     ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
                     if (targetpos.GetRank() == myrank8)
                     {
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, myqueen);
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, myrook);
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, mybishop);
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, myknight);
+                        yield return new ChessMove(piecepos, targetpos, myqueen);
+                        yield return new ChessMove(piecepos, targetpos, myrook);
+                        yield return new ChessMove(piecepos, targetpos, mybishop);
+                        yield return new ChessMove(piecepos, targetpos, myknight);
                     }
                     else
                     {
-                        yield return ChessMoveInfo.Create(piecepos, targetpos);
+                        yield return new ChessMove(piecepos, targetpos);
                     }
                 }
             }
@@ -548,20 +854,20 @@ namespace Sinobyl.Engine
                     ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(mypawnnorth.Opposite());
                     if (targetpos.GetRank() == myrank8)
                     {
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, myqueen);
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, myrook);
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, mybishop);
-                        yield return ChessMoveInfo.Create(piecepos, targetpos, myknight);
+                        yield return new ChessMove(piecepos, targetpos, myqueen);
+                        yield return new ChessMove(piecepos, targetpos, myrook);
+                        yield return new ChessMove(piecepos, targetpos, mybishop);
+                        yield return new ChessMove(piecepos, targetpos, myknight);
                     }
                     else
                     {
-                        yield return ChessMoveInfo.Create(piecepos, targetpos);
+                        yield return new ChessMove(piecepos, targetpos);
                         if (piecepos.GetRank() == myrank2)
                         {
                             var doubleJumpPos = targetpos.PositionInDirectionUnsafe(mypawnnorth);
                             if (board.PieceAt(doubleJumpPos) == ChessPiece.EMPTY)
                             {
-                                yield return ChessMoveInfo.Create(piecepos, doubleJumpPos);
+                                yield return new ChessMove(piecepos, doubleJumpPos);
                             }
                         }
                     }
@@ -584,7 +890,7 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.F1, ChessPlayer.Black)
                         && !board.PositionAttacked(ChessPosition.G1, ChessPlayer.Black))
                     {
-                        yield return ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.G1);
+                        yield return new ChessMove(ChessPosition.E1, ChessPosition.G1);
                     }
                     if (board.CastleAvailWL
                         && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
@@ -596,7 +902,7 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.D1, ChessPlayer.Black)
                         && !board.PositionAttacked(ChessPosition.C1, ChessPlayer.Black))
                     {
-                        yield return ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.C1);
+                        yield return new ChessMove(ChessPosition.E1, ChessPosition.C1);
                     }
                 }
                 else
@@ -610,7 +916,7 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.F8, ChessPlayer.White)
                         && !board.PositionAttacked(ChessPosition.G8, ChessPlayer.White))
                     {
-                        yield return ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.G8);
+                        yield return new ChessMove(ChessPosition.E8, ChessPosition.G8);
                     }
                     if (board.CastleAvailBL
                         && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
@@ -622,212 +928,12 @@ namespace Sinobyl.Engine
                         && !board.PositionAttacked(ChessPosition.D8, ChessPlayer.White)
                         && !board.PositionAttacked(ChessPosition.C8, ChessPlayer.White))
                     {
-                        yield return ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.C8);
+                        yield return new ChessMove(ChessPosition.E8, ChessPosition.C8);
                     }
 
                 }
             }
 
-        }
-
-        public static ChessMove[][] InitalizeMoveStack(int depth)
-        {
-            ChessMove[][] retval = new ChessMove[depth][];
-            for (int i = 0; i < depth; i++)
-            {
-                retval[i] = new ChessMove[192];
-            }
-            return retval;
-        }
-
-        public static int GenMovesToArray(ChessBoard board, ChessMove[] array, int startIndex, bool CapsOnly = false)
-        {
-            int nextIndex = startIndex;
-
-            ChessPiece mypawn = board.WhosTurn == ChessPlayer.White ? ChessPiece.WPawn : ChessPiece.BPawn;
-            ChessPiece myknight = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKnight : ChessPiece.BKnight;
-            ChessPiece mybishop = board.WhosTurn == ChessPlayer.White ? ChessPiece.WBishop : ChessPiece.BBishop;
-            ChessPiece myrook = board.WhosTurn == ChessPlayer.White ? ChessPiece.WRook : ChessPiece.BRook;
-            ChessPiece myqueen = board.WhosTurn == ChessPlayer.White ? ChessPiece.WQueen : ChessPiece.BQueen;
-            ChessPiece myking = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKing : ChessPiece.BKing;
-
-            ChessDirection mypawnwest = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirNW : ChessDirection.DirSW;
-            ChessDirection mypawneast = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirNE : ChessDirection.DirSE;
-            ChessDirection mypawnnorth = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirN : ChessDirection.DirS;
-            ChessRank myrank8 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank8 : ChessRank.Rank1;
-            ChessRank myrank2 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank2 : ChessRank.Rank7;
-
-
-            ChessBitboard targetLocations = board.PlayerLocations(board.WhosTurn.PlayerOther());
-            if (!CapsOnly)
-            {
-                targetLocations |= ~board.PieceLocationsAll;
-            }
-
-            ChessBitboard pawnTargets = board.PlayerLocations(board.WhosTurn.PlayerOther()) | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
-
-            //loop through all non pawn locations
-            foreach (ChessPosition piecepos in (board.PlayerLocations(board.WhosTurn) & ~board.PieceLocations(mypawn)).ToPositions())
-            {
-                ChessPiece piece = board.PieceAt(piecepos);
-
-                //knight attacks
-                if (piece == myknight)
-                {
-                    foreach (ChessPosition attackPos in (Attacks.KnightAttacks(piecepos) & targetLocations).ToPositions())
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, attackPos);
-                    }
-                    continue;
-                }
-                //bishop attacks
-                if (piece == mybishop)
-                {
-                    foreach (ChessPosition attackPos in (Attacks.BishopAttacks(piecepos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8) & targetLocations).ToPositions())
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, attackPos);
-                    }
-                    continue;
-                }
-                //rook attacks
-                if (piece == myrook)
-                {
-                    foreach (ChessPosition attackPos in (Attacks.RookAttacks(piecepos, board.PieceLocationsAll, board.PieceLocationsAllVert) & targetLocations).ToPositions())
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, attackPos);
-                    }
-                    continue;
-                }
-                //queen attacks
-                if (piece == myqueen)
-                {
-                    foreach (ChessPosition attackPos in (Attacks.QueenAttacks(piecepos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8) & targetLocations).ToPositions())
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, attackPos);
-                    }
-                    continue;
-                }
-                //king attacks
-                if (piece == myking)
-                {
-                    foreach (ChessPosition attackPos in (Attacks.KingAttacks(piecepos) & targetLocations).ToPositions())
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, attackPos);
-                    }
-                    continue;
-                }
-
-            }
-
-
-
-            //pawn caps
-            foreach (ChessDirection capDir in new ChessDirection[] { mypawneast, mypawnwest })
-            {
-                foreach (ChessPosition targetpos in (board.PieceLocations(mypawn).Shift(capDir) & pawnTargets).ToPositions())
-                {
-                    ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
-                    if (targetpos.GetRank() == myrank8)
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, myqueen);
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, myrook);
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, mybishop);
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, myknight);
-                    }
-                    else
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos);
-                    }
-                }
-            }
-            if (!CapsOnly)
-            {
-                //pawn jumps
-                foreach (ChessPosition targetpos in (board.PieceLocations(mypawn).Shift(mypawnnorth) & ~board.PieceLocationsAll).ToPositions())
-                {
-                    ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(mypawnnorth.Opposite());
-                    if (targetpos.GetRank() == myrank8)
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, myqueen);
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, myrook);
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, mybishop);
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos, myknight);
-                    }
-                    else
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(piecepos, targetpos);
-                        if (piecepos.GetRank() == myrank2)
-                        {
-                            var doubleJumpPos = targetpos.PositionInDirectionUnsafe(mypawnnorth);
-                            if (board.PieceAt(doubleJumpPos) == ChessPiece.EMPTY)
-                            {
-                                array[nextIndex++] = ChessMoveInfo.Create(piecepos, doubleJumpPos);
-                            }
-                        }
-                    }
-                }
-            }
-
-
-
-            if (!CapsOnly)
-            {
-                //castling
-                if (board.WhosTurn == ChessPlayer.White)
-                {
-                    if (board.CastleAvailWS
-                        && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
-                        && board.PieceAt(ChessPosition.H1) == ChessPiece.WRook
-                        && board.PieceAt(ChessPosition.F1) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.G1) == ChessPiece.EMPTY
-                        && !board.PositionAttacked(ChessPosition.E1, ChessPlayer.Black)
-                        && !board.PositionAttacked(ChessPosition.F1, ChessPlayer.Black)
-                        && !board.PositionAttacked(ChessPosition.G1, ChessPlayer.Black))
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.G1);
-                    }
-                    if (board.CastleAvailWL
-                        && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
-                        && board.PieceAt(ChessPosition.A1) == ChessPiece.WRook
-                        && board.PieceAt(ChessPosition.B1) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.C1) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.D1) == ChessPiece.EMPTY
-                        && !board.PositionAttacked(ChessPosition.E1, ChessPlayer.Black)
-                        && !board.PositionAttacked(ChessPosition.D1, ChessPlayer.Black)
-                        && !board.PositionAttacked(ChessPosition.C1, ChessPlayer.Black))
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.C1);
-                    }
-                }
-                else
-                {
-                    if (board.CastleAvailBS
-                        && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
-                        && board.PieceAt(ChessPosition.H8) == ChessPiece.BRook
-                        && board.PieceAt(ChessPosition.F8) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.G8) == ChessPiece.EMPTY
-                        && !board.PositionAttacked(ChessPosition.E8, ChessPlayer.White)
-                        && !board.PositionAttacked(ChessPosition.F8, ChessPlayer.White)
-                        && !board.PositionAttacked(ChessPosition.G8, ChessPlayer.White))
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.G8);
-                    }
-                    if (board.CastleAvailBL
-                        && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
-                        && board.PieceAt(ChessPosition.A8) == ChessPiece.BRook
-                        && board.PieceAt(ChessPosition.B8) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.C8) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.D8) == ChessPiece.EMPTY
-                        && !board.PositionAttacked(ChessPosition.E8, ChessPlayer.White)
-                        && !board.PositionAttacked(ChessPosition.D8, ChessPlayer.White)
-                        && !board.PositionAttacked(ChessPosition.C8, ChessPlayer.White))
-                    {
-                        array[nextIndex++] = ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.C8);
-                    }
-
-                }
-            }
-            return nextIndex;
         }
 
 
@@ -840,7 +946,7 @@ namespace Sinobyl.Engine
 				ChessPiece targetpiece = board.PieceAt(to);
 				if (targetpiece == ChessPiece.EMPTY)
 				{
-					if (!CapsOnly) { retval.Add(ChessMoveInfo.Create(from, to)); }
+					if (!CapsOnly) { retval.Add(new ChessMove(from, to)); }
 				}
                 else if (targetpiece.PieceToPlayer() == forwho)
 				{
@@ -848,7 +954,7 @@ namespace Sinobyl.Engine
 				}
 				else
 				{
-					retval.Add(ChessMoveInfo.Create(from, to));
+					retval.Add(new ChessMove(from, to));
 					break;
 				}
 				to = to.PositionInDirection(dir);
@@ -857,178 +963,261 @@ namespace Sinobyl.Engine
 		}
 
 
+		public class Comp : Comparer<ChessMove>
+		{
+			public readonly ChessBoard board;
+			public readonly ChessMove tt_move;
+			public readonly bool UseSEE;
+			public Comp(ChessBoard a_board, ChessMove a_tt_move, bool a_see)
+			{
+				board = a_board;
+				tt_move = a_tt_move;
+				UseSEE = false;
+			}
+			public override int Compare(ChessMove x, ChessMove y)
+			{
+				if (x.Equals(tt_move) && y.Equals(tt_move))
+				{
+					return 0;
+				}
+				if(x.Equals(tt_move))
+				{
+					return -1;
+				}
+				if (y.Equals(tt_move))
+				{
+					return 1;
+				}
+				//captures 1st
+				if (board.PieceAt(x.To) != ChessPiece.EMPTY && board.PieceAt(y.To) == ChessPiece.EMPTY)
+				{
+					return -1;
+				}
+				if (board.PieceAt(y.To) != ChessPiece.EMPTY && board.PieceAt(x.To) == ChessPiece.EMPTY)
+				{
+					return 1;
+				}
 
-    }
+				if (!x.EstScore.HasValue)
+				{
+					if (UseSEE)
+					{
+						x.EstScore = CompEstScoreSEE(x, board);
+					}
+					else
+					{
+						x.EstScore = CompEstScore(x, board);
+					}
+				}
+				if (!y.EstScore.HasValue)
+				{
+					if (UseSEE)
+					{
+						y.EstScore = CompEstScoreSEE(y, board);
+					}
+					else
+					{
+						y.EstScore = CompEstScore(y, board);
+					}
+				}
+				if (x.EstScore > y.EstScore) { return -1; }
+				if (x.EstScore < y.EstScore) { return 1; }
+				return 0;
+			}
 
-    [Flags]
-    public enum ChessMove
-    {
-        NULL_MOVE = 0,
-        NOT_NULL_MOVE = 1,
-        //TO_FLAG = 1 << 19,
-        //FROM_MARKER = 1 << 20,
-        //PROM_MARKER = 1 << 21,
+			public static int CompEstScore(ChessMove move, ChessBoard board)
+			{
+				int retval = 0;
 
-        //ToA1 = (ChessPosition.A1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB1 = (ChessPosition.B1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC1 = (ChessPosition.C1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD1 = (ChessPosition.D1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE1 = (ChessPosition.E1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF1 = (ChessPosition.F1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG1 = (ChessPosition.G1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH1 = (ChessPosition.H1 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+				ChessPiece mover = board.PieceAt(move.From);
+				ChessPiece taken = board.PieceAt(move.To);
+				ChessPlayer me = board.WhosTurn;
 
-        //ToA2 = (ChessPosition.A2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB2 = (ChessPosition.B2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC2 = (ChessPosition.C2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD2 = (ChessPosition.D2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE2 = (ChessPosition.E2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF2 = (ChessPosition.F2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG2 = (ChessPosition.G2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH2 = (ChessPosition.H2 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+                retval -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
+                retval += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
 
-        //ToA3 = (ChessPosition.A3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB3 = (ChessPosition.B3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC3 = (ChessPosition.C3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD3 = (ChessPosition.D3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE3 = (ChessPosition.E3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF3 = (ChessPosition.F3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG3 = (ChessPosition.G3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH3 = (ChessPosition.H3 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+				if (taken != ChessPiece.EMPTY)
+				{
+					retval -= eval._matPieceStage[(int)taken,(int)ChessGameStage.Opening];
+				}
 
-        //ToA4 = (ChessPosition.A4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB4 = (ChessPosition.B4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC4 = (ChessPosition.C4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD4 = (ChessPosition.D4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE4 = (ChessPosition.E4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF4 = (ChessPosition.F4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG4 = (ChessPosition.G4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH4 = (ChessPosition.H4 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+				if (me == ChessPlayer.Black) { retval = -retval; }
+				return retval;
+			}
 
-        //ToA5 = (ChessPosition.A5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB5 = (ChessPosition.B5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC5 = (ChessPosition.C5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD5 = (ChessPosition.D5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE5 = (ChessPosition.E5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF5 = (ChessPosition.F5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG5 = (ChessPosition.G5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH5 = (ChessPosition.H5 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+			public static int CompEstScoreSEE(ChessMove move, ChessBoard board)
+			{
 
-        //ToA6 = (ChessPosition.A6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB6 = (ChessPosition.B6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC6 = (ChessPosition.C6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD6 = (ChessPosition.D6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE6 = (ChessPosition.E6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF6 = (ChessPosition.F6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG6 = (ChessPosition.G6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH6 = (ChessPosition.H6 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-
-        //ToA7 = (ChessPosition.A7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB7 = (ChessPosition.B7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC7 = (ChessPosition.C7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD7 = (ChessPosition.D7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE7 = (ChessPosition.E7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF7 = (ChessPosition.F7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG7 = (ChessPosition.G7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH7 = (ChessPosition.H7 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-
-        //ToA8 = (ChessPosition.A8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToB8 = (ChessPosition.B8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToC8 = (ChessPosition.C8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToD8 = (ChessPosition.D8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToE8 = (ChessPosition.E8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToF8 = (ChessPosition.F8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToG8 = (ChessPosition.G8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
-        //ToH8 = (ChessPosition.H8 << ChessMoveInfo.SHIFT_TO) | TO_FLAG,
+				int retval = 0;
 
 
-        ////from
+				ChessPiece mover = board.PieceAt(move.From);
+				ChessPiece taken = board.PieceAt(move.To);
+                ChessPlayer me = mover.PieceToPlayer();
 
-        //FromA1 = ChessPosition.A1 << ChessMoveInfo.SHIFT_FROM,
-        //FromB1 = ChessPosition.B1 << ChessMoveInfo.SHIFT_FROM,
-        //FromC1 = ChessPosition.C1 << ChessMoveInfo.SHIFT_FROM,
-        //FromD1 = ChessPosition.D1 << ChessMoveInfo.SHIFT_FROM,
-        //FromE1 = ChessPosition.E1 << ChessMoveInfo.SHIFT_FROM,
-        //FromF1 = ChessPosition.F1 << ChessMoveInfo.SHIFT_FROM,
-        //FromG1 = ChessPosition.G1 << ChessMoveInfo.SHIFT_FROM,
-        //FromH1 = ChessPosition.H1 << ChessMoveInfo.SHIFT_FROM,
+				int pieceSqVal = 0;
+                pieceSqVal -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
+                pieceSqVal += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
+				if (me == ChessPlayer.Black) { pieceSqVal = -pieceSqVal; }
+				retval += pieceSqVal;
 
-        //FromA2 = ChessPosition.A2 << ChessMoveInfo.SHIFT_FROM,
-        //FromB2 = ChessPosition.B2 << ChessMoveInfo.SHIFT_FROM,
-        //FromC2 = ChessPosition.C2 << ChessMoveInfo.SHIFT_FROM,
-        //FromD2 = ChessPosition.D2 << ChessMoveInfo.SHIFT_FROM,
-        //FromE2 = ChessPosition.E2 << ChessMoveInfo.SHIFT_FROM,
-        //FromF2 = ChessPosition.F2 << ChessMoveInfo.SHIFT_FROM,
-        //FromG2 = ChessPosition.G2 << ChessMoveInfo.SHIFT_FROM,
-        //FromH2 = ChessPosition.H2 << ChessMoveInfo.SHIFT_FROM,
+				if (taken != ChessPiece.EMPTY)
+				{
+                    retval += taken.PieceValBasic();
+					//do see
+					var attacks = board.AttacksTo(move.To);
+                    attacks &= ~move.From.Bitboard();
+                    retval -= attackswap(board, attacks, me.PlayerOther(), move.To, mover.PieceValBasic());
 
-        //FromA3 = ChessPosition.A3 << ChessMoveInfo.SHIFT_FROM,
-        //FromB3 = ChessPosition.B3 << ChessMoveInfo.SHIFT_FROM,
-        //FromC3 = ChessPosition.C3 << ChessMoveInfo.SHIFT_FROM,
-        //FromD3 = ChessPosition.D3 << ChessMoveInfo.SHIFT_FROM,
-        //FromE3 = ChessPosition.E3 << ChessMoveInfo.SHIFT_FROM,
-        //FromF3 = ChessPosition.F3 << ChessMoveInfo.SHIFT_FROM,
-        //FromG3 = ChessPosition.G3 << ChessMoveInfo.SHIFT_FROM,
-        //FromH3 = ChessPosition.H3 << ChessMoveInfo.SHIFT_FROM,
 
-        //FromA4 = ChessPosition.A4 << ChessMoveInfo.SHIFT_FROM,
-        //FromB4 = ChessPosition.B4 << ChessMoveInfo.SHIFT_FROM,
-        //FromC4 = ChessPosition.C4 << ChessMoveInfo.SHIFT_FROM,
-        //FromD4 = ChessPosition.D4 << ChessMoveInfo.SHIFT_FROM,
-        //FromE4 = ChessPosition.E4 << ChessMoveInfo.SHIFT_FROM,
-        //FromF4 = ChessPosition.F4 << ChessMoveInfo.SHIFT_FROM,
-        //FromG4 = ChessPosition.G4 << ChessMoveInfo.SHIFT_FROM,
-        //FromH4 = ChessPosition.H4 << ChessMoveInfo.SHIFT_FROM,
+				}
 
-        //FromA5 = ChessPosition.A5 << ChessMoveInfo.SHIFT_FROM,
-        //FromB5 = ChessPosition.B5 << ChessMoveInfo.SHIFT_FROM,
-        //FromC5 = ChessPosition.C5 << ChessMoveInfo.SHIFT_FROM,
-        //FromD5 = ChessPosition.D5 << ChessMoveInfo.SHIFT_FROM,
-        //FromE5 = ChessPosition.E5 << ChessMoveInfo.SHIFT_FROM,
-        //FromF5 = ChessPosition.F5 << ChessMoveInfo.SHIFT_FROM,
-        //FromG5 = ChessPosition.G5 << ChessMoveInfo.SHIFT_FROM,
-        //FromH5 = ChessPosition.H5 << ChessMoveInfo.SHIFT_FROM,
+				return retval;
 
-        //FromA6 = ChessPosition.A6 << ChessMoveInfo.SHIFT_FROM,
-        //FromB6 = ChessPosition.B6 << ChessMoveInfo.SHIFT_FROM,
-        //FromC6 = ChessPosition.C6 << ChessMoveInfo.SHIFT_FROM,
-        //FromD6 = ChessPosition.D6 << ChessMoveInfo.SHIFT_FROM,
-        //FromE6 = ChessPosition.E6 << ChessMoveInfo.SHIFT_FROM,
-        //FromF6 = ChessPosition.F6 << ChessMoveInfo.SHIFT_FROM,
-        //FromG6 = ChessPosition.G6 << ChessMoveInfo.SHIFT_FROM,
-        //FromH6 = ChessPosition.H6 << ChessMoveInfo.SHIFT_FROM,
 
-        //FromA7 = ChessPosition.A7 << ChessMoveInfo.SHIFT_FROM,
-        //FromB7 = ChessPosition.B7 << ChessMoveInfo.SHIFT_FROM,
-        //FromC7 = ChessPosition.C7 << ChessMoveInfo.SHIFT_FROM,
-        //FromD7 = ChessPosition.D7 << ChessMoveInfo.SHIFT_FROM,
-        //FromE7 = ChessPosition.E7 << ChessMoveInfo.SHIFT_FROM,
-        //FromF7 = ChessPosition.F7 << ChessMoveInfo.SHIFT_FROM,
-        //FromG7 = ChessPosition.G7 << ChessMoveInfo.SHIFT_FROM,
-        //FromH7 = ChessPosition.H7 << ChessMoveInfo.SHIFT_FROM,
 
-        //FromA8 = ChessPosition.A8 << ChessMoveInfo.SHIFT_FROM,
-        //FromB8 = ChessPosition.B8 << ChessMoveInfo.SHIFT_FROM,
-        //FromC8 = ChessPosition.C8 << ChessMoveInfo.SHIFT_FROM,
-        //FromD8 = ChessPosition.D8 << ChessMoveInfo.SHIFT_FROM,
-        //FromE8 = ChessPosition.E8 << ChessMoveInfo.SHIFT_FROM,
-        //FromF8 = ChessPosition.F8 << ChessMoveInfo.SHIFT_FROM,
-        //FromG8 = ChessPosition.G8 << ChessMoveInfo.SHIFT_FROM,
-        //FromH8 = ChessPosition.H8 << ChessMoveInfo.SHIFT_FROM,
+			}
+			static int attackswap(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
+			{
+				int nextAttackPieceVal = 0;
+				ChessPosition nextAttackPos = 0;
 
-        //PromWPawn = ChessPiece.WPawn << ChessMoveInfo.SHIFT_PROM,
-        //PromWBishop = ChessPiece.WBishop << ChessMoveInfo.SHIFT_PROM,
-        //PromWKnight = ChessPiece.WKnight << ChessMoveInfo.SHIFT_PROM,
-        //PromWRook = ChessPiece.WRook << ChessMoveInfo.SHIFT_PROM,
-        //PromWQueen = ChessPiece.WQueen << ChessMoveInfo.SHIFT_PROM,
-        //PromWKing = ChessPiece.WKing << ChessMoveInfo.SHIFT_PROM,
+				bool HasAttack = attackpop(board, attacks, player, positionattacked, out nextAttackPos, out nextAttackPieceVal);
+				if (!HasAttack) { return 0; }
 
-        //PromBPawn = ChessPiece.BPawn << ChessMoveInfo.SHIFT_PROM,
-        //PromBBishop = ChessPiece.BBishop << ChessMoveInfo.SHIFT_PROM,
-        //PromBKnight = ChessPiece.BKnight << ChessMoveInfo.SHIFT_PROM,
-        //PromBRook = ChessPiece.BRook << ChessMoveInfo.SHIFT_PROM,
-        //PromBQueen = ChessPiece.BQueen << ChessMoveInfo.SHIFT_PROM,
-        //PromBKing = ChessPiece.BKing << ChessMoveInfo.SHIFT_PROM,
+                int moveval = pieceontargetval - attackswap(board, attacks, player.PlayerOther(), positionattacked, nextAttackPieceVal);
 
-    }
+				if (moveval > 0)
+				{
+					return moveval;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+
+			static bool attackpop(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
+			{
+
+
+				ChessPosition mypawn = 0;
+				ChessPosition myknight = 0;
+				ChessPosition mybishop = 0;
+				ChessPosition myrook = 0;
+				ChessPosition myqueen = 0;
+				ChessPosition myking = 0;
+
+
+				if (player == ChessPlayer.White)
+				{
+					foreach (ChessPosition attackPos in attacks.ToPositions())
+					{
+						ChessPiece attackPiece = board.PieceAt(attackPos);
+						switch (attackPiece)
+						{
+							case ChessPiece.WPawn:
+								mypawn = attackPos; break;
+							case ChessPiece.WKnight:
+								myknight = attackPos; break;
+							case ChessPiece.WBishop:
+								mybishop = attackPos; break;
+							case ChessPiece.WRook:
+								myrook = attackPos; break;
+							case ChessPiece.WQueen:
+								myqueen = attackPos; break;
+							case ChessPiece.WKing:
+								myking = attackPos; break;
+						}
+					}
+				}
+				else
+				{
+					foreach (ChessPosition attackPos in attacks.ToPositions())
+					{
+						ChessPiece attackPiece = board.PieceAt(attackPos);
+						switch (attackPiece)
+						{
+							case ChessPiece.BPawn:
+								mypawn = attackPos; break;
+							case ChessPiece.BKnight:
+								myknight = attackPos; break;
+							case ChessPiece.BBishop:
+								mybishop = attackPos; break;
+							case ChessPiece.BRook:
+								myrook = attackPos; break;
+							case ChessPiece.BQueen:
+								myqueen = attackPos; break;
+							case ChessPiece.BKing:
+								myking = attackPos; break;
+						}
+					}
+				}
+
+				OutFrom = (ChessPosition)(int)-1;
+				OutPieceVal = 0;
+
+				if (mypawn != 0)
+				{
+					OutFrom = mypawn;
+					OutPieceVal = 100;
+				}
+				else if (myknight != 0)
+				{
+					OutFrom = myknight;
+					OutPieceVal = 300;
+				}
+				else if (mybishop != 0)
+				{
+					OutFrom = mybishop;
+					OutPieceVal = 300;
+				}
+				else if (myrook != 0)
+				{
+					OutFrom = myrook;
+					OutPieceVal = 500;
+				}
+				else if (myqueen != 0)
+				{
+					OutFrom = myqueen;
+					OutPieceVal = 900;
+				}
+				else if (myking != 0)
+				{
+					OutFrom = myking;
+					OutPieceVal = 100000;
+				}
+
+				if (OutFrom == 0)
+				{
+					//i'm out of attacks to this position;
+					return false;
+				}
+
+                ChessDirection addAttackFrom = positionattacked.DirectionTo(OutFrom);
+                if (!addAttackFrom.IsDirectionKnight())
+				{
+					ChessPosition AddPosition = 0;
+					ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
+                    if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
+					{
+                        attacks |= AddPosition.Bitboard();
+					}
+                    else if (addAttackFrom.IsDirectionBishop() && AddPiece.PieceIsSliderBishop())
+					{
+                        attacks |= AddPosition.Bitboard();
+					}
+				}
+                attacks &= ~OutFrom.Bitboard();
+				return true;
+
+			}
+
+		}
+		private static ChessEval eval = new ChessEval();
+
+
+	}
+
+
 }

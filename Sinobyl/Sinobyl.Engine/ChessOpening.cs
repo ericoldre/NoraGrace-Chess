@@ -67,7 +67,7 @@ namespace Sinobyl.Engine
 					{
 						ChessPosition from = ChessPositionInfo.Parse(smove.Substring(0, 2));
                         ChessPosition to = ChessPositionInfo.Parse(smove.Substring(2, 2));
-						ChessMove move = ChessMoveInfo.Create(from, to);
+						ChessMove move = new ChessMove(from, to);
 						board.MoveApply(move);
 						if (_positions.ContainsKey(board.Zobrist))
 						{

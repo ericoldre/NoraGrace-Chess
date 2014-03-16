@@ -19,7 +19,7 @@ namespace Sinobyl.Engine
 		public override ChessMove FindMove(ChessFEN fen)
 		{
 			ChessBoard board = new ChessBoard(fen);
-			var moves = ChessMoveInfo.GenMoves(board);
+			var moves = ChessMove.GenMoves(board);
 
 			List<moveinfo> infos = new List<moveinfo>();
 			int totalPop = 0;
@@ -48,7 +48,7 @@ namespace Sinobyl.Engine
 				//undo the move
 				board.MoveUndo();
 			}
-			if (infos.Count == 0) { return ChessMove.NULL_MOVE; }
+			if (infos.Count == 0) { return null; }
 			Random rand = new Random();
 			int i = rand.Next(1, totalPop);
 			while (infos.Count>0)
@@ -66,7 +66,7 @@ namespace Sinobyl.Engine
 					infos.Remove(info);
 				}
 			}
-            return ChessMove.NULL_MOVE;
+			return null;
 			
 			
 		}

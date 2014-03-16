@@ -204,7 +204,7 @@ namespace Sinobyl.Engine
                     }
                     else
                     {
-                        throw new Exception(string.Format("error initializing game start moves {0} is not a valid position from {1}", move.Write(_board), _board.FEN.ToString()));
+                        throw new Exception(string.Format("error initializing game start moves {0} is not a valid position from {1}", move.ToString(_board), _board.FEN.ToString()));
                     }
                 }
                 _startMoves = value;
@@ -308,7 +308,7 @@ namespace Sinobyl.Engine
             }
             if (!move.IsLegal(_board))
             {
-                throw new Exception(string.Format("{0} is not a legal move from this position", move.Write()));
+                throw new Exception(string.Format("{0} is not a legal move from this position", move.ToString()));
             }
 
             //check if out of time

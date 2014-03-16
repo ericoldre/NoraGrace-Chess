@@ -5,14 +5,7 @@ using System.Linq;
 
 namespace Sinobyl.Engine.Tests
 {
-    [Flags]
-    public enum TestEnum
-    {
-        ab = 1 << 2,
-        a = 1 << 0,
-        b = 1 << 1,
-        c = 1 << 3
-    }
+    
     
     /// <summary>
     ///This is a test class for ChessMoveTest and is intended
@@ -21,60 +14,87 @@ namespace Sinobyl.Engine.Tests
     [TestClass()]
     public class ChessMoveTest
     {
-        [TestMethod]
-        public void ValidateFromToProm()
+
+
+        private TestContext testContextInstance;
+
+        /// <summary>
+        ///Gets or sets the test context which provides
+        ///information about and functionality for the current test run.
+        ///</summary>
+        public TestContext TestContext
         {
-            foreach (ChessPosition from in ChessPositionInfo.AllPositions)
+            get
             {
-                foreach (ChessPosition to in ChessPositionInfo.AllPositions)
-                {
-                    foreach (ChessPiece prom in ChessPieceInfo.AllPieces.Concat(new ChessPiece[] {ChessPiece.EMPTY}))
-                    {
-                        //TestEnum t1 = TestEnum.a;
-                        //TestEnum t2 = TestEnum.b;
-                        //TestEnum t3 = TestEnum.ab;
-                        //TestEnum tabc = TestEnum.ab | TestEnum.c;
-                        
-                        ChessMove move = ChessMoveInfo.Create(from, to, prom);
-
-                        var from2 = move.From();
-                        var to2 = move.To();
-                        var prom2 = move.Promote();
-
-                        Assert.AreEqual<ChessPosition>(from, from2);
-                        Assert.AreEqual<ChessPosition>(to, to2);
-                        Assert.AreEqual<ChessPiece>(prom, prom2);
-                        Assert.AreNotEqual<ChessMove>(move, ChessMove.NULL_MOVE);
-                    }
-                }    
+                return testContextInstance;
+            }
+            set
+            {
+                testContextInstance = value;
             }
         }
 
-        [TestMethod]
-        public void ValidateFromTo()
+        #region Additional test attributes
+        // 
+        //You can use the following additional attributes as you write your tests:
+        //
+        //Use ClassInitialize to run code before running the first test in the class
+        //[ClassInitialize()]
+        //public static void MyClassInitialize(TestContext testContext)
+        //{
+        //}
+        //
+        //Use ClassCleanup to run code after all tests in a class have run
+        //[ClassCleanup()]
+        //public static void MyClassCleanup()
+        //{
+        //}
+        //
+        //Use TestInitialize to run code before running each test
+        //[TestInitialize()]
+        //public void MyTestInitialize()
+        //{
+        //}
+        //
+        //Use TestCleanup to run code after each test has run
+        //[TestCleanup()]
+        //public void MyTestCleanup()
+        //{
+        //}
+        //
+        #endregion
+
+
+        /// <summary>
+        ///A test for GetHashCode
+        ///</summary>
+        [TestMethod()]
+        public void GetHashCodeTest()
         {
-            foreach (ChessPosition from in ChessPositionInfo.AllPositions)
+            System.Collections.Generic.Dictionary<int, ChessMove> dic = new System.Collections.Generic.Dictionary<int, ChessMove>();
+
+            foreach (var to in ChessPositionInfo.AllPositions.Union(new ChessPosition[] { ChessPosition.OUTOFBOUNDS }))
             {
-                foreach (ChessPosition to in ChessPositionInfo.AllPositions)
+                foreach (var from in ChessPositionInfo.AllPositions.Union(new ChessPosition[] { ChessPosition.OUTOFBOUNDS }))
                 {
+                    foreach (var prom in ChessPieceInfo.AllPieces.Union(new ChessPiece[] { ChessPiece.EMPTY }))
+                    {
+                        ChessMove move = new ChessMove(from, to, prom);
+                        var hash = move.GetHashCode();
+                        if (dic.ContainsKey(hash))
+                        {
+                            var otherMove = dic[hash];
 
-                    ChessMove move = ChessMoveInfo.Create(from, to, ChessPiece.EMPTY);
-
-                    var from2 = move.From();
-                    var to2 = move.To();
-                    var prom2 = move.Promote();
-
-                    Assert.AreEqual<ChessPosition>(from, from2);
-                    Assert.AreEqual<ChessPosition>(to, to2);
-                    Assert.AreEqual<ChessPiece>(ChessPiece.EMPTY, prom2);
-                    Assert.AreNotEqual<ChessMove>(move, ChessMove.NULL_MOVE);
+                            var hash1 = move.GetHashCode();
+                            var hash2 = otherMove.GetHashCode();
+                            Assert.AreNotEqual<int>(hash1, hash2);
+                        }
+                        Assert.IsFalse(dic.ContainsKey(hash));
+                        dic.Add(hash, move);
+                    }
                 }
             }
+
         }
-
-
-
-
-
     }
 }

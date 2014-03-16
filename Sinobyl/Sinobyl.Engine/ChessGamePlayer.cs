@@ -190,7 +190,7 @@ namespace Sinobyl.Engine
             //check opening book
             ChessBookOpening book = new ChessBookOpening();
             ChessMove bookMove = book.FindMove(FenCurrent);
-            if (bookMove != ChessMove.NULL_MOVE)
+            if (bookMove != null)
             {
                 if (BookBackgroundWorker == null)
                 {
@@ -228,7 +228,7 @@ namespace Sinobyl.Engine
         void BookBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             ChessMove move = (ChessMove)e.Result;
-            if (move != ChessMove.NULL_MOVE)
+            if (move != null)
             {
                 OnMovePlayed(move);
             }

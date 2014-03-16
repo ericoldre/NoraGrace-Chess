@@ -79,7 +79,7 @@ namespace Sinobyl.Engine.Tests
                 return;
             }
 
-            List<ChessMove> moves = ChessMoveInfo.GenMoves(board, false).ToList();
+            List<ChessMove> moves = ChessMove.GenMoves(board, false).ToList();
 
             HashSet<ChessMove> legalMoves = new HashSet<ChessMove>();
 
@@ -98,7 +98,7 @@ namespace Sinobyl.Engine.Tests
                 //VerifyBoardBitboards(board);
             }
 
-            List<ChessMove> generatedLegalMoves = ChessMoveInfo.GenMovesLegal(board).ToList();
+            List<ChessMove> generatedLegalMoves = ChessMove.GenMovesLegal(board).ToList();
             Assert.AreEqual<int>(legalMoves.Count, generatedLegalMoves.Count);
             foreach (var generatedLegalMove in generatedLegalMoves)
             {

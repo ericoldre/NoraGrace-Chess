@@ -20,8 +20,8 @@ namespace Sinobyl.Engine
 
 		public class EntryPair
 		{
-            public Entry Deepest = new Entry(0, ChessMove.NULL_MOVE, -10, 0, EntryType.Worthless);
-			public Entry Recent = new Entry(0, ChessMove.NULL_MOVE, -10, 0, EntryType.Worthless);
+			public Entry Deepest = new Entry(0,new ChessMove(),-10,0,EntryType.Worthless);
+			public Entry Recent = new Entry(0, new ChessMove(), -10, 0, EntryType.Worthless);
 		}
 		public class Entry
 		{

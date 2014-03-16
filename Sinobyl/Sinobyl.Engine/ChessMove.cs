@@ -65,7 +65,7 @@ namespace Sinobyl.Engine
 
 		public static bool IsSameAs(this ChessMove move, ChessMove otherMove)
 		{
-            return move.From() == otherMove.From() && move.To() == otherMove.To() && move.Promote() == otherMove.Promote();
+            return ((int)move & TOTAL_MASK) == ((int)otherMove & TOTAL_MASK);
 		}
 
 		public static bool IsLegal(this ChessMove move, ChessBoard board)
@@ -436,6 +436,8 @@ namespace Sinobyl.Engine
             return retval;
 
         }
+        
+        
         public static IEnumerable<ChessMove> GenMoves(ChessBoard board, bool CapsOnly)
         {
 

@@ -20,10 +20,6 @@ namespace Sinobyl.Engine
         {
             long idx = board.ZobristMaterial % _hash.GetUpperBound(0);
 
-            if (board.ZobristMaterial != ChessZobrist.BoardZobMaterial(board))
-            {
-                throw new Exception();
-            }
             if (idx < 0) { idx = -idx; }
 
             Results retval = _hash[idx];

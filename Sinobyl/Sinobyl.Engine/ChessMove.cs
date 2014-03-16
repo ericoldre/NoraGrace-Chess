@@ -13,6 +13,8 @@ namespace Sinobyl.Engine
         public const int SHIFT_FROM = 7;
         public const int SHIFT_PROM = 13;
         public const int MASK_SIXBITS = 0x3F;
+        public const int SHIFT_TOTAL = 19;
+        public const int TOTAL_MASK = 0x7FFFF;
 
         public static ChessMove Create(ChessPosition from, ChessPosition to)
         {

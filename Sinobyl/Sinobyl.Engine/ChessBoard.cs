@@ -14,47 +14,58 @@ namespace Sinobyl.Engine
 
 	public sealed class ChessMoveHistory
 	{
-        public readonly ChessMove Move;
-		//public readonly ChessPosition From;
-		//public readonly ChessPosition To;
-        //public readonly ChessPiece Promote;
+        public ChessMove Move;
 
-        public readonly ChessPiece PieceMoved;
+
+        public ChessPiece PieceMoved;
 		
-		public readonly ChessPiece Captured;
-		public readonly ChessPosition Enpassant;
-		public readonly bool CastleWS;
-		public readonly bool CastleWL;
-		public readonly bool CastleBS;
-		public readonly bool CastleBL;
-		public readonly int FiftyCount;
-		public readonly int MovesSinceNull;
-		public readonly Int64 Zobrist;
-		public readonly Int64 ZobristPawn;
-        public readonly Int64 ZobristMaterial;
+		public ChessPiece Captured;
+		public ChessPosition Enpassant;
+		public bool CastleWS;
+		public bool CastleWL;
+		public bool CastleBS;
+		public bool CastleBL;
+		public int FiftyCount;
+		public int MovesSinceNull;
+		public Int64 Zobrist;
+		public Int64 ZobristPawn;
+        public Int64 ZobristMaterial;
 
-        public ChessMoveHistory(ChessMove move, ChessPiece piecemoved, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
-		{
+        //public ChessMoveHistory(ChessMove move, ChessPiece piecemoved, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
+        //{
+        //    this.Move = move;
+        //    this.PieceMoved = piecemoved;
+        //    this.Captured = captured;
+        //    this.Enpassant = enpassant;
+        //    this.CastleWS = cws;
+        //    this.CastleWL = cwl;
+        //    this.CastleBS = cbs;
+        //    this.CastleBL = cbl;
+        //    this.FiftyCount = fifty;
+        //    this.MovesSinceNull = sinceNull;
+        //    this.Zobrist = zob;
+        //    this.ZobristPawn = zobPawn;
+        //    this.ZobristMaterial = zobMaterial;
+        //}
+
+        public void SetValues(ChessMove move, ChessPiece piecemoved, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
+        {
             this.Move = move;
             this.PieceMoved = piecemoved;
-			this.Captured = captured;
-			this.Enpassant = enpassant;
-			this.CastleWS = cws;
-			this.CastleWL = cwl;
-			this.CastleBS = cbs;
-			this.CastleBL = cbl;
-			this.FiftyCount = fifty;
-			this.MovesSinceNull = sinceNull;
-			this.Zobrist = zob;
-			this.ZobristPawn = zobPawn;
+            this.Captured = captured;
+            this.Enpassant = enpassant;
+            this.CastleWS = cws;
+            this.CastleWL = cwl;
+            this.CastleBS = cbs;
+            this.CastleBL = cbl;
+            this.FiftyCount = fifty;
+            this.MovesSinceNull = sinceNull;
+            this.Zobrist = zob;
+            this.ZobristPawn = zobPawn;
             this.ZobristMaterial = zobMaterial;
-		}
+        }
 	}
 
-	public sealed class ChessMoveHistoryCollection : List<ChessMoveHistory>
-	{
-
-	}
 
     public sealed class ObservableChessBoard
     {
@@ -154,7 +165,10 @@ namespace Sinobyl.Engine
 		private Int64 _zobPawn;
         private Int64 _zobMaterial;
 
-		private ChessMoveHistoryCollection _hist = new ChessMoveHistoryCollection();
+        private ChessMoveHistory[] _histArray = new ChessMoveHistory[100];
+        private int _histArrayCount = 0;
+
+		//private ChessMoveHistoryCollection _hist = new ChessMoveHistoryCollection();
 		private int _movesSinceNull = 100;
 
 		public ChessBoard()
@@ -201,7 +215,12 @@ namespace Sinobyl.Engine
             _allPiecesVert = 0;
             _allPiecesA1H8 = 0;
             _allPiecesH1A8 = 0;
-			
+
+            for (int i = 0; i < _histArray.Length; i++)
+            {
+                _histArray[i] = new ChessMoveHistory();
+            }
+            _histArrayCount = 0;
 		}
 
 		public ChessPosition EnPassant
@@ -327,9 +346,9 @@ namespace Sinobyl.Engine
 		{
 			Int64 currzob = this.Zobrist;
 			int repcount = 1;
-			for (int i = _hist.Count - 1; i >= 0; i--)
+			for (int i = _histArrayCount - 1; i >= 0; i--)
 			{
-				ChessMoveHistory movehist = _hist[i];
+                ChessMoveHistory movehist = _histArray[i];
 				if (movehist.Zobrist == currzob)
 				{
 					repcount++;
@@ -396,7 +415,7 @@ namespace Sinobyl.Engine
                 }
 
                 //reset board
-				this._hist.Clear();
+                this._histArrayCount = 0;
 				initPieceAtArray();
 
                 //add pieces
@@ -563,8 +582,18 @@ namespace Sinobyl.Engine
 			ChessFile fromfile = from.GetFile();
 			ChessFile tofile = to.GetFile();
 
-			ChessMoveHistory histobj = new ChessMoveHistory(move, piece, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial);
-			_hist.Add(histobj);
+            if (_histArrayCount > _histArray.GetUpperBound(0)) 
+            {
+                Array.Resize(ref _histArray, _histArrayCount + 50);
+                for (int i = _histArrayCount; i < _histArrayCount + 50; i++) 
+                { 
+                    _histArray[i] = new ChessMoveHistory(); 
+                }
+            }
+            ChessMoveHistory histobj = _histArray[_histArrayCount++];
+            histobj.SetValues(move, piece, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
+            
+            //_hist.Add(histobj);
 
 			//increment since null count;
 			_movesSinceNull++;
@@ -703,7 +732,7 @@ namespace Sinobyl.Engine
 		{
 			get
 			{
-				return _hist.Count;
+				return _histArrayCount;
 			}
 		}
 		public ChessMoves HistoryMoves
@@ -711,25 +740,24 @@ namespace Sinobyl.Engine
 			get
 			{
 				ChessMoves retval = new ChessMoves();
-				foreach (ChessMoveHistory hist in _hist)
-				{
-					retval.Add(hist.Move);
-				}
+                for (int i = 0; i < _histArrayCount; i++)
+                {
+                    retval.Add(_histArray[i].Move);
+                }
 				return retval;
 			}
 		}
 
 		public ChessMove HistMove(int MovesAgo)
 		{
-			ChessMoveHistory hist = _hist[_hist.Count - MovesAgo];
+			ChessMoveHistory hist = _histArray[_histArrayCount - MovesAgo];
             return hist.Move;
 		}
 
 		public void MoveUndo()
 		{
             //undo move history
-			ChessMoveHistory movehist = _hist[_hist.Count - 1];
-			_hist.RemoveAt(_hist.Count - 1);
+            ChessMoveHistory movehist = _histArray[--_histArrayCount];
 
             ChessMove prevMove = movehist.Move;
 
@@ -807,9 +835,19 @@ namespace Sinobyl.Engine
 
 		public void MoveNullApply()
 		{
+            if (_histArrayCount > _histArray.GetUpperBound(0))
+            {
+                Array.Resize(ref _histArray, _histArrayCount + 50);
+                for (int i = _histArrayCount; i < _histArrayCount + 50; i++)
+                {
+                    _histArray[i] = new ChessMoveHistory();
+                }
+            }
+
 			//save move history
-            ChessMoveHistory histobj = new ChessMoveHistory(ChessMove.NULL_MOVE, (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
-			_hist.Add(histobj);
+            ChessMoveHistory histobj = _histArray[_histArrayCount++]; //= new ChessMoveHistory(ChessMove.NULL_MOVE, (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
+            histobj.SetValues(ChessMove.NULL_MOVE, (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
+			//_hist.Add(histobj);
 
 			//reset since null count;
 			_movesSinceNull = 0;
@@ -828,8 +866,7 @@ namespace Sinobyl.Engine
 		}
 		public void MoveNullUndo()
 		{
-			ChessMoveHistory movehist = _hist[_hist.Count - 1];
-			_hist.RemoveAt(_hist.Count - 1);
+            ChessMoveHistory movehist = _histArray[--_histArrayCount];
 
 			_castleWS = movehist.CastleWS;
 			_castleWL = movehist.CastleWL;
@@ -856,8 +893,8 @@ namespace Sinobyl.Engine
 		public bool LastTwoMovesNull()
 		{
             return MovesSinceNull == 0
-                && this._hist.Count >= 2
-                && this._hist[_hist.Count - 2].Move == ChessMove.NULL_MOVE;
+                && this._histArrayCount >= 2
+                && this._histArray[_histArrayCount - 2].Move == ChessMove.NULL_MOVE;
 		}
 
 		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, ref ChessPosition pos)

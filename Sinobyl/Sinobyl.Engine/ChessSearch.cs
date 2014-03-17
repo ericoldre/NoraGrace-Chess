@@ -271,7 +271,7 @@ namespace Sinobyl.Engine
 			//get trans table move
 			int tt_score = 0;
 			ChessMove tt_move = new ChessMove();
-			SearchArgs.TransTable.QueryCutoff(board, depth, -INFINITY, INFINITY, ref tt_move, ref tt_score);
+			SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, -INFINITY, INFINITY, ref tt_move, ref tt_score);
 			
 
 			bool in_check_before_move = board.IsCheck();
@@ -335,7 +335,7 @@ namespace Sinobyl.Engine
 					_bestvariationscore = alpha;
 
 					//store to trans table
-					SearchArgs.TransTable.Store(board, depth, ChessTrans.EntryType.Exactly, alpha, move);
+                    SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.Exactly, alpha, move);
 
 					//announce new best line if not trivial
 					ChessSearch.Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), pv, this.board.FEN);
@@ -457,7 +457,7 @@ namespace Sinobyl.Engine
 
 			//check trans table
 			ChessMove tt_move = new ChessMove();
-			if (SearchArgs.TransTable.QueryCutoff(board, depth, alpha, beta, ref tt_move, ref score))
+            if (SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, alpha, beta, ref tt_move, ref score))
 			{
 				//if last two moves were null this is a verification search. 
 				//do not allow cutoff here as original search may have had null cutoff
@@ -566,7 +566,7 @@ namespace Sinobyl.Engine
 
 				if (score >= beta)
 				{
-					SearchArgs.TransTable.Store(board, depth, ChessTrans.EntryType.AtLeast, beta, move);
+                    SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.AtLeast, beta, move);
 					return score;
 				}
 				if (score > alpha)
@@ -595,7 +595,7 @@ namespace Sinobyl.Engine
 			}
 
 
-			SearchArgs.TransTable.Store(board, depth, tt_entryType, alpha, bestmove);
+            SearchArgs.TransTable.Store(board.Zobrist, depth, tt_entryType, alpha, bestmove);
 
 
 			return alpha;

@@ -60,7 +60,7 @@ namespace Sinobyl.Engine
                 case ChessFile.FileH:
                     return ChessBitboard.FileH;
                 default:
-                    return 0;
+                    throw new ArgumentOutOfRangeException("file");
             }
         }
     }

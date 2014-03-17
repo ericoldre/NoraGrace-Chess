@@ -140,7 +140,7 @@ namespace Sinobyl.Engine
                 case ChessDirection.DirNNW:
                     return bits.ShiftDirNW().ShiftDirN();
                 default:
-                    return ChessBitboard.Empty;
+                    throw new ArgumentOutOfRangeException("dir");
             }
 
         }
@@ -180,6 +180,7 @@ namespace Sinobyl.Engine
 
         public static bool Contains(this ChessBitboard bits, ChessPosition position)
         {
+            System.Diagnostics.Debug.Assert(position.IsInBounds());
             return (bits & position.Bitboard()) != ChessBitboard.Empty;
         }
 

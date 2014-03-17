@@ -422,17 +422,7 @@ namespace Sinobyl.Engine
 
 			}
 		}
-		//public string FenString
-		//{
-		//    set
-		//    {
-		//        this.FEN = new ChessFEN(value);
-		//    }
-		//    get
-		//    {
-		//        return this.FEN.ToString();
-		//    }
-		//}
+
 		public Int64 Zobrist
 		{
             get { return _zob; }
@@ -907,6 +897,7 @@ namespace Sinobyl.Engine
             return !AttacksTo(to, byPlayer).Empty();
 		}
 
+        
 
 	}
 }

@@ -10,8 +10,8 @@ namespace Sinobyl.Engine
 		//public static ChessTrans Global = new ChessTrans();
 
 
-		private EntryPair[] hashtable = new EntryPair[5000];
-
+		private readonly EntryPair[] hashtable;
+        private readonly int _hashTableSize;
 
 		public enum EntryType
 		{
@@ -49,10 +49,24 @@ namespace Sinobyl.Engine
 			
 		}
 
-		private int GetAddress(Int64 zob)
+        public ChessTrans(int hastTableSize = 5000)
+        {
+            if (hastTableSize <= 0) { throw new ArgumentOutOfRangeException("hashTableSize"); }
+
+            hashtable = new EntryPair[hastTableSize];
+
+            int max = hashtable.GetUpperBound(0);
+            for (int i = 0; i <= max; i++)
+            {
+                hashtable[i] = new EntryPair();
+            }
+
+        }
+
+		public int GetAddress(Int64 zob)
 		{
 			if (zob < 0) { zob = -zob; }
-			return (int)(zob % this.hashtable.GetUpperBound(0));
+			return (int)(zob % this.hashtable.Length);
 		}
 		private EntryPair FindPair(Int64 zob)
 		{
@@ -71,24 +85,29 @@ namespace Sinobyl.Engine
 			hashtable[GetAddress(pair.Deepest.Zobrist)] = pair;
 		}
 
+        public Entry GetEntry(long boardZob)
+        {
+            EntryPair epair = FindPair(boardZob);
+            if (epair.Deepest.Zobrist == boardZob)
+            {
+                return epair.Deepest;
+            }
+            else if (epair.Recent.Zobrist == boardZob)
+            {
+                return epair.Recent;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
 		public bool QueryCutoff(long boardZob, int depth, int alpha, int beta, ref ChessMove bestmove, ref int value)
 		{
 
-            EntryPair epair = FindPair(boardZob);
-			Entry e = epair.Deepest;
-			bool foundEntry = false;
-
-            if (epair.Deepest.Zobrist == boardZob)
-			{
-				e = epair.Deepest;
-				foundEntry = true;
-			}
-            else if (epair.Recent.Zobrist == boardZob)
-			{
-				e = epair.Recent;
-				foundEntry = true;
-			}
-			if (!foundEntry) { return false; }
+            //EntryPair epair = FindPair(boardZob);
+            Entry e = GetEntry(boardZob);
+            if (e == null) { return false; }
 
 			//we found a valid entry for this position
 			bestmove = e.BestMove;
@@ -121,14 +140,7 @@ namespace Sinobyl.Engine
 			return false;
 		}
 
-		public ChessTrans()
-		{
-			int max = hashtable.GetUpperBound(0);
-			for (int i = 0; i <= max; i++)
-			{
-				hashtable[i] = new EntryPair();
-			}
-		}
+
 		public void AgeEntries(int by)
 		{
 			

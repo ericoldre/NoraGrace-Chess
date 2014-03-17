@@ -70,6 +70,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="TransTableTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sinobyl.Engine\Sinobyl.Engine.csproj">

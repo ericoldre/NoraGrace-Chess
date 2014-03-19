@@ -32,6 +32,7 @@ namespace Sinobyl.Engine
         protected readonly ChessEvalSettings _settings;
 
 
+        public static readonly ChessEval Default = new ChessEval();
 
         public ChessEval()
             : this(ChessEvalSettings.Default())
@@ -130,6 +131,12 @@ namespace Sinobyl.Engine
                 _endgameMateKingPcSq[(int)pos] = minDist * 50;
             }
             
+        }
+
+        public void PcSqValues(ChessPiece piece, ChessPosition pos, out int startValue, out int endValue)
+        {
+            startValue = this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
+            endValue = this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
         }
 
         public int EvalFor(ChessBoard board, ChessPlayer who)

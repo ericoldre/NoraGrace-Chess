@@ -464,8 +464,9 @@ namespace Sinobyl.Engine
 				//which is what we are trying to get around.
 				if (!board.LastTwoMovesNull())
 				{
-					//return score;
+                    return score;
 				}
+               // return score;
 				
 			}
 

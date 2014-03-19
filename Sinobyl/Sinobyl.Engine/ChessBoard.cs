@@ -158,30 +158,36 @@ namespace Sinobyl.Engine
 		private ChessMoveHistoryCollection _hist = new ChessMoveHistoryCollection();
 		private int _movesSinceNull = 100;
 
-		public ChessBoard()
+        private readonly ChessEval _pcSqEvaluator;
+        private int _pcSqStart;
+        private int _pcSqEnd;
+
+        public ChessBoard(ChessEval pcSqEvaluator = null)
+            : this(new ChessFEN(ChessFEN.FENStart), pcSqEvaluator)
 		{
-			initPieceAtArray();
-            this.FEN = new ChessFEN(ChessFEN.FENStart);
+            
 		}
-		public ChessBoard(string fen)
+        public ChessBoard(string fen, ChessEval pcSqEvaluator = null)
+            : this(new ChessFEN(fen), pcSqEvaluator)
 		{
-			initPieceAtArray();
-			this.FEN = new ChessFEN(fen);
+
 		}
-		public ChessBoard(ChessFEN fen)
+		public ChessBoard(ChessFEN fen, ChessEval pcSqEvaluator = null)
 		{
+            _pcSqEvaluator = pcSqEvaluator ?? ChessEval.Default;
             initPieceAtArray();
+
 			this.FEN = fen;
 		}
-		public ChessBoard(ChessFEN fen, IEnumerable<ChessMove> prevMoves)
-		{
-            initPieceAtArray();
-			this.FEN = fen;
-			foreach (ChessMove move in prevMoves)
-			{
-				this.MoveApply(move);
-			}
-		}
+
+        public ChessBoard(ChessFEN fen, IEnumerable<ChessMove> prevMoves, ChessEval pcSqEvaluator = null)
+            : this(fen, pcSqEvaluator)
+        {
+            foreach (ChessMove move in prevMoves)
+            {
+                this.MoveApply(move);
+            }
+        }
 
 
 
@@ -202,6 +208,9 @@ namespace Sinobyl.Engine
             _allPiecesVert = 0;
             _allPiecesA1H8 = 0;
             _allPiecesH1A8 = 0;
+
+            _pcSqStart = 0;
+            _pcSqEnd = 0;
 			
 		}
 
@@ -484,24 +493,7 @@ namespace Sinobyl.Engine
 		{
 			return _pieceat[pos];
 		}
-		private void Reset()
-		{
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
-			{
-				_pieceat[pos] = ChessPiece.EMPTY;
-			}
-			_whosturn = ChessPlayer.White;
-			_castleWS = false;
-			_castleWL = false;
-			_castleBS = false;
-			_castleBL = false;
-			_enpassant = (ChessPosition.OUTOFBOUNDS);
-			_fiftymove = 0;
-			_fullmove = 1;
-			_zob = 0;
-			_zobPawn = 0;
-            _zobMaterial = 0;
-		}
+
 		
 		public bool CastleAvailWS
 		{

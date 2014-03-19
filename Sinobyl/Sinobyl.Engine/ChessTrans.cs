@@ -49,7 +49,7 @@ namespace Sinobyl.Engine
 			
 		}
 
-        public ChessTrans(int hastTableSize = 5000)
+        public ChessTrans(int hastTableSize = 250000)
         {
             if (hastTableSize <= 0) { throw new ArgumentOutOfRangeException("hashTableSize"); }
 

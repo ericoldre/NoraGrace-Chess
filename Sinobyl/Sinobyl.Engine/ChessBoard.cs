@@ -254,6 +254,8 @@ namespace Sinobyl.Engine
             _zob ^= ChessZobrist.PiecePosition(piece, pos);
             _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[piece]);
 			_pieceCount[piece]++;
+            _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSqStart, ref _pcSqEnd);
+
 
             _pieces[piece] |= pos.Bitboard();
             _allPieces |= pos.Bitboard();
@@ -284,6 +286,7 @@ namespace Sinobyl.Engine
 			_zob ^= ChessZobrist.PiecePosition(piece, pos);
             _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[piece] - 1);
 			_pieceCount[piece]--;
+            _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSqStart, ref _pcSqEnd);
 
             _pieces[piece] &= ~pos.Bitboard();
             _allPieces &= ~pos.Bitboard();
@@ -304,6 +307,16 @@ namespace Sinobyl.Engine
         public int PieceCount(ChessPlayer player, ChessPieceType pieceType)
         {
             return _pieceCount[pieceType.ForPlayer(player)];
+        }
+
+        public int PcSqValueStart
+        {
+            get { return _pcSqStart; }
+        }
+
+        public int PcSqValueEnd
+        {
+            get { return _pcSqEnd; }
         }
 
 		public bool IsMate()

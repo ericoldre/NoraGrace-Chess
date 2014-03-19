@@ -133,10 +133,15 @@ namespace Sinobyl.Engine
             
         }
 
-        public void PcSqValues(ChessPiece piece, ChessPosition pos, out int startValue, out int endValue)
+        public void PcSqValuesAdd(ChessPiece piece, ChessPosition pos, ref int startValue, ref int endValue)
         {
-            startValue = this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
-            endValue = this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
+            startValue += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
+            endValue += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
+        }
+        public void PcSqValuesRemove(ChessPiece piece, ChessPosition pos, ref int startValue, ref int endValue)
+        {
+            startValue -= this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
+            endValue -= this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
         }
 
         public int EvalFor(ChessBoard board, ChessPlayer who)
@@ -157,38 +162,32 @@ namespace Sinobyl.Engine
         {
             ChessEvalInfo evalInfo = new ChessEvalInfo();
             
-            int valStartPieceSq = 0;
-            int valEndPieceSq = 0;
+            
             int valStartMobility = 0;
             int valEndMobility = 0;
 
             var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
             var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
 
+            
             attacksWhite.PawnEast = board.PieceLocations(ChessPiece.WPawn).ShiftDirNE();
             attacksWhite.PawnWest = board.PieceLocations(ChessPiece.WPawn).ShiftDirNW();
             attacksBlack.PawnEast = board.PieceLocations(ChessPiece.BPawn).ShiftDirSE();
             attacksBlack.PawnWest = board.PieceLocations(ChessPiece.BPawn).ShiftDirSW();
 
 
-
-            for (int ipos = 0; ipos < 64; ipos++)
+            ChessBitboard nonPawns = board.PieceLocationsAll & ~(board.PieceLocations(ChessPiece.WPawn) | board.PieceLocations(ChessPiece.BPawn));
+            foreach(ChessPosition pos in nonPawns.ToPositions())
             {
-                ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
+                //ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
                 ChessPiece piece = board.PieceAt(pos);
-                if (piece == ChessPiece.EMPTY) { continue; }
-
-                //add pcsq score;
-                valStartPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
-                valEndPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
+                //if (piece == ChessPiece.EMPTY) { continue; }
 
                 //generate attacks
                 ChessBitboard slidingAttacks = ChessBitboard.Empty;
                 
                 switch (piece)
                 {
-                    case ChessPiece.WPawn:
-                        break;
                     case ChessPiece.WKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
                         attacksWhite.Knight |= slidingAttacks;
@@ -207,8 +206,6 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPiece.WKing:
                         attacksWhite.King = Attacks.KingAttacks(pos);
-                        break;
-                    case ChessPiece.BPawn:
                         break;
                     case ChessPiece.BKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
@@ -246,6 +243,10 @@ namespace Sinobyl.Engine
 
             //eval passed pawns;
             //ChessEvalPassed.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
+
+            //get pcsq values from board.
+            int valStartPieceSq = board.PcSqValueStart;
+            int valEndPieceSq = board.PcSqValueEnd;
 
             //test to see if we are just trying to force the king to the corner for mate.
             int endGamePcSq = 0;

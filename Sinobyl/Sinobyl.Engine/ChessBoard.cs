@@ -55,8 +55,11 @@ namespace Sinobyl.Engine
 
 	}
 
-    public sealed class ObservableChessBoard
+	public sealed class ChessBoard
     {
+
+        #region changed event related
+
         public class BoardChangedEventArgs : EventArgs
         {
             public List<BoardChangeEventItemRemoved> Removed = new List<BoardChangeEventItemRemoved>();
@@ -115,11 +118,7 @@ namespace Sinobyl.Engine
 
         public event EventHandler<BoardChangedEventArgs> BoardChanged;
 
-    }
-	public sealed class ChessBoard
-	{
-
-
+        #endregion
 
 
         private ChessPositionDictionary<ChessPiece> _pieceat = new ChessPositionDictionary<ChessPiece>();

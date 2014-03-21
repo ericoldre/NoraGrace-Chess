@@ -29,7 +29,7 @@ namespace Sinobyl.WPF
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Sinobyl.WPF.ViewModels.BoardVM viewmodel = (Sinobyl.WPF.ViewModels.BoardVM)this.DataContext;
+            Sinobyl.WPF.ViewModel.BoardVM viewmodel = (Sinobyl.WPF.ViewModel.BoardVM)this.DataContext;
             
             var m = viewmodel.Model;
 

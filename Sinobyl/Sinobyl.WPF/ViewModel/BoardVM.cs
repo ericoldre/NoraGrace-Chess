@@ -9,7 +9,7 @@ using System.Windows.Input;
 using Sinobyl.WPF.Models;
 using System.Collections.Specialized;
 
-namespace Sinobyl.WPF.ViewModels
+namespace Sinobyl.WPF.ViewModel
 {
     public class BoardVM: ViewModelBase
     {

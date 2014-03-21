@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace Sinobyl.WPF.ViewModels
+namespace Sinobyl.WPF.ViewModel
 {
     /// <summary>
     /// Base class for all ViewModel classes in the application.

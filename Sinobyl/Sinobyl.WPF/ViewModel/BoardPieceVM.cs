@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sinobyl.Engine;
-namespace Sinobyl.WPF.ViewModels
+namespace Sinobyl.WPF.ViewModel
 {
     public class BoardPieceVM: BoardElementVM, Sinobyl.WPF.DragHelper.IDragSource, IDisposable
     {

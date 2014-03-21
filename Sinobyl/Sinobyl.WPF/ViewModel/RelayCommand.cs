@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace Sinobyl.WPF.ViewModels
+namespace Sinobyl.WPF.ViewModel
 {
     /// <summary>
     /// A command whose sole purpose is to 

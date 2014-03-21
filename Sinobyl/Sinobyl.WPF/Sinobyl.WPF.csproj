@@ -41,12 +41,23 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GalaSoft.MvvmLight.Extras.WPF45">
+      <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\net45\GalaSoft.MvvmLight.Extras.WPF45.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.WPF45">
+      <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\net45\GalaSoft.MvvmLight.WPF45.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Windows.Interactivity" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.4.2.30.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -77,13 +88,15 @@
     <Compile Include="Models\IPieceModel.cs" />
     <Compile Include="Models\PieceModel.cs" />
     <Compile Include="Models\RangeObservableCollection.cs" />
-    <Compile Include="ViewModels\BoardElementVM.cs" />
-    <Compile Include="ViewModels\BoardPieceVM.cs" />
-    <Compile Include="ViewModels\BoardPromotionVM.cs" />
-    <Compile Include="ViewModels\BoardSquareVM.cs" />
-    <Compile Include="ViewModels\BoardVM.cs" />
-    <Compile Include="ViewModels\RelayCommand.cs" />
-    <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="ViewModel\BoardElementVM.cs" />
+    <Compile Include="ViewModel\BoardPieceVM.cs" />
+    <Compile Include="ViewModel\BoardPromotionVM.cs" />
+    <Compile Include="ViewModel\BoardSquareVM.cs" />
+    <Compile Include="ViewModel\BoardVM.cs" />
+    <Compile Include="ViewModel\RelayCommand.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="Views\Board.xaml.cs">
       <DependentUpon>Board.xaml</DependentUpon>
     </Compile>

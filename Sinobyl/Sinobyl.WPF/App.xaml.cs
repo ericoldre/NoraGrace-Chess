@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using Sinobyl.WPF.Models;
-using Sinobyl.WPF.ViewModels;
+using Sinobyl.WPF.ViewModel;
 using Sinobyl.Engine;
 
 namespace Sinobyl.WPF

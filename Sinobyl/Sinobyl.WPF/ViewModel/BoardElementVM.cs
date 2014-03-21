@@ -5,7 +5,7 @@ using System.Text;
 using Sinobyl.Engine;
 using System.Windows;
 
-namespace Sinobyl.WPF.ViewModels
+namespace Sinobyl.WPF.ViewModel
 {
     public abstract class BoardElementVM: ViewModelBase
     {

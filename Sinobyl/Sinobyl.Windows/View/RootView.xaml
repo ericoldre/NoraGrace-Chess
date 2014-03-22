@@ -9,6 +9,6 @@
         <Grid DockPanel.Dock="Top">
             <TextBlock Text="RootVM"></TextBlock>
         </Grid>
-        <ContentControl DataContext="{Binding ActiveContent}"></ContentControl>
+        <ContentControl Content="{Binding ActiveContent}"></ContentControl>
     </DockPanel>
 </UserControl>

@@ -65,6 +65,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Message\ShowContentRootMessage.cs" />
+    <Compile Include="ViewModel\GameSetup\TimeControlVM.cs" />
     <Compile Include="ViewModel\GameVM.cs" />
     <Compile Include="ViewModel\RootVM.cs" />
     <Compile Include="ViewModel\WelcomeVM.cs" />
@@ -132,6 +134,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

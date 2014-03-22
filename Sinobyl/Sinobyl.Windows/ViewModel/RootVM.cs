@@ -15,5 +15,12 @@ namespace Sinobyl.Windows.ViewModel
 
         }
 
+        private ViewModelBase _activeContent;
+        public ViewModelBase ActiveContent
+        {
+            get { return _activeContent; }
+            protected set { Set(() => ActiveContent, ref _activeContent, value); }
+        }
+
     }
 }

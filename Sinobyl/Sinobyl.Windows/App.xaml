@@ -1,8 +1,21 @@
 ﻿<Application x:Class="Sinobyl.Windows.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+             xmlns:vm="clr-namespace:Sinobyl.Windows.ViewModel"
+             xmlns:view="clr-namespace:Sinobyl.Windows.View">
     <Application.Resources>
-         
+        
+        <DataTemplate DataType="{x:Type vm:RootVM}">
+            <view:RootView></view:RootView>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:GameVM}">
+            <view:GameView></view:GameView>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:WelcomeVM}">
+            <view:WelcomeView></view:WelcomeView>
+        </DataTemplate>
+
     </Application.Resources>
 </Application>

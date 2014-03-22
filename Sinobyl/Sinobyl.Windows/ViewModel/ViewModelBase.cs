@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sinobyl.Windows.Common
+namespace Sinobyl.Windows.ViewModel
 {
     public abstract class ViewModelBase: GalaSoft.MvvmLight.ViewModelBase
     {
@@ -13,6 +13,7 @@ namespace Sinobyl.Windows.Common
         public ViewModelBase(Common.IMessenger messenger)
         {
             _messenger = messenger;
+            
         }
 
         public Common.IMessenger Messenger

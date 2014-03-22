@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sinobyl.EvalTune", "Sinobyl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sinobyl.WPF", "Sinobyl.WPF\Sinobyl.WPF.csproj", "{69E74F2B-69BD-4BD8-B485-40E9D80C0C02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sinobyl.Windows", "Sinobyl.Windows\Sinobyl.Windows.csproj", "{143491F6-0DA2-41B7-A1AC-445B56BD8778}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -98,6 +100,18 @@ Global
 		{69E74F2B-69BD-4BD8-B485-40E9D80C0C02}.Release|Win32.Build.0 = Release|x86
 		{69E74F2B-69BD-4BD8-B485-40E9D80C0C02}.Release|x86.ActiveCfg = Release|x86
 		{69E74F2B-69BD-4BD8-B485-40E9D80C0C02}.Release|x86.Build.0 = Release|x86
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Release|Any CPU.Build.0 = Release|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Release|Win32.ActiveCfg = Release|Any CPU
+		{143491F6-0DA2-41B7-A1AC-445B56BD8778}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,7 +13,7 @@ namespace Sinobyl.Windows.ViewModel
         public WelcomeVM(Common.IMessenger messenger)
             : base(messenger)
         {
-            GalaSoft.MvvmLight.Messaging.MessageBase
+
         }
 
 

@@ -75,8 +75,9 @@ namespace Sinobyl.Engine
             return debrujinPositions[res];
         }
 
-        public static ChessPosition FirstPosition(this ChessBitboard bitboard)
+        public static ChessPosition NorthMostPosition(this ChessBitboard bitboard)
         {
+            System.Diagnostics.Debug.Assert(bitboard != ChessBitboard.Empty);
             int lsb;
             if (((ulong)bitboard & 0xFFFFFFFF) != 0)
             {
@@ -90,6 +91,22 @@ namespace Sinobyl.Engine
             }
             return (ChessPosition)lsb;
         }
+
+        //http://aggregate.org/MAGIC/
+        public static ChessPosition SouthMostPosition(this ChessBitboard bitboard)
+        {
+            ulong x = (ulong)bitboard;
+
+            x |= (x >> 1);
+            x |= (x >> 2);
+            x |= (x >> 4);
+            x |= (x >> 8);
+            x |= (x >> 16);
+            x |= (x >> 32);
+            return NorthMostPosition((ChessBitboard)(x & ~(x >> 1)));
+        }
+
+
 
         public static ChessBitboard Reverse(this ChessBitboard bits)
         {
@@ -182,6 +199,11 @@ namespace Sinobyl.Engine
         {
             System.Diagnostics.Debug.Assert(position.IsInBounds());
             return (bits & position.Bitboard()) != ChessBitboard.Empty;
+        }
+
+        public static bool Contains(this ChessBitboard bits, ChessBitboard other)
+        {
+            return (bits & other) != ChessBitboard.Empty;
         }
 
         public static bool Empty(this ChessBitboard bitboard)

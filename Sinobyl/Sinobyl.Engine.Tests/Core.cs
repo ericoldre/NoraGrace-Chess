@@ -282,6 +282,44 @@ namespace Sinobyl.Engine.Tests
         }
 
         [TestMethod]
+        public void BitboardLSBMSB()
+        {
+            foreach (var pos in ChessPositionInfo.AllPositions)
+            {
+                var bb = pos.Bitboard();
+                var northMost = bb.NorthMostPosition();
+                var southMost = bb.SouthMostPosition();
+
+                Assert.AreEqual<ChessPosition>(pos, northMost);
+                Assert.AreEqual<ChessPosition>(pos, southMost);
+
+                var north = pos.PositionInDirection(ChessDirection.DirN);
+                if (north.IsInBounds())
+                {
+                    bb = pos.Bitboard() | north.Bitboard();
+                    northMost = bb.NorthMostPosition();
+                    southMost = bb.SouthMostPosition();
+
+                    Assert.AreEqual<ChessPosition>(north, northMost);
+                    Assert.AreEqual<ChessPosition>(pos, southMost);
+
+                }
+
+                var south = pos.PositionInDirection(ChessDirection.DirS);
+                if (south.IsInBounds())
+                {
+                    bb = pos.Bitboard() | south.Bitboard();
+                    northMost = bb.NorthMostPosition();
+                    southMost = bb.SouthMostPosition();
+
+                    Assert.AreEqual<ChessPosition>(south, southMost);
+                    Assert.AreEqual<ChessPosition>(pos, northMost);
+                }
+
+            }
+        }
+
+        [TestMethod]
         public void BitboardTests()
         {
             foreach (var pos in ChessPositionInfo.AllPositions)

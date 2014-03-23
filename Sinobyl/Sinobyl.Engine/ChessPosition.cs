@@ -78,7 +78,7 @@ namespace Sinobyl.Engine
         {
             while (bitboard != 0)
             {
-                ChessPosition first = bitboard.FirstPosition();
+                ChessPosition first = bitboard.NorthMostPosition();
                 yield return first;
                 bitboard = bitboard & ~first.Bitboard();
             }

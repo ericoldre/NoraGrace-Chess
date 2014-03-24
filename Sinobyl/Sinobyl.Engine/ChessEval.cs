@@ -242,7 +242,7 @@ namespace Sinobyl.Engine
             PawnInfo pawns = this._evalPawns.PawnEval(board);            
 
             //eval passed pawns;
-            ChessEvalPassed.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
+            this._evalPawns.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
 
             //get pcsq values from board.
             int valStartPieceSq = board.PcSqValueStart;

@@ -237,6 +237,13 @@ namespace Sinobyl.Engine
                 PawnDoubled = new ChessGameStageDictionary<int>() { Opening = 10, Endgame = 25 },
                 PawnIsolated = new ChessGameStageDictionary<int>() { Opening = 15, Endgame = 25 },
                 PawnUnconnected = new ChessGameStageDictionary<int>(){ Opening = 5, Endgame = 10},
+                
+                PawnPassed8thRankScore = 280,
+                PawnPassedRankReduction = .65f,
+                PawnPassedDangerPct = .10f,
+                PawnPassedMinScore = 10,
+                PawnPassedOpeningPct = .33f,
+
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
                 {
                     Knight = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
@@ -279,6 +286,12 @@ namespace Sinobyl.Engine
         public ChessGameStageDictionary<int> PawnUnconnected = new ChessGameStageDictionary<int>();
         public ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>();
         public ChessEvalSettingsWeight Weight = new ChessEvalSettingsWeight();
+        
+        public int PawnPassed8thRankScore = 0;
+        public double PawnPassedRankReduction = 0;
+        public int PawnPassedMinScore = 0;
+        public double PawnPassedDangerPct = 0;
+        public double PawnPassedOpeningPct = 0;
 
         public ChessEvalSettings CloneDeep()
         {

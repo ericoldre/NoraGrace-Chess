@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
         public readonly int IsolatedPawnValueEnd;
         public readonly int UnconnectedPawnStart;
         public readonly int UnconnectedPawnEnd;
-        public readonly int[,] PcSqValuePosStage;
+        //public readonly int[,] PcSqValuePosStage;
         //public readonly int[,] PawnPassedValuePosStage;
         public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
         
@@ -29,17 +29,7 @@ namespace Sinobyl.Engine
             this.UnconnectedPawnStart = settings.PawnUnconnected.Opening;
             this.UnconnectedPawnEnd = settings.PawnUnconnected.Endgame;
 
-            //setup passed pawn array
-            PcSqValuePosStage = new int[64, 2];
-            //PawnPassedValuePosStage = new int[64, 2];
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
-            {
-                foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
-                {
-                    PcSqValuePosStage[(int)pos, (int)stage] = settings.PcSqTables.Pawn[stage][pos];
-                    //PawnPassedValuePosStage[(int)pos, (int)stage] = settings.PawnPassedValues[stage][pos];
-                }
-            }
+            this.PassedInitialization(settings);
         }
 
 
@@ -70,10 +60,8 @@ namespace Sinobyl.Engine
             
             int WStartVal = 0;
             int WEndVal = 0;
-            int wpcSqStart = 0;
-            int wpcSqEnd = 0;
 
-            EvalWhitePawns(whitePawns, blackPawns, ref WStartVal, ref WEndVal, ref wpcSqStart, ref wpcSqEnd ,out passed, out doubled, out isolated, out unconnected);
+            EvalWhitePawns(whitePawns, blackPawns, ref WStartVal, ref WEndVal,out passed, out doubled, out isolated, out unconnected);
 
             //create inverse situation
             ChessBitboard bpassed = ChessBitboard.Empty;
@@ -86,11 +74,9 @@ namespace Sinobyl.Engine
 
             int BStartVal = 0;
             int BEndVal = 0;
-            int bPcSqStart = 0;
-            int bPcSqEnd = 0;
 
             //actually passing in the black pawns from their own perspective
-            EvalWhitePawns(blackRev, whiteRev, ref BStartVal, ref BEndVal, ref bPcSqStart, ref bPcSqEnd, out bpassed, out bdoubled, out bisolated, out bunconnected);
+            EvalWhitePawns(blackRev, whiteRev, ref BStartVal, ref BEndVal, out bpassed, out bdoubled, out bisolated, out bunconnected);
 
             doubled |= bdoubled.Reverse();
             passed |= bpassed.Reverse();
@@ -100,13 +86,11 @@ namespace Sinobyl.Engine
             //set return values;
             int StartVal = WStartVal - BStartVal;
             int EndVal = WEndVal - BEndVal;
-            int pcSqStart = wpcSqStart - bPcSqStart;
-            int pcSqEnd = wpcSqEnd - bPcSqEnd;
 
-            return new PawnInfo(pawnZobrist, StartVal, EndVal, passed, pcSqStart, pcSqEnd, doubled, isolated, unconnected);
+            return new PawnInfo(pawnZobrist, StartVal, EndVal, passed, doubled, isolated, unconnected);
 
         }
-        private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, ref int pcSqStart, ref int pcSqEnd, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
+        private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
         {
             passed = ChessBitboard.Empty;
             doubled = ChessBitboard.Empty;
@@ -122,9 +106,6 @@ namespace Sinobyl.Engine
                 ChessBitboard bbFile2W = bbFile.ShiftDirW();
                 ChessBitboard bballNorth = r.BitboardAllNorth() & bbFile;
 
-                //pcsq values
-                pcSqStart += this.PcSqValuePosStage[(int)pos, (int)ChessGameStage.Opening];
-                pcSqEnd += this.PcSqValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
 
                 //substract doubled score
                 if (!(bballNorth & ~pos.Bitboard() & whitePawns).Empty())
@@ -193,6 +174,213 @@ namespace Sinobyl.Engine
 
         }
 
+        #region passed pawns
+
+        int PASSED_PAWN_MIN_SCORE = 10;
+        int[] endScore = new int[8];
+        int[] factors = new int[8];
+        int[] startScore = new int[8];
+
+        private void PassedInitialization(ChessEvalSettings settings)
+        {
+            PASSED_PAWN_MIN_SCORE = settings.PawnPassedMinScore;
+            for(int i = 0; i < 8; i++)
+            {
+                double pct = Math.Pow(settings.PawnPassedRankReduction, (double)i);
+                endScore[i] = (int)(settings.PawnPassed8thRankScore * pct);
+                factors[i] = (int)(endScore[i] * settings.PawnPassedDangerPct);
+                endScore[i] = endScore[i] + settings.PawnPassedMinScore;
+                startScore[i] = (int)((double)endScore[i] * settings.PawnPassedOpeningPct);
+            }
+        }
+
+        public void EvalPassedPawns(ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
+        {
+
+            ChessPosition myKing, hisKing;
+            ChessBitboard allPieces, myPawnAttacks, myAttacks, hisAttacks;
+            bool attackingTrailer, supportingTrailer;
+
+            int startScore, endScore, bestEndScore;
+
+            var white = passedPawns & board.PlayerLocations(ChessPlayer.White);
+            if (!white.Empty())
+            {
+                bestEndScore = 0;
+
+                myKing = board.KingPosition(ChessPlayer.White);
+                hisKing = board.KingPosition(ChessPlayer.Black);
+                allPieces = board.PieceLocationsAll;
+                myPawnAttacks = evalInfo.Attacks[(int)ChessPlayer.White].PawnEast | evalInfo.Attacks[(int)ChessPlayer.White].PawnWest;
+                myAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All();
+                hisAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All();
+
+                foreach (ChessPosition passedPos in white.ToPositions())
+                {
+                    ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
+                    ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirS, ref trailerPos);
+
+                    attackingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.Black;
+                    supportingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.White;
+
+                    EvalPassedPawnBoth(
+                        p: passedPos,
+                        allPieces: allPieces,
+                        myAttacks: myAttacks,
+                        hisAttacks: hisAttacks,
+                        myKing: myKing,
+                        hisKing: hisKing,
+                        myPawnAttacks: myPawnAttacks,
+                        attackingTrailer: attackingTrailer,
+                        supportingTrailer: supportingTrailer,
+                        mbonus: out startScore,
+                        ebonus: out endScore);
+
+
+                    //scores other than best are halved
+                    endScore = endScore & ~1; //make even number for div /2
+                    if (endScore >= bestEndScore)
+                    {
+                        int reduce = bestEndScore / 2;
+                        bestEndScore = endScore;
+                        endScore -= reduce;
+                    }
+                    else
+                    {
+                        endScore = endScore / 2;
+                    }
+
+                    evalInfo.PawnsPassedStart += startScore;
+                    evalInfo.PawnsPassedEnd += endScore;
+                    ///evalInfo.PawnsPassedStart += mbonus;
+                    //evalInfo.PawnsPassedEnd += ebonus;
+                }
+            }
+
+            var black = passedPawns & board.PlayerLocations(ChessPlayer.Black);
+            if (!black.Empty())
+            {
+                bestEndScore = 0;
+                myKing = board.KingPosition(ChessPlayer.Black).Reverse();
+                hisKing = board.KingPosition(ChessPlayer.White).Reverse();
+                allPieces = board.PieceLocationsAll.Reverse();
+                myPawnAttacks = (evalInfo.Attacks[(int)ChessPlayer.Black].PawnEast | evalInfo.Attacks[(int)ChessPlayer.Black].PawnWest).Reverse();
+                myAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All().Reverse();
+                hisAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All().Reverse();
+
+                foreach (ChessPosition passedPos in black.ToPositions())
+                {
+                    ChessPosition passesPos2 = passedPos.Reverse();
+                    ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
+                    ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirN, ref trailerPos);
+
+                    attackingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.White;
+                    supportingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.Black;
+
+                    EvalPassedPawnBoth(
+                        p: passesPos2,
+                        allPieces: allPieces,
+                        myAttacks: myAttacks,
+                        hisAttacks: hisAttacks,
+                        myKing: myKing,
+                        hisKing: hisKing,
+                        myPawnAttacks: myPawnAttacks,
+                        attackingTrailer: attackingTrailer,
+                        supportingTrailer: supportingTrailer,
+                        mbonus: out startScore,
+                        ebonus: out endScore);
+
+                    //scores other than best are halved
+                    endScore = endScore & ~1; //make even number for div /2
+                    if (endScore >= bestEndScore)
+                    {
+                        int reduce = bestEndScore / 2;
+                        bestEndScore = endScore;
+                        endScore -= reduce;
+                    }
+                    else
+                    {
+                        endScore = endScore / 2;
+                    }
+
+                    evalInfo.PawnsPassedStart -= startScore;
+                    evalInfo.PawnsPassedEnd -= endScore;
+                }
+            }
+
+
+
+
+        }
+
+
+        private void EvalPassedPawnBoth(ChessPosition p, ChessPosition myKing, ChessPosition hisKing,
+            ChessBitboard allPieces, ChessBitboard myPawnAttacks, ChessBitboard myAttacks, ChessBitboard hisAttacks,
+            bool attackingTrailer, bool supportingTrailer, out int mbonus, out int ebonus)
+        {
+            ChessRank rank = p.GetRank();
+
+            //int r = Math.Abs(rank - ChessRank.Rank2);
+            //int rr = r * (r - 1);
+
+            // Base bonus based on rank
+            mbonus = startScore[(int)rank];
+            ebonus = endScore[(int)rank];
+            int dangerFactor = factors[(int)rank];
+
+            ChessPosition blockSq = p.PositionInDirection(ChessDirection.DirN);
+
+            int k = 0;
+
+            if (rank <= ChessRank.Rank5)
+            {
+
+                k += hisKing.DistanceTo(blockSq);
+                k -= myKing.DistanceTo(blockSq);
+
+                if (!allPieces.Contains(blockSq))
+                {
+                    k += 2;
+
+                    if (hisAttacks.Contains(blockSq))
+                    {
+                        k -= 1;
+                    }
+                    if (!myAttacks.Contains(blockSq))
+                    {
+                        k += 1;
+                    }
+                }
+            }
+
+            if (attackingTrailer)
+            {
+                k -= 2;
+            }
+
+            if (supportingTrailer)
+            {
+                k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
+            }
+
+            if (myPawnAttacks.Contains(blockSq))
+            {
+                k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
+            }
+            else if (myPawnAttacks.Contains(p))
+            {
+                k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
+            }
+
+            ebonus += k * dangerFactor;
+
+        }
+
+        #endregion
+
     }
 
     public class PawnInfo
@@ -202,20 +390,16 @@ namespace Sinobyl.Engine
         public readonly int StartVal;
         public readonly int EndVal;
         public readonly ChessBitboard PassedPawns;
-        public readonly int StartValPcSq;
-        public readonly int EndValPcSq;
         public readonly ChessBitboard Doubled;
         public readonly ChessBitboard Isolated;
         public readonly ChessBitboard Unconnected;
 
-        public PawnInfo(Int64 pawnZobrist, int startVal, int endVal, ChessBitboard passedPawns, int startValPcSq, int endValPcSq, ChessBitboard doubled, ChessBitboard isolated, ChessBitboard unconnected)
+        public PawnInfo(Int64 pawnZobrist, int startVal, int endVal, ChessBitboard passedPawns, ChessBitboard doubled, ChessBitboard isolated, ChessBitboard unconnected)
         {
             PawnZobrist = pawnZobrist;
             StartVal = startVal;
             EndVal = endVal;
             PassedPawns = passedPawns;
-            StartValPcSq = startValPcSq;
-            EndValPcSq = endValPcSq;
             Doubled = doubled;
             Isolated = isolated;
             Unconnected = unconnected;

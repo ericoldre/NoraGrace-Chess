@@ -7,6 +7,27 @@ namespace Sinobyl.Engine
 {
     public class ChessEvalPassed
     {
+        public const int PASSED_PAWN_MIN_SCORE = 15;
+        public const double PASSED_PAWN_8TH = 420;
+        public const double RANK_REDUCTION = .7f;
+        public const double FACTOR = 14;
+
+        public static readonly int[] endScore = new int[8];
+        public static readonly int[] factors = new int[8];
+        public static readonly int[] startScore = new int[8];
+        static ChessEvalPassed()
+        {
+            for(int i = 0; i < 8; i++)
+            {
+                double pct = Math.Pow((double)RANK_REDUCTION, (double)i);
+                endScore[i] = (int)(PASSED_PAWN_8TH * pct);
+                factors[i] = (int)(endScore[i] / FACTOR);
+                endScore[i] = endScore[i] + PASSED_PAWN_MIN_SCORE;
+                startScore[i] = endScore[i] / 3;
+            }
+        }
+        
+
         public static void EvalPassedPawns(ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
         {
             
@@ -94,8 +115,8 @@ namespace Sinobyl.Engine
 
         }
 
-        public static int[] _passedValRankStart = new int[] { 15, 15, 15, 20, 30, 50 };
-        public static int[] _passedValRankEnd = new int[] { 15, 25, 45, 80, 120, 175 };
+        //public static int[] _passedValRankStart = new int[] { 15, 15, 15, 20, 30, 50 };
+        //public static int[] _passedValRankEnd = new int[] { 15, 25, 45, 80, 120, 175 };
 
         public static void EvalPassedPawnBoth(ChessPosition p, ChessPosition myKing, ChessPosition hisKing, 
             ChessBitboard allPieces, ChessBitboard myPawnAttacks, ChessBitboard myAttacks, ChessBitboard hisAttacks, 
@@ -103,53 +124,57 @@ namespace Sinobyl.Engine
         {
             ChessRank rank = p.GetRank();
 
-            int r = Math.Abs(rank - ChessRank.Rank2);
-            int rr = r * (r - 1);
+            //int r = Math.Abs(rank - ChessRank.Rank2);
+            //int rr = r * (r - 1);
 
             // Base bonus based on rank
-            mbonus = _passedValRankStart[r];
-            ebonus = _passedValRankEnd[r];
+            mbonus = startScore[(int)rank];
+            ebonus = endScore[(int)rank];
+            int dangerFactor = factors[(int)rank];
 
             ChessPosition blockSq = p.PositionInDirection(ChessDirection.DirN);
 
-            if (rr > 0)
+            int k = 0;
+
+            if (rank <= ChessRank.Rank5)
             {
-                ebonus += hisKing.DistanceTo(blockSq) * 3 * rr;
-                ebonus -= myKing.DistanceTo(blockSq) * 2 * rr;
+
+                k += hisKing.DistanceTo(blockSq);
+                k -= myKing.DistanceTo(blockSq);
 
                 if (!allPieces.Contains(blockSq))
                 {
-                    ChessBitboard squaresAhead = blockSq.GetRank().BitboardAllNorth() & p.GetFile().Bitboard();
+                    k += 1;
 
-                    ChessBitboard unsafeAhead = attackingTrailer ? squaresAhead : squaresAhead & hisAttacks;
-                    ChessBitboard defendedAhead = supportingTrailer ? squaresAhead : squaresAhead & myAttacks;
-
-                    int k = unsafeAhead.Empty() ? 6 : !unsafeAhead.Contains(blockSq) ? 3 : 0;
-
-                    if (defendedAhead == squaresAhead)
+                    if (!hisAttacks.Contains(blockSq))
                     {
-                        k += 4;
+                        k += 1;
                     }
-                    else if (defendedAhead.Contains(blockSq))
-                    {
-                        k += (unsafeAhead & defendedAhead) == squaresAhead ? 2 : 0;
-                    }
-
-                    mbonus += k * rr;
-                    ebonus += k * rr;
 
                 }
+            }
 
+            if (attackingTrailer)
+            {
+                k -= 2;
+            }
+
+            if (supportingTrailer)
+            {
+                k += 2;
             }
 
             if (myPawnAttacks.Contains(blockSq))
             {
-                ebonus += r * 15;
+                k += 3;
             }
             else if (myPawnAttacks.Contains(p))
             {
-                ebonus += r * 8;
+                k += 2;
             }
+
+            ebonus += k * dangerFactor;
+
         }
 
 

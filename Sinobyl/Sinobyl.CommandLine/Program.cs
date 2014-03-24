@@ -22,6 +22,7 @@ namespace Sinobyl.CommandLine
 		
         static void Main(string[] args)
 		{
+            
             Console.WriteLine("Sinobyl");
 			
 			foreach (string arg in args)

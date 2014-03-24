@@ -15,7 +15,7 @@ namespace Sinobyl.Engine
         public readonly int UnconnectedPawnStart;
         public readonly int UnconnectedPawnEnd;
         public readonly int[,] PcSqValuePosStage;
-        public readonly int[,] PawnPassedValuePosStage;
+        //public readonly int[,] PawnPassedValuePosStage;
         public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
         
         public ChessEvalPawns(ChessEvalSettings settings, uint hashSize = 1000)
@@ -31,13 +31,13 @@ namespace Sinobyl.Engine
 
             //setup passed pawn array
             PcSqValuePosStage = new int[64, 2];
-            PawnPassedValuePosStage = new int[64, 2];
+            //PawnPassedValuePosStage = new int[64, 2];
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
                 {
                     PcSqValuePosStage[(int)pos, (int)stage] = settings.PcSqTables.Pawn[stage][pos];
-                    PawnPassedValuePosStage[(int)pos, (int)stage] = settings.PawnPassedValues[stage][pos];
+                    //PawnPassedValuePosStage[(int)pos, (int)stage] = settings.PawnPassedValues[stage][pos];
                 }
             }
         }
@@ -160,8 +160,8 @@ namespace Sinobyl.Engine
                 ChessBitboard blockPositions = (bbFile | bbFile2E | bbFile2W) & pos.GetRank().BitboardAllNorth().ShiftDirN();
                 if ((blockPositions & blackPawns).Empty())
                 {
-                    StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
-                    EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
+                    //StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
+                    //EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
                     passed |= pos.Bitboard();
                 }
             }

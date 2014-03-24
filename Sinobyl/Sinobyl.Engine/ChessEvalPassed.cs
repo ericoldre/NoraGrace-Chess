@@ -8,7 +8,7 @@ namespace Sinobyl.Engine
     public class ChessEvalPassed
     {
         public const int PASSED_PAWN_MIN_SCORE = 10;
-        public const double PASSED_PAWN_8TH = 400;
+        public const double PASSED_PAWN_8TH = 280;
         public const double RANK_REDUCTION = .65f;
         public const double FACTOR = 10;
 
@@ -176,13 +176,16 @@ namespace Sinobyl.Engine
 
                 if (!allPieces.Contains(blockSq))
                 {
-                    k += 1;
+                    k += 2;
 
-                    if (!hisAttacks.Contains(blockSq))
+                    if (hisAttacks.Contains(blockSq))
+                    {
+                        k -= 1;
+                    }
+                    if (!myAttacks.Contains(blockSq))
                     {
                         k += 1;
                     }
-
                 }
             }
 
@@ -199,7 +202,7 @@ namespace Sinobyl.Engine
 
             if (myPawnAttacks.Contains(blockSq))
             {
-                k += 3;
+                k += 2;
                 ebonus += PASSED_PAWN_MIN_SCORE;
             }
             else if (myPawnAttacks.Contains(p))

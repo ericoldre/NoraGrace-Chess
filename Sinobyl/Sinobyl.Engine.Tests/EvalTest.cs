@@ -156,16 +156,16 @@ namespace Sinobyl.Engine.Tests
                     var fen = board.FEN;
                     ChessBoard boardRev = new ChessBoard(fen.Reverse());
 
-                    int e1 = eval.Eval(board);
-                    int e2 = eval.Eval(boardRev);
+                    var e1 = eval.EvalDetail(board);
+                    var e2 = eval.EvalDetail(boardRev);
 
-                    if (e1 != -e2)
+                    if (e1.Score != -e2.Score)
                     {
                         int redo = eval.Eval(board);
                         int redo2 = eval.Eval(boardRev);
                     }
 
-                    Assert.AreEqual<int>(e1, -e2);
+                    Assert.AreEqual<int>(e1.Score, -e2.Score);
 
 
                 }

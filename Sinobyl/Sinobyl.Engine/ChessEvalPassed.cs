@@ -7,10 +7,10 @@ namespace Sinobyl.Engine
 {
     public class ChessEvalPassed
     {
-        public const int PASSED_PAWN_MIN_SCORE = 15;
-        public const double PASSED_PAWN_8TH = 420;
-        public const double RANK_REDUCTION = .7f;
-        public const double FACTOR = 14;
+        public const int PASSED_PAWN_MIN_SCORE = 10;
+        public const double PASSED_PAWN_8TH = 400;
+        public const double RANK_REDUCTION = .65f;
+        public const double FACTOR = 10;
 
         public static readonly int[] endScore = new int[8];
         public static readonly int[] factors = new int[8];
@@ -34,12 +34,14 @@ namespace Sinobyl.Engine
             ChessPosition myKing, hisKing;
             ChessBitboard allPieces, myPawnAttacks ,myAttacks, hisAttacks;
             bool attackingTrailer, supportingTrailer;
-            int mbonus, ebonus;
-
             
+            int startScore, endScore, bestEndScore;
+
             var white = passedPawns & board.PlayerLocations(ChessPlayer.White);
             if (!white.Empty())
             {
+                bestEndScore = 0;
+
                 myKing = board.KingPosition(ChessPlayer.White);
                 hisKing = board.KingPosition(ChessPlayer.Black);
                 allPieces = board.PieceLocationsAll;
@@ -65,17 +67,34 @@ namespace Sinobyl.Engine
                         myPawnAttacks: myPawnAttacks,
                         attackingTrailer: attackingTrailer,
                         supportingTrailer: supportingTrailer,
-                        mbonus: out mbonus,
-                        ebonus: out ebonus);
+                        mbonus: out startScore,
+                        ebonus: out endScore);
 
-                    evalInfo.PawnsPassedStart += mbonus;
-                    evalInfo.PawnsPassedEnd += ebonus;
+
+                    //scores other than best are halved
+                    endScore = endScore & ~1; //make even number for div /2
+                    if (endScore >= bestEndScore)
+                    {
+                        int reduce = bestEndScore / 2;
+                        bestEndScore = endScore;
+                        endScore -= reduce;
+                    }
+                    else
+                    {
+                        endScore = endScore / 2;
+                    }
+
+                    evalInfo.PawnsPassedStart += startScore;
+                    evalInfo.PawnsPassedEnd += endScore;
+                    ///evalInfo.PawnsPassedStart += mbonus;
+                    //evalInfo.PawnsPassedEnd += ebonus;
                 }
             }
 
             var black = passedPawns & board.PlayerLocations(ChessPlayer.Black);
             if (!black.Empty())
             {
+                bestEndScore = 0;
                 myKing = board.KingPosition(ChessPlayer.Black).Reverse();
                 hisKing = board.KingPosition(ChessPlayer.White).Reverse();
                 allPieces = board.PieceLocationsAll.Reverse();
@@ -102,11 +121,24 @@ namespace Sinobyl.Engine
                         myPawnAttacks: myPawnAttacks,
                         attackingTrailer: attackingTrailer,
                         supportingTrailer: supportingTrailer,
-                        mbonus: out mbonus,
-                        ebonus: out ebonus);
+                        mbonus: out startScore,
+                        ebonus: out endScore);
 
-                    evalInfo.PawnsPassedStart -= mbonus;
-                    evalInfo.PawnsPassedEnd -= ebonus;
+                    //scores other than best are halved
+                    endScore = endScore & ~1; //make even number for div /2
+                    if (endScore >= bestEndScore)
+                    {
+                        int reduce = bestEndScore / 2;
+                        bestEndScore = endScore;
+                        endScore -= reduce;
+                    }
+                    else
+                    {
+                        endScore = endScore / 2;
+                    }
+
+                    evalInfo.PawnsPassedStart -= startScore;
+                    evalInfo.PawnsPassedEnd -= endScore;
                 }
             }
             
@@ -162,15 +194,18 @@ namespace Sinobyl.Engine
             if (supportingTrailer)
             {
                 k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
             }
 
             if (myPawnAttacks.Contains(blockSq))
             {
                 k += 3;
+                ebonus += PASSED_PAWN_MIN_SCORE;
             }
             else if (myPawnAttacks.Contains(p))
             {
                 k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
             }
 
             ebonus += k * dangerFactor;

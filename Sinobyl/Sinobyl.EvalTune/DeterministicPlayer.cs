@@ -18,7 +18,7 @@ namespace Sinobyl.EvalTune
             Name = name;
             Eval = eval;
             MaxNodes = maxNodes;
-            TransTable = new ChessTrans();
+            TransTable = new ChessTrans(10000);
 
         }
         #region IChessGamePlayer Members

@@ -19,28 +19,55 @@ namespace Sinobyl.EvalTune
             
             Random rand = new Random();
 
+            //read in a series of openings.
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
+            Console.WriteLine("Beginning parse of opening positions");
             using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
             {
-                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(200));
+                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(100000));
             }
-
+            Console.WriteLine("completed parse of opening positions");
             
             
-            Stack<IEvalSettingsMutator> mutatorStack = new Stack<IEvalSettingsMutator>();
+            //Stack<IEvalSettingsMutator> mutatorStack = new Stack<IEvalSettingsMutator>();
 
-            int nodes = 500;
+            Func<ChessEvalSettings, double> fnGetParamVal = (s) => (double)s.PawnPassed8thRankScore;
+            Action<ChessEvalSettings, double> fnSetEvalScore = (s, v) => { s.PawnPassed8thRankScore = (int)Math.Round(v); };
+            string paramName = "PawnPassed8thRankScore";
+
+
+            double parameterValue = fnGetParamVal(ChessEvalSettings.Default());
 
             while (true)
             {
+                int nodes = rand.Next(500, 800);
+                int delta = rand.Next(30, 60);
+                
+                //create list of starting positions
+                int gamesPerMatch = 100;
+                var startingPGNsForThisMatch = StartingPGNs.OrderBy(x => rand.Next()).Take(gamesPerMatch / 2).ToList();
+
+                
+
+                //create settings
+                int valHigh = (int)Math.Round(parameterValue) + delta;
+                int valLow = (int)Math.Round(parameterValue) - delta;
+
+
+                ChessEvalSettings highSettings = ChessEvalSettings.Default();
+                ChessEvalSettings lowSettings = ChessEvalSettings.Default();
+
+                fnSetEvalScore(highSettings, valHigh);
+                fnSetEvalScore(lowSettings, valLow);
+
+                string highPlayerName = string.Format("{0}{1}", paramName, valHigh, nodes);
+                string lowPlayerName = string.Format("{0}{1}", paramName, valLow, nodes);
 
                 var competitors = new List<Func<IChessGamePlayer>>();
+                competitors.Add(() => new DeterministicPlayer(highPlayerName, new ChessEval(highSettings), nodes));
+                competitors.Add(() => new DeterministicPlayer(lowPlayerName, new ChessEval(lowSettings), nodes));
 
-                competitors.Add(() => new DeterministicPlayer("Default:N" + nodes.ToString(), new ChessEval(), nodes));
-                int nodesPlayer2 = (int)((double)nodes * 1.2);
-                competitors.Add(() => new DeterministicPlayer("Default:N" + nodesPlayer2.ToString(), new ChessEval(), nodesPlayer2));
-
-                string eventName = "Challenge_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_N" + nodes.ToString();
+                string eventName = string.Format("Challenge_{3} {0} {1} vs {2}", paramName, valHigh, valLow, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
                 
                 var pgnWriter = File.CreateText(eventName + ".pgn");
                 
@@ -54,7 +81,7 @@ namespace Sinobyl.EvalTune
                 (
                     isGauntlet:true,
                     competitors: competitors,
-                    startingPositions: StartingPGNs,
+                    startingPositions: startingPGNsForThisMatch,
                     onGameCompleted: (p) => 
                     {
                         pgnWriter.Write(p.Game.ToString());
@@ -93,6 +120,7 @@ namespace Sinobyl.EvalTune
                 stopwatch.Stop();
                 pgnWriter.Dispose();
 
+                //record and print out results.
                 File.WriteAllText(eventName + "_Summary.txt", matchResults.Summary());
                 Console.WriteLine();
                 Console.WriteLine("Completed {1} node match in {0:c}", stopwatch.Elapsed, nodes);
@@ -107,14 +135,22 @@ namespace Sinobyl.EvalTune
                         totalgames,
                         compName);
                 }
-                Console.WriteLine("");
-                Console.WriteLine("");
-                Console.WriteLine("");
-                
-                
 
-                //increment amount of nodes.
-                nodes = (int)((float)nodes * 1.5);
+
+                matchResults.ResultsForPlayer(highPlayerName, out wins, out losses, out draws);
+                var paramDelta = delta * 0.002f;
+                var newParamValue = parameterValue + (wins * paramDelta) - (losses * paramDelta);
+               
+                string changeSummary = string.Format("{0}\tFrom\t{1}\tTo\t{2}", paramName, parameterValue, newParamValue);
+                Console.WriteLine(changeSummary);
+                File.AppendAllLines(string.Format("{0}_TuneResults.txt", paramName), new string[] { changeSummary });
+
+                Console.WriteLine("");
+                Console.WriteLine("");
+                Console.WriteLine("");
+
+                parameterValue = newParamValue;
+
             }
             Console.WriteLine("done");
             Console.ReadLine();

@@ -392,7 +392,7 @@ namespace Sinobyl.Engine
 			{
 				sbHeaders.AppendLine(string.Format(@"[{0} ""{1}""]", header.Key, header.Value));// header.ToString() + Environment.NewLine);
 			}
-			if (_headers["Result"] == null)
+			if (_headers.ContainsKey("Result"))
 			{
 				//sbHeaders.Append(new ChessPGNHeader("Result", sResult).ToString() + Environment.NewLine);
                 sbHeaders.Append(string.Format(@"[Result ""{0}""]", _headers["Result"]) + Environment.NewLine);
@@ -420,9 +420,10 @@ namespace Sinobyl.Engine
 				}
 				sbMoves.Append(move.ToString(board) + " ");
 				board.MoveApply(move);
-                string comment = this.Comments[imove - 1];
-				if (comment != null)
+                
+                if (Comments.ContainsKey(imove - 1))
 				{
+                    string comment = this.Comments[imove - 1];
 					sbMoves.Append("{");
 					sbMoves.Append(comment);
 					sbMoves.Append("} ");

@@ -30,6 +30,7 @@ namespace Sinobyl.Engine
 
         public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<IChessGamePlayer>> competitors, IEnumerable<ChessPGN> startingPositions, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
         {
+            
             ChessMatchResults retval = new ChessMatchResults();
 
             Func<IChessGamePlayer> gauntletPlayer = null;

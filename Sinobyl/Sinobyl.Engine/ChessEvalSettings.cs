@@ -238,7 +238,7 @@ namespace Sinobyl.Engine
                 PawnIsolated = new ChessGameStageDictionary<int>() { Opening = 15, Endgame = 25 },
                 PawnUnconnected = new ChessGameStageDictionary<int>(){ Opening = 5, Endgame = 10},
                 
-                PawnPassed8thRankScore = 280,
+                PawnPassed8thRankScore = 337,
                 PawnPassedRankReduction = .65f,
                 PawnPassedDangerPct = .10f,
                 PawnPassedMinScore = 10,

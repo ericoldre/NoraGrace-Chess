@@ -16,7 +16,7 @@ namespace Sinobyl.EvalTune
         static object writeLock = new object();
         static void Main(string[] args)
         {
-            
+
             Random rand = new Random();
 
             //read in a series of openings.
@@ -40,8 +40,8 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodes = rand.Next(500, 800);
-                int delta = rand.Next(30, 60);
+                int nodes = rand.Next(6000, 8000);
+                int delta = rand.Next(30, 40);
                 
                 //create list of starting positions
                 int gamesPerMatch = 100;
@@ -69,7 +69,7 @@ namespace Sinobyl.EvalTune
 
                 string eventName = string.Format("Challenge_{3} {0} {1} vs {2}", paramName, valHigh, valLow, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
                 
-                var pgnWriter = File.CreateText(eventName + ".pgn");
+                //var pgnWriter = File.CreateText(eventName + ".pgn");
                 
                 int wins = 0;
                 int losses = 0;
@@ -84,8 +84,8 @@ namespace Sinobyl.EvalTune
                     startingPositions: startingPGNsForThisMatch,
                     onGameCompleted: (p) => 
                     {
-                        pgnWriter.Write(p.Game.ToString());
-                        pgnWriter.Write("\n\n");
+                        //pgnWriter.Write(p.Game.ToString());
+                       // pgnWriter.Write("\n\n");
                         switch (p.Game.Result)
                         {
                             case ChessResult.Draw:
@@ -118,10 +118,10 @@ namespace Sinobyl.EvalTune
                 );
 
                 stopwatch.Stop();
-                pgnWriter.Dispose();
-
+                //pgnWriter.Dispose();
+                string timeSpent = stopwatch.Elapsed.ToString(@"hh\:mm\:ss");
                 //record and print out results.
-                File.WriteAllText(eventName + "_Summary.txt", matchResults.Summary());
+               // File.WriteAllText(eventName + "_Summary.txt", matchResults.Summary());
                 Console.WriteLine();
                 Console.WriteLine("Completed {1} node match in {0:c}", stopwatch.Elapsed, nodes);
                 foreach (var compName in competitors.Select(f => f().Name))
@@ -138,10 +138,11 @@ namespace Sinobyl.EvalTune
 
 
                 matchResults.ResultsForPlayer(highPlayerName, out wins, out losses, out draws);
-                var paramDelta = delta * 0.002f;
-                var newParamValue = parameterValue + (wins * paramDelta) - (losses * paramDelta);
+                //var paramDelta = delta * 0.002f;
+                var paramDelta = delta * 0.005f;
+                var newParamValue = parameterValue + ((wins - losses) * paramDelta);
                
-                string changeSummary = string.Format("{0}\tFrom\t{1}\tTo\t{2}", paramName, parameterValue, newParamValue);
+                string changeSummary = string.Format("{0}\tFrom\t{1:f2}\tTo\t{2:f2}\tin\t{3}", paramName, parameterValue, newParamValue, timeSpent);
                 Console.WriteLine(changeSummary);
                 File.AppendAllLines(string.Format("{0}_TuneResults.txt", paramName), new string[] { changeSummary });
 

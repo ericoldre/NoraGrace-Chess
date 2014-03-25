@@ -44,7 +44,7 @@ namespace Sinobyl.Engine
             }
 
             ParallelOptions options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 6;
+            options.MaxDegreeOfParallelism = 12;
             Parallel.ForEach(startingPositions, options, startingPGN =>
             {
                 foreach (var fWhitePlayer in competitors)

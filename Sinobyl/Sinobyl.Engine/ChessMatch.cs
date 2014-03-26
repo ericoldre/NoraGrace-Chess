@@ -145,6 +145,13 @@ namespace Sinobyl.Engine
 
                 string moveComment = null;
                 var bestMove = player.Move(gameStartPosition, gameMoves.ToArray(), timeControl, new TimeSpan(1,0,0), out moveComment);
+                if (bestMove == null)
+                {
+                    gameResult = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                    reason = ChessResultReason.Resign;
+                    break;
+                }
+
                 gameMoves.Add(bestMove);
 
                 if (bestMove.IsLegal(board))

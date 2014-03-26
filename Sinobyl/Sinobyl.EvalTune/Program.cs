@@ -40,7 +40,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodes = rand.Next(6000, 8000);
+                int nodes = rand.Next(10000, 12000);
                 int delta = rand.Next(30, 40);
                 
                 //create list of starting positions
@@ -92,28 +92,28 @@ namespace Sinobyl.EvalTune
                                 Console.Write("-");
                                 break;
                             case ChessResult.WhiteWins:
-                                Console.Write("1");
+                                Console.Write(p.Game.White == highPlayerName ? @"/" : @"\");
                                 break;
                             case ChessResult.BlackWins:
-                                Console.Write("0");
+                                Console.Write(p.Game.White == highPlayerName ? @"\" : @"/");
                                 break;
                         }
-                        if (p.Results.Count() % 200 == 0)
-                        {
-                            Console.WriteLine();
-                            foreach (var compName in competitors.Select(f => f().Name))
-                            {
-                                p.Results.ResultsForPlayer(compName, out wins, out losses, out draws);
-                                float totalgames = (wins + losses + draws);
-                                Console.WriteLine("Player:{4}, WinPct:{0} LossPct:{1} DrawPct:{2} GameCount:{3}",
-                                    ((float)wins / (float)totalgames).ToString("#0.##%"),
-                                    ((float)losses / (float)totalgames).ToString("#0.##%"),
-                                    ((float)draws / (float)totalgames).ToString("#0.##%"),
-                                    totalgames,
-                                    compName);
-                            }
-                            Console.WriteLine();
-                        }
+                        //if (p.Results.Count() % 200 == 0)
+                        //{
+                        //    Console.WriteLine();
+                        //    foreach (var compName in competitors.Select(f => f().Name))
+                        //    {
+                        //        p.Results.ResultsForPlayer(compName, out wins, out losses, out draws);
+                        //        float totalgames = (wins + losses + draws);
+                        //        Console.WriteLine("Player:{4}, WinPct:{0} LossPct:{1} DrawPct:{2} GameCount:{3}",
+                        //            ((float)wins / (float)totalgames).ToString("#0.##%"),
+                        //            ((float)losses / (float)totalgames).ToString("#0.##%"),
+                        //            ((float)draws / (float)totalgames).ToString("#0.##%"),
+                        //            totalgames,
+                        //            compName);
+                        //    }
+                        //    Console.WriteLine();
+                        //}
                     }
                 );
 

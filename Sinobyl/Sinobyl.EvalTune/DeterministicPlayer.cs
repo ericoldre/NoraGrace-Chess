@@ -13,12 +13,20 @@ namespace Sinobyl.EvalTune
         public int MaxNodes { get; set; }
         public ChessTrans TransTable { get; set; }
         public Func<ChessSearch.Progress, string> CommentFormatter { get; set; }
+
+        public int? ResignLimit { get; set; }
+        public int? ResignReps { get; set; }
+
+        private int _resignRepCount = 0;
+
         public DeterministicPlayer(string name, IChessEval eval, int maxNodes)
         {
             Name = name;
             Eval = eval;
             MaxNodes = maxNodes;
             TransTable = new ChessTrans(10000);
+            ResignLimit = null;
+            ResignReps = null;
 
         }
         #region IChessGamePlayer Members
@@ -53,6 +61,19 @@ namespace Sinobyl.EvalTune
 
             TransTable.AgeEntries(4);
 
+            ChessMove bestMove = searchResult.PrincipleVariation[0];
+            if (this.ResignLimit.HasValue && searchResult.Score < -this.ResignLimit)
+            {
+                this._resignRepCount++;
+            }
+            else
+            {
+                this._resignRepCount = 0;
+            }
+            if (this.ResignReps.HasValue && this._resignRepCount > this.ResignReps)
+            {
+                return null;
+            }
             return searchResult.PrincipleVariation[0];
 
         }

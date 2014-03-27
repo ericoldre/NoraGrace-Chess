@@ -239,10 +239,10 @@ namespace Sinobyl.Engine
                 PawnUnconnected = new ChessGameStageDictionary<int>(){ Opening = 5, Endgame = 10},
                 
                 PawnPassed8thRankScore = 332,
-                PawnPassedRankReduction = .65f,
+                PawnPassedRankReduction = .60f,
                 PawnPassedDangerPct = .10f,
                 PawnPassedMinScore = 10,
-                PawnPassedOpeningPct = .33f,
+                PawnPassedOpeningPct = .31f,
 
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
                 {

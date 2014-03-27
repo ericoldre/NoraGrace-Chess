@@ -31,9 +31,9 @@ namespace Sinobyl.EvalTune
             
             //Stack<IEvalSettingsMutator> mutatorStack = new Stack<IEvalSettingsMutator>();
 
-            Func<ChessEvalSettings, double> fnGetParamVal = (s) => (double)s.PawnPassed8thRankScore;
-            Action<ChessEvalSettings, double> fnSetEvalScore = (s, v) => { s.PawnPassed8thRankScore = (int)Math.Round(v); };
-            string paramName = "PawnPassed8thRankScore";
+            Func<ChessEvalSettings, double> fnGetParamVal = (s) => s.PawnPassedOpeningPct;
+            Action<ChessEvalSettings, double> fnSetEvalScore = (s, v) => { s.PawnPassedOpeningPct = v; };
+            string paramName = "PawnPassedOpeningPct";
 
 
             double parameterValue = fnGetParamVal(ChessEvalSettings.Default());
@@ -41,7 +41,8 @@ namespace Sinobyl.EvalTune
             while (true)
             {
                 int nodes = rand.Next(10000, 12000);
-                int delta = rand.Next(30, 40);
+
+                double delta = .08f;// rand.Next(30, 40);
                 
                 //create list of starting positions
                 int gamesPerMatch = 100;
@@ -50,8 +51,8 @@ namespace Sinobyl.EvalTune
                 
 
                 //create settings
-                int valHigh = (int)Math.Round(parameterValue) + delta;
-                int valLow = (int)Math.Round(parameterValue) - delta;
+                double valHigh = parameterValue + delta;
+                double valLow = parameterValue - delta;
 
 
                 ChessEvalSettings highSettings = ChessEvalSettings.Default();
@@ -60,8 +61,8 @@ namespace Sinobyl.EvalTune
                 fnSetEvalScore(highSettings, valHigh);
                 fnSetEvalScore(lowSettings, valLow);
 
-                string highPlayerName = string.Format("{0}{1}", paramName, valHigh, nodes);
-                string lowPlayerName = string.Format("{0}{1}", paramName, valLow, nodes);
+                string highPlayerName = string.Format("{0}{1:f4}", paramName, valHigh, nodes);
+                string lowPlayerName = string.Format("{0}{1:f4}", paramName, valLow, nodes);
 
                 var competitors = new List<Func<IChessGamePlayer>>();
                 competitors.Add(() => new DeterministicPlayer(highPlayerName, new ChessEval(highSettings), nodes));
@@ -139,10 +140,10 @@ namespace Sinobyl.EvalTune
 
                 matchResults.ResultsForPlayer(highPlayerName, out wins, out losses, out draws);
                 //var paramDelta = delta * 0.002f;
-                var paramDelta = delta * 0.005f;
+                var paramDelta = delta * 0.004f;
                 var newParamValue = parameterValue + ((wins - losses) * paramDelta);
                
-                string changeSummary = string.Format("{0}\tFrom\t{1:f2}\tTo\t{2:f2}\tin\t{3}", paramName, parameterValue, newParamValue, timeSpent);
+                string changeSummary = string.Format("{0}\tFrom\t{1:f4}\tTo\t{2:f4}\tin\t{3}", paramName, parameterValue, newParamValue, timeSpent);
                 Console.WriteLine(changeSummary);
                 File.AppendAllLines(string.Format("{0}_TuneResults.txt", paramName), new string[] { changeSummary });
 

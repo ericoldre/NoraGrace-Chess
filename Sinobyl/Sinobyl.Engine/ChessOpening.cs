@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Collections.ObjectModel;
-using System.IO;
+
 
 namespace Sinobyl.Engine
 {
@@ -43,10 +43,10 @@ namespace Sinobyl.Engine
 			if (ResourceName.Length == 0) { return; }
 
 			Assembly a = Assembly.GetExecutingAssembly();
-			Stream ecostream = a.GetManifestResourceStream(ResourceName);
+            System.IO.Stream ecostream = a.GetManifestResourceStream(ResourceName);
 
 			int linecount = 0;
-			using (StreamReader reader = new StreamReader(ecostream))
+            using (System.IO.StreamReader reader = new System.IO.StreamReader(ecostream))
 			{
 				while (!reader.EndOfStream)
 				{

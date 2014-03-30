@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using System.IO;
 using System.Xml.Serialization;
 
 namespace Sinobyl.Engine
@@ -418,13 +417,13 @@ namespace Sinobyl.Engine
             try
             {
                 XmlSerializer xs = new XmlSerializer(typeof(T));
-                MemoryStream memoryStream = new MemoryStream();
+                System.IO.MemoryStream memoryStream = new System.IO.MemoryStream();
 
-                StreamWriter writer = new StreamWriter(memoryStream, Encoding.UTF8);
+                System.IO.StreamWriter writer = new System.IO.StreamWriter(memoryStream, Encoding.UTF8);
 
                 xs.Serialize(writer, obj);
                 memoryStream.Position = 0;
-                StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8);
+                System.IO.StreamReader reader = new System.IO.StreamReader(memoryStream, Encoding.UTF8);
                 string retval = reader.ReadToEnd();
                 return retval;
                 //return reader.ReadToEnd();
@@ -445,8 +444,8 @@ namespace Sinobyl.Engine
         public static T DeserializeObject<T>(string xml)
         {
             XmlSerializer xs = new XmlSerializer(typeof(T));
-            MemoryStream memoryStream = new MemoryStream();
-            StreamWriter writer = new StreamWriter(memoryStream, Encoding.UTF8);
+            System.IO.MemoryStream memoryStream = new System.IO.MemoryStream();
+            System.IO.StreamWriter writer = new System.IO.StreamWriter(memoryStream, Encoding.UTF8);
             writer.Write(xml);
             writer.Flush();
 
@@ -456,7 +455,7 @@ namespace Sinobyl.Engine
             memoryStream.Position = 0;
 
 
-            StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8);
+            System.IO.StreamReader reader = new System.IO.StreamReader(memoryStream, Encoding.UTF8);
             return (T)xs.Deserialize(reader);
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sinobyl.Engine;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -22,7 +21,7 @@ namespace Sinobyl.EvalTune
             //read in a series of openings.
             List<ChessPGN> StartingPGNs = new List<ChessPGN>();
             Console.WriteLine("Beginning parse of opening positions");
-            using (StreamReader reader = new StreamReader(File.OpenRead("OpeningPositions.pgn")))
+            using (System.IO.StreamReader reader = new System.IO.StreamReader(System.IO.File.OpenRead("OpeningPositions.pgn")))
             {
                 StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(100000));
             }
@@ -145,7 +144,7 @@ namespace Sinobyl.EvalTune
                
                 string changeSummary = string.Format("{0}\tFrom\t{1:f4}\tTo\t{2:f4}\tin\t{3}", paramName, parameterValue, newParamValue, timeSpent);
                 Console.WriteLine(changeSummary);
-                File.AppendAllLines(string.Format("{0}_TuneResults.txt", paramName), new string[] { changeSummary });
+                System.IO.File.AppendAllLines(string.Format("{0}_TuneResults.txt", paramName), new string[] { changeSummary });
 
                 Console.WriteLine("");
                 Console.WriteLine("");
@@ -166,9 +165,9 @@ namespace Sinobyl.EvalTune
             {
                 lock (_lock)
                 {
-                    if (File.Exists("ChampionSettings.xml"))
+                    if (System.IO.File.Exists("ChampionSettings.xml"))
                     {
-                        return ChessEvalSettings.Load(File.OpenRead("ChampionSettings.xml"));
+                        return ChessEvalSettings.Load(System.IO.File.OpenRead("ChampionSettings.xml"));
                     }
                     else
                     {

@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using System.Collections;
-using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -365,12 +364,12 @@ namespace Sinobyl.Engine
 		public override string ToString()
 		{
             StringBuilder sb = new StringBuilder();
-            StringWriter writer = new StringWriter(sb);
+            System.IO.StringWriter writer = new System.IO.StringWriter(sb);
             Write(writer);
             return sb.ToString();
 		}
 
-		public void Write(TextWriter writer, int MaxLineLen = 90)
+		public void Write(System.IO.TextWriter writer, int MaxLineLen = 90)
 		{
 			ChessBoard board = new ChessBoard(this.StartingPosition);
 
@@ -477,8 +476,8 @@ namespace Sinobyl.Engine
 			//return sbHeaders.ToString() + sbMoves.ToString();
 		}
 
-        
-        public static IEnumerable<ChessPGN> AllGames(StreamReader reader)
+
+        public static IEnumerable<ChessPGN> AllGames(System.IO.StreamReader reader)
         {
             while (true)
             {
@@ -490,11 +489,11 @@ namespace Sinobyl.Engine
 
 		public static ChessPGN NextGame(string PGNString)
 		{
-			MemoryStream memory = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(PGNString));
-			StreamReader reader = new StreamReader(memory);
+            System.IO.MemoryStream memory = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(PGNString));
+            System.IO.StreamReader reader = new System.IO.StreamReader(memory);
 			return NextGame(reader);
 		}
-		public static ChessPGN NextGame(StreamReader reader)
+        public static ChessPGN NextGame(System.IO.StreamReader reader)
 		{
 			ChessPGNHeaders headers = new ChessPGNHeaders();
             Dictionary<int, string> comments = new Dictionary<int, string>();

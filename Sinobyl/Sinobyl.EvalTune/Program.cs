@@ -30,9 +30,9 @@ namespace Sinobyl.EvalTune
             
             //Stack<IEvalSettingsMutator> mutatorStack = new Stack<IEvalSettingsMutator>();
 
-            Func<ChessEvalSettings, double> fnGetParamVal = (s) => s.PawnPassedOpeningPct;
-            Action<ChessEvalSettings, double> fnSetEvalScore = (s, v) => { s.PawnPassedOpeningPct = v; };
-            string paramName = "PawnPassedOpeningPct";
+            Func<ChessEvalSettings, double> fnGetParamVal = (s) => s.PawnShelterFactor;
+            Action<ChessEvalSettings, double> fnSetEvalScore = (s, v) => { s.PawnShelterFactor = (int)Math.Round(v); };
+            string paramName = "PawnShelterFactor";
 
 
             double parameterValue = fnGetParamVal(ChessEvalSettings.Default());
@@ -41,7 +41,7 @@ namespace Sinobyl.EvalTune
             {
                 int nodes = rand.Next(10000, 12000);
 
-                double delta = .08f;// rand.Next(30, 40);
+                double delta = 1.0f;// rand.Next(30, 40);
                 
                 //create list of starting positions
                 int gamesPerMatch = 100;

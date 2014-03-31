@@ -177,6 +177,22 @@ namespace Sinobyl.Engine.Tests
 
         }
 
+        //[TestMethod]
+        //public void EvalPawnShelterStormTest()
+        //{
+        //    ChessEvalPawns evalPawns = new ChessEvalPawns(ChessEvalSettings.Default(), (uint)1);
+
+            
+        //    ChessFEN fen111 = new ChessFEN("8/2k5/8/8/8/8/5PPP/6K1 w - - 0 1 ");
+        //    ChessFEN fen211 = new ChessFEN("8/2k5/8/8/8/5P2/6PP/6K1 w - - 0 1 ");
+        //    ChessFEN fen311 = new ChessFEN("8/2k5/8/8/5P2/8/6PP/6K1 w - - 0 1 ");
+        //    ChessFEN fen411 = new ChessFEN("8/2k5/8/5P2/8/8/6PP/6K1 w - - 0 1 ");
+        //    ChessFEN fen121 = new ChessFEN("8/2k5/8/8/8/6P1/5P1P/6K1 w - - 0 1 ");
+        //    ChessFEN fen131 = new ChessFEN("");
+        //    ChessFEN fen211 = new ChessFEN("");
+        //    ChessFEN fen211 = new ChessFEN("");
+        //}
+
         [TestMethod]
         public void SearchTest()
         {

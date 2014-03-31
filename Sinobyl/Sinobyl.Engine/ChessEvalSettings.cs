@@ -243,6 +243,8 @@ namespace Sinobyl.Engine
                 PawnPassedMinScore = 10,
                 PawnPassedOpeningPct = .31f,
 
+                PawnShelterFactor = 5,
+
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
                 {
                     Knight = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
@@ -291,6 +293,7 @@ namespace Sinobyl.Engine
         public int PawnPassedMinScore = 0;
         public double PawnPassedDangerPct = 0;
         public double PawnPassedOpeningPct = 0;
+        public int PawnShelterFactor = 0;
 
         public ChessEvalSettings CloneDeep()
         {

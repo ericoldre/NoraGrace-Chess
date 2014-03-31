@@ -110,6 +110,9 @@ namespace Sinobyl.CommandLine
             {
                 
                 var newEval = eval.EvalDetail(board);
+                int i = newEval.Score;
+                if (i == int.MaxValue) { nodesDone++; } //this is just to make sure compiler doesn't optimize away call to .Score, which might be expensive but we want to measure
+
 
                 //var oldEval = evalOld.EvalDetail(board);
                 //var diffPct = (1f - (float)newEval.Score / (float)oldEval.Score);

@@ -87,7 +87,7 @@ namespace Sinobyl.Engine
             int StartVal = WStartVal - BStartVal;
             int EndVal = WEndVal - BEndVal;
 
-            return new PawnInfo(pawnZobrist, StartVal, EndVal, passed, doubled, isolated, unconnected);
+            return new PawnInfo(pawnZobrist, whitePawns, blackPawns, StartVal, EndVal, passed, doubled, isolated, unconnected);
 
         }
         private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected)
@@ -148,6 +148,9 @@ namespace Sinobyl.Engine
             }
 
         }
+
+
+        
 
         public static ChessResult? EndgameKPK(ChessPosition whiteKing, ChessPosition blackKing, ChessPosition whitePawn, bool whiteToMove)
         {
@@ -387,16 +390,22 @@ namespace Sinobyl.Engine
     {
 
         public readonly Int64 PawnZobrist;
+        public readonly ChessBitboard WhitePawns;
+        public readonly ChessBitboard BlackPawns;
         public readonly int StartVal;
         public readonly int EndVal;
         public readonly ChessBitboard PassedPawns;
         public readonly ChessBitboard Doubled;
         public readonly ChessBitboard Isolated;
         public readonly ChessBitboard Unconnected;
+        
 
-        public PawnInfo(Int64 pawnZobrist, int startVal, int endVal, ChessBitboard passedPawns, ChessBitboard doubled, ChessBitboard isolated, ChessBitboard unconnected)
+
+        public PawnInfo(Int64 pawnZobrist, ChessBitboard whitePawns, ChessBitboard blackPawns, int startVal, int endVal, ChessBitboard passedPawns, ChessBitboard doubled, ChessBitboard isolated, ChessBitboard unconnected)
         {
             PawnZobrist = pawnZobrist;
+            WhitePawns = whitePawns;
+            BlackPawns = blackPawns;
             StartVal = startVal;
             EndVal = endVal;
             PassedPawns = passedPawns;
@@ -404,6 +413,85 @@ namespace Sinobyl.Engine
             Isolated = isolated;
             Unconnected = unconnected;
         }
+
+
+        
+
+        
+        private static readonly int[] _shelterFactor = new int[] { 7, 0, 2, 5, 6, 7, 7, 7 };
+        public int EvalShelter(ChessFile whiteKingFile, ChessFile blackKingFile, bool wsCastle, bool wlCastle, bool bsCastle, bool blCastle)
+        {
+            int retval = 0;
+
+            int castlePenalty;
+
+            ChessBitboard wpRev = WhitePawns.Reverse();
+            int lowestWhitePenalty = CalcKingShelterPenaltyFactorBlackPerspective(whiteKingFile, wpRev);
+            if (wsCastle)
+            {
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileG, wpRev) + 2;
+                if (castlePenalty < lowestWhitePenalty) { lowestWhitePenalty = castlePenalty; }
+            }
+            if (wlCastle)
+            {
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileC, wpRev) + 2;
+                if (castlePenalty < lowestWhitePenalty) { lowestWhitePenalty = castlePenalty; }
+            }
+
+            int lowestBlackPenalty = CalcKingShelterPenaltyFactorBlackPerspective(blackKingFile, BlackPawns);
+            if (bsCastle)
+            {
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileG, BlackPawns) + 2;
+                if (castlePenalty < lowestBlackPenalty) { lowestBlackPenalty = castlePenalty; }
+            }
+            if (blCastle)
+            {
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileC, BlackPawns) + 2;
+                if (castlePenalty < lowestBlackPenalty) { lowestBlackPenalty = castlePenalty; }
+            }
+
+            retval -= lowestWhitePenalty;
+            retval += lowestBlackPenalty;
+            return retval;
+        }
+
+        /// <summary>
+        /// eval from perpective of black because of frequent calls to bb northmost, which is much faster than southmost.
+        /// </summary>
+        /// <param name="kingFile"></param>
+        /// <param name="myPawns"></param>
+        /// <param name="blackPawns"></param>
+        /// <returns></returns>
+        private static int CalcKingShelterPenaltyFactorBlackPerspective(ChessFile kingFile, ChessBitboard myPawns)
+        {
+            if (kingFile == ChessFile.FileA) { kingFile = ChessFile.FileB; }
+            if (kingFile == ChessFile.FileH) { kingFile = ChessFile.FileG; }
+
+            int retval = 0;
+            int count7th = 0;
+            for (ChessFile f = kingFile - 1; f <= kingFile + 1; f++)
+            {
+                ChessBitboard bbFile = f.Bitboard();
+                ChessBitboard bbPawnFile = bbFile & myPawns;
+                ChessRank pawnRank;
+                if (bbPawnFile == ChessBitboard.Empty)
+                {
+                    pawnRank = ChessRank.Rank1;
+                }
+                else
+                {
+                    pawnRank = bbPawnFile.NorthMostPosition().GetRank();
+                }
+                retval += _shelterFactor[(int)pawnRank];
+                if (pawnRank == ChessRank.Rank7)
+                {
+                    count7th++;
+                }
+            }
+            if (count7th >= 2) { retval--; }
+            return retval;
+        }
+
 
     }
 }

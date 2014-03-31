@@ -45,7 +45,7 @@ namespace Sinobyl.Engine
             _settings = settings.CloneDeep();
 
             //setup pawn evaluation
-            _evalPawns = new ChessEvalPawns(_settings, 1000);
+            _evalPawns = new ChessEvalPawns(_settings, 10000);
             _evalMaterial = new ChessEvalMaterial(_settings);
 
             //setup weight values;
@@ -243,6 +243,22 @@ namespace Sinobyl.Engine
 
             //eval passed pawns;
             this._evalPawns.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
+
+            //shelter storm;
+            if (material.DoShelter)
+            {
+                evalInfo.ShelterStorm = _settings.PawnShelterFactor * pawns.EvalShelter(
+                    whiteKingFile: board.KingPosition(ChessPlayer.White).GetFile(),
+                    blackKingFile: board.KingPosition(ChessPlayer.Black).GetFile(),
+                    wsCastle: board.CastleAvailWS,
+                    wlCastle: board.CastleAvailWL,
+                    bsCastle: board.CastleAvailBS,
+                    blCastle: board.CastleAvailBL);
+            }
+            
+            //evalInfo.ShelterStorm = this._evalPawns.EvalKingShelterStormBlackPerspective(board.KingPosition(ChessPlayer.White).GetFile(), board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn));
+            //evalInfo.ShelterStorm -= this._evalPawns.EvalKingShelterStormBlackPerspective(, board.PieceLocations(ChessPiece.BPawn), board.PieceLocations(ChessPiece.WPawn));
+
 
             //get pcsq values from board.
             int valStartPieceSq = board.PcSqValueStart;
@@ -714,6 +730,7 @@ namespace Sinobyl.Engine
         public int PawnsEnd = 0;
         public int PawnsPassedStart = 0;
         public int PawnsPassedEnd = 0;
+        public int ShelterStorm = 0;
         public float StageStartWeight = 0;
 
         public float StageEndWeight
@@ -725,7 +742,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return MatStart + PcSqStart + MobStart + PawnsStart + PawnsPassedStart;
+                return MatStart + PcSqStart + MobStart + PawnsStart + PawnsPassedStart + ShelterStorm;
             }
         }
         public int ScoreEnd

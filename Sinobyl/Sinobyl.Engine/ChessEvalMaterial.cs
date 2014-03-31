@@ -123,17 +123,17 @@ namespace Sinobyl.Engine
             public readonly int ScoreStart;
             public readonly int ScoreEnd;
             public readonly int BasicMaterialCount;
-            public readonly int Wp;
-            public readonly int Wn;
-            public readonly int Wb;
-            public readonly int Wr;
-            public readonly int Wq;
-            public readonly int Bp;
-            public readonly int Bn;
-            public readonly int Bb;
-            public readonly int Br;
-            public readonly int Bq;
-
+            //public readonly int Wp;
+            //public readonly int Wn;
+            //public readonly int Wb;
+            //public readonly int Wr;
+            //public readonly int Wq;
+            //public readonly int Bp;
+            //public readonly int Bn;
+            //public readonly int Bb;
+            //public readonly int Br;
+            //public readonly int Bq;
+            
             public Results(Int64 zobristMaterial, float startWeight, int scoreStart, int scoreEnd, int basicMateralCount /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
             {
                 ZobristMaterial = zobristMaterial;
@@ -153,6 +153,11 @@ namespace Sinobyl.Engine
                 //Br = br;
                 //Bq = bq;
 
+            }
+
+            public bool DoShelter
+            {
+                get { return this.StartWeight > .4; }
             }
 
         }

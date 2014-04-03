@@ -80,7 +80,7 @@ namespace Sinobyl.CommandLine
             
             try
             {
-                Program.ConsoleWriteline(string.Format("move {0}", e.Move.ToString()));
+                Program.ConsoleWriteline(string.Format("move {0}", e.Move.Description()));
                 _board.MoveApply(e.Move);
                 GameDoneAnnounce();
 

@@ -1222,5 +1222,111 @@ namespace Sinobyl.Engine
 
 	}
 
+    public class ChessMoveBuffer
+    {
+        List<PlyBuffer> _plyBuffers = new List<PlyBuffer>();
 
+        public ChessMoveBuffer(int plyCapacity = 50)
+        {
+            while (_plyBuffers.Count < plyCapacity)
+            {
+                _plyBuffers.Add(new PlyBuffer());
+            }
+        }
+
+        public PlyBuffer this[int ply]
+        {
+            get
+            {
+                if (ply > _plyBuffers.Count)
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        _plyBuffers.Add(new PlyBuffer());
+                    }
+                }
+                return _plyBuffers[ply];
+            }
+        }
+
+        public class PlyBuffer
+        {
+            private readonly MoveInfo[] _array = new MoveInfo[192];
+            private int moveCount;
+
+            public void Initialize(ChessBoard board)
+            {
+                moveCount = 0;
+                foreach (ChessMove genMove in ChessMove.GenMoves(board))
+                {
+                    _array[moveCount++] = new MoveInfo() { Move = genMove, Score = 0 };
+                }
+            }
+
+            public int MoveCount
+            {
+                get { return moveCount; }
+            }
+
+            public void InitializeCaps(ChessBoard board)
+            {
+                moveCount = 0;
+                foreach (ChessMove genMove in ChessMove.GenMoves(board, true))
+                {
+                    _array[moveCount++] = new MoveInfo() { Move = genMove, Score = 0 };
+                }
+            }
+
+            public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
+            {
+                //first score moves
+                for (int i = 0; i < moveCount; i++)
+                {
+                    if (_array[i].Move == ttMove)
+                    {
+                        _array[i].Score = int.MaxValue;
+                    }
+                    else
+                    {
+                        _array[i].Score = useSEE ? ChessMove.Comp.CompEstScoreSEE(_array[i].Move, board) : ChessMove.Comp.CompEstScore(_array[i].Move, board);
+                    }
+                }
+
+                //now sort array.
+                for (int i = 1; i < moveCount; i++)
+                {
+                    for (int ii = i; ii > 0; ii--)
+                    {
+                        int scoreii = _array[ii].Score;
+                        int scoreminus = _array[ii - 1].Score;
+                        if(scoreii > scoreminus)
+                        {
+                            var tmp = _array[ii];
+                            _array[ii] = _array[ii - 1];
+                            _array[ii - 1] = tmp;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            public IEnumerable<ChessMove> SortedMoves()
+            {
+                for (int i = 0; i < moveCount; i++)
+                {
+                    yield return _array[i].Move;
+                }
+            }
+
+        }
+
+        public struct MoveInfo
+        {
+            public ChessMove Move;
+            public int Score;
+        }
+    }
 }

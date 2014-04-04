@@ -49,6 +49,65 @@ namespace Sinobyl.Engine.Tests
         #endregion
 
         #region PerftCalls
+        //public void PerftTest(string fen, int depth, int expectedLeaves, int expectedNodes)
+        //{
+
+        //    ChessBoard board = new ChessBoard(fen);
+
+        //    string fenStart = board.FEN.ToString();
+
+        //    int nodecount = -1;//start at -1 to skip root node
+        //    int leafnodecount = 0;
+
+        //    PerftSearch(board, depth, ref nodecount, ref leafnodecount);
+
+        //    string fenEnd = board.FEN.ToString();
+
+        //    //Assert.AreEqual<string>(fenStart, fenEnd, string.Format("Start and End FEN do not match {0}  {1}", fenStart, fenEnd));
+        //    Assert.AreEqual<int>(expectedLeaves, leafnodecount, string.Format("ExpectedLeaves D:{0} FEN:{1}", depth, fen));
+        //    Assert.AreEqual<int>(expectedNodes, nodecount, string.Format("ExpectedNodes D:{0} FEN:{1}", depth, fen));
+
+        //}
+
+        //public void PerftSearch(ChessBoard board, int depth_remaining, ref int nodecount, ref int leafnodecount)
+        //{
+        //    nodecount++;
+
+        //    if (depth_remaining <= 0)
+        //    {
+        //        leafnodecount++;
+        //        return;
+        //    }
+
+        //    List<ChessMove> moves = ChessMove.GenMoves(board, false).ToList();
+
+        //    HashSet<ChessMove> legalMoves = new HashSet<ChessMove>();
+
+
+        //    foreach (ChessMove move in moves)
+        //    {
+        //        board.MoveApply(move);
+        //        //VerifyBoardBitboards(board);
+        //        if (!board.IsCheck(board.WhosTurn.PlayerOther()))
+        //        {
+        //            legalMoves.Add(move);
+        //            PerftSearch(board, depth_remaining - 1, ref nodecount, ref leafnodecount);
+        //        }
+
+        //        board.MoveUndo();
+        //        //VerifyBoardBitboards(board);
+        //    }
+
+        //    List<ChessMove> generatedLegalMoves = ChessMove.GenMovesLegal(board).ToList();
+        //    Assert.AreEqual<int>(legalMoves.Count, generatedLegalMoves.Count);
+        //    foreach (var generatedLegalMove in generatedLegalMoves)
+        //    {
+        //        Assert.IsTrue(legalMoves.Contains(generatedLegalMove));
+        //    }
+        //    //var movesAfter = ChessMove.GenMoves(board, false).ToList();
+        //    //Assert.AreEqual<int>(moves.Count, movesAfter.Count);
+        //}
+
         public void PerftTest(string fen, int depth, int expectedLeaves, int expectedNodes)
         {
 
@@ -58,8 +117,9 @@ namespace Sinobyl.Engine.Tests
 
             int nodecount = -1;//start at -1 to skip root node
             int leafnodecount = 0;
+            ChessMoveBuffer moveBuffer = new ChessMoveBuffer();
 
-            PerftSearch(board, depth, ref nodecount, ref leafnodecount);
+            PerftSearch(board, 0, moveBuffer, depth, ref nodecount, ref leafnodecount);
 
             string fenEnd = board.FEN.ToString();
 
@@ -69,7 +129,7 @@ namespace Sinobyl.Engine.Tests
 
         }
 
-        public void PerftSearch(ChessBoard board, int depth_remaining, ref int nodecount, ref int leafnodecount)
+        public void PerftSearch(ChessBoard board, int ply, ChessMoveBuffer moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
         {
             nodecount++;
 
@@ -79,31 +139,24 @@ namespace Sinobyl.Engine.Tests
                 return;
             }
 
-            List<ChessMove> moves = ChessMove.GenMoves(board, false).ToList();
+            var plyBuffer = moveBuffer[ply];
+            plyBuffer.Initialize(board);
 
-            HashSet<ChessMove> legalMoves = new HashSet<ChessMove>();
 
-
-            foreach (ChessMove move in moves)
+            foreach (ChessMove move in plyBuffer.SortedMoves())
             {
                 board.MoveApply(move);
                 //VerifyBoardBitboards(board);
                 if (!board.IsCheck(board.WhosTurn.PlayerOther()))
                 {
-                    legalMoves.Add(move);
-                    PerftSearch(board, depth_remaining - 1, ref nodecount, ref leafnodecount);
+                    //legalMoves.Add(move);
+                    PerftSearch(board, ply + 1, moveBuffer, depth_remaining - 1, ref nodecount, ref leafnodecount);
                 }
 
                 board.MoveUndo();
                 //VerifyBoardBitboards(board);
             }
 
-            List<ChessMove> generatedLegalMoves = ChessMove.GenMovesLegal(board).ToList();
-            Assert.AreEqual<int>(legalMoves.Count, generatedLegalMoves.Count);
-            foreach (var generatedLegalMove in generatedLegalMoves)
-            {
-                Assert.IsTrue(legalMoves.Contains(generatedLegalMove));
-            }
             //var movesAfter = ChessMove.GenMoves(board, false).ToList();
             //Assert.AreEqual<int>(moves.Count, movesAfter.Count);
         }

@@ -113,22 +113,6 @@ namespace Sinobyl.CommandLine
                 int i = newEval.Score;
                 if (i == int.MaxValue) { nodesDone++; } //this is just to make sure compiler doesn't optimize away call to .Score, which might be expensive but we want to measure
 
-
-                //var oldEval = evalOld.EvalDetail(board);
-                //var diffPct = (1f - (float)newEval.Score / (float)oldEval.Score);
-
-                //if (Math.Abs(newEval.Score - oldEval.Score) > 10)
-                //{
-                //    if(Math.Abs(diffPct) > .02f)
-                //    {
-                //        int newStart = newEval.MatStart;
-                //        int newEnd = newEval.MatEnd;
-                //        int oldStart = oldEval.MatStart;
-                //        int oldEnd = oldEval.MatEnd;
-                //        var x = eval._evalMaterial.EvalMaterialHash(board);
-                //        throw new Exception();
-                //    }
-                //}
             }
             if (depth_remaining <= 0 || nodesDone >= nodeCount)
             {
@@ -140,7 +124,7 @@ namespace Sinobyl.CommandLine
             if (doMoveSort)
             {
                 var movelist = moves.ToList();
-                ChessMove.Comp moveOrderer = new ChessMove.Comp(board, new ChessMove(), true);
+                ChessMove.Comp moveOrderer = new ChessMove.Comp(board, ChessMove.EMPTY, true);
                 movelist.Sort(moveOrderer);
                 moves = movelist;
             }

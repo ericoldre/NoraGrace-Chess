@@ -278,7 +278,7 @@ namespace Sinobyl.Engine
 			//get trans table move
 			int tt_score = 0;
 			ChessMove tt_move = new ChessMove();
-			SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, -INFINITY, INFINITY, ref tt_move, ref tt_score);
+            SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, -INFINITY, INFINITY, out tt_move, out tt_score);
 			
 
 			bool in_check_before_move = board.IsCheck();
@@ -464,7 +464,7 @@ namespace Sinobyl.Engine
 
 			//check trans table
 			ChessMove tt_move = new ChessMove();
-            if (SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, alpha, beta, ref tt_move, ref score))
+            if (SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, alpha, beta, out tt_move, out score))
 			{
 				//if last two moves were null this is a verification search. 
 				//do not allow cutoff here as original search may have had null cutoff

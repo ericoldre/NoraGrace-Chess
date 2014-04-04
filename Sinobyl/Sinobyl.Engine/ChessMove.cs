@@ -64,55 +64,55 @@ namespace Sinobyl.Engine
 
 	}
 
-	public class ChessMove
+	public struct ChessMove
 	{
 		public readonly ChessPosition From;
 		public readonly ChessPosition To;
 		public readonly ChessPiece Promote;
-		public int? EstScore;
+		//public int? EstScore;
 
 		public override bool Equals(object obj)
 		{
 			ChessMove other = (ChessMove)obj;
-			if (other.From==this.From && other.To==this.To && other.Promote==this.Promote)
-			{
-				return true;
-			}
-			return false;
+            return other.From == this.From && other.To == this.To && other.Promote == this.Promote;
 		}
+
         public override int GetHashCode()
         {
             //return (To.GetHashCode() ^ From.GetHashCode() >> 1) + this.Promote.GetHashCode();
             return (int)To | ((int)From << 8) | ((int)Promote << 16);
         }
 
-		public ChessMove()
-		{
-			this.Promote = ChessPiece.EMPTY;
-			this.From = (ChessPosition.OUTOFBOUNDS);
-			this.To = (ChessPosition.OUTOFBOUNDS);
-			this.EstScore = null;
-		}
+        public static readonly ChessMove EMPTY = new ChessMove();
+
 		public ChessMove(ChessPosition from, ChessPosition to)
 		{
 			this.Promote = ChessPiece.EMPTY;
 			this.From = from;
 			this.To = to;
-			this.EstScore = null;
 		}
 		public ChessMove(ChessPosition from, ChessPosition to, ChessPiece promote)
 		{
 			this.From = from;
 			this.To = to;
 			this.Promote = promote;
-			this.EstScore = null;
 		}
+
+        public static bool operator == (ChessMove x, ChessMove y)
+        {
+            return x.From == y.From && x.To == y.To && x.Promote == y.Promote;
+        }
+
+        public static bool operator !=(ChessMove x, ChessMove y)
+        {
+            return !(x == y);
+        }
+
 		public ChessMove(ChessBoard board, string movetext)
 		{
 			this.Promote = ChessPiece.EMPTY;//unless changed below
 			this.From = (ChessPosition.OUTOFBOUNDS);
 			this.To = (ChessPosition.OUTOFBOUNDS);
-			this.EstScore = null;
 			Regex regex = new Regex("");
 
 			movetext = movetext.Replace("+", "");
@@ -968,12 +968,35 @@ namespace Sinobyl.Engine
 			public readonly ChessBoard board;
 			public readonly ChessMove tt_move;
 			public readonly bool UseSEE;
+            private readonly Dictionary<ChessMove, int> _dic = new Dictionary<ChessMove, int>();
 			public Comp(ChessBoard a_board, ChessMove a_tt_move, bool a_see)
 			{
 				board = a_board;
 				tt_move = a_tt_move;
 				UseSEE = false;
 			}
+
+            private int GetScore(ChessMove move)
+            {
+                if (_dic.ContainsKey(move))
+                {
+                    return _dic[move];
+                }
+                else
+                {
+                    int score;
+                    if (UseSEE)
+                    {
+                        score = CompEstScoreSEE(move, board);
+                    }
+                    else
+                    {
+                        score = CompEstScore(move, board);
+                    }
+                    _dic.Add(move, score);
+                    return score;
+                }
+            }
 			public override int Compare(ChessMove x, ChessMove y)
 			{
 				if (x.Equals(tt_move) && y.Equals(tt_move))
@@ -998,31 +1021,11 @@ namespace Sinobyl.Engine
 					return 1;
 				}
 
-				if (!x.EstScore.HasValue)
-				{
-					if (UseSEE)
-					{
-						x.EstScore = CompEstScoreSEE(x, board);
-					}
-					else
-					{
-						x.EstScore = CompEstScore(x, board);
-					}
-				}
-				if (!y.EstScore.HasValue)
-				{
-					if (UseSEE)
-					{
-						y.EstScore = CompEstScoreSEE(y, board);
-					}
-					else
-					{
-						y.EstScore = CompEstScore(y, board);
-					}
-				}
-				if (x.EstScore > y.EstScore) { return -1; }
-				if (x.EstScore < y.EstScore) { return 1; }
-				return 0;
+                int xScore = GetScore(x);
+                int yScore = GetScore(y);
+                if (xScore > yScore) { return -1; }
+                if (xScore < yScore) { return 1; }
+                return 0;
 			}
 
 			public static int CompEstScore(ChessMove move, ChessBoard board)

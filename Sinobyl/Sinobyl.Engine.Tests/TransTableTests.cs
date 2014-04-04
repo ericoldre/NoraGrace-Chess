@@ -53,12 +53,12 @@ namespace Sinobyl.Engine.Tests
 
             ChessMove storeMove = RandomMove();
             int storeScore = RandScore();
-            ChessMove readMove = null;
+            ChessMove readMove;
             int readScore = 0;
 
 
             trans.Store(0, 2, ChessTrans.EntryType.Exactly, storeScore, storeMove);
-            var doCutoff = trans.QueryCutoff(0, 2, -1000, 1000, ref readMove, ref readScore);
+            var doCutoff = trans.QueryCutoff(0, 2, -1000, 1000, out readMove, out readScore);
             Assert.IsTrue(doCutoff == true);
             Assert.AreEqual<int>(storeScore, readScore);
             Assert.AreEqual<ChessMove>(readMove, storeMove);
@@ -90,9 +90,9 @@ namespace Sinobyl.Engine.Tests
 
             for (int i = 0; i < 200; i++)
             {
-                ChessMove bestmove = null;
+                ChessMove bestmove;
                 int score = 0;
-                trans.QueryCutoff(i, 11, 0, 0, ref bestmove, ref score);
+                trans.QueryCutoff(i, 11, 0, 0, out bestmove, out score);
                 Assert.AreEqual<ChessMove>(moves[i], bestmove);
             }
 
@@ -105,18 +105,18 @@ namespace Sinobyl.Engine.Tests
             //assert deepest entries still there
             for (int i = 0; i < 100; i++)
             {
-                ChessMove bestmove = null;
+                ChessMove bestmove;
                 int score = 0;
-                trans.QueryCutoff(i, 11, 0, 0, ref bestmove, ref score);
+                trans.QueryCutoff(i, 11, 0, 0, out bestmove, out score);
                 Assert.AreEqual<ChessMove>(moves[i], bestmove);
             }
 
             //assert deepest entries still there
             for (int i = 200; i < 300; i++)
             {
-                ChessMove bestmove = null;
+                ChessMove bestmove;
                 int score = 0;
-                trans.QueryCutoff(i, 11, 0, 0, ref bestmove, ref score);
+                trans.QueryCutoff(i, 11, 0, 0, out bestmove, out score);
                 Assert.AreEqual<ChessMove>(moves[i], bestmove);
             }
         }
@@ -126,17 +126,17 @@ namespace Sinobyl.Engine.Tests
             //if entry replaced nothing we can check;
             if (trans.GetEntry(storedZob) == null) { return; }
 
-            ChessMove readMove = null;
+            ChessMove readMove;
             int readScore = 0;
             bool doCutoff;
 
             //check too deep
-            doCutoff = trans.QueryCutoff(storedZob, storedDepth + 1, int.MinValue, int.MaxValue, ref readMove, ref readScore);
+            doCutoff = trans.QueryCutoff(storedZob, storedDepth + 1, int.MinValue, int.MaxValue, out readMove, out readScore);
             Assert.AreEqual<ChessMove>(storedMove, readMove);
             Assert.IsFalse(doCutoff);
 
             //
-            doCutoff = trans.QueryCutoff(storedZob, storedDepth, int.MinValue, int.MaxValue, ref readMove, ref readScore);
+            doCutoff = trans.QueryCutoff(storedZob, storedDepth, int.MinValue, int.MaxValue, out readMove, out readScore);
             Assert.AreEqual<ChessMove>(storedMove, readMove);
             Assert.IsFalse(doCutoff);
  

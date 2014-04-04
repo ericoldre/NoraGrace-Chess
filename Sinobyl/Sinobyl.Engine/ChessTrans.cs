@@ -102,8 +102,10 @@ namespace Sinobyl.Engine
             }
         }
 
-		public bool QueryCutoff(long boardZob, int depth, int alpha, int beta, ref ChessMove bestmove, ref int value)
+		public bool QueryCutoff(long boardZob, int depth, int alpha, int beta, out ChessMove bestmove, out int value)
 		{
+            bestmove = ChessMove.EMPTY;
+            value = 0;
 
             //EntryPair epair = FindPair(boardZob);
             Entry e = GetEntry(boardZob);

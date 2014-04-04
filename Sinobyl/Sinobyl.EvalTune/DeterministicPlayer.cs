@@ -72,7 +72,7 @@ namespace Sinobyl.EvalTune
             }
             if (this.ResignReps.HasValue && this._resignRepCount > this.ResignReps)
             {
-                return null;
+                return ChessMove.EMPTY;
             }
             return searchResult.PrincipleVariation[0];
 

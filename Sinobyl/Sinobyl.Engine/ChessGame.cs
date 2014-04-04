@@ -308,7 +308,7 @@ namespace Sinobyl.Engine
             }
             if (!move.IsLegal(_board))
             {
-                throw new Exception(string.Format("{0} is not a legal move from this position", move.Description()));
+                throw new Exception(string.Format("{0} is not a legal move from this position", move.ToString()));
             }
 
             //check if out of time

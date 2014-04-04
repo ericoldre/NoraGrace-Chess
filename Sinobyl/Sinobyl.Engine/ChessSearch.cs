@@ -241,6 +241,13 @@ namespace Sinobyl.Engine
                     _aborting = true;
                 }
 
+                ////add check for draw on near horizon, in case of 50 move rule approaching, search will output giant amount of data to console if next move forces draw.
+                if (depth > 10 && _bestvariation != null && _bestvariation.Count() < depth - 6 && _bestvariationscore == -_contemptForDrawForPlayer[(int)board.WhosTurn])
+                {
+                    _aborting = true;
+                }
+
+
 				if (_aborting) { break; }
 			
 				depth++;

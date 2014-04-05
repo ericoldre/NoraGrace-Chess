@@ -64,6 +64,13 @@ namespace Sinobyl.Engine.Tests
             AssertFirstGreaterSEE(board, "e4f5", "g3f5");
             AssertFirstGreaterSEE(board, "g3f5", "b3d5");
 
+
+            board = new ChessBoard(fen.Reverse());
+            AssertFirstGreaterSEE(board, "e5f4", "g6f4");
+            AssertFirstGreaterSEE(board, "g5f4", "g6f4");
+            AssertFirstGreaterSEE(board, "e5f4", "g6f4");
+            AssertFirstGreaterSEE(board, "g6f4", "b6d4");
+
             //fen = new ChessFEN("r2qr1k1/pp3pp1/1bp1b2p/8/3P1P2/Q1PB1N2/P4PPP/1R3K1R w - - 3 19 ");
             //board = new ChessBoard(fen);  //"Qxd7 Qxf7+ Qxc6 Qxa5"
             ////AssertFirstGreaterSEE(board, "xxxx", "xxxx");

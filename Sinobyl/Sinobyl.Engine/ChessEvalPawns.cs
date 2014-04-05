@@ -415,12 +415,23 @@ namespace Sinobyl.Engine
         }
 
 
-        
 
-        
+
+        int _shelterCacheKey = 0;
+        int _shelterCacheValue = 0;
+
         private static readonly int[] _shelterFactor = new int[] { 7, 0, 2, 5, 6, 7, 7, 7 };
         public int EvalShelter(ChessFile whiteKingFile, ChessFile blackKingFile, bool wsCastle, bool wlCastle, bool bsCastle, bool blCastle)
         {
+            int key = (int)whiteKingFile
+                | ((int)blackKingFile << 8)
+                | (wsCastle ? (1 << 20) : 0)
+                | (wlCastle ? (1 << 21) : 0)
+                | (bsCastle ? (1 << 22) : 0)
+                | (blCastle ? (1 << 23) : 0);
+
+            if (key == _shelterCacheKey) { return _shelterCacheValue; }
+
             int retval = 0;
 
             int castlePenalty;
@@ -452,6 +463,10 @@ namespace Sinobyl.Engine
 
             retval -= lowestWhitePenalty;
             retval += lowestBlackPenalty;
+
+            _shelterCacheKey = key;
+            _shelterCacheValue = retval;
+
             return retval;
         }
 
@@ -495,3 +510,4 @@ namespace Sinobyl.Engine
 
     }
 }
+

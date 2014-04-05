@@ -25,6 +25,7 @@ namespace Sinobyl.CommandLine
                 
                 ChessSearch.Args args = new ChessSearch.Args();
 
+                args.StopAtTime = DateTime.Now.AddDays(1);
                 args.Eval = eval;
                 args.GameStartPosition = new ChessFEN(ChessFEN.FENStart);
                 args.GameMoves = movesDone;
@@ -34,7 +35,7 @@ namespace Sinobyl.CommandLine
                 ChessSearch search = new ChessSearch(args);
                 search.ProgressReported += (s, e) => 
                 {
-                    Program.ConsoleWriteline(string.Format("\t{0}", new ChessMoves(e.Progress.PrincipleVariation).ToString(board, true)));
+                    Program.ConsoleWriteline(string.Format("\t{1} {0}", new ChessMoves(e.Progress.PrincipleVariation).ToString(board, true), e.Progress.Depth));
                 };
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var searchResults = search.Search();

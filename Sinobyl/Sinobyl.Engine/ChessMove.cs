@@ -1253,10 +1253,10 @@ namespace Sinobyl.Engine
             private readonly MoveInfo[] _array = new MoveInfo[192];
             private int moveCount;
 
-            public void Initialize(ChessBoard board)
+            public void Initialize(ChessBoard board, bool capsOnly = false)
             {
                 moveCount = 0;
-                foreach (ChessMove genMove in ChessMove.GenMoves(board))
+                foreach (ChessMove genMove in ChessMove.GenMoves(board, capsOnly))
                 {
                     _array[moveCount++] = new MoveInfo() { Move = genMove, Score = 0 };
                 }
@@ -1278,6 +1278,7 @@ namespace Sinobyl.Engine
 
             public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
             {
+                useSEE = false;
                 //first score moves
                 for (int i = 0; i < moveCount; i++)
                 {

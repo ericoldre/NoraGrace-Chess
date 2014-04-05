@@ -144,6 +144,7 @@ namespace Sinobyl.Engine
 		private ChessMoves _bestvariation = new ChessMoves();
 		private int _bestvariationscore = 0;
         private int[] _contemptForDrawForPlayer = new int[3];
+        private readonly ChessMoveBuffer _moveBuffer = new ChessMoveBuffer();
 
 		private readonly Int64 BlunderKey = Rand64();
 		
@@ -171,7 +172,7 @@ namespace Sinobyl.Engine
 		}
 
         private static Random rand = new Random();
-
+        
         public static Int64 Rand64()
         {
             byte[] bytes = new byte[8];
@@ -208,6 +209,8 @@ namespace Sinobyl.Engine
 			Thread.Sleep(this.SearchArgs.Delay);
 
 			SearchArgs.TransTable.AgeEntries(2);
+
+            
 
 			int depth = 1;
 
@@ -277,7 +280,7 @@ namespace Sinobyl.Engine
 
 			//get trans table move
 			int tt_score = 0;
-			ChessMove tt_move = new ChessMove();
+            ChessMove tt_move = ChessMove.EMPTY;
             SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, -INFINITY, INFINITY, out tt_move, out tt_score);
 			
 
@@ -286,8 +289,6 @@ namespace Sinobyl.Engine
             ChessMoves moves = new ChessMoves(ChessMove.GenMovesLegal(board));
 			ChessMove.Comp moveOrderer = new ChessMove.Comp(board, tt_move,true);
 			moves.Sort(moveOrderer);
-			string moveOver = moves.ToString(board, false);
-
 
 			int alpha = -INFINITY;
 			int beta = INFINITY;
@@ -513,10 +514,13 @@ namespace Sinobyl.Engine
 
 
 
+            var plyMoves = _moveBuffer[ply];
+            plyMoves.Initialize(board);
+            plyMoves.Sort(board, true, tt_move);
 
-            ChessMoves moves = new ChessMoves(ChessMove.GenMoves(board));
-			ChessMove.Comp moveOrderer = new ChessMove.Comp(board,tt_move,depth > 3);
-			moves.Sort(moveOrderer);
+            //ChessMoves moves = new ChessMoves(ChessMove.GenMoves(board));
+			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,tt_move,depth > 3);
+			//moves.Sort(moveOrderer);
 
 
 			ChessTrans.EntryType tt_entryType = ChessTrans.EntryType.AtMost;
@@ -528,7 +532,7 @@ namespace Sinobyl.Engine
 			ChessMove bestmove = new ChessMove();
 			ChessMoves subline = new ChessMoves();
 
-			foreach (ChessMove move in moves)
+            foreach (ChessMove move in plyMoves.SortedMoves())
 			{
 				CurrentVariation[ply] = move;
 
@@ -556,15 +560,15 @@ namespace Sinobyl.Engine
 
 				//check for blunder
 				bool isRecapture = (move.To == board.HistMove(2).To);
-				if (SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, depth, isRecapture, legalMovesTried, moves.Count,alpha,beta))
-				{
-					if (!in_check_before_move)  //weird behavior if doing blunder when player in check
-					{
-						blunders++;
-						board.MoveUndo();
-						continue;
-					}
-				}
+                if (SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, depth, isRecapture, legalMovesTried, plyMoves.MoveCount, alpha, beta))
+                {
+                    if (!in_check_before_move)  //weird behavior if doing blunder when player in check
+                    {
+                        blunders++;
+                        board.MoveUndo();
+                        continue;
+                    }
+                }
 
 				board.MoveUndo();
 
@@ -627,23 +631,27 @@ namespace Sinobyl.Engine
 				alpha = init_score;
 			}
 
-			ChessMoves moves;
-			if (playerincheck)
-			{
-                moves = new ChessMoves(ChessMove.GenMoves(board));
-			}
-			else
-			{
-                moves = new ChessMoves(ChessMove.GenMoves(board, true));
-			}
+            //ChessMoves moves;
+            //if (playerincheck)
+            //{
+            //    moves = new ChessMoves(ChessMove.GenMoves(board));
+            //}
+            //else
+            //{
+            //    moves = new ChessMoves(ChessMove.GenMoves(board, true));
+            //}
 
-			ChessMove.Comp moveOrderer = new ChessMove.Comp(board,new ChessMove(),false);
-			moves.Sort(moveOrderer);
+            var plyMoves = _moveBuffer[ply];
+            plyMoves.Initialize(board, !playerincheck);
+            plyMoves.Sort(board, false, ChessMove.EMPTY);
+
+			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,new ChessMove(),false);
+			//moves.Sort(moveOrderer);
 
 
 			int tried_move_count = 0;
 			ChessMoves subline = new ChessMoves();
-			foreach (ChessMove move in moves)
+            foreach (ChessMove move in plyMoves.SortedMoves())
 			{
 
 				//todo: fulitity check 
@@ -665,14 +673,14 @@ namespace Sinobyl.Engine
 
 				//check for blunder
 				bool isRecapture = (move.To == board.HistMove(2).To);
-				if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, 0, isRecapture, tried_move_count, moves.Count,alpha,beta))
-				{
-					if (!playerincheck) //weird behavior if doing blunder when player in check
-					{
-						board.MoveUndo();
-						continue;
-					}
-				}
+                if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, 0, isRecapture, tried_move_count, plyMoves.MoveCount, alpha, beta))
+                {
+                    if (!playerincheck) //weird behavior if doing blunder when player in check
+                    {
+                        board.MoveUndo();
+                        continue;
+                    }
+                }
 
 				board.MoveUndo();
 

@@ -145,6 +145,7 @@ namespace Sinobyl.Engine
 		private int _bestvariationscore = 0;
         private int[] _contemptForDrawForPlayer = new int[3];
         private readonly ChessMoveBuffer _moveBuffer = new ChessMoveBuffer();
+        private ChessMove[] _currentPV = new ChessMove[50];
 
 		private readonly Int64 BlunderKey = Rand64();
 		
@@ -275,9 +276,7 @@ namespace Sinobyl.Engine
 
 			//set trans table entries
 			SearchArgs.TransTable.StoreVariation(board, _bestvariation);
-
-			ChessMoves pv = new ChessMoves();
-
+            
 			//get trans table move
 			int tt_score = 0;
             ChessMove tt_move = ChessMove.EMPTY;
@@ -299,7 +298,12 @@ namespace Sinobyl.Engine
 			{
 				CurrentVariation[0] = move;
 
-				board.MoveApply(move);
+                for (int i = _currentPV.GetLowerBound(0); i <= _currentPV.GetUpperBound(0); i++)
+                {
+                    _currentPV[i] = ChessMove.EMPTY;
+                }
+
+                board.MoveApply(move);
 
 				int score = 0;
 
@@ -307,18 +311,18 @@ namespace Sinobyl.Engine
 				if (depth <= 3)
 				{
 					//first couple nodes search full width
-					score = -ValSearch(depth - 1, 1, -beta, -alpha, subline);
+					score = -ValSearch(depth - 1, 1, -beta, -alpha);
 				}
 				else if (move.Equals(this._bestvariation[0]))
 				{
 					//doing first move of deeper search
 
-					score = ValSearchAspiration(depth, alpha, _bestvariationscore, 30, subline);
+					score = ValSearchAspiration(depth, alpha, _bestvariationscore, 30);
 				}
 				else
 				{
 					//doing search of a move we believe is going to fail low
-					score = ValSearchAspiration(depth, alpha, alpha, 0, subline);
+					score = ValSearchAspiration(depth, alpha, alpha, 0);
 				}
 
 				board.MoveUndo();
@@ -334,26 +338,41 @@ namespace Sinobyl.Engine
 					alpha = score;
 					bestmove = move;
 
-					pv.Clear();
-					pv.Add(move);
-					pv.AddRange(subline);
+                    _currentPV[0] = move;
 
 					//save instance best info
-					_bestvariation = new ChessMoves(pv);
+					_bestvariation = new ChessMoves(GetLegalPV(this.board.FEN, _currentPV));
 					_bestvariationscore = alpha;
 
 					//store to trans table
                     SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.Exactly, alpha, move);
 
 					//announce new best line if not trivial
-					ChessSearch.Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), pv, this.board.FEN);
-					if (depth > 1 && this.ProgressReported != null)
-					{
+                    Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), _bestvariation, this.board.FEN);
+                    if (depth > 1 && this.ProgressReported != null)
+                    {
                         OnProgressReported(new SearchProgressEventArgs(prog));
-					}
+                    }
 				}
 			}
 		}
+
+        private static IEnumerable<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
+        {
+            ChessBoard board = new ChessBoard(fen);
+            foreach (var move in moves)
+            {
+                if (ChessMove.GenMovesLegal(board).Contains(move))
+                {
+                    yield return move;
+                    board.MoveApply(move);
+                }
+                else
+                {
+                    yield break;
+                }
+            }
+        }
 
         public virtual void OnProgressReported(SearchProgressEventArgs args)
         {
@@ -364,7 +383,7 @@ namespace Sinobyl.Engine
             }
         }
 
-		private int ValSearchAspiration(int depth, int alpha, int estscore, int initWindow, ChessMoves pv)
+		private int ValSearchAspiration(int depth, int alpha, int estscore, int initWindow)
 		{
 			int windowAlpha = estscore - initWindow;
 			int windowBeta = estscore + 1 + initWindow;
@@ -375,7 +394,7 @@ namespace Sinobyl.Engine
 				//lower window can never be lower than alpha
 				if (windowAlpha > alpha) { windowAlpha = alpha; }
 
-				int score = -ValSearch(depth - 1, 1, -windowBeta, -windowAlpha, pv);
+				int score = -ValSearch(depth - 1, 1, -windowBeta, -windowAlpha);
 
 				if (score <= alpha)
 				{
@@ -415,7 +434,7 @@ namespace Sinobyl.Engine
 		}
 
 
-		private int ValSearch(int depth, int ply, int alpha, int beta, ChessMoves pv)
+		private int ValSearch(int depth, int ply, int alpha, int beta)
 		{
 			//for logging
 			CountTotalAINodes++;
@@ -460,7 +479,7 @@ namespace Sinobyl.Engine
 			if (depth <= 0) 
 			{
 				//MAY TRY: if last move was a null move, want to allow me to do any legal move, because one may be a quiet move that puts me above beta
-				return ValSearchQ(ply, alpha, beta, pv);
+				return ValSearchQ(ply, alpha, beta);
 			}
 
 			//check trans table
@@ -490,7 +509,7 @@ namespace Sinobyl.Engine
 
 				int nullr = depth>=5 ? 3 : 2;
 				board.MoveNullApply();
-				int nullscore = -ValSearch(depth - nullr - 1, ply, -beta, -beta + 1, new ChessMoves());
+				int nullscore = -ValSearch(depth - nullr - 1, ply, -beta, -beta + 1);
 
 				if (nullscore >= beta && this.NullSearchVerify() && depth >= 5)
 				{
@@ -499,7 +518,7 @@ namespace Sinobyl.Engine
 				
 					board.MoveNullApply();
 
-					nullscore = ValSearch(depth - nullr - 2, ply, beta - 1, beta, new ChessMoves());
+					nullscore = ValSearch(depth - nullr - 2, ply, beta - 1, beta);
 					board.MoveNullUndo();
 				}
 				board.MoveNullUndo();
@@ -529,8 +548,8 @@ namespace Sinobyl.Engine
 			//bool haslegalmove = false;
 			int legalMovesTried = 0;
 			int blunders = 0;
-			ChessMove bestmove = new ChessMove();
-			ChessMoves subline = new ChessMoves();
+            ChessMove bestmove = ChessMove.EMPTY;
+
 
             foreach (ChessMove move in plyMoves.SortedMoves())
 			{
@@ -553,9 +572,7 @@ namespace Sinobyl.Engine
 				
 
 				//do subsearch
-
-				subline.Clear();
-				score = -ValSearch(depth - 1, ply + 1, -beta, -alpha, subline);
+				score = -ValSearch(depth - 1, ply + 1, -beta, -alpha);
 
 
 				//check for blunder
@@ -587,9 +604,7 @@ namespace Sinobyl.Engine
 					alpha = score;
 					bestmove = move;
 
-					pv.Clear();
-					pv.Add(move);
-					pv.AddRange(subline);
+                    _currentPV[ply] = move;
 				}
 			}
 
@@ -613,7 +628,7 @@ namespace Sinobyl.Engine
 			return alpha;
 		}
 
-		private int ValSearchQ(int ply, int alpha, int beta, ChessMoves pv)
+		private int ValSearchQ(int ply, int alpha, int beta)
 		{
 			CountTotalAINodes++;
 			CountAIQSearch++;
@@ -650,7 +665,7 @@ namespace Sinobyl.Engine
 
 
 			int tried_move_count = 0;
-			ChessMoves subline = new ChessMoves();
+
             foreach (ChessMove move in plyMoves.SortedMoves())
 			{
 
@@ -668,8 +683,7 @@ namespace Sinobyl.Engine
 
 				tried_move_count++;
 
-				subline.Clear();
-				int move_score = -ValSearchQ(ply + 1, -beta, -alpha, subline);
+				int move_score = -ValSearchQ(ply + 1, -beta, -alpha);
 
 				//check for blunder
 				bool isRecapture = (move.To == board.HistMove(2).To);
@@ -692,9 +706,7 @@ namespace Sinobyl.Engine
 				{
 					alpha = move_score;
 
-					pv.Clear();
-					pv.Add(move);
-					pv.AddRange(subline);
+                    _currentPV[ply] = move;
 				}
 			}
 			//trans_table_store(board,0,entrytype,alpha,0);

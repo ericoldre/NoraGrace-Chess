@@ -1050,6 +1050,8 @@ namespace Sinobyl.Engine
 
 			public static int CompEstScoreSEE(ChessMove move, ChessBoard board)
 			{
+                System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
+                //System.Diagnostics.Debug.Assert(ChessMove.GenMoves(board).Contains(move));
 
 				int retval = 0;
 
@@ -1076,16 +1078,13 @@ namespace Sinobyl.Engine
 				}
 
 				return retval;
-
-
-
 			}
 			static int attackswap(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
 			{
 				int nextAttackPieceVal = 0;
 				ChessPosition nextAttackPos = 0;
 
-				bool HasAttack = attackpop(board, attacks, player, positionattacked, out nextAttackPos, out nextAttackPieceVal);
+				bool HasAttack = attackpop(board, ref attacks, player, positionattacked, out nextAttackPos, out nextAttackPieceVal);
 				if (!HasAttack) { return 0; }
 
                 int moveval = pieceontargetval - attackswap(board, attacks, player.PlayerOther(), positionattacked, nextAttackPieceVal);
@@ -1100,16 +1099,16 @@ namespace Sinobyl.Engine
 				}
 			}
 
-			static bool attackpop(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
+			static bool attackpop(ChessBoard board, ref ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
 			{
 
 
-				ChessPosition mypawn = 0;
-				ChessPosition myknight = 0;
-				ChessPosition mybishop = 0;
-				ChessPosition myrook = 0;
-				ChessPosition myqueen = 0;
-				ChessPosition myking = 0;
+				ChessPosition mypawn = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myknight = ChessPosition.OUTOFBOUNDS;
+                ChessPosition mybishop = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myrook = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myqueen = ChessPosition.OUTOFBOUNDS;
+                ChessPosition myking = ChessPosition.OUTOFBOUNDS;
 
 
 				if (player == ChessPlayer.White)
@@ -1157,7 +1156,7 @@ namespace Sinobyl.Engine
 					}
 				}
 
-				OutFrom = (ChessPosition)(int)-1;
+                OutFrom = ChessPosition.OUTOFBOUNDS;
 				OutPieceVal = 0;
 
 				if (mypawn != 0)
@@ -1191,7 +1190,7 @@ namespace Sinobyl.Engine
 					OutPieceVal = 100000;
 				}
 
-				if (OutFrom == 0)
+				if (OutFrom == ChessPosition.OUTOFBOUNDS)
 				{
 					//i'm out of attacks to this position;
 					return false;
@@ -1282,13 +1281,21 @@ namespace Sinobyl.Engine
                 //first score moves
                 for (int i = 0; i < moveCount; i++)
                 {
+                    ChessMove move = _array[i].Move;
+                    System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
+
                     if (_array[i].Move == ttMove)
                     {
                         _array[i].Score = int.MaxValue;
                     }
+                    else if(useSEE)
+                    {
+                        //_array[i].Score = ChessMove.Comp.CompEstScore(move, board);
+                        _array[i].Score = ChessMove.Comp.CompEstScoreSEE(move, board);
+                    }
                     else
                     {
-                        _array[i].Score = useSEE ? ChessMove.Comp.CompEstScoreSEE(_array[i].Move, board) : ChessMove.Comp.CompEstScore(_array[i].Move, board);
+                        _array[i].Score = ChessMove.Comp.CompEstScore(move, board);
                     }
                 }
 
@@ -1299,7 +1306,7 @@ namespace Sinobyl.Engine
                     {
                         int scoreii = _array[ii].Score;
                         int scoreminus = _array[ii - 1].Score;
-                        if(scoreii > scoreminus)
+                        if (scoreii > scoreminus)
                         {
                             var tmp = _array[ii];
                             _array[ii] = _array[ii - 1];

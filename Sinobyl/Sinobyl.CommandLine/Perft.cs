@@ -92,9 +92,10 @@ namespace Sinobyl.CommandLine
             //Console.WriteLine("fen: " + fen);
             int depth;
             var sw = System.Diagnostics.Stopwatch.StartNew();
+            ChessMoveBuffer buffer = new ChessMoveBuffer();
             for (depth = 2; nodesDone < nodeCount; depth++)
             {
-                PerftSearch(board, depth, nodeCount, ref nodesDone, doEval, doMoveSort);
+                PerftSearch(board,0,buffer, depth, nodeCount, ref nodesDone, doEval, doMoveSort);
                 //Console.WriteLine(string.Format("depth:{0} nodes:{1} milliseconds:{2}", depth, nodesDone, sw.ElapsedMilliseconds));
             }
             sw.Stop();
@@ -103,7 +104,7 @@ namespace Sinobyl.CommandLine
             return sw.Elapsed;
         }
 
-        public static void PerftSearch(ChessBoard board, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
+        public static void PerftSearch(ChessBoard board,int ply, ChessMoveBuffer buffer, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
         {
             nodesDone++;
             if (doEval)
@@ -119,23 +120,32 @@ namespace Sinobyl.CommandLine
                 return;
             }
 
-            IEnumerable<ChessMove> moves = ChessMove.GenMoves(board);
+            var moves = ChessMove.GenMoves(board).ToList();
+
+            var moveBuffer = buffer[ply];
+            moveBuffer.Initialize(board);
+
+            System.Diagnostics.Debug.Assert(moves.Count == moveBuffer.MoveCount);
+            
 
             if (doMoveSort)
             {
-                var movelist = moves.ToList();
-                ChessMove.Comp moveOrderer = new ChessMove.Comp(board, ChessMove.EMPTY, true);
-                movelist.Sort(moveOrderer);
-                moves = movelist;
+                moveBuffer.Sort(board, true, ChessMove.EMPTY);
+                //var movelist = moves.ToList();
+                //ChessMove.Comp moveOrderer = new ChessMove.Comp(board, ChessMove.EMPTY, true);
+                //movelist.Sort(moveOrderer);
+                //moves = movelist;
             }
 
-            foreach (ChessMove move in moves)
+            foreach (ChessMove move in moveBuffer.SortedMoves())
             {
+                System.Diagnostics.Debug.Assert(moves.Contains(move));
+
                 board.MoveApply(move);
 
                 if (!board.IsCheck(board.WhosTurn.PlayerOther()))
                 {
-                    PerftSearch(board, depth_remaining - 1, nodeCount, ref nodesDone, doEval, doMoveSort);
+                    PerftSearch(board, ply + 1, buffer, depth_remaining - 1, nodeCount, ref nodesDone, doEval, doMoveSort);
                 }
 
                 board.MoveUndo();

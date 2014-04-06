@@ -696,6 +696,7 @@ namespace Sinobyl.Engine
 				{
                     SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.AtLeast, beta, move);
                     CutoffStats.AtDepth[depth].CutoffAfter[legalMovesTried] += 1;
+                    plyMoves.RegisterCutoff(board, move);
 					return score;
 				}
 				if (score > alpha)

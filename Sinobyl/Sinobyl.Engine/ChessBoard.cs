@@ -339,6 +339,11 @@ namespace Sinobyl.Engine
             get { return _pcSqEnd; }
         }
 
+        public ChessEval PcSqEvaluator
+        {
+            get { return _pcSqEvaluator; }
+        }
+
 		public bool IsMate()
 		{
 			if (IsCheck())

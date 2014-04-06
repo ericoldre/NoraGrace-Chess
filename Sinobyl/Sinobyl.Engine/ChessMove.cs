@@ -1069,15 +1069,13 @@ namespace Sinobyl.Engine
 					var attacks = board.AttacksTo(move.To);
                     attacks &= ~move.From.Bitboard();
                     retval -= attackswap(board, attacks, me.PlayerOther(), move.To, mover.PieceValBasic());
-
-                    if (retval >= 0) { retval += 500; }
 				}
 
-                int pieceSqVal = 0;
-                pieceSqVal -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
-                pieceSqVal += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
-                if (me == ChessPlayer.Black) { pieceSqVal = -pieceSqVal; }
-                retval += pieceSqVal;
+                //int pieceSqVal = 0;
+                //pieceSqVal -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
+                //pieceSqVal += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
+                //if (me == ChessPlayer.Black) { pieceSqVal = -pieceSqVal; }
+                //retval += pieceSqVal;
 
 
 				return retval;
@@ -1251,10 +1249,37 @@ namespace Sinobyl.Engine
             }
         }
 
+        public class KillerInfo
+        {
+            private ChessMove move1;
+            private ChessMove move2;
+
+            public void RegisterKiller(ChessMove move)
+            {
+                if (move != move1)
+                {
+                    move2 = move1;
+                    move1 = move;
+                }
+            }
+
+            public bool IsKiller(ChessMove move)
+            {
+                return move == move1 || move == move2;
+            }
+        }
         public class PlyBuffer
         {
             private readonly MoveInfo[] _array = new MoveInfo[192];
             private int moveCount;
+
+            private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
+
+            public PlyBuffer()
+            {
+                _playerKillers[0] = new KillerInfo();
+                _playerKillers[1] = new KillerInfo();
+            }
 
             public void Initialize(ChessBoard board, bool capsOnly = false)
             {
@@ -1270,18 +1295,18 @@ namespace Sinobyl.Engine
                 get { return moveCount; }
             }
 
-            public void InitializeCaps(ChessBoard board)
+            public void RegisterCutoff(ChessBoard board, ChessMove move)
             {
-                moveCount = 0;
-                foreach (ChessMove genMove in ChessMove.GenMoves(board, true))
+                if (board.PieceAt(move.To) != ChessPiece.EMPTY)
                 {
-                    _array[moveCount++] = new MoveInfo() { Move = genMove, Score = 0 };
+                    _playerKillers[(int)board.WhosTurn].RegisterKiller(move);
                 }
             }
 
             public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
             {
                 useSEE = true;
+                var killers = _playerKillers[(int)board.WhosTurn];
                 //first score moves
                 for (int i = 0; i < moveCount; i++)
                 {
@@ -1294,8 +1319,35 @@ namespace Sinobyl.Engine
                     }
                     else if(useSEE)
                     {
+                        ChessPiece piece = board.PieceAt(move.From);
+                        bool isCap = board.PieceAt(move.To) != ChessPiece.EMPTY;
+
+                        //calc diff in pcsq
+                        int pcSq = 0;
+                        int dummyPcSq = 0;
+                        board.PcSqEvaluator.PcSqValuesRemove(piece, move.From, ref pcSq, ref dummyPcSq);
+                        board.PcSqEvaluator.PcSqValuesAdd(piece, move.To, ref pcSq, ref dummyPcSq);
+                        if (board.WhosTurn == ChessPlayer.Black) { pcSq = -pcSq; }
+
+                        //get see score
+                        int see = 0;
+                        if (isCap)
+                        {
+                            see = ChessMove.Comp.CompEstScoreSEE(move, board);
+                        }
+
+                        int bonus = 0;
+                        if (isCap && see >= 0)
+                        {
+                            bonus = 1000;
+                        }
+                        else if (!isCap && killers.IsKiller(move))
+                        {
+                            //bonus = 500; //killers not helping right now
+                        }
+
                         //_array[i].Score = ChessMove.Comp.CompEstScore(move, board);
-                        _array[i].Score = ChessMove.Comp.CompEstScoreSEE(move, board);
+                        _array[i].Score = see + pcSq + bonus;
                     }
                     else
                     {

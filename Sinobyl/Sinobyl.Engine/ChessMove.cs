@@ -1060,11 +1060,7 @@ namespace Sinobyl.Engine
 				ChessPiece taken = board.PieceAt(move.To);
                 ChessPlayer me = mover.PieceToPlayer();
 
-				int pieceSqVal = 0;
-                pieceSqVal -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
-                pieceSqVal += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
-				if (me == ChessPlayer.Black) { pieceSqVal = -pieceSqVal; }
-				retval += pieceSqVal;
+				
 
 				if (taken != ChessPiece.EMPTY)
 				{
@@ -1074,8 +1070,15 @@ namespace Sinobyl.Engine
                     attacks &= ~move.From.Bitboard();
                     retval -= attackswap(board, attacks, me.PlayerOther(), move.To, mover.PieceValBasic());
 
-
+                    if (retval >= 0) { retval += 500; }
 				}
+
+                int pieceSqVal = 0;
+                pieceSqVal -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];
+                pieceSqVal += eval._pcsqPiecePosStage[(int)mover, (int)move.To, (int)ChessGameStage.Opening];
+                if (me == ChessPlayer.Black) { pieceSqVal = -pieceSqVal; }
+                retval += pieceSqVal;
+
 
 				return retval;
 			}
@@ -1278,7 +1281,7 @@ namespace Sinobyl.Engine
 
             public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
             {
-                useSEE = false;
+                useSEE = true;
                 //first score moves
                 for (int i = 0; i < moveCount; i++)
                 {

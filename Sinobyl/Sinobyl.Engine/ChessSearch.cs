@@ -357,7 +357,7 @@ namespace Sinobyl.Engine
 			}
 		}
 
-        private static IEnumerable<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
+        private IEnumerable<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
         {
             ChessBoard board = new ChessBoard(fen);
             foreach (var move in moves)
@@ -369,7 +369,23 @@ namespace Sinobyl.Engine
                 }
                 else
                 {
-                    yield break;
+                    break;
+                }
+            }
+
+            while (true)
+            {
+                ChessMove move;
+                int score;
+                this.SearchArgs.TransTable.QueryCutoff(board.Zobrist, 0, int.MinValue, int.MaxValue, out move, out score);
+                if (ChessMove.GenMovesLegal(board).Contains(move))
+                {
+                    yield return move;
+                    board.MoveApply(move);
+                }
+                else
+                {
+                    break;
                 }
             }
         }

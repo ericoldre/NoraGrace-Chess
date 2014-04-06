@@ -227,10 +227,7 @@ namespace Sinobyl.Engine
         void BookBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             ChessMove move = (ChessMove)e.Result;
-            if (move != null)
-            {
-                OnMovePlayed(move);
-            }
+            OnMovePlayed(move);
         }
 
         void BookBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)

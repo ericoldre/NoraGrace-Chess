@@ -146,6 +146,7 @@ namespace Sinobyl.CommandLine
                     break;
                 case "nodestodepth":
                     Perft.NodesToDepth(int.Parse(split[1]));
+                    PrintSearchCutoffStats();
                     break;
                 case "annotateeval":
                     Perft.AnnotatePGNEval(split[1], split[2]);
@@ -166,6 +167,22 @@ namespace Sinobyl.CommandLine
             Console.WriteLine(output);
 		}
 
+        public static void PrintSearchCutoffStats()
+        {
+            for (int depth = 1; depth < 50; depth++)
+            {
+                var stats = Sinobyl.Engine.CutoffStats.AtDepth[depth];
+                if (stats.TotalNodes == 0 && depth > 0) { break; }
+                //ConsoleWriteline(string.Format("d:{0,9} t:{1,6} alpha:{2,9} pv:{3,9} beta:{4,9}", depth, stats.TotalNodes, stats.FailLows, stats.PVNodes, stats.TotalCutoffs));
+                ConsoleWriteline(string.Format("d:{0,-9} a:{1:F2} pv:{2:F2} b:{3:F2} 1st:{4:F5} avg:{5:F5}", 
+                    depth, 
+                    stats.FailLowPct,
+                    stats.PVPct,
+                    stats.CutoffPct, 
+                    stats.CutoffPctFirst,
+                    stats.CutoffAvg));
+            }
+        }
 
 		private static void logtest(string logFile)
 		{

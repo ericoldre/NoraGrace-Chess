@@ -32,6 +32,8 @@ namespace Sinobyl.CommandLine
                 args.MaxDepth = depth;
                 args.TransTable = new ChessTrans();
 
+                Program.ConsoleWriteline(board.FEN.ToString());
+
                 ChessSearch search = new ChessSearch(args);
                 search.ProgressReported += (s, e) => 
                 {

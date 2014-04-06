@@ -9,10 +9,85 @@ using System.Collections.ObjectModel;
 namespace Sinobyl.Engine
 {
 
-	
+
+    public struct CutoffStats
+    {
+        public int PVNodes;
+        public int FailLows;
+        public int[] CutoffAfter;
+
+        public int TotalCutoffs
+        {
+            get { return CutoffAfter.Sum(); }
+        }
+        public int TotalNodes
+        {
+            get { return TotalCutoffs + FailLows + PVNodes; }
+        }
+
+        public float CutoffPctFirst
+        {
+            get { return TotalCutoffs == 0 ? (float)0 : (float)CutoffAfter[1] / (float)TotalCutoffs; }
+        }
+
+        public float CutoffAvg
+        {
+            get
+            {
+                if (TotalCutoffs == 0) { return 0; }
+                var totalMoves = CutoffAfter.Select((c, i) => c * i).Sum();
+                return (float)totalMoves / (float)TotalCutoffs;
+            }
+        }
+
+        //public float CutoffAvgAfter1
+        //{
+        //    get
+        //    {
+        //        if (TotalCutoffs == 0) { return 0; }
+        //        var totalMoves = CutoffAfter.Select((c, i) => c * i).Sum();
+        //        return (float)totalMoves / (float)TotalCutoffs;
+        //    }
+        //}
+
+        //public float CutoffAverage
+        //{
+        //    get
+        //    {
+
+        //    }
+        //}
+
+        public float CutoffPct
+        {
+            get { return TotalNodes == 0 ? (float)0 : (float)TotalCutoffs / (float)TotalNodes; }
+        }
+
+        public float PVPct
+        {
+            get { return TotalNodes == 0 ? (float)0 : (float)this.PVNodes / (float)TotalNodes; }
+        }
+
+        public float FailLowPct
+        {
+            get { return TotalNodes == 0 ? (float)0 : (float)this.FailLows / (float)TotalNodes; }
+        }
+
+        public static CutoffStats[] AtDepth = new CutoffStats[50];
+
+        static CutoffStats()
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                AtDepth[i].CutoffAfter = new int[300];
+            }
+        }
+    }
+
 
 	public class ChessSearch
 	{
+
 
 		private static readonly int INFINITY = 32000;
 		
@@ -218,26 +293,27 @@ namespace Sinobyl.Engine
 			int MateScoreLast = 0;
 			int MateScoreCount = 0;
 
-			while (depth <= this.SearchArgs.MaxDepth)
-			{
 
-				ValSearchRoot(depth);
+            while (depth <= this.SearchArgs.MaxDepth)
+            {
 
-				//if we get three consecutive depths with same mate score.. just move.
+                ValSearchRoot(depth);
+
+                //if we get three consecutive depths with same mate score.. just move.
                 if (_bestvariationscore > ChessSearch.MateIn(10) || _bestvariationscore < -ChessSearch.MateIn(10))
-				{
-					if (MateScoreLast == _bestvariationscore)
-					{
-						MateScoreCount++;
-					}
-					MateScoreLast = _bestvariationscore;
-					if (MateScoreCount >= 3) { _aborting = true; }
-				}
-				else
-				{
-					MateScoreCount = 0;
-					MateScoreLast = 0;
-				}
+                {
+                    if (MateScoreLast == _bestvariationscore)
+                    {
+                        MateScoreCount++;
+                    }
+                    MateScoreLast = _bestvariationscore;
+                    if (MateScoreCount >= 3) { _aborting = true; }
+                }
+                else
+                {
+                    MateScoreCount = 0;
+                    MateScoreLast = 0;
+                }
 
                 //add check for time here because in test games we occasionally never hit the time check in the search. assuming do to trans table cutoff returning before time check.
                 if (DateTime.Now > _stopattime)
@@ -252,10 +328,10 @@ namespace Sinobyl.Engine
                 }
 
 
-				if (_aborting) { break; }
-			
-				depth++;
-			}
+                if (_aborting) { break; }
+
+                depth++;
+            }
 
 			CountTotalAITime += (DateTime.Now - _starttime);
 
@@ -357,14 +433,15 @@ namespace Sinobyl.Engine
 			}
 		}
 
-        private IEnumerable<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
+        private List<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
         {
+            List<ChessMove> retval = new List<ChessMove>();
             ChessBoard board = new ChessBoard(fen);
             foreach (var move in moves)
             {
-                if (ChessMove.GenMoves(board).Contains(move))
+                if (ChessMove.GenMovesLegal(board).Contains(move))
                 {
-                    yield return move;
+                    retval.Add(move);
                     board.MoveApply(move);
                 }
                 else
@@ -378,16 +455,22 @@ namespace Sinobyl.Engine
                 ChessMove move;
                 int score;
                 this.SearchArgs.TransTable.QueryCutoff(board.Zobrist, 0, int.MinValue, int.MaxValue, out move, out score);
-                if (ChessMove.GenMoves(board).Contains(move))
+                if (ChessMove.GenMovesLegal(board).Contains(move))
                 {
-                    yield return move;
+                    retval.Add(move);
                     board.MoveApply(move);
                 }
                 else
                 {
                     break;
                 }
+
+                if (board.IsDrawByStalemate() || board.IsDrawByRepetition() || board.IsDrawBy50MoveRule())
+                {
+                    break;
+                }
             }
+            return retval;
         }
 
         public virtual void OnProgressReported(SearchProgressEventArgs args)
@@ -612,6 +695,7 @@ namespace Sinobyl.Engine
 				if (score >= beta)
 				{
                     SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.AtLeast, beta, move);
+                    CutoffStats.AtDepth[depth].CutoffAfter[legalMovesTried] += 1;
 					return score;
 				}
 				if (score > alpha)
@@ -621,6 +705,7 @@ namespace Sinobyl.Engine
 					bestmove = move;
 
                     _currentPV[ply] = move;
+                    
 				}
 			}
 
@@ -640,6 +725,14 @@ namespace Sinobyl.Engine
 
             SearchArgs.TransTable.Store(board.Zobrist, depth, tt_entryType, alpha, bestmove);
 
+            if (tt_entryType == ChessTrans.EntryType.Exactly)
+            {
+                CutoffStats.AtDepth[depth].PVNodes += 1;
+            }
+            else
+            {
+                CutoffStats.AtDepth[depth].FailLows += 1;
+            }
 
 			return alpha;
 		}

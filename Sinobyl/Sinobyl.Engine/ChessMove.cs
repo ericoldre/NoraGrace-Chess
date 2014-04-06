@@ -1305,7 +1305,7 @@ namespace Sinobyl.Engine
 
             public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
             {
-                useSEE = true;
+                //useSEE = true;
                 var killers = _playerKillers[(int)board.WhosTurn];
                 //first score moves
                 for (int i = 0; i < moveCount; i++)

@@ -362,7 +362,7 @@ namespace Sinobyl.Engine
             ChessBoard board = new ChessBoard(fen);
             foreach (var move in moves)
             {
-                if (ChessMove.GenMovesLegal(board).Contains(move))
+                if (ChessMove.GenMoves(board).Contains(move))
                 {
                     yield return move;
                     board.MoveApply(move);
@@ -378,7 +378,7 @@ namespace Sinobyl.Engine
                 ChessMove move;
                 int score;
                 this.SearchArgs.TransTable.QueryCutoff(board.Zobrist, 0, int.MinValue, int.MaxValue, out move, out score);
-                if (ChessMove.GenMovesLegal(board).Contains(move))
+                if (ChessMove.GenMoves(board).Contains(move))
                 {
                     yield return move;
                     board.MoveApply(move);

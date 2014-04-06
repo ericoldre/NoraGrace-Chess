@@ -98,7 +98,7 @@ namespace Sinobyl.Engine
 			this.Promote = promote;
 		}
 
-        public static bool operator == (ChessMove x, ChessMove y)
+        public static bool operator ==(ChessMove x, ChessMove y)
         {
             return x.From == y.From && x.To == y.To && x.Promote == y.Promote;
         }

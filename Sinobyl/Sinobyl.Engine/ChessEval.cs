@@ -179,9 +179,17 @@ namespace Sinobyl.Engine
             attacksBlack.PawnEast = board.PieceLocations(ChessPiece.BPawn).ShiftDirSE();
             attacksBlack.PawnWest = board.PieceLocations(ChessPiece.BPawn).ShiftDirSW();
 
+            attacksWhite.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.White));
+            attacksBlack.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.Black));
 
-            ChessBitboard nonPawns = board.PieceLocationsAll & ~(board.PieceLocations(ChessPiece.WPawn) | board.PieceLocations(ChessPiece.BPawn));
-            foreach(ChessPosition pos in nonPawns.ToPositions())
+            ChessBitboard slidersAndKnights = board.PieceLocationsAll 
+                & ~(board.PieceLocations(ChessPiece.WPawn) 
+                | board.PieceLocations(ChessPiece.BPawn)
+                | board.PieceLocations(ChessPiece.WKing)
+                | board.PieceLocations(ChessPiece.BKing)
+                );
+
+            foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
                 //ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
                 ChessPiece piece = board.PieceAt(pos);
@@ -208,9 +216,6 @@ namespace Sinobyl.Engine
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         attacksWhite.RookQueen |= slidingAttacks;
                         break;
-                    case ChessPiece.WKing:
-                        attacksWhite.King = Attacks.KingAttacks(pos);
-                        break;
                     case ChessPiece.BKnight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
                         attacksBlack.Knight |= slidingAttacks;
@@ -226,9 +231,6 @@ namespace Sinobyl.Engine
                     case ChessPiece.BQueen:
                         slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
                         attacksBlack.RookQueen |= slidingAttacks;
-                        break;
-                    case ChessPiece.BKing:
-                        attacksBlack.King = Attacks.KingAttacks(pos);
                         break;
                 }
                 //

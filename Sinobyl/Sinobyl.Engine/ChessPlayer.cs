@@ -68,6 +68,7 @@ namespace Sinobyl.Engine
         {
             System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
             //AssertPlayer(player);
+            return (ChessPlayer)((int)player ^ 1);
             if (player == ChessPlayer.White) { return ChessPlayer.Black; }
             else { return ChessPlayer.White; }
         }

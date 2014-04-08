@@ -194,6 +194,7 @@ namespace Sinobyl.Engine
             ChessPositionDictionary<ChessPiece> pieces = new ChessPositionDictionary<ChessPiece>();
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
+                var piece = 
                 pieces[pos] = this.pieceat[(int)pos.Reverse()].ToOppositePlayer();
             }
 

@@ -204,85 +204,97 @@ namespace Sinobyl.Engine
 
         public static ChessPieceType ToPieceType(this ChessPiece piece)
         {
-            switch (piece)
-            {
-                case ChessPiece.WPawn:
-                case ChessPiece.BPawn:
-                    return ChessPieceType.Pawn;
-                case ChessPiece.WKnight:
-                case ChessPiece.BKnight:
-                    return ChessPieceType.Knight;
-                case ChessPiece.WBishop:
-                case ChessPiece.BBishop:
-                    return ChessPieceType.Bishop;
-                case ChessPiece.WRook:
-                case ChessPiece.BRook:
-                    return ChessPieceType.Rook;
-                case ChessPiece.WQueen:
-                case ChessPiece.BQueen:
-                    return ChessPieceType.Queen;
-                case ChessPiece.WKing:
-                case ChessPiece.BKing:
-                    return ChessPieceType.King;
-                default:
-                    throw new ArgumentException("invalid chess piece");
-            }
+            return (ChessPieceType)((int)piece & 7);
+            //switch (piece)
+            //{
+            //    case ChessPiece.WPawn:
+            //    case ChessPiece.BPawn:
+            //        return ChessPieceType.Pawn;
+            //    case ChessPiece.WKnight:
+            //    case ChessPiece.BKnight:
+            //        return ChessPieceType.Knight;
+            //    case ChessPiece.WBishop:
+            //    case ChessPiece.BBishop:
+            //        return ChessPieceType.Bishop;
+            //    case ChessPiece.WRook:
+            //    case ChessPiece.BRook:
+            //        return ChessPieceType.Rook;
+            //    case ChessPiece.WQueen:
+            //    case ChessPiece.BQueen:
+            //        return ChessPieceType.Queen;
+            //    case ChessPiece.WKing:
+            //    case ChessPiece.BKing:
+            //        return ChessPieceType.King;
+            //    default:
+            //        throw new ArgumentException("invalid chess piece");
+            //}
         }
 
         public static ChessPiece ToOppositePlayer(this ChessPiece piece)
         {
-            switch (piece)
-            {
-                case ChessPiece.WPawn:
-                    return ChessPiece.BPawn;
-                case ChessPiece.WKnight:
-                    return ChessPiece.BKnight;
-                case ChessPiece.WBishop:
-                    return ChessPiece.BBishop;
-                case ChessPiece.WRook:
-                    return ChessPiece.BRook;
-                case ChessPiece.WQueen:
-                    return ChessPiece.BQueen;
-                case ChessPiece.WKing:
-                    return ChessPiece.BKing;
+            if (piece == ChessPiece.EMPTY) { return ChessPiece.EMPTY; }
 
-                case ChessPiece.BPawn:
-                    return ChessPiece.WPawn;
-                case ChessPiece.BKnight:
-                    return ChessPiece.WKnight;
-                case ChessPiece.BBishop:
-                    return ChessPiece.WBishop;
-                case ChessPiece.BRook:
-                    return ChessPiece.WRook;
-                case ChessPiece.BQueen:
-                    return ChessPiece.WQueen;
-                case ChessPiece.BKing:
-                    return ChessPiece.WKing;
-                default:
-                    return ChessPiece.EMPTY;
-            }
+            //System.Diagnostics.Debug.Assert(piece != ChessPiece.EMPTY);
+            //int i = (int)piece;
+            //int r = i ^ 8;
+            //ChessPiece r2 = (ChessPiece)r;
+            //return r2;
+
+            return (ChessPiece)((int)piece ^ 8);
+            //switch (piece)
+            //{
+            //    case ChessPiece.WPawn:
+            //        return ChessPiece.BPawn;
+            //    case ChessPiece.WKnight:
+            //        return ChessPiece.BKnight;
+            //    case ChessPiece.WBishop:
+            //        return ChessPiece.BBishop;
+            //    case ChessPiece.WRook:
+            //        return ChessPiece.BRook;
+            //    case ChessPiece.WQueen:
+            //        return ChessPiece.BQueen;
+            //    case ChessPiece.WKing:
+            //        return ChessPiece.BKing;
+
+            //    case ChessPiece.BPawn:
+            //        return ChessPiece.WPawn;
+            //    case ChessPiece.BKnight:
+            //        return ChessPiece.WKnight;
+            //    case ChessPiece.BBishop:
+            //        return ChessPiece.WBishop;
+            //    case ChessPiece.BRook:
+            //        return ChessPiece.WRook;
+            //    case ChessPiece.BQueen:
+            //        return ChessPiece.WQueen;
+            //    case ChessPiece.BKing:
+            //        return ChessPiece.WKing;
+            //    default:
+            //        return ChessPiece.EMPTY;
+            //}
         }
         public static ChessPlayer PieceToPlayer(this ChessPiece piece)
         {
-            switch (piece)
-            {
-                case ChessPiece.WPawn:
-                case ChessPiece.WKnight:
-                case ChessPiece.WBishop:
-                case ChessPiece.WRook:
-                case ChessPiece.WQueen:
-                case ChessPiece.WKing:
-                    return ChessPlayer.White;
-                case ChessPiece.BPawn:
-                case ChessPiece.BKnight:
-                case ChessPiece.BBishop:
-                case ChessPiece.BRook:
-                case ChessPiece.BQueen:
-                case ChessPiece.BKing:
-                    return ChessPlayer.Black;
-                default:
-                    return ChessPlayer.None;
-            }
+            if (piece == ChessPiece.EMPTY) { return ChessPlayer.None; }
+            return (ChessPlayer)((int)piece >> 3);
+            //switch (piece)
+            //{
+            //    case ChessPiece.WPawn:
+            //    case ChessPiece.WKnight:
+            //    case ChessPiece.WBishop:
+            //    case ChessPiece.WRook:
+            //    case ChessPiece.WQueen:
+            //    case ChessPiece.WKing:
+            //        return ChessPlayer.White;
+            //    case ChessPiece.BPawn:
+            //    case ChessPiece.BKnight:
+            //    case ChessPiece.BBishop:
+            //    case ChessPiece.BRook:
+            //    case ChessPiece.BQueen:
+            //    case ChessPiece.BKing:
+            //        return ChessPlayer.Black;
+            //    default:
+            //        return ChessPlayer.None;
+            //}
         }
         public static bool PieceIsSliderRook(this ChessPiece piece)
         {

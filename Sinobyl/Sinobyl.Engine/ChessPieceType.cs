@@ -20,43 +20,44 @@ namespace Sinobyl.Engine
 
         public static ChessPiece ForPlayer(this ChessPieceType type, ChessPlayer player)
         {
-            if (player == ChessPlayer.White)
-            {
-                switch (type)
-                {
-                    case ChessPieceType.Pawn:
-                        return ChessPiece.WPawn;
-                    case ChessPieceType.Knight:
-                        return ChessPiece.WKnight;
-                    case ChessPieceType.Bishop:
-                        return ChessPiece.WBishop;
-                    case ChessPieceType.Rook:
-                        return ChessPiece.WRook;
-                    case ChessPieceType.Queen:
-                        return ChessPiece.WQueen;
-                    case ChessPieceType.King:
-                        return ChessPiece.WKing;
-                }
-            }
-            else
-            {
-                switch (type)
-                {
-                    case ChessPieceType.Pawn:
-                        return ChessPiece.BPawn;
-                    case ChessPieceType.Knight:
-                        return ChessPiece.BKnight;
-                    case ChessPieceType.Bishop:
-                        return ChessPiece.BBishop;
-                    case ChessPieceType.Rook:
-                        return ChessPiece.BRook;
-                    case ChessPieceType.Queen:
-                        return ChessPiece.BQueen;
-                    case ChessPieceType.King:
-                        return ChessPiece.BKing;
-                }
-            }
-            throw new ArgumentException("invalid piece or player");
+            return (ChessPiece)((int)type | ((int)player << 3));
+            //if (player == ChessPlayer.White)
+            //{
+            //    switch (type)
+            //    {
+            //        case ChessPieceType.Pawn:
+            //            return ChessPiece.WPawn;
+            //        case ChessPieceType.Knight:
+            //            return ChessPiece.WKnight;
+            //        case ChessPieceType.Bishop:
+            //            return ChessPiece.WBishop;
+            //        case ChessPieceType.Rook:
+            //            return ChessPiece.WRook;
+            //        case ChessPieceType.Queen:
+            //            return ChessPiece.WQueen;
+            //        case ChessPieceType.King:
+            //            return ChessPiece.WKing;
+            //    }
+            //}
+            //else
+            //{
+            //    switch (type)
+            //    {
+            //        case ChessPieceType.Pawn:
+            //            return ChessPiece.BPawn;
+            //        case ChessPieceType.Knight:
+            //            return ChessPiece.BKnight;
+            //        case ChessPieceType.Bishop:
+            //            return ChessPiece.BBishop;
+            //        case ChessPieceType.Rook:
+            //            return ChessPiece.BRook;
+            //        case ChessPieceType.Queen:
+            //            return ChessPiece.BQueen;
+            //        case ChessPieceType.King:
+            //            return ChessPiece.BKing;
+            //    }
+            //}
+            //throw new ArgumentException("invalid piece or player");
         }
     }
     public class ChessPieceTypeDictionary<T> where T:new()

@@ -154,16 +154,17 @@ namespace Sinobyl.Engine
 
         }
 
+        private ChessEvalInfo _evalInfo = new ChessEvalInfo();
         public virtual int Eval(ChessBoard board)
         {
-            var result = EvalDetail(board);
-            return result.Score;
+            return EvalDetail(board, _evalInfo);
         }
 
-        public virtual ChessEvalInfo EvalDetail(ChessBoard board)
+
+        public int EvalDetail(ChessBoard board, ChessEvalInfo evalInfo)
         {
             TotalEvalCount++;
-            ChessEvalInfo evalInfo = new ChessEvalInfo();
+            evalInfo.Reset();
             
             
             int valStartMobility = 0;
@@ -291,11 +292,7 @@ namespace Sinobyl.Engine
             evalInfo.PawnsEnd = pawns.EndVal;
             evalInfo.StageStartWeight = material.StartWeight;
 
-            return evalInfo;
-
-            //int retval = (int)(valStart * startWeight) + (int)(valEnd * endWeight);
-
-            //return retval;
+            return evalInfo.Score;
         }
 
         protected virtual float CalcStartWeight(int basicMaterialCount)
@@ -343,352 +340,7 @@ namespace Sinobyl.Engine
         
     }
 
-
-    public class ChessEvalOld : IChessEval
-    {
-
-        protected readonly ChessEvalPawns PawnEval;
-
-        public readonly int[, ,] _pcsqPiecePosStage = new int[12, 64, 2];
-        public readonly int[,] _matPieceStage = new int[12, 2];
-        public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
-        public readonly int[] _matBishopPairStage = new int[2];
-        public readonly int[] _endgameMateKingPcSq;
-
-        protected readonly int WeightMaterialOpening;
-        protected readonly int WeightMaterialEndgame;
-        protected readonly int WeightPcSqOpening;
-        protected readonly int WeightPcSqEndgame;
-        protected readonly int WeightMobilityOpening;
-        protected readonly int WeightMobilityEndgame;
-
-        protected readonly ChessEvalSettings _settings;
-
-
-
-        public ChessEvalOld()
-            : this(ChessEvalSettings.Default())
-        {
-
-        }
-
-        public ChessEvalOld(ChessEvalSettings settings)
-        {
-            _settings = settings.CloneDeep();
-
-            //setup pawn evaluation
-            PawnEval = new ChessEvalPawns(settings, 1000);
-
-            //setup weight values;
-            WeightMaterialOpening = settings.Weight.Material.Opening;
-            WeightMaterialEndgame = settings.Weight.Material.Endgame;
-            WeightPcSqOpening = settings.Weight.PcSq.Opening;
-            WeightPcSqEndgame = settings.Weight.PcSq.Endgame;
-            WeightMobilityOpening = settings.Weight.Mobility.Opening;
-            WeightMobilityEndgame = settings.Weight.Mobility.Endgame;
-
-            //bishop pairs
-            _matBishopPairStage[(int)ChessGameStage.Opening] = settings.MaterialBishopPair.Opening;
-            _matBishopPairStage[(int)ChessGameStage.Endgame] = settings.MaterialBishopPair.Endgame;
-
-            //setup material arrays
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
-            {
-                foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
-                {
-                    if (piece.PieceToPlayer() == ChessPlayer.White)
-                    {
-                        _matPieceStage[(int)piece, (int)stage] = settings.MaterialValues[piece.ToPieceType()][stage];
-                    }
-                    else
-                    {
-                        _matPieceStage[(int)piece, (int)stage] = -settings.MaterialValues[piece.ToPieceType()][stage];
-                    }
-                }
-            }
-
-            //setup piecesq tables
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
-            {
-                foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
-                {
-                    foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
-                    {
-                        if (piece.PieceToPlayer() == ChessPlayer.White)
-                        {
-                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = settings.PcSqTables[piece.ToPieceType()][stage][pos];
-                        }
-                        else
-                        {
-                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = -settings.PcSqTables[piece.ToPieceType()][stage][pos.Reverse()];
-                        }
-                    }
-
-                }
-            }
-
-
-
-
-            //setup mobility arrays
-
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
-            {
-                foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
-                {
-                    for (int attacksCount = 0; attacksCount < 28; attacksCount++)
-                    {
-                        var mob = settings.Mobility;
-                        var opiece = mob[piece.ToPieceType()];
-                        var ostage = opiece[stage];
-
-                        int val = (attacksCount - ostage.ExpectedAttacksAvailable) * ostage.AmountPerAttackDefault;
-                        _mobilityPiecesStage[attacksCount, (int)piece, (int)stage] = piece.PieceToPlayer() == ChessPlayer.White ? val : -val;
-                    }
-
-                }
-            }
-
-            //initialize pcsq for trying to mate king in endgame, try to push it to edge of board.
-            _endgameMateKingPcSq = new int[64];
-            foreach (var pos in ChessPositionInfo.AllPositions)
-            {
-                List<int> distToMid = new List<int>();
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.D4));
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.D5));
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.E4));
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.E5));
-                var minDist = distToMid.Min();
-                _endgameMateKingPcSq[(int)pos] = minDist * 50;
-            }
-
-        }
-
-        public int EvalFor(ChessBoard board, ChessPlayer who)
-        {
-            int retval = Eval(board);
-            if (who == ChessPlayer.Black) { retval = -retval; }
-            return retval;
-
-        }
-
-        public virtual int Eval(ChessBoard board)
-        {
-            var result = EvalDetail(board);
-            return result.Score;
-        }
-
-        public virtual ChessEvalInfo EvalDetail(ChessBoard board)
-        {
-            ChessEvalInfo evalInfo = new ChessEvalInfo();
-
-
-            int valStartMat = 0;
-            int valEndMat = 0;
-            int valStartPieceSq = 0;
-            int valEndPieceSq = 0;
-            int valStartMobility = 0;
-            int valEndMobility = 0;
-            int basicMaterialCount = 0;
-
-            var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
-            var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
-
-            attacksWhite.PawnEast = board.PieceLocations(ChessPiece.WPawn).ShiftDirNE();
-            attacksWhite.PawnWest = board.PieceLocations(ChessPiece.WPawn).ShiftDirNW();
-            attacksBlack.PawnEast = board.PieceLocations(ChessPiece.BPawn).ShiftDirSE();
-            attacksBlack.PawnWest = board.PieceLocations(ChessPiece.BPawn).ShiftDirSW();
-
-
-            for (int ipos = 0; ipos < 64; ipos++)
-            {
-                ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
-                ChessPiece piece = board.PieceAt(pos);
-                if (piece == ChessPiece.EMPTY) { continue; }
-
-                //add material score
-                valStartMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Opening];
-                valEndMat += this._matPieceStage[(int)piece, (int)ChessGameStage.Endgame];
-
-
-                //add pcsq score;
-                valStartPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
-                valEndPieceSq += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
-
-                //generate attacks
-                ChessBitboard slidingAttacks = ChessBitboard.Empty;
-
-                switch (piece)
-                {
-                    case ChessPiece.WPawn:
-                        break;
-                    case ChessPiece.WKnight:
-                        slidingAttacks = Attacks.KnightAttacks(pos);
-                        attacksWhite.Knight |= slidingAttacks;
-                        basicMaterialCount += 3;
-                        break;
-                    case ChessPiece.WBishop:
-                        slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        attacksWhite.Bishop |= slidingAttacks;
-                        basicMaterialCount += 3;
-                        break;
-                    case ChessPiece.WRook:
-                        slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
-                        attacksWhite.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 5;
-                        break;
-                    case ChessPiece.WQueen:
-                        slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        attacksWhite.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 9;
-                        break;
-                    case ChessPiece.WKing:
-                        attacksWhite.King = Attacks.KingAttacks(pos);
-                        break;
-                    case ChessPiece.BPawn:
-                        break;
-                    case ChessPiece.BKnight:
-                        slidingAttacks = Attacks.KnightAttacks(pos);
-                        attacksBlack.Knight |= slidingAttacks;
-                        basicMaterialCount += 3;
-                        break;
-                    case ChessPiece.BBishop:
-                        slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        attacksBlack.Bishop |= slidingAttacks;
-                        basicMaterialCount += 3;
-                        break;
-                    case ChessPiece.BRook:
-                        slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
-                        attacksBlack.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 5;
-                        break;
-                    case ChessPiece.BQueen:
-                        slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
-                        attacksBlack.RookQueen |= slidingAttacks;
-                        basicMaterialCount += 9;
-                        break;
-                    case ChessPiece.BKing:
-                        attacksBlack.King = Attacks.KingAttacks(pos);
-                        break;
-                }
-                //
-                ChessBitboard slidingMoves = slidingAttacks & ~board.PlayerLocations(piece.PieceToPlayer());
-                int moveCount = slidingMoves.BitCount();
-                valStartMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Opening];
-                valEndMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Endgame];
-            }
-
-            //bishop pairs
-            if (board.PieceCount(ChessPiece.WBishop) > 1)
-            {
-                valStartMat += _matBishopPairStage[(int)ChessGameStage.Opening];
-                valEndMat += _matBishopPairStage[(int)ChessGameStage.Endgame];
-            }
-            if (board.PieceCount(ChessPiece.BBishop) > 1)
-            {
-                valStartMat -= _matBishopPairStage[(int)ChessGameStage.Opening];
-                valEndMat -= _matBishopPairStage[(int)ChessGameStage.Endgame];
-            }
-
-            //pawns
-            PawnInfo pawns = this.PawnEval.PawnEval(board);
-
-            //eval passed pawns;
-            //ChessEvalPassed.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
-
-            //test to see if we are just trying to force the king to the corner for mate.
-            int endGamePcSq = 0;
-            if (UseEndGamePcSq(board, ChessPlayer.White, out endGamePcSq))
-            {
-                valEndPieceSq = endGamePcSq;
-                valEndMobility = 0;
-            }
-            else if (UseEndGamePcSq(board, ChessPlayer.Black, out endGamePcSq))
-            {
-                valEndPieceSq = -endGamePcSq;
-                valEndMobility = 0;
-            }
-
-
-            ////calculate total start and end values
-            //int valStart = 
-            //    (valStartMat * WeightMaterialOpening / 100) 
-            //    + (valStartPieceSq * WeightPcSqOpening / 100) 
-            //    + (valStartMobility * WeightMobilityOpening / 100) 
-            //    + pawns.StartVal;
-
-            //int valEnd =
-            //    (valEndMat * WeightMaterialEndgame / 100)
-            //    + (valEndPieceSq * WeightPcSqEndgame / 100)
-            //    + (valEndMobility * WeightMobilityEndgame / 100)
-            //    + pawns.EndVal;
-
-            //float startWeight = 
-            //float endWeight = 1 - startWeight;
-
-
-            evalInfo.MatStart = valStartMat;
-            evalInfo.MatEnd = valEndMat;
-            evalInfo.PcSqStart = valStartPieceSq;
-            evalInfo.PcSqEnd = valEndPieceSq;
-            evalInfo.MobStart = valStartMobility;
-            evalInfo.MobEnd = valEndMobility;
-            evalInfo.PawnsStart = pawns.StartVal;
-            evalInfo.PawnsEnd = pawns.EndVal;
-            evalInfo.StageStartWeight = CalcStartWeight(basicMaterialCount);
-
-            return evalInfo;
-
-            //int retval = (int)(valStart * startWeight) + (int)(valEnd * endWeight);
-
-            //return retval;
-        }
-
-        protected virtual float CalcStartWeight(int basicMaterialCount)
-        {
-            //full material would be 62
-            if (basicMaterialCount >= 56)
-            {
-                return 1;
-            }
-            else if (basicMaterialCount <= 10)
-            {
-                return 0;
-            }
-            else
-            {
-                int rem = basicMaterialCount - 10;
-                float retval = (float)rem / 46f;
-                return retval;
-            }
-        }
-
-        protected bool UseEndGamePcSq(ChessBoard board, ChessPlayer winPlayer, out int newPcSq)
-        {
-            ChessPlayer losePlayer = winPlayer.PlayerOther();
-            if (
-                board.PieceCount(losePlayer, ChessPieceType.Pawn) == 0
-                && board.PieceCount(losePlayer, ChessPieceType.Queen) == 0
-                && board.PieceCount(losePlayer, ChessPieceType.Rook) == 0
-                && (board.PieceCount(losePlayer, ChessPieceType.Bishop) + board.PieceCount(losePlayer, ChessPieceType.Knight) <= 1))
-            {
-                if (board.PieceCount(winPlayer, ChessPieceType.Queen) > 0
-                    || board.PieceCount(winPlayer, ChessPieceType.Rook) > 0
-                    || board.PieceCount(winPlayer, ChessPieceType.Bishop) + board.PieceCount(winPlayer, ChessPieceType.Bishop) >= 2)
-                {
-                    ChessPosition loseKing = board.KingPosition(losePlayer);
-                    ChessPosition winKing = board.KingPosition(winPlayer);
-                    newPcSq = _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25);
-                    return true;
-                }
-            }
-            newPcSq = 0;
-            return false;
-        }
-
-
-    }
-
+    
     public class ChessEvalAttackInfo
     {
         public ChessBitboard PawnEast;
@@ -700,6 +352,16 @@ namespace Sinobyl.Engine
         public ChessBitboard RookQueen;
 
         public ChessBitboard King;
+
+        public void Reset()
+        {
+            PawnEast = ChessBitboard.Empty;
+            PawnWest = ChessBitboard.Empty;
+            Knight = ChessBitboard.Empty;
+            Bishop = ChessBitboard.Empty;
+            RookQueen = ChessBitboard.Empty;
+            King = ChessBitboard.Empty;
+        }
 
         public ChessBitboard All()
         {
@@ -735,6 +397,24 @@ namespace Sinobyl.Engine
         public int PawnsPassedEnd = 0;
         public int ShelterStorm = 0;
         public float StageStartWeight = 0;
+
+        public void Reset()
+        {
+            Attacks[0].Reset();
+            Attacks[1].Reset();
+            MatStart = 0;
+            MatEnd = 0;
+            PcSqStart = 0;
+            PcSqEnd = 0;
+            MobStart = 0;
+            MobEnd = 0;
+            PawnsStart = 0;
+            PawnsEnd = 0;
+            PawnsPassedStart = 0;
+            PawnsPassedEnd = 0;
+            ShelterStorm = 0;
+            StageStartWeight = 0;
+        }
 
         public float StageEndWeight
         {

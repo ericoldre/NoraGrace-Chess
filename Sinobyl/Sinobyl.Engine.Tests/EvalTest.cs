@@ -155,9 +155,11 @@ namespace Sinobyl.Engine.Tests
 
                     var fen = board.FEN;
                     ChessBoard boardRev = new ChessBoard(fen.Reverse());
-
-                    var e1 = eval.EvalDetail(board);
-                    var e2 = eval.EvalDetail(boardRev);
+                    
+                    ChessEvalInfo e1 = new ChessEvalInfo();
+                    ChessEvalInfo e2 = new ChessEvalInfo();
+                    eval.EvalDetail(board, e1);
+                    eval.EvalDetail(boardRev, e2);
 
                     if (e1.Score != -e2.Score)
                     {

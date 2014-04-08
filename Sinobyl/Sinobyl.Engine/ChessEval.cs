@@ -16,9 +16,9 @@ namespace Sinobyl.Engine
         protected readonly ChessEvalPawns _evalPawns;
         public readonly ChessEvalMaterial _evalMaterial;
 
-        public readonly int[,,] _pcsqPiecePosStage = new int[12,64,2];
-        public readonly int[,] _matPieceStage = new int[12,2];
-        public readonly int[, ,] _mobilityPiecesStage = new int[28, 12, 2];
+        public readonly int[, ,] _pcsqPiecePosStage = new int[ChessPieceInfo.LookupArrayLength, 64, 2];
+        public readonly int[,] _matPieceStage = new int[ChessPieceInfo.LookupArrayLength, 2];
+        public readonly int[, ,] _mobilityPiecesStage = new int[28, ChessPieceInfo.LookupArrayLength, 2];
         public readonly int[] _matBishopPairStage = new int[2];
         public readonly int[] _endgameMateKingPcSq;
 

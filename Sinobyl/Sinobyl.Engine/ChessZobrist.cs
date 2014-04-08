@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
 	/// </summary>
 	public class ChessZobrist
 	{
-		private static readonly Int64[,] _piecepos = new Int64[12, 64];
+        private static readonly Int64[,] _piecepos = new Int64[ChessPieceInfo.LookupArrayLength, 64];
 		private static readonly Int64[] _enpassant = new Int64[64];
 
         private static readonly Int64 _castleWS;

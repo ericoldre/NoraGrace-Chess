@@ -144,6 +144,9 @@ namespace Sinobyl.CommandLine
                 case "evalsortperft":
                     Perft.PerftSuite(int.Parse(split[1]), true, true);
                     break;
+                case "sortperft":
+                    Perft.PerftSuite(int.Parse(split[1]), false, true);
+                    break;
                 case "nodestodepth":
                     Perft.NodesToDepth(int.Parse(split[1]));
                     PrintSearchCutoffStats();

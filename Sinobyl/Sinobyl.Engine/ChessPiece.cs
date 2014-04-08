@@ -8,9 +8,9 @@ namespace Sinobyl.Engine
 
     public enum ChessPiece
     {
-        WPawn = 0, WKnight = 1, WBishop = 2, WRook = 3, WQueen = 4, WKing = 5,
-        BPawn = 6, BKnight = 7, BBishop = 8, BRook = 9, BQueen = 10, BKing = 11,
-        EMPTY = 12
+        WPawn = 1, WKnight = 2, WBishop = 3, WRook = 4, WQueen = 5, WKing = 6,
+        BPawn = 9, BKnight = 10, BBishop = 11, BRook = 12, BQueen = 13, BKing = 14,
+        EMPTY = 0
     }
 
     
@@ -19,7 +19,7 @@ namespace Sinobyl.Engine
 
 
         [System.Xml.Serialization.XmlIgnore()]
-        private T[] _values = new T[12];
+        private T[] _values = new T[ChessPieceInfo.LookupArrayLength];
 
         [System.Xml.Serialization.XmlIgnore()]
         public T this[ChessPiece piece]
@@ -95,7 +95,9 @@ namespace Sinobyl.Engine
 
     public static class ChessPieceInfo
     {
-        private static readonly string _piecedesclookup = "PNBRQKpnbrqk";
+        public const int LookupArrayLength = 15;
+
+        //private static readonly string _piecedesclookup = " PNBRQK   pnbrqk";
 
         public static readonly ChessPiece[] AllPieces = new ChessPiece[]{
 			ChessPiece.WPawn, ChessPiece.WKnight, ChessPiece.WBishop, ChessPiece.WRook, ChessPiece.WQueen, ChessPiece.WKing,
@@ -103,28 +105,73 @@ namespace Sinobyl.Engine
 
         public static ChessPiece Parse(char c)
         {
-            int idx = _piecedesclookup.IndexOf(c);
-            if (idx < 0) { throw new ArgumentException(c.ToString() + " is not a valid piece"); }
-            return (ChessPiece)idx;
+            switch (c)
+            {
+                case 'P':
+                    return ChessPiece.WPawn;
+                case 'N':
+                    return ChessPiece.WKnight;
+                case 'B':
+                    return ChessPiece.WBishop;
+                case 'R':
+                    return ChessPiece.WRook;
+                case 'Q':
+                    return ChessPiece.WQueen;
+                case 'K':
+                    return ChessPiece.WKing;
+                case 'p':
+                    return ChessPiece.BPawn;
+                case 'n':
+                    return ChessPiece.BKnight;
+                case 'b':
+                    return ChessPiece.BBishop;
+                case 'r':
+                    return ChessPiece.BRook;
+                case 'q':
+                    return ChessPiece.BQueen;
+                case 'k':
+                    return ChessPiece.BKing;
+                default:
+                    throw new ArgumentException(c.ToString() + " is not a valid piece");
+            }
         }
 
         public static ChessPiece ParseAsPiece(this char c, ChessPlayer player)
         {
-            ChessPiece tmppiece = ChessPieceInfo.Parse(c.ToString().ToUpper()[0]);
-            if (player == ChessPlayer.White)
-            {
-                return tmppiece;
-            }
-            else
-            {
-                return (ChessPiece)((int)tmppiece + 6);
-            }
+            return Parse(c).ToPieceType().ForPlayer(player);
         }
 
         public static string PieceToString(this ChessPiece piece)
         {
-            //AssertPiece(piece);
-            return _piecedesclookup.Substring((int)piece, 1);
+            switch (piece)
+            {
+                case ChessPiece.WPawn:
+                    return "P";
+                case ChessPiece.WKnight:
+                    return "N";
+                case ChessPiece.WBishop:
+                    return "B";
+                case ChessPiece.WRook:
+                    return "R";
+                case ChessPiece.WQueen:
+                    return "Q";
+                case ChessPiece.WKing:
+                    return "K";
+                case ChessPiece.BPawn:
+                    return "p";
+                case ChessPiece.BKnight:
+                    return "n";
+                case ChessPiece.BBishop:
+                    return "b";
+                case ChessPiece.BRook:
+                    return "r";
+                case ChessPiece.BQueen:
+                    return "q";
+                case ChessPiece.BKing:
+                    return "k";
+                default:
+                    throw new ArgumentException("not a valid piece");
+            }
         }
 
 
@@ -217,15 +264,24 @@ namespace Sinobyl.Engine
         }
         public static ChessPlayer PieceToPlayer(this ChessPiece piece)
         {
-            if (piece == ChessPiece.EMPTY) { return ChessPlayer.None; }
-            //AssertPiece(piece);
-            if ((int)piece >= 0 && (int)piece <= 5)
+            switch (piece)
             {
-                return ChessPlayer.White;
-            }
-            else
-            {
-                return ChessPlayer.Black;
+                case ChessPiece.WPawn:
+                case ChessPiece.WKnight:
+                case ChessPiece.WBishop:
+                case ChessPiece.WRook:
+                case ChessPiece.WQueen:
+                case ChessPiece.WKing:
+                    return ChessPlayer.White;
+                case ChessPiece.BPawn:
+                case ChessPiece.BKnight:
+                case ChessPiece.BBishop:
+                case ChessPiece.BRook:
+                case ChessPiece.BQueen:
+                case ChessPiece.BKing:
+                    return ChessPlayer.Black;
+                default:
+                    return ChessPlayer.None;
             }
         }
         public static bool PieceIsSliderRook(this ChessPiece piece)

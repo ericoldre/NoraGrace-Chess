@@ -17,7 +17,8 @@ namespace Sinobyl.Engine
         //public readonly int[,] PcSqValuePosStage;
         //public readonly int[,] PawnPassedValuePosStage;
         public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
-        
+        public static int TotalEvalPawnCount = 0;
+
         public ChessEvalPawns(ChessEvalSettings settings, uint hashSize = 1000)
         {
             pawnHash = new PawnInfo[hashSize];
@@ -51,6 +52,8 @@ namespace Sinobyl.Engine
 
         public PawnInfo EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, long pawnZobrist)
         {
+            TotalEvalPawnCount++;
+
             //eval for white
             ChessBitboard doubled = ChessBitboard.Empty;
             ChessBitboard passed = ChessBitboard.Empty;

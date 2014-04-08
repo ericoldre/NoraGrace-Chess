@@ -151,6 +151,13 @@ namespace Sinobyl.CommandLine
                 case "annotateeval":
                     Perft.AnnotatePGNEval(split[1], split[2]);
                     break;
+                case "counts":
+                    ConsoleWriteline(string.Format(" nodes:{0,10}\n evals:{1,10}\n pawns:{2,10}\n mater:{3,10}",
+                        Sinobyl.Engine.ChessSearch.CountTotalAINodes,
+                        Sinobyl.Engine.ChessEval.TotalEvalCount, 
+                        Sinobyl.Engine.ChessEvalPawns.TotalEvalPawnCount,
+                        Sinobyl.Engine.ChessEvalMaterial.TotalEvalMaterialCount));
+                    break;
                 default:
                     _winboard.ProcessCmd(input);
                     break;

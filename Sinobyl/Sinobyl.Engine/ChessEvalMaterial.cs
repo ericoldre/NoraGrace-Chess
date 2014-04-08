@@ -10,6 +10,7 @@ namespace Sinobyl.Engine
     {
         private readonly ChessEvalSettings _settings;
         private readonly Results[] _hash = new Results[500];
+        public static int TotalEvalMaterialCount = 0;
 
         public ChessEvalMaterial(ChessEvalSettings settings)
         {
@@ -47,6 +48,8 @@ namespace Sinobyl.Engine
 
         public Results EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
+            TotalEvalMaterialCount++;
+
             int basicCount = 
                 (wn * 3) + (bn * 3)
                 + (wb * 3) + (bb * 3)

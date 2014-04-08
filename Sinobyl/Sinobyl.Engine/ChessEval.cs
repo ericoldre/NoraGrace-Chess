@@ -34,6 +34,8 @@ namespace Sinobyl.Engine
 
         public static readonly ChessEval Default = new ChessEval();
 
+        public static int TotalEvalCount = 0;
+
         public ChessEval()
             : this(ChessEvalSettings.Default())
         {
@@ -160,6 +162,7 @@ namespace Sinobyl.Engine
 
         public virtual ChessEvalInfo EvalDetail(ChessBoard board)
         {
+            TotalEvalCount++;
             ChessEvalInfo evalInfo = new ChessEvalInfo();
             
             

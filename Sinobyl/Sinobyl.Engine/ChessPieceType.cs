@@ -20,6 +20,15 @@ namespace Sinobyl.Engine
 
         public static ChessPiece ForPlayer(this ChessPieceType type, ChessPlayer player)
         {
+            System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
+            System.Diagnostics.Debug.Assert(
+                type == ChessPieceType.Pawn
+                || type == ChessPieceType.Knight
+                || type == ChessPieceType.Bishop
+                || type == ChessPieceType.Rook
+                || type == ChessPieceType.Queen
+                || type == ChessPieceType.King);
+
             return (ChessPiece)((int)type | ((int)player << 3));
             //if (player == ChessPlayer.White)
             //{

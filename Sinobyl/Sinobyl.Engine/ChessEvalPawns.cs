@@ -226,8 +226,8 @@ namespace Sinobyl.Engine
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
                     ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirS, ref trailerPos);
 
-                    attackingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.Black;
-                    supportingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.White;
+                    attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.Black;
+                    supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.White;
 
                     EvalPassedPawnBoth(
                         p: passedPos,
@@ -280,8 +280,8 @@ namespace Sinobyl.Engine
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
                     ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirN, ref trailerPos);
 
-                    attackingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.White;
-                    supportingTrailer = trailerPiece.PieceIsSliderRook() & trailerPiece.PieceToPlayer() == ChessPlayer.Black;
+                    attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.White;
+                    supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.Black;
 
                     EvalPassedPawnBoth(
                         p: passesPos2,

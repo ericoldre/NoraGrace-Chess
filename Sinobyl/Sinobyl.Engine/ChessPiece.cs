@@ -274,8 +274,9 @@ namespace Sinobyl.Engine
         }
         public static ChessPlayer PieceToPlayer(this ChessPiece piece)
         {
-            if (piece == ChessPiece.EMPTY) { return ChessPlayer.None; }
+            System.Diagnostics.Debug.Assert(piece != ChessPiece.EMPTY);
             return (ChessPlayer)((int)piece >> 3);
+
             //switch (piece)
             //{
             //    case ChessPiece.WPawn:

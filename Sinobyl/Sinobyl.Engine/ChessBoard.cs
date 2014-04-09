@@ -50,10 +50,6 @@ namespace Sinobyl.Engine
 		}
 	}
 
-	public sealed class ChessMoveHistoryCollection : List<ChessMoveHistory>
-	{
-
-	}
 
 	public sealed class ChessBoard
     {
@@ -154,7 +150,7 @@ namespace Sinobyl.Engine
 		private Int64 _zobPawn;
         private Int64 _zobMaterial;
 
-		private ChessMoveHistoryCollection _hist = new ChessMoveHistoryCollection();
+        private List<ChessMoveHistory> _hist = new List<ChessMoveHistory>();
 		private int _movesSinceNull = 100;
 
         private readonly ChessEval _pcSqEvaluator;

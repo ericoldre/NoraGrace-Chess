@@ -161,6 +161,14 @@ namespace Sinobyl.CommandLine
                         Sinobyl.Engine.ChessEvalPawns.TotalEvalPawnCount,
                         Sinobyl.Engine.ChessEvalMaterial.TotalEvalMaterialCount));
                     break;
+                case "genmagic":
+                    Sinobyl.Engine.MagicBitboards.Generation.FindMagics();
+                    ConsoleWriteline("done");
+                    break;
+                case "testmagic":
+                    Sinobyl.Engine.MagicBitboards.Test();
+                    ConsoleWriteline("done");
+                    break;
                 default:
                     _winboard.ProcessCmd(input);
                     break;

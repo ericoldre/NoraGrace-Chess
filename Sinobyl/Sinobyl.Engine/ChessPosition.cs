@@ -174,6 +174,7 @@ namespace Sinobyl.Engine
         }
         public static ChessPosition PositionInDirection(this ChessPosition pos, ChessDirection dir)
         {
+            if (!pos.IsInBounds()) { return ChessPosition.OUTOFBOUNDS; }
             ChessFile file = pos.GetFile();
             ChessRank rank = pos.GetRank();
             switch (dir)

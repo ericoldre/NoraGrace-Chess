@@ -11,7 +11,8 @@ namespace Sinobyl.Engine
 
         #region magicarrays
 
-        private static readonly ulong[] _bishopMagics = new ulong[]{
+        private static readonly ulong[] _bishopMagics = new ulong[]
+        {
             11533720853379293696UL, //A8
             4634221887939944448UL, //B8
             2469107311143059968UL, //C8
@@ -79,7 +80,8 @@ namespace Sinobyl.Engine
         };
 
 
-        private static readonly ulong[] _rookMagics = new ulong[]{
+        private static readonly ulong[] _rookMagics = new ulong[]
+        {
             162134001962717200UL, //A8
             4773833494088534050UL, //B8
             19141433397088264UL, //C8
@@ -166,11 +168,23 @@ namespace Sinobyl.Engine
             return _rookLookup[(int)pos][((ulong)(allPieces & _rookMask[(int)pos]) * _rookMagics[(int)pos]) >> _rookShift[(int)pos]];
         }
 
+        public static ChessBitboard QueenAttacks(ChessPosition pos, ChessBitboard allPieces)
+        {
+            return RookAttacks(pos, allPieces) | BishopAttacks(pos, allPieces);
+        }
+
         public static void Test()
         {
             foreach (ChessPosition position in ChessPositionInfo.AllPositions)
             {
                 var mask = BishopMask(position);
+
+                var distinctCount = Combinations(mask).Distinct().Count();
+                var possibleCombinations = 1 << mask.BitCount();
+                if (distinctCount != possibleCombinations)
+                {
+                    throw new Exception("bad");
+                }
 
                 foreach (var bitset in Combinations(mask))
                 {
@@ -187,6 +201,13 @@ namespace Sinobyl.Engine
             foreach (ChessPosition position in ChessPositionInfo.AllPositions)
             {
                 var mask = RookMask(position);
+
+                var distinctCount = Combinations(mask).Distinct().Count();
+                var possibleCombinations = 1 << mask.BitCount();
+                if (distinctCount != possibleCombinations)
+                {
+                    throw new Exception("bad");
+                }
 
                 foreach (var bitset in Combinations(mask))
                 {
@@ -278,25 +299,40 @@ namespace Sinobyl.Engine
 
         }
 
-        private const ChessBitboard EDGES = ChessBitboard.Rank1 | ChessBitboard.Rank8 | ChessBitboard.FileA | ChessBitboard.FileH;
 
-
-
-        static ChessBitboard RookMask(ChessPosition position)
+        public static ChessBitboard RookMask(ChessPosition position)
         {
-            ChessBitboard attacks = RookAttacksCalc(position, ChessBitboard.Empty);
-            ChessBitboard retval = attacks & ~EDGES;
+            ChessBitboard retval = ChessBitboard.Empty;
+            foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsRook)
+            {
+                ChessPosition p = position.PositionInDirection(dir);
+                ChessPosition next = p.PositionInDirection(dir);
+                while (p.PositionInDirection(dir) != ChessPosition.OUTOFBOUNDS)
+                {
+                    retval |= p.Bitboard();
+                    p = p.PositionInDirection(dir);
+                    next = p.PositionInDirection(dir);
+                }
+            }
             return retval;
         }
 
-        static ChessBitboard BishopMask(ChessPosition position)
+        public static ChessBitboard BishopMask(ChessPosition position)
         {
-            ChessBitboard attacks = BishopAttacksCalc(position, ChessBitboard.Empty);
-            ChessBitboard retval = attacks & ~EDGES;
+            ChessBitboard retval = ChessBitboard.Empty;
+            foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsBishop)
+            {
+                ChessPosition p = position.PositionInDirection(dir);
+                while (p.PositionInDirection(dir) != ChessPosition.OUTOFBOUNDS)
+                {
+                    retval |= p.Bitboard();
+                    p = p.PositionInDirection(dir);
+                }
+            }
             return retval;
         }
 
-        static ChessBitboard RookAttacksCalc(ChessPosition position, ChessBitboard blockers)
+        public static ChessBitboard RookAttacksCalc(ChessPosition position, ChessBitboard blockers)
         {
             ChessBitboard retval = ChessBitboard.Empty;
             foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsRook)
@@ -312,7 +348,7 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        static ChessBitboard BishopAttacksCalc(ChessPosition position, ChessBitboard blockers)
+        public static ChessBitboard BishopAttacksCalc(ChessPosition position, ChessBitboard blockers)
         {
             ChessBitboard retval = ChessBitboard.Empty;
             foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsBishop)
@@ -383,8 +419,9 @@ namespace Sinobyl.Engine
                 ChessBitboard[] a = new ChessBitboard[4096];
                 ChessBitboard[] used = new ChessBitboard[4096];
 
+
                 ChessBitboard allAttacks = bishop ? BishopAttacksCalc(sq, ChessBitboard.Empty) : RookAttacksCalc(sq, ChessBitboard.Empty);
-                ChessBitboard mask = allAttacks & ~EDGES;
+                ChessBitboard mask = bishop ? BishopMask(sq) : RookMask(sq);
 
                 int j, k;
 
@@ -393,6 +430,10 @@ namespace Sinobyl.Engine
                 ulong bitsLow = (1UL << bitCount) - 1UL;
                 ulong bitsHigh = bitsLow << (64 - bitCount);
 
+                if (possibleCombinations > 4096)
+                {
+                    var tmp = RookMask(ChessPosition.A8);
+                }
                 for (int i = 0; i < possibleCombinations; i++)
                 {
                     b[i] = index_to_mask(i, bitCount, mask);
@@ -438,8 +479,7 @@ namespace Sinobyl.Engine
 
             public static void FindMagics()
             {
-                try
-                {
+                
                     //find bishops
                     Console.WriteLine("private static readonly ulong[] _bishopMagics = new ulong[]{");
                     foreach (ChessPosition p in ChessPositionInfo.AllPositions)
@@ -462,11 +502,8 @@ namespace Sinobyl.Engine
                         Console.WriteLine(string.Format("\t{0}UL, //{1}", magic, p));
                     }
                     Console.WriteLine("};");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                
+
 
             }
 

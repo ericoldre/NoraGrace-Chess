@@ -180,9 +180,9 @@ namespace Sinobyl.Engine.Tests
                 Assert.AreEqual<ChessBitboard>(expectedPieces[(int)piece], board.PieceLocations(piece));
             }
             Assert.AreEqual<ChessBitboard>(all, board.PieceLocationsAll);
-            Assert.AreEqual(Attacks.RotateVert(all), board.PieceLocationsAllVert);
-            Assert.AreEqual(Attacks.RotateDiagA1H8(all), board.PieceLocationsAllA1H8);
-            Assert.AreEqual(Attacks.RotateDiagH1A8(all), board.PieceLocationsAllH1A8);
+            //Assert.AreEqual(Attacks.RotateVert(all), board.PieceLocationsAllVert);
+            //Assert.AreEqual(Attacks.RotateDiagA1H8(all), board.PieceLocationsAllA1H8);
+            //Assert.AreEqual(Attacks.RotateDiagH1A8(all), board.PieceLocationsAllH1A8);
 
         }
 

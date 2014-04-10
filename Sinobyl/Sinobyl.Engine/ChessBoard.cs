@@ -134,9 +134,9 @@ namespace Sinobyl.Engine
         //private ChessBitboard[] _playerBoards = new ChessBitboard[2];
         
         private ChessBitboard _allPieces = 0;
-        private Attacks.ChessBitboardRotatedVert _allPiecesVert = 0;
-        private Attacks.ChessBitboardRotatedA1H8 _allPiecesA1H8 = 0;
-        private Attacks.ChessBitboardRotatedH1A8 _allPiecesH1A8 = 0;
+        //private Attacks.ChessBitboardRotatedVert _allPiecesVert = 0;
+        //private Attacks.ChessBitboardRotatedA1H8 _allPiecesA1H8 = 0;
+        //private Attacks.ChessBitboardRotatedH1A8 _allPiecesH1A8 = 0;
 
 		private ChessPlayer _whosturn;
 		private bool _castleWS;
@@ -200,9 +200,6 @@ namespace Sinobyl.Engine
             _playerBoards[ChessPlayer.White] = 0;
             _playerBoards[ChessPlayer.Black] = 0;
             _allPieces = 0;
-            _allPiecesVert = 0;
-            _allPiecesA1H8 = 0;
-            _allPiecesH1A8 = 0;
 
             _pcSqStart = 0;
             _pcSqEnd = 0;
@@ -272,9 +269,6 @@ namespace Sinobyl.Engine
             _pieces[piece] |= pos.Bitboard();
             _allPieces |= pos.Bitboard();
             _playerBoards[piece.PieceToPlayer()] |= pos.Bitboard();
-            _allPiecesVert |= Attacks.RotateVert(pos);
-            _allPiecesA1H8 |= Attacks.RotateA1H8(pos);
-            _allPiecesH1A8 |= Attacks.RotateH1A8(pos);
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
@@ -307,9 +301,6 @@ namespace Sinobyl.Engine
             _pieces[piece] &= ~pos.Bitboard();
             _allPieces &= ~pos.Bitboard();
             _playerBoards[piece.PieceToPlayer()] &= ~pos.Bitboard();
-            _allPiecesVert &= ~Attacks.RotateVert(pos);
-            _allPiecesA1H8 &= ~Attacks.RotateA1H8(pos);
-            _allPiecesH1A8 &= ~Attacks.RotateH1A8(pos);
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
@@ -515,29 +506,7 @@ namespace Sinobyl.Engine
                 return _allPieces;
             }
         }
-        public Attacks.ChessBitboardRotatedVert PieceLocationsAllVert
-        {
-            get
-            {
-                return _allPiecesVert;
-            }
-        }
-        public Attacks.ChessBitboardRotatedA1H8 PieceLocationsAllA1H8
-        {
-            get
-            {
-                return _allPiecesA1H8;
-            }
-        }
 
-        public Attacks.ChessBitboardRotatedH1A8 PieceLocationsAllH1A8
-        {
-            get
-            {
-                return _allPiecesH1A8;
-            }
-        }
-        
         public ChessPiece PieceAt(ChessPosition pos)
 		{
 			return _pieceat[pos];
@@ -959,8 +928,8 @@ namespace Sinobyl.Engine
 		{
             ChessBitboard retval = 0;
             retval |= Attacks.KnightAttacks(to) & (this.PieceLocations(ChessPiece.WKnight) | this.PieceLocations(ChessPiece.BKnight));
-            retval |= Attacks.RookAttacks(to, this.PieceLocationsAll, this.PieceLocationsAllVert) & (this.PieceLocations(ChessPiece.WQueen) | this.PieceLocations(ChessPiece.BQueen) | this.PieceLocations(ChessPiece.WRook) | this.PieceLocations(ChessPiece.BRook));
-            retval |= Attacks.BishopAttacks(to, this.PieceLocationsAllA1H8, this.PieceLocationsAllH1A8) & (this.PieceLocations(ChessPiece.WQueen) | this.PieceLocations(ChessPiece.BQueen) | this.PieceLocations(ChessPiece.WBishop) | this.PieceLocations(ChessPiece.BBishop));
+            retval |= MagicBitboards.RookAttacks(to, this.PieceLocationsAll) & (this.PieceLocations(ChessPiece.WQueen) | this.PieceLocations(ChessPiece.BQueen) | this.PieceLocations(ChessPiece.WRook) | this.PieceLocations(ChessPiece.BRook));
+            retval |= MagicBitboards.BishopAttacks(to, this.PieceLocationsAll) & (this.PieceLocations(ChessPiece.WQueen) | this.PieceLocations(ChessPiece.BQueen) | this.PieceLocations(ChessPiece.WBishop) | this.PieceLocations(ChessPiece.BBishop));
             retval |= Attacks.KingAttacks(to) & (this.PieceLocations(ChessPiece.WKing) | this.PieceLocations(ChessPiece.BKing));
             retval |= Attacks.PawnAttacksBlack(to) & this.PieceLocations(ChessPiece.WPawn);
             retval |= Attacks.PawnAttacksWhite(to) & this.PieceLocations(ChessPiece.BPawn);

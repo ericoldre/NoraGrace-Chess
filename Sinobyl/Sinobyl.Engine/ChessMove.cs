@@ -738,7 +738,7 @@ namespace Sinobyl.Engine
                 //bishop attacks
                 if (piece == mybishop)
                 {
-                    foreach (ChessPosition attackPos in (Attacks.BishopAttacks(piecepos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8) & targetLocations).ToPositions())
+                    foreach (ChessPosition attackPos in (MagicBitboards.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations).ToPositions())
                     {
                         yield return new ChessMove(piecepos, attackPos);
                     }
@@ -747,7 +747,7 @@ namespace Sinobyl.Engine
                 //rook attacks
                 if (piece == myrook)
                 {
-                    foreach (ChessPosition attackPos in (Attacks.RookAttacks(piecepos, board.PieceLocationsAll, board.PieceLocationsAllVert) & targetLocations).ToPositions())
+                    foreach (ChessPosition attackPos in (MagicBitboards.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations).ToPositions())
                     {
                         yield return new ChessMove(piecepos, attackPos);
                     }
@@ -756,7 +756,7 @@ namespace Sinobyl.Engine
                 //queen attacks
                 if (piece == myqueen)
                 {
-                    foreach (ChessPosition attackPos in (Attacks.QueenAttacks(piecepos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8) & targetLocations).ToPositions())
+                    foreach (ChessPosition attackPos in (MagicBitboards.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations).ToPositions())
                     {
                         yield return new ChessMove(piecepos, attackPos);
                     }

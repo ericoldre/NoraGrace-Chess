@@ -205,15 +205,15 @@ namespace Sinobyl.Engine
                         attacksWhite.Knight |= slidingAttacks;
                         break;
                     case ChessPiece.WBishop:
-                        slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        slidingAttacks = MagicBitboards.BishopAttacks(pos, board.PieceLocationsAll);
                         attacksWhite.Bishop |= slidingAttacks;
                         break;
                     case ChessPiece.WRook:
-                        slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        slidingAttacks = MagicBitboards.RookAttacks(pos, board.PieceLocationsAll);
                         attacksWhite.RookQueen |= slidingAttacks;
                         break;
                     case ChessPiece.WQueen:
-                        slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        slidingAttacks = MagicBitboards.QueenAttacks(pos, board.PieceLocationsAll);
                         attacksWhite.RookQueen |= slidingAttacks;
                         break;
                     case ChessPiece.BKnight:
@@ -221,15 +221,15 @@ namespace Sinobyl.Engine
                         attacksBlack.Knight |= slidingAttacks;
                         break;
                     case ChessPiece.BBishop:
-                        slidingAttacks = Attacks.BishopAttacks(pos, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        slidingAttacks = MagicBitboards.BishopAttacks(pos, board.PieceLocationsAll);
                         attacksBlack.Bishop |= slidingAttacks;
                         break;
                     case ChessPiece.BRook:
-                        slidingAttacks = Attacks.RookAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert);
+                        slidingAttacks = MagicBitboards.RookAttacks(pos, board.PieceLocationsAll);
                         attacksBlack.RookQueen |= slidingAttacks;
                         break;
                     case ChessPiece.BQueen:
-                        slidingAttacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll, board.PieceLocationsAllVert, board.PieceLocationsAllA1H8, board.PieceLocationsAllH1A8);
+                        slidingAttacks = MagicBitboards.QueenAttacks(pos, board.PieceLocationsAll);
                         attacksBlack.RookQueen |= slidingAttacks;
                         break;
                 }

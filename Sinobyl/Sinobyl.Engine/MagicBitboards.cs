@@ -9,6 +9,8 @@ namespace Sinobyl.Engine
     public static class MagicBitboards
     {
 
+        #region magicarrays
+
         private static readonly ulong[] _bishopMagics = new ulong[]{
             11533720853379293696UL, //A8
             4634221887939944448UL, //B8
@@ -144,49 +146,113 @@ namespace Sinobyl.Engine
             70378005201920UL, //H1
         };
 
+        #endregion
+
+        public static ChessBitboard BishopAttacks(ChessPosition pos, ChessBitboard allPieces)
+        {
+            //mask all pieces to relevant squares
+            //multiply by magic number (index now stored in high order bits)
+            //shift result to lower bits
+            //lookup attacks in table
+            return _bishopLookup[(int)pos][((ulong)(allPieces & _bishopMask[(int)pos]) * _bishopMagics[(int)pos]) >> _bishopShift[(int)pos]];
+        }
+
+        public static ChessBitboard RookAttacks(ChessPosition pos, ChessBitboard allPieces)
+        {
+            //mask all pieces to relevant squares
+            //multiply by magic number (index now stored in high order bits)
+            //shift result to lower bits
+            //lookup attacks in table
+            return _rookLookup[(int)pos][((ulong)(allPieces & _rookMask[(int)pos]) * _rookMagics[(int)pos]) >> _rookShift[(int)pos]];
+        }
+
         public static void Test()
         {
             foreach (ChessPosition position in ChessPositionInfo.AllPositions)
             {
                 var mask = BishopMask(position);
-                var magic = _bishopMagics[(int)position];
-                var shift = 64 - mask.BitCount();
 
                 foreach (var bitset in Combinations(mask))
                 {
-                    var genAttacks = BishopAttacks(position, bitset);
+                    var calcAttacks = BishopAttacksCalc(position, bitset);
+                    var lookupAttacks = BishopAttacks(position, bitset);
 
-                    var index = ((ulong)bitset * magic) >> shift;
-
-                    var attackLookup = _bishopLookup[(int)position][index];
-
-                    if (attackLookup != genAttacks)
+                    if (calcAttacks != lookupAttacks)
                     {
                         throw new Exception("bad magic");
                     }
                 }
             }
 
+            foreach (ChessPosition position in ChessPositionInfo.AllPositions)
+            {
+                var mask = RookMask(position);
+
+                foreach (var bitset in Combinations(mask))
+                {
+                    var calcAttacks = RookAttacksCalc(position, bitset);
+                    var lookupAttacks = RookAttacks(position, bitset);
+
+                    if (calcAttacks != lookupAttacks)
+                    {
+                        throw new Exception("bad magic");
+                    }
+                }
+            }
+
+            Console.WriteLine("all good");
+
         }
 
         private static ChessBitboard[][] _bishopLookup = new ChessBitboard[64][];
+        private static ChessBitboard[][] _rookLookup = new ChessBitboard[64][];
+        private static int[] _bishopShift = new int[64];
+        private static int[] _rookShift = new int[64];
+        private static ChessBitboard[] _bishopMask = new ChessBitboard[64];
+        private static ChessBitboard[] _rookMask = new ChessBitboard[64];
+
         static MagicBitboards()
         {
+
             foreach (ChessPosition position in ChessPositionInfo.AllPositions)
             {
-
                 var mask = BishopMask(position);
                 var possibleCombinations = 1 << mask.BitCount();
                 var shift = 64 - mask.BitCount();
+
+                _bishopShift[(int)position] = shift;
+                _bishopMask[(int)position] = mask;
+
                 var magic = _bishopMagics[(int)position];
 
                 _bishopLookup[(int)position] = new ChessBitboard[possibleCombinations];
 
                 foreach (var bitset in Combinations(mask))
                 {
-                    var attacks = BishopAttacks(position, bitset);
+                    var attacks = BishopAttacksCalc(position, bitset);
                     var index = (magic * (ulong)bitset) >> shift;
                     _bishopLookup[(int)position][index] = attacks;
+                }
+            }
+
+            foreach (ChessPosition position in ChessPositionInfo.AllPositions)
+            {
+                var mask = RookMask(position);
+                var possibleCombinations = 1 << mask.BitCount();
+                var shift = 64 - mask.BitCount();
+
+                _rookShift[(int)position] = shift;
+                _rookMask[(int)position] = mask;
+
+                var magic = _rookMagics[(int)position];
+
+                _rookLookup[(int)position] = new ChessBitboard[possibleCombinations];
+
+                foreach (var bitset in Combinations(mask))
+                {
+                    var attacks = RookAttacksCalc(position, bitset);
+                    var index = (magic * (ulong)bitset) >> shift;
+                    _rookLookup[(int)position][index] = attacks;
                 }
             }
         }
@@ -218,19 +284,19 @@ namespace Sinobyl.Engine
 
         static ChessBitboard RookMask(ChessPosition position)
         {
-            ChessBitboard attacks = RookAttacks(position, ChessBitboard.Empty);
+            ChessBitboard attacks = RookAttacksCalc(position, ChessBitboard.Empty);
             ChessBitboard retval = attacks & ~EDGES;
             return retval;
         }
 
         static ChessBitboard BishopMask(ChessPosition position)
         {
-            ChessBitboard attacks = BishopAttacks(position, ChessBitboard.Empty);
+            ChessBitboard attacks = BishopAttacksCalc(position, ChessBitboard.Empty);
             ChessBitboard retval = attacks & ~EDGES;
             return retval;
         }
 
-        static ChessBitboard RookAttacks(ChessPosition position, ChessBitboard blockers)
+        static ChessBitboard RookAttacksCalc(ChessPosition position, ChessBitboard blockers)
         {
             ChessBitboard retval = ChessBitboard.Empty;
             foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsRook)
@@ -246,7 +312,7 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        static ChessBitboard BishopAttacks(ChessPosition position, ChessBitboard blockers)
+        static ChessBitboard BishopAttacksCalc(ChessPosition position, ChessBitboard blockers)
         {
             ChessBitboard retval = ChessBitboard.Empty;
             foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsBishop)
@@ -317,7 +383,7 @@ namespace Sinobyl.Engine
                 ChessBitboard[] a = new ChessBitboard[4096];
                 ChessBitboard[] used = new ChessBitboard[4096];
 
-                ChessBitboard allAttacks = bishop ? BishopAttacks(sq, ChessBitboard.Empty) : RookAttacks(sq, ChessBitboard.Empty);
+                ChessBitboard allAttacks = bishop ? BishopAttacksCalc(sq, ChessBitboard.Empty) : RookAttacksCalc(sq, ChessBitboard.Empty);
                 ChessBitboard mask = allAttacks & ~EDGES;
 
                 int j, k;
@@ -330,7 +396,7 @@ namespace Sinobyl.Engine
                 for (int i = 0; i < possibleCombinations; i++)
                 {
                     b[i] = index_to_mask(i, bitCount, mask);
-                    a[i] = bishop ? BishopAttacks(sq, b[i]) : RookAttacks(sq, b[i]);
+                    a[i] = bishop ? BishopAttacksCalc(sq, b[i]) : RookAttacksCalc(sq, b[i]);
                 }
 
                 for (k = 0; k < 10000000; k++)

@@ -99,7 +99,7 @@ namespace Sinobyl.Engine.Tests
 
             var pawnEval = new ChessEvalPawns(ChessEvalSettings.Default());
 
-            var result = pawnEval.EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), board.ZobristPawn);
+            var result = pawnEval.EvalAllPawns(board.PieceLocationsReally(ChessPiece.WPawn), board.PieceLocationsReally(ChessPiece.BPawn), board.ZobristPawn);
 
             Assert.AreEqual<int>(2, result.PassedPawns.ToPositions().Count());
             Assert.AreEqual<int>(2, result.Doubled.ToPositions().Count());

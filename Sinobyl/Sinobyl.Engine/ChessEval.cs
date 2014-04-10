@@ -174,20 +174,19 @@ namespace Sinobyl.Engine
             var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
 
             
-            attacksWhite.PawnEast = board.PieceLocations(ChessPiece.WPawn).ShiftDirNE();
-            attacksWhite.PawnWest = board.PieceLocations(ChessPiece.WPawn).ShiftDirNW();
-            attacksBlack.PawnEast = board.PieceLocations(ChessPiece.BPawn).ShiftDirSE();
-            attacksBlack.PawnWest = board.PieceLocations(ChessPiece.BPawn).ShiftDirSW();
+            attacksWhite.PawnEast = board.PieceLocationsReally(ChessPiece.WPawn).ShiftDirNE();
+            attacksWhite.PawnWest = board.PieceLocationsReally(ChessPiece.WPawn).ShiftDirNW();
+            attacksBlack.PawnEast = board.PieceLocationsReally(ChessPiece.BPawn).ShiftDirSE();
+            attacksBlack.PawnWest = board.PieceLocationsReally(ChessPiece.BPawn).ShiftDirSW();
 
             attacksWhite.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.White));
             attacksBlack.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.Black));
 
-            ChessBitboard slidersAndKnights = board.PieceLocationsAll 
-                & ~(board.PieceLocations(ChessPiece.WPawn) 
-                | board.PieceLocations(ChessPiece.BPawn)
-                | board.PieceLocations(ChessPiece.WKing)
-                | board.PieceLocations(ChessPiece.BKing)
-                );
+            ChessBitboard slidersAndKnights =
+                board.PieceTypeLocations(ChessPieceType.Knight)
+                | board.PieceTypeLocations(ChessPieceType.Bishop)
+                | board.PieceTypeLocations(ChessPieceType.Rook)
+                | board.PieceTypeLocations(ChessPieceType.Queen);
 
             foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {

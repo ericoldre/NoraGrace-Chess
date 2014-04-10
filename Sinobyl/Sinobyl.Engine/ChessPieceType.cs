@@ -12,7 +12,7 @@ namespace Sinobyl.Engine
 
     public static class ChessPieceTypeInfo
     {
-
+        public const int LookupArrayLength = 7;
 
         public static readonly ChessPieceType[] AllPieceTypes = new ChessPieceType[]{
             ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};

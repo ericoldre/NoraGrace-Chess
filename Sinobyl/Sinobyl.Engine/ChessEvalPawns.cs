@@ -45,7 +45,7 @@ namespace Sinobyl.Engine
                 return retval;
             }
 
-            retval = EvalAllPawns(board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn), board.ZobristPawn);
+            retval = EvalAllPawns(board.PieceLocationsReally(ChessPiece.WPawn), board.PieceLocationsReally(ChessPiece.BPawn), board.ZobristPawn);
             pawnHash[idx] = retval;
             return retval;
         }

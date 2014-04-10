@@ -21,6 +21,8 @@ namespace Sinobyl.Engine
     public static class ChessPositionInfo
     {
 
+        public const int LookupArrayLength = 64;
+
         public static readonly ChessPosition[] AllPositions = new ChessPosition[]{
 		    ChessPosition.A8,ChessPosition.B8,ChessPosition.C8,ChessPosition.D8,ChessPosition.E8,ChessPosition.F8,ChessPosition.G8,ChessPosition.H8,
             ChessPosition.A7,ChessPosition.B7,ChessPosition.C7,ChessPosition.D7,ChessPosition.E7,ChessPosition.F7,ChessPosition.G7,ChessPosition.H7,

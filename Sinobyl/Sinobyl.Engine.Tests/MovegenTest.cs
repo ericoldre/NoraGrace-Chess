@@ -177,7 +177,7 @@ namespace Sinobyl.Engine.Tests
 
             foreach (var piece in ChessPieceInfo.AllPieces)
             {
-                Assert.AreEqual<ChessBitboard>(expectedPieces[(int)piece], board.PieceLocations(piece));
+                Assert.AreEqual<ChessBitboard>(expectedPieces[(int)piece], board.PieceLocationsReally(piece));
             }
             Assert.AreEqual<ChessBitboard>(all, board.PieceLocationsAll);
             //Assert.AreEqual(Attacks.RotateVert(all), board.PieceLocationsAllVert);

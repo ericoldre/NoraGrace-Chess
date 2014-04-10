@@ -10,70 +10,138 @@ namespace Sinobyl.Engine
     {
 
         private static readonly ulong[] _bishopMagics = new ulong[]{
-            27307558868091298UL, //A8
-            4901051092795687938UL, //B8
-            2260597525758084UL, //C8
-            298367944260354048UL, //D8
-            1130436483953712UL, //E8
-            9572691933659168UL, //F8
-            720647443532750976UL, //G8
-            1152957789598924930UL, //H8
-            4686070196322176032UL, //A7
-            9009604507762820UL, //B7
-            36381817636454944UL, //C7
-            9369741500809743425UL, //D7
-            142945374175748UL, //E7
-            309203629307592721UL, //F7
-            2326706325327880UL, //G7
-            2305887540528287808UL, //H7
-            18227875601978435UL, //A6
-            1858016459914018880UL, //B6
-            1125908565070336UL, //C6
-            147813962438705152UL, //D6
-            1298162601190117634UL, //E6
-            140823656171521UL, //F6
-            1143638290662432UL, //G6
-            562985403729920UL, //H6
-            9227893228773314561UL, //A5
-            14989145478423117968UL, //B5
-            2260630283354144UL, //C5
-            11817586710135570562UL, //D5
-            144961812096386048UL, //E5
-            112732928337379844UL, //F5
-            1127023587629312UL, //G5
-            283678568218788UL, //H5
-            146683793269917696UL, //A4
-            4902177005638255106UL, //B4
-            1156308309660205569UL, //C4
-            18726057672768UL, //D4
-            2451088512426971152UL, //E4
-            4503883095281936UL, //F4
-            9225632637074817344UL, //G4
-            33783870562271744UL, //H4
-            290491144001299457UL, //A3
-            81628912685416960UL, //B3
-            281578123067905UL, //C3
-            9007611890386944UL, //D3
-            5773615891065340928UL, //E3
-            9224511886832173584UL, //F3
-            5190399704451551368UL, //G3
-            292479320458312UL, //H3
-            9242516956723316224UL, //A2
-            144186708963885056UL, //B2
-            288230586741949442UL, //C2
-            4611791717740445728UL, //D2
-            9516115515538669696UL, //E2
-            9223424951145531396UL, //F2
-            577595457031766144UL, //G2
-            2261285257740304UL, //H2
-            284232614249472UL, //A1
-            7061927898328089088UL, //B1
-            52785156723004UL, //C1
-            4621185809901815824UL, //D1
-            1297036695234348032UL, //E1
-            2307109664068731456UL, //F1
-            1130334597481474UL, //G1
-            9368059254512287776UL, //H1
+            11533720853379293696UL, //A8
+            4634221887939944448UL, //B8
+            2469107311143059968UL, //C8
+            4631963212403773698UL, //D8
+            4612816453819826288UL, //E8
+            286010531514368UL, //F8
+            9522318258233933892UL, //G8
+            44564589584384UL, //H8
+            4611844485559689760UL, //A7
+            9234639900802844704UL, //B7
+            1152939099510816896UL, //C7
+            4612253436254175747UL, //D7
+            163611745976713216UL, //E7
+            9079773542227200UL, //F7
+            579279902869555712UL, //G7
+            276019808288UL, //H7
+            2533292243167252UL, //A6
+            578818242689180172UL, //B6
+            4521196125167876UL, //C6
+            4613940019445383360UL, //D6
+            9288709128585248UL, //E6
+            9223408325043949572UL, //F6
+            288511859852706384UL, //G6
+            2306406097981834240UL, //H6
+            9242019754598990849UL, //A5
+            2319397788830531718UL, //B5
+            2306970008900665377UL, //C5
+            6917599675625308672UL, //D5
+            281543712981000UL, //E5
+            9799974643371622914UL, //F5
+            864977001780478404UL, //G5
+            576779610692288648UL, //H5
+            5766863789614178434UL, //A4
+            2342507332688152577UL, //B4
+            4629772993306838017UL, //C4
+            11261200239689856UL, //D4
+            2341946590220009728UL, //E4
+            2378041967813656835UL, //F4
+            9259966266318524544UL, //G4
+            2315133883006616576UL, //H4
+            11260116309381120UL, //A3
+            81137431994175636UL, //B3
+            9223935056737747972UL, //C3
+            36169809657856512UL, //D3
+            36037597411148800UL, //E3
+            9223671246053441600UL, //F3
+            4556930643132672UL, //G3
+            288516266363846720UL, //H3
+            36877689021792364UL, //A2
+            1848165255562330128UL, //B2
+            75333735286019UL, //C2
+            182431004186124418UL, //D2
+            324681420266274946UL, //E2
+            583849532784640UL, //F2
+            4538788311334912UL, //G2
+            2260630406449152UL, //H2
+            18085883964031488UL, //A1
+            709176350153515040UL, //B1
+            72061992638613568UL, //C1
+            1152921513742304320UL, //D1
+            4611686091979247680UL, //E1
+            9259409771768840320UL, //F1
+            3396400276832386UL, //G1
+            866978129825105952UL, //H1
+        };
+
+
+        private static readonly ulong[] _rookMagics = new ulong[]{
+            162134001962717200UL, //A8
+            4773833494088534050UL, //B8
+            19141433397088264UL, //C8
+            9223521639172670016UL, //D8
+            1155173858538439168UL, //E8
+            2310383994388153344UL, //F8
+            4612249518690288656UL, //G8
+            1126486208159744UL, //H8
+            563019008450560UL, //A7
+            9223513325172695040UL, //B7
+            288371251080069250UL, //C7
+            141287378391040UL, //D7
+            4936085963446419584UL, //E7
+            2594214672676684288UL, //F7
+            2306124492780404740UL, //G7
+            146402448079333409UL, //H7
+            10666777933697269760UL, //A6
+            581114435804872704UL, //B6
+            9232379512062216192UL, //C6
+            612630836834994176UL, //D6
+            38280871777681920UL, //E6
+            141287311278592UL, //F6
+            9232520523387240704UL, //G6
+            144117391666872340UL, //H6
+            1443553249050231300UL, //A5
+            4647750000893231168UL, //B5
+            288247970487337092UL, //C5
+            17594334052482UL, //D5
+            36873294964064262UL, //E5
+            1155175505591533696UL, //F5
+            2252901481185792UL, //G5
+            2300186952991744UL, //H5
+            74379917248233472UL, //A4
+            9547666396553428996UL, //B4
+            17594341924868UL, //C4
+            9232388034358415360UL, //D4
+            90076392749795330UL, //E4
+            49543996103459328UL, //F4
+            9367627971017310464UL, //G4
+            2449978126074118692UL, //H4
+            4611703610647117828UL, //A3
+            252236832228524032UL, //B3
+            450377555459997824UL, //C3
+            4611705810177884168UL, //D3
+            2395923798139404292UL, //E3
+            563018807246853UL, //F3
+            4755802306048458880UL, //G3
+            1730510915260391433UL, //H3
+            9804354118411158018UL, //A2
+            4035260451569827968UL, //B2
+            12700168543520424064UL, //C2
+            18155170358624384UL, //D2
+            9277424028543385728UL, //E2
+            2253998904082560UL, //F2
+            2594354877555540224UL, //G2
+            145247135296653344UL, //H2
+            45106365017888768UL, //A1
+            1155213027505770496UL, //B1
+            2310348812295603206UL, //C1
+            2308095910959252480UL, //D1
+            4612812472419090496UL, //E1
+            288815320641577024UL, //F1
+            149603376760320UL, //G1
+            70378005201920UL, //H1
         };
 
         public static void Test()
@@ -218,11 +286,11 @@ namespace Sinobyl.Engine
                 return Rand64() & Rand64() & Rand64();
             }
 
-            static ChessBitboard index_to_uulong(int index, int bits, ChessBitboard m)
+            static ChessBitboard index_to_mask(int index, int bitCount, ChessBitboard m)
             {
-                int i, k;
+                int i;
                 ulong result = 0UL;
-                for (i = 0; i < bits; i++)
+                for (i = 0; i < bitCount; i++)
                 {
 
                     var j = m.NorthMostPosition();
@@ -237,42 +305,52 @@ namespace Sinobyl.Engine
             }
 
 
-            private static int Transform(ulong b, ulong magic, int bits)
+            private static int Transform(ulong b, ulong magic, int bitCount)
             {
-                return (int)((b * magic) >> (64 - bits));
+                return (int)((b * magic) >> (64 - bitCount));
             }
+            public static int totalCalcs = 0;
 
-            private static ulong find_magic(ChessPosition sq, int m, bool bishop)
+            private static ulong find_magic(ChessPosition sq, bool bishop)
             {
-                ulong magic;
                 ChessBitboard[] b = new ChessBitboard[4096];
                 ChessBitboard[] a = new ChessBitboard[4096];
                 ChessBitboard[] used = new ChessBitboard[4096];
-                ChessBitboard mask;
-                int i, j, k, n;
-                mask = bishop ? BishopMask(sq) : RookMask(sq);
-                n = mask.BitCount();
 
-                for (i = 0; i < (1 << n); i++)
+                ChessBitboard allAttacks = bishop ? BishopAttacks(sq, ChessBitboard.Empty) : RookAttacks(sq, ChessBitboard.Empty);
+                ChessBitboard mask = allAttacks & ~EDGES;
+
+                int j, k;
+
+                int bitCount = mask.BitCount();
+                int possibleCombinations = 1 << bitCount;
+                ulong bitsLow = (1UL << bitCount) - 1UL;
+                ulong bitsHigh = bitsLow << (64 - bitCount);
+
+                for (int i = 0; i < possibleCombinations; i++)
                 {
-                    b[i] = index_to_uulong(i, n, mask);
+                    b[i] = index_to_mask(i, bitCount, mask);
                     a[i] = bishop ? BishopAttacks(sq, b[i]) : RookAttacks(sq, b[i]);
                 }
-                for (k = 0; k < int.MaxValue; k++)
+
+                for (k = 0; k < 10000000; k++)
                 {
-                    magic = Rand64Few();
+                    totalCalcs++;
+
+                    ulong magic = Rand64Few();
 
                     var mul = (ulong)mask * magic;
-                    var mulmask = mul & 0xFF00000000000000UL;
-                    var mulmaskBitCount = ((ChessBitboard)mulmask).BitCount();
-                    if (mulmaskBitCount < 6) { continue; }
 
-                    for (i = 0; i < 4096; i++) { used[i] = 0UL; }
+                    var mulmask = mul & bitsHigh;
+                    if (mulmask != bitsHigh) { continue; }
+
+
+                    for (int i = 0; i < 4096; i++) { used[i] = 0UL; }
 
                     bool fail = false;
-                    for (i = 0; i < (1 << n); i++)
+                    for (int i = 0; i < possibleCombinations; i++)
                     {
-                        j = Transform((ulong)b[i], magic, m);
+                        j = Transform((ulong)b[i], magic, bitCount);
                         if (used[j] == 0UL)
                         {
                             used[j] = a[i];
@@ -283,7 +361,10 @@ namespace Sinobyl.Engine
                             break;
                         }
                     }
-                    if (!fail) return magic;
+                    if (!fail)
+                    {
+                        return magic;
+                    }
                 }
 
                 return 0UL;
@@ -297,9 +378,9 @@ namespace Sinobyl.Engine
                     Console.WriteLine("private static readonly ulong[] _bishopMagics = new ulong[]{");
                     foreach (ChessPosition p in ChessPositionInfo.AllPositions)
                     {
-                        var mask = BishopMask(p);
-                        var maskCount = mask.BitCount();
-                        var magic = find_magic(p, maskCount, true);
+                        //var mask = BishopMask(p);
+                        //var maskCount = mask.BitCount();
+                        var magic = find_magic(p, true);
                         Console.WriteLine(string.Format("\t{0}UL, //{1}", magic, p));
                     }
                     Console.WriteLine("};");
@@ -309,9 +390,9 @@ namespace Sinobyl.Engine
                     Console.WriteLine("\n\nprivate static readonly ulong[] _rookMagics = new ulong[]{");
                     foreach (ChessPosition p in ChessPositionInfo.AllPositions)
                     {
-                        var mask = RookMask(p);
-                        var maskCount = mask.BitCount();
-                        var magic = find_magic(p, maskCount, false);
+                        //var mask = RookMask(p);
+                        //var maskCount = mask.BitCount();
+                        var magic = find_magic(p, false);
                         Console.WriteLine(string.Format("\t{0}UL, //{1}", magic, p));
                     }
                     Console.WriteLine("};");

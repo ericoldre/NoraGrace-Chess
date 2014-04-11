@@ -117,15 +117,14 @@ namespace Sinobyl.Engine
         #endregion
 
 
-        private ChessPositionDictionary<ChessPiece> _pieceat = new ChessPositionDictionary<ChessPiece>();
-		//private ChessPiece[] _pieceat = new ChessPiece[65];
+        //private ChessPositionDictionary<ChessPiece> _pieceat = new ChessPositionDictionary<ChessPiece>();
+		private ChessPiece[] _pieceat = new ChessPiece[65];
 
-        private ChessPieceDictionary<int> _pieceCount = new ChessPieceDictionary<int>();
-		//private int[] _pieceCount = new int[12];
+        //private ChessPieceDictionary<int> _pieceCount = new ChessPieceDictionary<int>();
+		private int[] _pieceCount = new int[ChessPieceInfo.LookupArrayLength];
 
-        private ChessPlayerDictionary<ChessPosition> _kingpos = new ChessPlayerDictionary<ChessPosition>();
-
-        //private ChessPosition[] _kingpos = new ChessPosition[2];
+        //private ChessPlayerDictionary<ChessPosition> _kingpos = new ChessPlayerDictionary<ChessPosition>();
+        private ChessPosition[] _kingpos = new ChessPosition[2];
 
         //private ChessPieceDictionary<ChessBitboard> _pieces = new ChessPieceDictionary<ChessBitboard>();
         private ChessBitboard[] _pieces = new ChessBitboard[ChessPieceInfo.LookupArrayLength];
@@ -193,11 +192,11 @@ namespace Sinobyl.Engine
 		{
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
-				_pieceat[pos] = ChessPiece.EMPTY;
+				_pieceat[(int)pos] = ChessPiece.EMPTY;
 			}
             foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
 			{
-                _pieceCount[piece] = 0;
+                _pieceCount[(int)piece] = 0;
                 _pieces[(int)piece] = 0;
 			}
             foreach (ChessPieceType piecetype in ChessPieceTypeInfo.AllPieceTypes)
@@ -223,7 +222,7 @@ namespace Sinobyl.Engine
 
 		public ChessPosition KingPosition(ChessPlayer kingplayer)
 		{
-			return _kingpos[kingplayer];
+            return _kingpos[(int)kingplayer];
 		}
 		public bool IsCheck()
 		{
@@ -237,7 +236,7 @@ namespace Sinobyl.Engine
 
         private void PieceMove(ChessPosition from, ChessPosition to, BoardChangedEventArgs log)
         {
-            ChessPiece piece = _pieceat[from];
+            ChessPiece piece = _pieceat[(int)from];
             PieceRemove(from, null);
             PieceAdd(to, piece, null);
 
@@ -251,7 +250,7 @@ namespace Sinobyl.Engine
         {
             if (log != null)
             {
-                ChessPiece oldPiece = _pieceat[pos];
+                ChessPiece oldPiece = _pieceat[(int)pos];
                 log.Changed.Add(new BoardChangeEventItemChanged(oldPiece, newPiece, pos));
             }
 
@@ -266,10 +265,10 @@ namespace Sinobyl.Engine
                 log.Added.Add(new BoardChangeEventItemAdded(piece, pos));
             }
 
-            _pieceat[pos] = piece;
+            _pieceat[(int)pos] = piece;
             _zob ^= ChessZobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[piece]);
-			_pieceCount[piece]++;
+            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[(int)piece]);
+            _pieceCount[(int)piece]++;
             _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSqStart, ref _pcSqEnd);
 
             ChessBitboard posBits = pos.Bitboard();
@@ -284,11 +283,11 @@ namespace Sinobyl.Engine
 			}
 			else if (piece == ChessPiece.WKing)
 			{
-				_kingpos[ChessPlayer.White] = pos;
+                _kingpos[(int)ChessPlayer.White] = pos;
 			}
 			else if (piece == ChessPiece.BKing)
 			{
-				_kingpos[ChessPlayer.Black] = pos;
+                _kingpos[(int)ChessPlayer.Black] = pos;
 			}
 		}
         private void PieceRemove(ChessPosition pos, BoardChangedEventArgs log)
@@ -299,11 +298,11 @@ namespace Sinobyl.Engine
             {
                 log.Removed.Add(new BoardChangeEventItemRemoved(piece, pos));
             }
-            
-			_pieceat[pos] = ChessPiece.EMPTY;
+
+            _pieceat[(int)pos] = ChessPiece.EMPTY;
 			_zob ^= ChessZobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[piece] - 1);
-			_pieceCount[piece]--;
+            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[(int)piece] - 1);
+            _pieceCount[(int)piece]--;
             _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSqStart, ref _pcSqEnd);
 
             ChessBitboard notPosBits = ~pos.Bitboard();
@@ -319,11 +318,11 @@ namespace Sinobyl.Engine
 		}
 		public int PieceCount(ChessPiece piece)
 		{
-			return _pieceCount[piece];
+            return _pieceCount[(int)piece];
 		}
         public int PieceCount(ChessPlayer player, ChessPieceType pieceType)
         {
-            return _pieceCount[pieceType.ForPlayer(player)];
+            return _pieceCount[(int)pieceType.ForPlayer(player)];
         }
 
         public int PcSqValueStart
@@ -443,7 +442,7 @@ namespace Sinobyl.Engine
                 //clear all existing pieces.
                 foreach (var pos in ChessPositionInfo.AllPositions)
                 {
-                    if (_pieceat[pos] != ChessPiece.EMPTY)
+                    if (_pieceat[(int)pos] != ChessPiece.EMPTY)
                     {
                         this.PieceRemove(pos, log);
                     }
@@ -525,7 +524,7 @@ namespace Sinobyl.Engine
 
         public ChessPiece PieceAt(ChessPosition pos)
 		{
-			return _pieceat[pos];
+            return _pieceat[(int)pos];
 		}
 
 		

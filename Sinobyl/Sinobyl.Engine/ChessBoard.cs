@@ -501,24 +501,24 @@ namespace Sinobyl.Engine
             get { return _zobMaterial; }
         }
 
-        public ChessBitboard PieceLocationsReally(ChessPiece piece)
+        public ChessBitboard this[ChessPiece piece]
         {
-            return _pieces[(int)piece];
+            get { return _pieces[(int)piece]; }
         }
 
-        public ChessBitboard PieceTypeLocations(ChessPieceType pieceType)
+        public ChessBitboard this[ChessPieceType pieceType]
         {
-            return _pieceTypes[(int)pieceType];
+            get { return _pieceTypes[(int)pieceType]; }
         }
 
-        public ChessBitboard PieceLocations(ChessPieceType pieceType, ChessPlayer player)
+        public ChessBitboard this[ChessPlayer player]
         {
-            return _pieceTypes[(int)pieceType] & _playerBoards[(int)player];
+            get
+            {
+                return _playerBoards[(int)player];
+            }
         }
-        public ChessBitboard PlayerLocations(ChessPlayer player)
-        {
-            return _playerBoards[(int)player];
-        }
+
         public ChessBitboard PieceLocationsAll
         {
             get
@@ -910,17 +910,17 @@ namespace Sinobyl.Engine
 		}
         public ChessBitboard AttacksTo(ChessPosition to, ChessPlayer by)
 		{
-            return AttacksTo(to) & this.PlayerLocations(by);
+            return AttacksTo(to) & this[by];
 		}
         public ChessBitboard AttacksTo(ChessPosition to)
 		{
             ChessBitboard retval = 0;
-            retval |= Attacks.KnightAttacks(to) & this.PieceTypeLocations(ChessPieceType.Knight);
-            retval |= MagicBitboards.RookAttacks(to, this.PieceLocationsAll) & (this.PieceTypeLocations(ChessPieceType.Queen) | this.PieceTypeLocations(ChessPieceType.Rook));
-            retval |= MagicBitboards.BishopAttacks(to, this.PieceLocationsAll) & (this.PieceTypeLocations(ChessPieceType.Queen) | this.PieceTypeLocations(ChessPieceType.Bishop));
-            retval |= Attacks.KingAttacks(to) & (this.PieceTypeLocations(ChessPieceType.King));
-            retval |= Attacks.PawnAttacksBlack(to) & this.PieceLocationsReally(ChessPiece.WPawn);
-            retval |= Attacks.PawnAttacksWhite(to) & this.PieceLocationsReally(ChessPiece.BPawn);
+            retval |= Attacks.KnightAttacks(to) & this[ChessPieceType.Knight];
+            retval |= MagicBitboards.RookAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Rook]);
+            retval |= MagicBitboards.BishopAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Bishop]);
+            retval |= Attacks.KingAttacks(to) & (this[ChessPieceType.King]);
+            retval |= Attacks.PawnAttacksBlack(to) & this[ChessPiece.WPawn];
+            retval |= Attacks.PawnAttacksWhite(to) & this[ChessPiece.BPawn];
             return retval;
 		}
 

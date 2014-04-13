@@ -174,19 +174,19 @@ namespace Sinobyl.Engine
             var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
 
             
-            attacksWhite.PawnEast = board.PieceLocationsReally(ChessPiece.WPawn).ShiftDirNE();
-            attacksWhite.PawnWest = board.PieceLocationsReally(ChessPiece.WPawn).ShiftDirNW();
-            attacksBlack.PawnEast = board.PieceLocationsReally(ChessPiece.BPawn).ShiftDirSE();
-            attacksBlack.PawnWest = board.PieceLocationsReally(ChessPiece.BPawn).ShiftDirSW();
+            attacksWhite.PawnEast = board[ChessPiece.WPawn].ShiftDirNE();
+            attacksWhite.PawnWest = board[ChessPiece.WPawn].ShiftDirNW();
+            attacksBlack.PawnEast = board[ChessPiece.BPawn].ShiftDirSE();
+            attacksBlack.PawnWest = board[ChessPiece.BPawn].ShiftDirSW();
 
             attacksWhite.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.White));
             attacksBlack.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.Black));
 
             ChessBitboard slidersAndKnights =
-                board.PieceTypeLocations(ChessPieceType.Knight)
-                | board.PieceTypeLocations(ChessPieceType.Bishop)
-                | board.PieceTypeLocations(ChessPieceType.Rook)
-                | board.PieceTypeLocations(ChessPieceType.Queen);
+                board[ChessPieceType.Knight]
+                | board[ChessPieceType.Bishop]
+                | board[ChessPieceType.Rook]
+                | board[ChessPieceType.Queen];
 
             foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
@@ -233,7 +233,7 @@ namespace Sinobyl.Engine
                         break;
                 }
                 //
-                ChessBitboard slidingMoves = slidingAttacks & ~board.PlayerLocations(piece.PieceToPlayer());
+                ChessBitboard slidingMoves = slidingAttacks & ~board[piece.PieceToPlayer()];
                 int moveCount = slidingMoves.BitCount();
                 valStartMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Opening];
                 valEndMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Endgame];

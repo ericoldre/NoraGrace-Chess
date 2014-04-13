@@ -142,8 +142,8 @@ namespace Sinobyl.Engine.Tests
                     ChessBitboard allpieces = 0;
                     foreach (ChessPiece pieceType in ChessPieceInfo.AllPieces)
                     {
-                        Assert.AreEqual<ChessBitboard>(board.PieceList(pieceType).ToBitboard(), board.PieceLocationsReally(pieceType));
-                        allpieces |= board.PieceLocationsReally(pieceType);
+                        Assert.AreEqual<ChessBitboard>(board.PieceList(pieceType).ToBitboard(), board[pieceType]);
+                        allpieces |= board[pieceType];
                     }
                     Assert.AreEqual<ChessBitboard>(allpieces, board.PieceLocationsAll);
                     //Assert.AreEqual<ChessBitboard>(allpieces, Attacks.RotateVertReverse(board.PieceLocationsAllVert));
@@ -159,8 +159,8 @@ namespace Sinobyl.Engine.Tests
                     ChessBitboard allpieces = 0;
                     foreach (ChessPiece pieceType in ChessPieceInfo.AllPieces)
                     {
-                        Assert.AreEqual<ChessBitboard>(board.PieceList(pieceType).ToBitboard(), board.PieceLocationsReally(pieceType));
-                        allpieces |= board.PieceLocationsReally(pieceType);
+                        Assert.AreEqual<ChessBitboard>(board.PieceList(pieceType).ToBitboard(), board[pieceType]);
+                        allpieces |= board[pieceType];
                     }
                     Assert.AreEqual<ChessBitboard>(allpieces, board.PieceLocationsAll);
                     //Assert.AreEqual<ChessBitboard>(allpieces, Attacks.RotateVertReverse(board.PieceLocationsAllVert));

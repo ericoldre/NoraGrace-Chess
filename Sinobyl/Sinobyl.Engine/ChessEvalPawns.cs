@@ -45,7 +45,7 @@ namespace Sinobyl.Engine
                 return retval;
             }
 
-            retval = EvalAllPawns(board.PieceLocationsReally(ChessPiece.WPawn), board.PieceLocationsReally(ChessPiece.BPawn), board.ZobristPawn);
+            retval = EvalAllPawns(board[ChessPiece.WPawn], board[ChessPiece.BPawn], board.ZobristPawn);
             pawnHash[idx] = retval;
             return retval;
         }
@@ -209,7 +209,7 @@ namespace Sinobyl.Engine
 
             int startScore, endScore, bestEndScore;
 
-            var white = passedPawns & board.PlayerLocations(ChessPlayer.White);
+            var white = passedPawns & board[ChessPlayer.White];
             if (!white.Empty())
             {
                 bestEndScore = 0;
@@ -263,7 +263,7 @@ namespace Sinobyl.Engine
                 }
             }
 
-            var black = passedPawns & board.PlayerLocations(ChessPlayer.Black);
+            var black = passedPawns & board[ChessPlayer.Black];
             if (!black.Empty())
             {
                 bestEndScore = 0;

@@ -713,16 +713,16 @@ namespace Sinobyl.Engine
             ChessRank myrank2 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank2 : ChessRank.Rank7;
 
 
-            ChessBitboard targetLocations = board.PlayerLocations(board.WhosTurn.PlayerOther());
+            ChessBitboard targetLocations = board[board.WhosTurn.PlayerOther()];
             if (!CapsOnly)
             {
                 targetLocations |= ~board.PieceLocationsAll;
             }
 
-            ChessBitboard pawnTargets = board.PlayerLocations(board.WhosTurn.PlayerOther()) | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
+            ChessBitboard pawnTargets = board[board.WhosTurn.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
 
             //loop through all non pawn locations
-            foreach (ChessPosition piecepos in (board.PlayerLocations(board.WhosTurn) & ~board.PieceTypeLocations(ChessPieceType.Pawn)).ToPositions())
+            foreach (ChessPosition piecepos in (board[board.WhosTurn] & ~board[ChessPieceType.Pawn]).ToPositions())
             {
                 ChessPiece piece = board.PieceAt(piecepos);
 
@@ -830,7 +830,7 @@ namespace Sinobyl.Engine
             //pawn caps
             foreach (ChessDirection capDir in new ChessDirection[] { mypawneast, mypawnwest })
             {
-                foreach (ChessPosition targetpos in (board.PieceLocationsReally(mypawn).Shift(capDir) & pawnTargets).ToPositions())
+                foreach (ChessPosition targetpos in (board[mypawn].Shift(capDir) & pawnTargets).ToPositions())
                 {
                     ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
                     if (targetpos.GetRank() == myrank8)
@@ -849,7 +849,7 @@ namespace Sinobyl.Engine
             if (!CapsOnly)
             {
                 //pawn jumps
-                foreach (ChessPosition targetpos in (board.PieceLocationsReally(mypawn).Shift(mypawnnorth) & ~board.PieceLocationsAll).ToPositions())
+                foreach (ChessPosition targetpos in (board[mypawn].Shift(mypawnnorth) & ~board.PieceLocationsAll).ToPositions())
                 {
                     ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(mypawnnorth.Opposite());
                     if (targetpos.GetRank() == myrank8)

@@ -545,8 +545,8 @@ namespace Sinobyl.Engine
                 return 0;
             }
 
-			//execute this every 500 nodes
-			if (CountAIValSearch % 500 == 0)
+			//execute this every 1024 nodes
+			if ((CountAIValSearch & 0x3FF) == 0)
 			{
 				DateTime now = DateTime.Now;
 
@@ -755,16 +755,6 @@ namespace Sinobyl.Engine
 			{
 				alpha = init_score;
 			}
-
-            //ChessMoves moves;
-            //if (playerincheck)
-            //{
-            //    moves = new ChessMoves(ChessMove.GenMoves(board));
-            //}
-            //else
-            //{
-            //    moves = new ChessMoves(ChessMove.GenMoves(board, true));
-            //}
 
             var plyMoves = _moveBuffer[ply];
             plyMoves.Initialize(board, !playerincheck);

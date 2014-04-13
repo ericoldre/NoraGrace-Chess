@@ -712,6 +712,32 @@ namespace Sinobyl.Engine
             ChessRank myrank8 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank8 : ChessRank.Rank1;
             ChessRank myrank2 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank2 : ChessRank.Rank7;
 
+            ChessBitboard attacks = ChessBitboard.Empty;
+
+
+
+            //pawn caps
+            ChessBitboard pawnTargets = board[board.WhosTurn.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
+            foreach (ChessDirection capDir in new ChessDirection[] { mypawneast, mypawnwest })
+            {
+                attacks = board[mypawn].Shift(capDir) & pawnTargets;
+                while (attacks != ChessBitboard.Empty)
+                {
+                    ChessPosition targetpos = ChessBitboardInfo.PopFirst(ref attacks);
+                    ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
+                    if (targetpos.GetRank() == myrank8)
+                    {
+                        yield return new ChessMove(piecepos, targetpos, myqueen);
+                        yield return new ChessMove(piecepos, targetpos, myrook);
+                        yield return new ChessMove(piecepos, targetpos, mybishop);
+                        yield return new ChessMove(piecepos, targetpos, myknight);
+                    }
+                    else
+                    {
+                        yield return new ChessMove(piecepos, targetpos);
+                    }
+                }
+            }
 
             ChessBitboard targetLocations = board[board.WhosTurn.PlayerOther()];
             if (!CapsOnly)
@@ -719,14 +745,11 @@ namespace Sinobyl.Engine
                 targetLocations |= ~board.PieceLocationsAll;
             }
 
-            ChessBitboard pawnTargets = board[board.WhosTurn.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
-
             //loop through all non pawn locations
-            ChessBitboard attacks = ChessBitboard.Empty;
-            ChessBitboard myNonPawns = board[board.WhosTurn] & ~board[ChessPieceType.Pawn];
-            while(myNonPawns != ChessBitboard.Empty)// (ChessPosition piecepos in (board[board.WhosTurn] & ~board[ChessPieceType.Pawn]).ToPositions())
+            ChessBitboard piecePositions = board[board.WhosTurn] & ~board[ChessPieceType.Pawn];
+            while(piecePositions != ChessBitboard.Empty)// (ChessPosition piecepos in (board[board.WhosTurn] & ~board[ChessPieceType.Pawn]).ToPositions())
             {
-                ChessPosition piecepos = ChessBitboardInfo.PopFirst(ref myNonPawns);
+                ChessPosition piecepos = ChessBitboardInfo.PopFirst(ref piecePositions);
                 ChessPiece piece = board.PieceAt(piecepos);
                 ChessPieceType pieceType = piece.ToPieceType();
                 switch (pieceType)
@@ -756,30 +779,15 @@ namespace Sinobyl.Engine
 
             
 
-            //pawn caps
-            foreach (ChessDirection capDir in new ChessDirection[] { mypawneast, mypawnwest })
-            {
-                foreach (ChessPosition targetpos in (board[mypawn].Shift(capDir) & pawnTargets).ToPositions())
-                {
-                    ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
-                    if (targetpos.GetRank() == myrank8)
-                    {
-                        yield return new ChessMove(piecepos, targetpos, myqueen);
-                        yield return new ChessMove(piecepos, targetpos, myrook);
-                        yield return new ChessMove(piecepos, targetpos, mybishop);
-                        yield return new ChessMove(piecepos, targetpos, myknight);
-                    }
-                    else
-                    {
-                        yield return new ChessMove(piecepos, targetpos);
-                    }
-                }
-            }
+            
+
             if (!CapsOnly)
             {
                 //pawn jumps
-                foreach (ChessPosition targetpos in (board[mypawn].Shift(mypawnnorth) & ~board.PieceLocationsAll).ToPositions())
+                attacks = (board[mypawn].Shift(mypawnnorth) & ~board.PieceLocationsAll);
+                while (attacks != ChessBitboard.Empty)
                 {
+                    ChessPosition targetpos = ChessBitboardInfo.PopFirst(ref attacks);
                     ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(mypawnnorth.Opposite());
                     if (targetpos.GetRank() == myrank8)
                     {
@@ -801,12 +809,7 @@ namespace Sinobyl.Engine
                         }
                     }
                 }
-            }
-            
 
-
-            if (!CapsOnly)
-            {
                 //castling
                 if (board.WhosTurn == ChessPlayer.White)
                 {

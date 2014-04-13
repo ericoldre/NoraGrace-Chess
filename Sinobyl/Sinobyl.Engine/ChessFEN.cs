@@ -51,10 +51,10 @@ namespace Sinobyl.Engine
 				pieceat[pos] = board.PieceAt((ChessPosition)pos);
 			}
 			whosturn = board.WhosTurn;
-			castleWS = board.CastleAvailWS;
-			castleWL = board.CastleAvailWL;
-			castleBS = board.CastleAvailBS;
-			castleBL = board.CastleAvailBL;
+			castleWS = (board.CastleRights & CastleFlags.WhiteShort) != 0;
+            castleWL = (board.CastleRights & CastleFlags.WhiteLong) != 0;
+            castleBS = (board.CastleRights & CastleFlags.BlackShort) != 0;
+            castleBL = (board.CastleRights & CastleFlags.BlackLong) != 0;
 			enpassant = board.EnPassant;
 			fiftymove = board.FiftyMovePlyCount;
 			fullmove = board.FullMoveCount;

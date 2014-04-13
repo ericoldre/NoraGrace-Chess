@@ -425,23 +425,20 @@ namespace Sinobyl.Engine
 
         private static readonly int[] _shelterFactor = new int[] { 7, 0, 2, 5, 6, 7, 7, 7 };
 
-        public int EvalShelter(ChessFile whiteKingFile, ChessFile blackKingFile, bool wsCastle, bool wlCastle, bool bsCastle, bool blCastle)
+        public int EvalShelter(ChessFile whiteKingFile, ChessFile blackKingFile, CastleFlags castleFlags)
         {
             int key = (int)whiteKingFile
                 | ((int)blackKingFile << 8)
-                | (wsCastle ? (1 << 20) : 0)
-                | (wlCastle ? (1 << 21) : 0)
-                | (bsCastle ? (1 << 22) : 0)
-                | (blCastle ? (1 << 23) : 0);
+                | ((int)castleFlags << 20);
 
             if (key == _shelterCacheKey) 
             {
-                System.Diagnostics.Debug.Assert(_shelterCacheValue == EvalShelterCalc(whiteKingFile, blackKingFile, wsCastle, wlCastle, bsCastle, blCastle));
+                System.Diagnostics.Debug.Assert(_shelterCacheValue == EvalShelterCalc(whiteKingFile, blackKingFile, castleFlags));
                 return _shelterCacheValue; 
             }
             else
             {
-                int retval = EvalShelterCalc(whiteKingFile, blackKingFile, wsCastle, wlCastle, bsCastle, blCastle);
+                int retval = EvalShelterCalc(whiteKingFile, blackKingFile, castleFlags);
                 _shelterCacheKey = key;
                 _shelterCacheValue = retval;
                 return retval;
@@ -449,7 +446,7 @@ namespace Sinobyl.Engine
 
 
         }
-        private int EvalShelterCalc(ChessFile whiteKingFile, ChessFile blackKingFile, bool wsCastle, bool wlCastle, bool bsCastle, bool blCastle)
+        private int EvalShelterCalc(ChessFile whiteKingFile, ChessFile blackKingFile, CastleFlags castleFlags)
         {
             
             int retval = 0;
@@ -458,24 +455,24 @@ namespace Sinobyl.Engine
 
             ChessBitboard wpRev = WhitePawns.Reverse();
             int lowestWhitePenalty = CalcKingShelterPenaltyFactorBlackPerspective(whiteKingFile, wpRev);
-            if (wsCastle)
+            if ((castleFlags & CastleFlags.WhiteShort) != 0)
             {
                 castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileG, wpRev) + 2;
                 if (castlePenalty < lowestWhitePenalty) { lowestWhitePenalty = castlePenalty; }
             }
-            if (wlCastle)
+            if ((castleFlags & CastleFlags.WhiteLong) != 0)
             {
                 castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileC, wpRev) + 2;
                 if (castlePenalty < lowestWhitePenalty) { lowestWhitePenalty = castlePenalty; }
             }
 
             int lowestBlackPenalty = CalcKingShelterPenaltyFactorBlackPerspective(blackKingFile, BlackPawns);
-            if (bsCastle)
+            if ((castleFlags & CastleFlags.BlackShort) != 0)
             {
                 castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileG, BlackPawns) + 2;
                 if (castlePenalty < lowestBlackPenalty) { lowestBlackPenalty = castlePenalty; }
             }
-            if (blCastle)
+            if ((castleFlags & CastleFlags.BlackLong) != 0)
             {
                 castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileC, BlackPawns) + 2;
                 if (castlePenalty < lowestBlackPenalty) { lowestBlackPenalty = castlePenalty; }

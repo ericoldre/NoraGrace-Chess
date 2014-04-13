@@ -137,19 +137,19 @@ namespace Sinobyl.Engine
 			{
 				retval ^= ChessZobrist.Player;
 			}
-			if (board.CastleAvailWS)
+            if ((board.CastleRights & CastleFlags.WhiteShort) != 0)
 			{
 				retval ^= ChessZobrist.CastleWS;
 			}
-			if (board.CastleAvailWL)
+            if ((board.CastleRights & CastleFlags.WhiteLong) != 0)
 			{
 				retval ^= ChessZobrist.CastleWL;
 			}
-			if (board.CastleAvailBS)
+            if ((board.CastleRights & CastleFlags.BlackShort) != 0)
 			{
 				retval ^= ChessZobrist.CastleBS;
 			}
-			if (board.CastleAvailBL)
+            if ((board.CastleRights & CastleFlags.BlackLong) != 0)
 			{
 				retval ^= ChessZobrist.CastleBL;
 			}

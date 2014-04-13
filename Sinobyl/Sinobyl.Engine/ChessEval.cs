@@ -255,10 +255,7 @@ namespace Sinobyl.Engine
                 evalInfo.ShelterStorm = _settings.PawnShelterFactor * pawns.EvalShelter(
                     whiteKingFile: board.KingPosition(ChessPlayer.White).GetFile(),
                     blackKingFile: board.KingPosition(ChessPlayer.Black).GetFile(),
-                    wsCastle: board.CastleAvailWS,
-                    wlCastle: board.CastleAvailWL,
-                    bsCastle: board.CastleAvailBS,
-                    blCastle: board.CastleAvailBL);
+                    castleFlags: board.CastleRights);
             }
             
             //evalInfo.ShelterStorm = this._evalPawns.EvalKingShelterStormBlackPerspective(board.KingPosition(ChessPlayer.White).GetFile(), board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn));

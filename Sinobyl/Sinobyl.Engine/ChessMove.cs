@@ -640,7 +640,7 @@ namespace Sinobyl.Engine
                 //castling
                 if (board.WhosTurn == ChessPlayer.White)
                 {
-                    if (board.CastleAvailWS
+                    if ((board.CastleRights & CastleFlags.WhiteShort) != 0
                         && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
                         && board.PieceAt(ChessPosition.H1) == ChessPiece.WRook
                         && board.PieceAt(ChessPosition.F1) == ChessPiece.EMPTY
@@ -651,7 +651,7 @@ namespace Sinobyl.Engine
                     {
                         retval.Add(new ChessMove(ChessPosition.E1, ChessPosition.G1));
                     }
-                    if (board.CastleAvailWL
+                    if ((board.CastleRights & CastleFlags.WhiteLong) != 0
                         && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
                         && board.PieceAt(ChessPosition.A1) == ChessPiece.WRook
                         && board.PieceAt(ChessPosition.B1) == ChessPiece.EMPTY
@@ -666,7 +666,7 @@ namespace Sinobyl.Engine
                 }
                 else
                 {
-                    if (board.CastleAvailBS
+                    if ((board.CastleRights & CastleFlags.BlackShort) != 0
                         && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
                         && board.PieceAt(ChessPosition.H8) == ChessPiece.BRook
                         && board.PieceAt(ChessPosition.F8) == ChessPiece.EMPTY
@@ -677,7 +677,7 @@ namespace Sinobyl.Engine
                     {
                         retval.Add(new ChessMove(ChessPosition.E8, ChessPosition.G8));
                     }
-                    if (board.CastleAvailBL
+                    if ((board.CastleRights & CastleFlags.BlackLong) != 0
                         && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
                         && board.PieceAt(ChessPosition.A8) == ChessPiece.BRook
                         && board.PieceAt(ChessPosition.B8) == ChessPiece.EMPTY
@@ -881,7 +881,7 @@ namespace Sinobyl.Engine
                 //castling
                 if (board.WhosTurn == ChessPlayer.White)
                 {
-                    if (board.CastleAvailWS
+                    if ((board.CastleRights & CastleFlags.WhiteShort) != 0
                         && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
                         && board.PieceAt(ChessPosition.H1) == ChessPiece.WRook
                         && board.PieceAt(ChessPosition.F1) == ChessPiece.EMPTY
@@ -892,7 +892,7 @@ namespace Sinobyl.Engine
                     {
                         yield return new ChessMove(ChessPosition.E1, ChessPosition.G1);
                     }
-                    if (board.CastleAvailWL
+                    if ((board.CastleRights & CastleFlags.WhiteLong) != 0
                         && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
                         && board.PieceAt(ChessPosition.A1) == ChessPiece.WRook
                         && board.PieceAt(ChessPosition.B1) == ChessPiece.EMPTY
@@ -907,7 +907,7 @@ namespace Sinobyl.Engine
                 }
                 else
                 {
-                    if (board.CastleAvailBS
+                    if ((board.CastleRights & CastleFlags.BlackShort) != 0
                         && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
                         && board.PieceAt(ChessPosition.H8) == ChessPiece.BRook
                         && board.PieceAt(ChessPosition.F8) == ChessPiece.EMPTY
@@ -918,7 +918,7 @@ namespace Sinobyl.Engine
                     {
                         yield return new ChessMove(ChessPosition.E8, ChessPosition.G8);
                     }
-                    if (board.CastleAvailBL
+                    if ((board.CastleRights & CastleFlags.BlackLong) != 0
                         && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
                         && board.PieceAt(ChessPosition.A8) == ChessPiece.BRook
                         && board.PieceAt(ChessPosition.B8) == ChessPiece.EMPTY

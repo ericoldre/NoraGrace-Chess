@@ -8,6 +8,15 @@ using System.Linq;
 
 namespace Sinobyl.Engine
 {
+    [Flags]
+    public enum CastleFlags
+    {
+        WhiteShort = 1,
+        WhiteLong = 2, 
+        BlackShort = 4,
+        BlackLong = 8,
+        All = WhiteShort | WhiteLong | BlackShort | BlackLong
+    }
 
 	public class ChessMoveHistory
 	{
@@ -17,17 +26,14 @@ namespace Sinobyl.Engine
         public ChessPiece PieceMoved;
 		public ChessPiece Captured;
 		public ChessPosition Enpassant;
-		public bool CastleWS;
-		public bool CastleWL;
-		public bool CastleBS;
-		public bool CastleBL;
+        public CastleFlags Castle;
 		public int FiftyCount;
 		public int MovesSinceNull;
 		public Int64 Zobrist;
 		public Int64 ZobristPawn;
         public Int64 ZobristMaterial;
 
-        public void Reset(ChessPosition from, ChessPosition to, ChessPiece piecemoved, ChessPiece promote, ChessPiece captured, ChessPosition enpassant, bool cws, bool cwl, bool cbs, bool cbl, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
+        public void Reset(ChessPosition from, ChessPosition to, ChessPiece piecemoved, ChessPiece promote, ChessPiece captured, ChessPosition enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
         {
             this.From = from;
             this.To = to;
@@ -35,10 +41,7 @@ namespace Sinobyl.Engine
             this.Promote = promote;
             this.Captured = captured;
             this.Enpassant = enpassant;
-            this.CastleWS = cws;
-            this.CastleWL = cwl;
-            this.CastleBS = cbs;
-            this.CastleBL = cbl;
+            this.Castle = castle;
             this.FiftyCount = fifty;
             this.MovesSinceNull = sinceNull;
             this.Zobrist = zob;
@@ -138,10 +141,7 @@ namespace Sinobyl.Engine
         //private Attacks.ChessBitboardRotatedH1A8 _allPiecesH1A8 = 0;
 
 		private ChessPlayer _whosturn;
-		private bool _castleWS;
-		private bool _castleWL;
-		private bool _castleBS;
-		private bool _castleBL;
+        private CastleFlags _castleFlags;
 		private ChessPosition _enpassant;
 		private int _fiftymove = 0;
 		private int _fullmove = 0;
@@ -466,10 +466,13 @@ namespace Sinobyl.Engine
 						this.PieceAdd(pos,value.pieceat[pos.GetIndex64()], log);
 					}
 				}
-				_castleWS = value.castleWS;
-				_castleWL = value.castleWL;
-				_castleBS = value.castleBS;
-				_castleBL = value.castleBL;
+
+                _castleFlags = 0;
+                _castleFlags |= value.castleWS ? CastleFlags.WhiteShort : 0;
+                _castleFlags |= value.castleWL ? CastleFlags.WhiteLong : 0;
+                _castleFlags |= value.castleBS ? CastleFlags.BlackShort : 0;
+                _castleFlags |= value.castleBL ? CastleFlags.BlackLong : 0;
+
 				_whosturn = value.whosturn;
 				_enpassant = value.enpassant;
 				_fiftymove = value.fiftymove;
@@ -533,35 +536,11 @@ namespace Sinobyl.Engine
             return _pieceat[(int)pos];
 		}
 
+        public CastleFlags CastleRights
+        {
+            get { return _castleFlags; }
+        }
 		
-		public bool CastleAvailWS
-		{
-			get
-			{
-				return _castleWS;
-			}
-		}
-		public bool CastleAvailWL
-		{
-			get
-			{
-				return _castleWL;
-			}
-		}
-		public bool CastleAvailBS
-		{
-			get
-			{
-				return _castleBS;
-			}
-		}
-		public bool CastleAvailBL
-		{
-			get
-			{
-				return _castleBL;
-			}
-		}
 		public ChessPlayer WhosTurn
 		{
 			get
@@ -611,7 +590,7 @@ namespace Sinobyl.Engine
 			ChessFile tofile = to.GetFile();
 
             if (_histCount > _histUB) { HistResize(); }
-			_hist[_histCount++].Reset(from, to, piece, promote, capture, _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial);
+			_hist[_histCount++].Reset(from, to, piece, promote, capture, _enpassant, _castleFlags, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial);
 
 			//increment since null count;
 			_movesSinceNull++;
@@ -648,52 +627,36 @@ namespace Sinobyl.Engine
 			}
 
 			//mark unavailability of castling
-			if (piece == ChessPiece.WKing)
-			{
-				if (this._castleWS)
-				{
-					this._castleWS = false;
-					_zob ^= ChessZobrist.CastleWS;
-				}
-				if (this._castleWL)
-				{
-					this._castleWL = false;
-					_zob ^= ChessZobrist.CastleWL;
-				}
-			}
-			if (piece == ChessPiece.BKing)
-			{
-				if (this._castleBS)
-				{
-					this._castleBS = false;
-					_zob ^= ChessZobrist.CastleBS;
-				}
-				if (this._castleBL)
-				{
-					this._castleBL = false;
-					_zob ^= ChessZobrist.CastleBL;
-				}
-			}
-			if (from == ChessPosition.H1 && this._castleWS)
-			{
-				this._castleWS = false;
-				_zob ^= ChessZobrist.CastleWS;
-			}
-			if (from == ChessPosition.A1 && this._castleWL)
-			{
-				this._castleWL = false;
-				_zob ^= ChessZobrist.CastleWL;
-			}
-			if (from == ChessPosition.H8 && this._castleBS)
-			{
-				this._castleBS = false;
-				_zob ^= ChessZobrist.CastleBS;
-			}
-			if (from == ChessPosition.A8 && this._castleBL)
-			{
-				this._castleBL = false;
-				_zob ^= ChessZobrist.CastleBL;
-			}
+            if(_castleFlags != 0)
+            {
+                if (((_castleFlags & CastleFlags.WhiteShort) != 0) 
+                    && (piece == ChessPiece.WKing || from == ChessPosition.H1))
+                {
+                    _castleFlags &= ~CastleFlags.WhiteShort;
+                    _zob ^= ChessZobrist.CastleWS;
+                }
+
+                if (((_castleFlags & CastleFlags.WhiteLong) != 0)
+                    && (piece == ChessPiece.WKing || from == ChessPosition.A1))
+                {
+                    _castleFlags &= ~CastleFlags.WhiteLong;
+                    _zob ^= ChessZobrist.CastleWL;
+                }
+
+                if (((_castleFlags & CastleFlags.BlackShort) != 0)
+                    && (piece == ChessPiece.BKing || from == ChessPosition.H8))
+                {
+                    _castleFlags &= ~CastleFlags.BlackShort;
+                    _zob ^= ChessZobrist.CastleBS;
+                }
+
+                if (((_castleFlags & CastleFlags.BlackLong) != 0)
+                    && (piece == ChessPiece.BKing || from == ChessPosition.A8))
+                {
+                    _castleFlags &= ~CastleFlags.BlackLong;
+                    _zob ^= ChessZobrist.CastleBL;
+                }
+            }
 
 
 
@@ -841,10 +804,7 @@ namespace Sinobyl.Engine
                 PieceAdd(tofile.ToPosition(ChessRank.Rank4), ChessPiece.WPawn, log);
 			}
 
-			_castleWS = movehist.CastleWS;
-			_castleWL = movehist.CastleWL;
-			_castleBS = movehist.CastleBS;
-			_castleBL = movehist.CastleBL;
+            this._castleFlags = movehist.Castle;
 			this._enpassant = movehist.Enpassant;
 			this._fiftymove = movehist.FiftyCount;
 			this._movesSinceNull = movehist.MovesSinceNull;
@@ -869,7 +829,7 @@ namespace Sinobyl.Engine
 		{
 			//save move history
             if (_histCount > _histUB) { HistResize(); }
-            _hist[_histCount++].Reset((ChessPosition.OUTOFBOUNDS), (ChessPosition.OUTOFBOUNDS), (ChessPiece.EMPTY), (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleWS, _castleWL, _castleBS, _castleBL, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
+            _hist[_histCount++].Reset((ChessPosition.OUTOFBOUNDS), (ChessPosition.OUTOFBOUNDS), (ChessPiece.EMPTY), (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
 
 			//reset since null count;
 			_movesSinceNull = 0;
@@ -896,10 +856,7 @@ namespace Sinobyl.Engine
             ChessMoveHistory movehist = _hist[_histCount - 1];
             _histCount--;
 
-			_castleWS = movehist.CastleWS;
-			_castleWL = movehist.CastleWL;
-			_castleBS = movehist.CastleBS;
-			_castleBL = movehist.CastleBL;
+            this._castleFlags = movehist.Castle;
 			this._enpassant = movehist.Enpassant;
 			this._fiftymove = movehist.FiftyCount;
 			this._movesSinceNull = movehist.MovesSinceNull;

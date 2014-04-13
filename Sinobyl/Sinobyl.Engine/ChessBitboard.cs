@@ -224,7 +224,20 @@ namespace Sinobyl.Engine
         public static ChessPosition PopFirst(ref ChessBitboard bitboard)
         {
             System.Diagnostics.Debug.Assert(bitboard != ChessBitboard.Empty);
-            ChessPosition first = bitboard.NorthMostPosition();
+
+            //self in-line the LSB function.
+            ChessPosition first;
+            if (((ulong)bitboard & 0xFFFFFFFF) != 0)
+            {
+                ulong x = (ulong)bitboard & 0xFFFFFFFF;
+                first = (ChessPosition)debrujinLSB((int)x);
+            }
+            else
+            {
+                ulong x = (ulong)bitboard >> 32;
+                first = (ChessPosition)(debrujinLSB((int)x) + 32);
+            }
+
             bitboard = bitboard & ~first.Bitboard();
             return first;
         }

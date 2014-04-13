@@ -188,8 +188,10 @@ namespace Sinobyl.Engine
                 | board[ChessPieceType.Rook]
                 | board[ChessPieceType.Queen];
 
-            foreach(ChessPosition pos in slidersAndKnights.ToPositions())
+
+            while(slidersAndKnights != ChessBitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
+                ChessPosition pos = ChessBitboardInfo.PopFirst(ref slidersAndKnights);
                 //ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
                 ChessPiece piece = board.PieceAt(pos);
                 //if (piece == ChessPiece.EMPTY) { continue; }

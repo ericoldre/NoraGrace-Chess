@@ -100,8 +100,11 @@ namespace Sinobyl.Engine
             isolated = ChessBitboard.Empty;
             unconnected = ChessBitboard.Empty;
 
-            foreach (ChessPosition pos in whitePawns.ToPositions())
+            ChessBitboard positions = whitePawns;
+
+            while(positions != ChessBitboard.Empty)
             {
+                ChessPosition pos = ChessBitboardInfo.PopFirst(ref positions);
                 ChessFile f = pos.GetFile();
                 ChessRank r = pos.GetRank();
                 ChessBitboard bbFile = pos.GetFile().Bitboard();
@@ -209,8 +212,8 @@ namespace Sinobyl.Engine
 
             int startScore, endScore, bestEndScore;
 
-            var white = passedPawns & board[ChessPlayer.White];
-            if (!white.Empty())
+            var positions = passedPawns & board[ChessPlayer.White];
+            if (positions != ChessBitboard.Empty)
             {
                 bestEndScore = 0;
 
@@ -221,8 +224,9 @@ namespace Sinobyl.Engine
                 myAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All();
                 hisAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All();
 
-                foreach (ChessPosition passedPos in white.ToPositions())
+                while(positions != ChessBitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
                 {
+                    ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
                     ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirS, ref trailerPos);
 
@@ -263,8 +267,8 @@ namespace Sinobyl.Engine
                 }
             }
 
-            var black = passedPawns & board[ChessPlayer.Black];
-            if (!black.Empty())
+            positions = passedPawns & board[ChessPlayer.Black];
+            if (positions != ChessBitboard.Empty)
             {
                 bestEndScore = 0;
                 myKing = board.KingPosition(ChessPlayer.Black).Reverse();
@@ -274,8 +278,9 @@ namespace Sinobyl.Engine
                 myAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All().Reverse();
                 hisAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All().Reverse();
 
-                foreach (ChessPosition passedPos in black.ToPositions())
+                while(positions != ChessBitboard.Empty) // (ChessPosition passedPos in black.ToPositions())
                 {
+                    ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
                     ChessPosition passesPos2 = passedPos.Reverse();
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
                     ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirN, ref trailerPos);

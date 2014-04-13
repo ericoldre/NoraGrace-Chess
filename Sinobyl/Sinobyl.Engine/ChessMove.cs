@@ -1065,32 +1065,32 @@ namespace Sinobyl.Engine
                 OutFrom = ChessPosition.OUTOFBOUNDS;
 				OutPieceVal = 0;
 
-				if (mypawn != 0)
+                if (mypawn != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = mypawn;
 					OutPieceVal = 100;
 				}
-				else if (myknight != 0)
+                else if (myknight != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myknight;
 					OutPieceVal = 300;
 				}
-				else if (mybishop != 0)
+                else if (mybishop != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = mybishop;
 					OutPieceVal = 300;
 				}
-				else if (myrook != 0)
+                else if (myrook != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myrook;
 					OutPieceVal = 500;
 				}
-				else if (myqueen != 0)
+                else if (myqueen != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myqueen;
 					OutPieceVal = 900;
 				}
-				else if (myking != 0)
+                else if (myking != ChessPosition.OUTOFBOUNDS)
 				{
 					OutFrom = myking;
 					OutPieceVal = 100000;
@@ -1102,20 +1102,20 @@ namespace Sinobyl.Engine
 					return false;
 				}
 
-                ChessDirection addAttackFrom = positionattacked.DirectionTo(OutFrom);
-                if (!addAttackFrom.IsDirectionKnight())
-				{
-					ChessPosition AddPosition = 0;
-					ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
-                    if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
-					{
-                        attacks |= AddPosition.Bitboard();
-					}
-                    else if (addAttackFrom.IsDirectionBishop() && AddPiece.PieceIsSliderBishop())
-					{
-                        attacks |= AddPosition.Bitboard();
-					}
-				}
+                //ChessDirection addAttackFrom = positionattacked.DirectionTo(OutFrom);
+                //if (!addAttackFrom.IsDirectionKnight())
+                //{
+                //    ChessPosition AddPosition = 0;
+                //    ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
+                //    if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
+                //    {
+                //        attacks |= AddPosition.Bitboard();
+                //    }
+                //    else if (addAttackFrom.IsDirectionBishop() && AddPiece.PieceIsSliderBishop())
+                //    {
+                //        attacks |= AddPosition.Bitboard();
+                //    }
+                //}
                 attacks &= ~OutFrom.Bitboard();
 				return true;
 

@@ -211,5 +211,24 @@ namespace Sinobyl.Engine
             return bitboard == 0;
         }
 
+        public static IEnumerable<ChessPosition> ToPositions(this ChessBitboard bitboard)
+        {
+            while (bitboard != 0)
+            {
+                ChessPosition first = bitboard.NorthMostPosition();
+                yield return first;
+                bitboard = bitboard & ~first.Bitboard();
+            }
+        }
+
+        public static ChessPosition PopFirst(ref ChessBitboard bitboard)
+        {
+            System.Diagnostics.Debug.Assert(bitboard != ChessBitboard.Empty);
+            ChessPosition first = bitboard.NorthMostPosition();
+            bitboard = bitboard & ~first.Bitboard();
+            return first;
+        }
+
+
     }
 }

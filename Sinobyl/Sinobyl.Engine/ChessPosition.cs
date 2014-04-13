@@ -76,15 +76,7 @@ namespace Sinobyl.Engine
             return pos.GetFile().FileToString() + pos.GetRank().RankToString();
         }
 
-        public static IEnumerable<ChessPosition> ToPositions(this ChessBitboard bitboard)
-        {
-            while (bitboard != 0)
-            {
-                ChessPosition first = bitboard.NorthMostPosition();
-                yield return first;
-                bitboard = bitboard & ~first.Bitboard();
-            }
-        }
+
         public static ChessBitboard Bitboard(this ChessPosition position)
         {
             if (position.IsInBounds())

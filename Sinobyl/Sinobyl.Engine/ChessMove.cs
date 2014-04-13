@@ -722,107 +722,36 @@ namespace Sinobyl.Engine
             ChessBitboard pawnTargets = board[board.WhosTurn.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
 
             //loop through all non pawn locations
-            foreach (ChessPosition piecepos in (board[board.WhosTurn] & ~board[ChessPieceType.Pawn]).ToPositions())
+            ChessBitboard attacks = ChessBitboard.Empty;
+            ChessBitboard myNonPawns = board[board.WhosTurn] & ~board[ChessPieceType.Pawn];
+            while(myNonPawns != ChessBitboard.Empty)// (ChessPosition piecepos in (board[board.WhosTurn] & ~board[ChessPieceType.Pawn]).ToPositions())
             {
+                ChessPosition piecepos = ExtensionsChessBitboard.PopFirst(ref myNonPawns);
                 ChessPiece piece = board.PieceAt(piecepos);
-
-                //knight attacks
-                if (piece == myknight)
+                ChessPieceType pieceType = piece.ToPieceType();
+                switch (pieceType)
                 {
-                    foreach (ChessPosition attackPos in (Attacks.KnightAttacks(piecepos) & targetLocations).ToPositions())
-                    {
-                        yield return new ChessMove(piecepos, attackPos);
-                    }
-                    continue;
+                    case ChessPieceType.Knight:
+                        attacks = Attacks.KnightAttacks(piecepos) & targetLocations;
+                        break;
+                    case ChessPieceType.Bishop:
+                        attacks = MagicBitboards.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        break;
+                    case ChessPieceType.Rook:
+                        attacks = MagicBitboards.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        break;
+                    case ChessPieceType.Queen:
+                        attacks = MagicBitboards.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        break;
+                    case ChessPieceType.King:
+                        attacks = Attacks.KingAttacks(piecepos) & targetLocations;
+                        break;
                 }
-                //bishop attacks
-                if (piece == mybishop)
+                while (attacks != ChessBitboard.Empty)
                 {
-                    foreach (ChessPosition attackPos in (MagicBitboards.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations).ToPositions())
-                    {
-                        yield return new ChessMove(piecepos, attackPos);
-                    }
-                    continue;
+                    ChessPosition attackPos = ExtensionsChessBitboard.PopFirst(ref attacks);
+                    yield return new ChessMove(piecepos, attackPos);
                 }
-                //rook attacks
-                if (piece == myrook)
-                {
-                    foreach (ChessPosition attackPos in (MagicBitboards.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations).ToPositions())
-                    {
-                        yield return new ChessMove(piecepos, attackPos);
-                    }
-                    continue;
-                }
-                //queen attacks
-                if (piece == myqueen)
-                {
-                    foreach (ChessPosition attackPos in (MagicBitboards.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations).ToPositions())
-                    {
-                        yield return new ChessMove(piecepos, attackPos);
-                    }
-                    continue;
-                }
-                //king attacks
-                if (piece == myking)
-                {
-                    foreach (ChessPosition attackPos in (Attacks.KingAttacks(piecepos) & targetLocations).ToPositions())
-                    {
-                        yield return new ChessMove(piecepos, attackPos);
-                    }
-                    continue;
-                }
-                //pawn moves
-                //if (piece == mypawn)
-                //{
-                //    //pawn attacks
-                //    foreach (var attackPos in (Attacks.PawnAttacks(piecepos, board.WhosTurn) & pawnTargets).ToPositions())
-                //    {
-                //        if (attackPos.GetRank() == myrank8)
-                //        {
-                //            retval.Add(new ChessMove(piecepos, attackPos, myqueen));
-                //            retval.Add(new ChessMove(piecepos, attackPos, myrook));
-                //            retval.Add(new ChessMove(piecepos, attackPos, mybishop));
-                //            retval.Add(new ChessMove(piecepos, attackPos, myknight));
-                //        }
-                //        else
-                //        {
-                //            retval.Add(new ChessMove(piecepos, attackPos));
-                //        }
-                //    }
-
-                //    ////pawn jumps
-                //    //if (!CapsOnly)
-                //    //{
-                //    //    //pawn jump
-                //    //    ChessPosition targetpos = Chess.PositionInDirection(piecepos, mypawnnorth);
-                //    //    targetpiece = board.PieceAt(targetpos);
-                //    //    if (targetpiece == ChessPiece.EMPTY)
-                //    //    {
-                //    //        if (targetpos.GetRank() == myrank8)
-                //    //        {
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, myqueen));
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, myrook));
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, mybishop));
-                //    //            retval.Add(new ChessMove(piecepos, targetpos, myknight));
-                //    //        }
-                //    //        else
-                //    //        {
-                //    //            retval.Add(new ChessMove(piecepos, targetpos));
-                //    //        }
-
-                //    //        //double jump
-                //    //        if (piecepos.GetRank() == myrank2)
-                //    //        {
-                //    //            targetpos = Chess.PositionInDirection(targetpos, mypawnnorth);
-                //    //            targetpiece = board.PieceAt(targetpos);
-                //    //            if (targetpiece == ChessPiece.EMPTY)
-                //    //            {
-                //    //                retval.Add(new ChessMove(piecepos, targetpos));
-                //    //            }
-                //    //        }
-                //    //    }
-                //    //}
-                //}
             }
 
             

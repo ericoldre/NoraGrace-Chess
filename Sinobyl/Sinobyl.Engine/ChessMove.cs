@@ -726,7 +726,7 @@ namespace Sinobyl.Engine
             ChessBitboard myNonPawns = board[board.WhosTurn] & ~board[ChessPieceType.Pawn];
             while(myNonPawns != ChessBitboard.Empty)// (ChessPosition piecepos in (board[board.WhosTurn] & ~board[ChessPieceType.Pawn]).ToPositions())
             {
-                ChessPosition piecepos = ExtensionsChessBitboard.PopFirst(ref myNonPawns);
+                ChessPosition piecepos = ChessBitboardInfo.PopFirst(ref myNonPawns);
                 ChessPiece piece = board.PieceAt(piecepos);
                 ChessPieceType pieceType = piece.ToPieceType();
                 switch (pieceType)
@@ -749,7 +749,7 @@ namespace Sinobyl.Engine
                 }
                 while (attacks != ChessBitboard.Empty)
                 {
-                    ChessPosition attackPos = ExtensionsChessBitboard.PopFirst(ref attacks);
+                    ChessPosition attackPos = ChessBitboardInfo.PopFirst(ref attacks);
                     yield return new ChessMove(piecepos, attackPos);
                 }
             }

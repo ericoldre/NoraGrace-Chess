@@ -37,7 +37,7 @@ namespace Sinobyl.Engine
     }
 
 
-    public static class ExtensionsChessBitboard
+    public static class ChessBitboardInfo
     {
 
 

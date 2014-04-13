@@ -585,14 +585,14 @@ namespace Sinobyl.Engine
 			ChessMove tt_move = new ChessMove();
             if (SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, alpha, beta, out tt_move, out score))
 			{
-				//if last two moves were null this is a verification search. 
-				//do not allow cutoff here as original search may have had null cutoff
-				//which is what we are trying to get around.
-				if (!board.LastTwoMovesNull())
-				{
-                    return score;
-				}
-               // return score;
+                ////if last two moves were null this is a verification search. 
+                ////do not allow cutoff here as original search may have had null cutoff
+                ////which is what we are trying to get around.
+                //if (!board.LastTwoMovesNull())
+                //{
+                //    return score;
+                //}
+                return score;
 				
 			}
 
@@ -624,7 +624,8 @@ namespace Sinobyl.Engine
 				if (nullscore >= beta)
 				{
 					//record in trans table?
-					//trans_table_store(board,depth_remaining,TRANSVALUEATLEAST,beta,0);
+					//(board,depth_remaining,TRANSVALUEATLEAST,beta,0);
+                    SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.AtLeast, beta, ChessMove.EMPTY);
 					return beta;
 					//wouldDoNullCutoff = true;
 				}

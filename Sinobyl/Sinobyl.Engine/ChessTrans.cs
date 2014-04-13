@@ -198,16 +198,23 @@ namespace Sinobyl.Engine
 			#endregion
 
             EntryPair epair = this.FindPair(boardZob);
+            
+            //if we are storing without a move, see if one of existing entries at least has a move to store.
+            if(move == ChessMove.EMPTY)
+            {
+                if (epair.Deepest.Zobrist == boardZob) { move = epair.Deepest.BestMove; }
+                else if (epair.Recent.Zobrist == boardZob) { move = epair.Recent.BestMove; }
+            }
 
 			if (depth >= ((epair.Deepest.depth) - (epair.Deepest.age)))
 			{
 				//our data to store is better/deeper than entry in first slot
 
-				//push a copy of this entry to the second slot, if the position is different from the current
+                ////push a copy of this entry to the second slot, if the position is different from the current
                 if (boardZob != epair.Deepest.Zobrist)
-				{
-					epair.Recent = epair.Deepest; //we will want to test taking this out, because the recent entry we are replacing may well be newer than the one we are replacing it with
-				}
+                {
+                    epair.Recent = epair.Deepest; //we will want to test taking this out, because the recent entry we are replacing may well be newer than the one we are replacing it with
+                }
 
 				//store current information in 1st slot.
                 epair.Deepest = new Entry(boardZob, move, depth, value, type);

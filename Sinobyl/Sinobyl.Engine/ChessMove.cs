@@ -1040,52 +1040,28 @@ namespace Sinobyl.Engine
                 ChessPosition myqueen = ChessPosition.OUTOFBOUNDS;
                 ChessPosition myking = ChessPosition.OUTOFBOUNDS;
 
-
-				if (player == ChessPlayer.White)
-				{
-					foreach (ChessPosition attackPos in attacks.ToPositions())
-					{
-						ChessPiece attackPiece = board.PieceAt(attackPos);
-						switch (attackPiece)
-						{
-							case ChessPiece.WPawn:
-								mypawn = attackPos; break;
-							case ChessPiece.WKnight:
-								myknight = attackPos; break;
-							case ChessPiece.WBishop:
-								mybishop = attackPos; break;
-							case ChessPiece.WRook:
-								myrook = attackPos; break;
-							case ChessPiece.WQueen:
-								myqueen = attackPos; break;
-							case ChessPiece.WKing:
-								myking = attackPos; break;
-						}
-					}
-				}
-				else
-				{
-					foreach (ChessPosition attackPos in attacks.ToPositions())
-					{
-						ChessPiece attackPiece = board.PieceAt(attackPos);
-						switch (attackPiece)
-						{
-							case ChessPiece.BPawn:
-								mypawn = attackPos; break;
-							case ChessPiece.BKnight:
-								myknight = attackPos; break;
-							case ChessPiece.BBishop:
-								mybishop = attackPos; break;
-							case ChessPiece.BRook:
-								myrook = attackPos; break;
-							case ChessPiece.BQueen:
-								myqueen = attackPos; break;
-							case ChessPiece.BKing:
-								myking = attackPos; break;
-						}
-					}
-				}
-
+                ChessBitboard loopAttacks = attacks & board[player];
+                while (loopAttacks != ChessBitboard.Empty)
+                {
+                    ChessPosition attackPos = ChessBitboardInfo.PopFirst(ref loopAttacks);
+                    ChessPieceType pieceType = board.PieceAt(attackPos).ToPieceType();
+                    switch (pieceType)
+                    {
+                        case ChessPieceType.Pawn:
+                            mypawn = attackPos; break;
+                        case ChessPieceType.Knight:
+                            myknight = attackPos; break;
+                        case ChessPieceType.Bishop:
+                            mybishop = attackPos; break;
+                        case ChessPieceType.Rook:
+                            myrook = attackPos; break;
+                        case ChessPieceType.Queen:
+                            myqueen = attackPos; break;
+                        case ChessPieceType.King:
+                            myking = attackPos; break;
+                    }
+                }
+				
                 OutFrom = ChessPosition.OUTOFBOUNDS;
 				OutPieceVal = 0;
 

@@ -20,20 +20,23 @@ namespace Sinobyl.Engine
 
 		public class EntryPair
 		{
-			public Entry Deepest = new Entry(0,new ChessMove(),-10,0,EntryType.Worthless);
-			public Entry Recent = new Entry(0, new ChessMove(), -10, 0, EntryType.Worthless);
+			public readonly Entry Deepest = new Entry();
+			public readonly Entry Recent = new Entry();
 		}
 		public class Entry
 		{
-			public readonly Int64 Zobrist;
-			public readonly ChessMove BestMove;
-			public readonly int depth;
-			public readonly int value;
-			public readonly EntryType Type;
+			public Int64 Zobrist;
+			public ChessMove BestMove;
+			public int depth;
+			public int value;
+			public EntryType Type;
 			public int age;
 
-
-			public Entry(Int64 a_zob, ChessMove move, int a_depth, int a_value, EntryType a_type)
+            public Entry()
+            {
+                Reset(0, ChessMove.EMPTY, -10, 0, EntryType.Worthless);
+            }
+			public void Reset(Int64 a_zob, ChessMove move, int a_depth, int a_value, EntryType a_type)
 			{
 				Zobrist = a_zob;
 				BestMove = move;
@@ -42,6 +45,18 @@ namespace Sinobyl.Engine
 				Type = a_type;
 				age = 0;
 			}
+
+            public void Reset(Entry other)
+            {
+                Zobrist = other.Zobrist;
+                BestMove = other.BestMove;
+                depth = other.depth;
+                value = other.value;
+                Type = other.Type;
+                age = other.age;
+            }
+
+           
 			public void AgeBy(int by)
 			{
 				age = age + by;
@@ -72,6 +87,7 @@ namespace Sinobyl.Engine
 		{
 			return hashtable[GetAddress(zob)];
 		}
+
 		private void PairStore(EntryPair pair)
 		{
 			if (pair.Deepest.Zobrist != 0 && pair.Recent.Zobrist != 0)
@@ -213,16 +229,16 @@ namespace Sinobyl.Engine
                 ////push a copy of this entry to the second slot, if the position is different from the current
                 if (boardZob != epair.Deepest.Zobrist)
                 {
-                    epair.Recent = epair.Deepest; //we will want to test taking this out, because the recent entry we are replacing may well be newer than the one we are replacing it with
+                    epair.Recent.Reset(epair.Deepest); //we may want to test taking this out, because the recent entry we are replacing may well be newer than the one we are replacing it with
                 }
 
 				//store current information in 1st slot.
-                epair.Deepest = new Entry(boardZob, move, depth, value, type);
+                epair.Deepest.Reset(boardZob, move, depth, value, type);
 			}
 			else
 			{
 				//if not better than first slot put in the 2nd
-                epair.Recent = new Entry(boardZob, move, depth, value, type);
+                epair.Recent.Reset(boardZob, move, depth, value, type);
 			}
 
 			this.PairStore(epair);

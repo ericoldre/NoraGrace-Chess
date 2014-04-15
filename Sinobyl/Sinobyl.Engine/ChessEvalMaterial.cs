@@ -91,7 +91,7 @@ namespace Sinobyl.Engine
                 endScore -= _settings.MaterialBishopPair[ChessGameStage.Endgame];
             }
 
-            float startWeight = CalcStartWeight(basicCount);
+            int startWeight = CalcStartWeight(basicCount);
 
             //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
 
@@ -99,12 +99,12 @@ namespace Sinobyl.Engine
             //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
         }
 
-        protected virtual float CalcStartWeight(int basicMaterialCount)
+        protected virtual int CalcStartWeight(int basicMaterialCount)
         {
             //full material would be 62
             if (basicMaterialCount >= 56)
             {
-                return 1;
+                return 100;
             }
             else if (basicMaterialCount <= 10)
             {
@@ -114,7 +114,8 @@ namespace Sinobyl.Engine
             {
                 int rem = basicMaterialCount - 10;
                 float retval = (float)rem / 46f;
-                return retval;
+                int retval2 = (int)Math.Round((retval * 100));
+                return retval2;
             }
         }
         
@@ -122,7 +123,7 @@ namespace Sinobyl.Engine
         public class Results
         {
             public readonly Int64 ZobristMaterial;
-            public readonly float StartWeight;
+            public readonly int StartWeight;
             public readonly int ScoreStart;
             public readonly int ScoreEnd;
             public readonly int BasicMaterialCount;
@@ -137,7 +138,7 @@ namespace Sinobyl.Engine
             //public readonly int Br;
             //public readonly int Bq;
             
-            public Results(Int64 zobristMaterial, float startWeight, int scoreStart, int scoreEnd, int basicMateralCount /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
+            public Results(Int64 zobristMaterial, int startWeight, int scoreStart, int scoreEnd, int basicMateralCount /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
             {
                 ZobristMaterial = zobristMaterial;
                 StartWeight = startWeight;
@@ -160,7 +161,7 @@ namespace Sinobyl.Engine
 
             public bool DoShelter
             {
-                get { return this.StartWeight > .4; }
+                get { return this.StartWeight > 40; }
             }
 
         }

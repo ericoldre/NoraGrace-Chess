@@ -396,7 +396,7 @@ namespace Sinobyl.Engine
         public int PawnsPassedStart = 0;
         public int PawnsPassedEnd = 0;
         public int ShelterStorm = 0;
-        public float StageStartWeight = 0;
+        public int StageStartWeight = 0;
 
         public void Reset()
         {
@@ -416,9 +416,9 @@ namespace Sinobyl.Engine
             StageStartWeight = 0;
         }
 
-        public float StageEndWeight
+        public int StageEndWeight
         {
-            get { return 1 - StageStartWeight; }
+            get { return 100 - StageStartWeight; }
         }
 
         public int ScoreStart
@@ -439,7 +439,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return (int)(((float)ScoreStart * StageStartWeight) + ((float)ScoreEnd * StageEndWeight));
+                return ((ScoreStart * StageStartWeight) + (ScoreEnd * StageEndWeight)) / 100;
             }
         }
 
@@ -447,7 +447,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return (int)(((float)MatStart * StageStartWeight) + ((float)MatEnd * StageEndWeight));
+                return ((MatStart * StageStartWeight) + (MatEnd * StageEndWeight)) / 100;
             }
         }
 
@@ -455,7 +455,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return (int)(((float)PcSqStart * StageStartWeight) + ((float)PcSqEnd * StageEndWeight));
+                return ((PcSqStart * StageStartWeight) + (PcSqEnd * StageEndWeight)) / 100;
             }
         }
 
@@ -463,14 +463,14 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return (int)(((float)MobStart * StageStartWeight) + ((float)MobEnd * StageEndWeight));
+                return ((MobStart * StageStartWeight) + (MobEnd * StageEndWeight)) / 100;
             }
         }
         public int Pawns
         {
             get
             {
-                return (int)(((float)PawnsStart * StageStartWeight) + ((float)PawnsEnd * StageEndWeight));
+                return ((PawnsStart * StageStartWeight) + (PawnsEnd * StageEndWeight)) / 100;
             }
         }
 
@@ -478,10 +478,10 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return (int)(((float)PawnsPassedStart * StageStartWeight) + ((float)PawnsPassedEnd * StageEndWeight));
+                return ((PawnsPassedStart * StageStartWeight) + (PawnsPassedEnd * StageEndWeight)) / 100;
             }
         }
-        
-        
+
+
     }
 }

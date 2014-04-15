@@ -165,6 +165,12 @@ namespace Sinobyl.Engine
 		{
             return _kingpos[(int)kingplayer];
 		}
+
+        public ChessBitboard Checkers
+        {
+            get { return _checkers; }
+        }
+
 		public bool IsCheck()
 		{
             System.Diagnostics.Debug.Assert(_checkers == (AttacksTo(KingPosition(WhosTurn)) & this[WhosTurn.PlayerOther()]));

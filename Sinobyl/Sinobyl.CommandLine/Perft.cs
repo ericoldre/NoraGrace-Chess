@@ -134,6 +134,10 @@ namespace Sinobyl.CommandLine
             if (doMoveSort)
             {
                 moveBuffer.Sort(board, true, ChessMove.EMPTY);
+                //var movelist = moves.ToList();
+                //ChessMove.Comp moveOrderer = new ChessMove.Comp(board, ChessMove.EMPTY, true);
+                //movelist.Sort(moveOrderer);
+                //moves = movelist;
             }
 
             foreach (ChessMove move in moveBuffer.SortedMoves())

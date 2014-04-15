@@ -1163,41 +1163,8 @@ namespace Sinobyl.Engine
             public void Initialize(ChessBoard board, bool capsOnly = false)
             {
                 moveCount = 0;
-                ChessBitboard rookPins = MagicBitboards.RookAttacks(board.KingPosition(board.WhosTurn), board.PieceLocationsAll);
-                ChessBitboard bishopPins = MagicBitboards.BishopAttacks(board.KingPosition(board.WhosTurn), board.PieceLocationsAll);
-                ChessBitboard enemyRooks = (board[ChessPieceType.Rook] | board[ChessPieceType.Queen]) & board[board.WhosTurn.PlayerOther()];
-                ChessBitboard enemyBishops = (board[ChessPieceType.Bishop] | board[ChessPieceType.Queen]) & board[board.WhosTurn.PlayerOther()];
-                ChessPosition kingPos = board.KingPosition(board.WhosTurn);
-                System.Diagnostics.Debug.Assert(!rookPins.Contains(board[board.WhosTurn.PlayerOther()])); //rook pins should only contain my own pieces, otherwise we called
-                System.Diagnostics.Debug.Assert(!bishopPins.Contains(board[board.WhosTurn.PlayerOther()]));
-                
-
-                ChessBitboard bbFrom;
-                ChessBitboard bbTo;
-                ChessBitboard bbNew;
                 foreach (ChessMove genMove in ChessMove.GenMoves(board, capsOnly))
                 {
-                    bbFrom = genMove.From.Bitboard();
-                    if ((rookPins & bbFrom) != ChessBitboard.Empty)
-                    {
-                        bbTo = genMove.To.Bitboard();
-                        bbNew = board.PieceLocationsAll ^ (bbFrom | bbTo);
-                        if (MagicBitboards.RookAttacks(kingPos, bbNew).Contains(enemyRooks))
-                        {
-                            continue;
-                        }
-                    }
-
-                    if ((bishopPins & bbFrom) != ChessBitboard.Empty)
-                    {
-                        bbTo = genMove.To.Bitboard();
-                        bbNew = board.PieceLocationsAll ^ (bbFrom | bbTo);
-                        if (MagicBitboards.BishopAttacks(kingPos, bbNew).Contains(enemyBishops))
-                        {
-                            continue;
-                        }
-                    }
-
                     _array[moveCount++] = new MoveInfo() { Move = genMove, Score = 0 };
                 }
             }

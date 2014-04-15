@@ -30,8 +30,9 @@ namespace Sinobyl.Engine
 		public Int64 Zobrist;
 		public Int64 ZobristPawn;
         public Int64 ZobristMaterial;
+        public ChessBitboard Checkers;
 
-        public void Reset(ChessMove move, ChessPiece piecemoved, ChessPiece captured, ChessPosition enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial)
+        public void Reset(ChessMove move, ChessPiece piecemoved, ChessPiece captured, ChessPosition enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, ChessBitboard checkers)
         {
             this.Move = move;
             this.PieceMoved = piecemoved;
@@ -43,6 +44,7 @@ namespace Sinobyl.Engine
             this.Zobrist = zob;
             this.ZobristPawn = zobPawn;
             this.ZobristMaterial = zobMaterial;
+            this.Checkers = checkers;
         }
 	}
 
@@ -132,6 +134,9 @@ namespace Sinobyl.Engine
         private ChessBitboard[] _playerBoards = new ChessBitboard[2];
         
         private ChessBitboard _allPieces = 0;
+        private ChessBitboard _checkers = 0;
+        private ChessBitboard _pinnedPieces = 0;
+
         //private Attacks.ChessBitboardRotatedVert _allPiecesVert = 0;
         //private Attacks.ChessBitboardRotatedA1H8 _allPiecesA1H8 = 0;
         //private Attacks.ChessBitboardRotatedH1A8 _allPiecesH1A8 = 0;
@@ -228,10 +233,16 @@ namespace Sinobyl.Engine
 		}
 		public bool IsCheck()
 		{
+            System.Diagnostics.Debug.Assert(_checkers == AttacksTo(KingPosition(_whosturn), _whosturn.PlayerOther()));
 			return IsCheck(_whosturn);
 		}
+        
+
+
 		public bool IsCheck(ChessPlayer kingplayer)
 		{
+            System.Diagnostics.Debug.Assert(_checkers == AttacksTo(KingPosition(_whosturn), _whosturn.PlayerOther()));
+
 			ChessPosition kingpos = KingPosition(kingplayer);
             return PositionAttacked(kingpos, kingplayer.PlayerOther());
 		}
@@ -544,7 +555,7 @@ namespace Sinobyl.Engine
 			ChessFile tofile = to.GetFile();
 
             if (_histCount > _histUB) { HistResize(); }
-			_hist[_histCount++].Reset(move, piece, capture, _enpassant, _castleFlags, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial);
+			_hist[_histCount++].Reset(move, piece, capture, _enpassant, _castleFlags, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
 
 			//increment since null count;
 			_movesSinceNull++;
@@ -661,7 +672,10 @@ namespace Sinobyl.Engine
             _whosturn = _whosturn.PlayerOther();
 			_zob ^= ChessZobrist.Player;
 
+            _checkers = AttacksTo(_kingpos[(int)_whosturn], _whosturn.PlayerOther());
 		}
+
+        
 
 		public int HistoryCount
 		{
@@ -755,13 +769,14 @@ namespace Sinobyl.Engine
 			_zob = movehist.Zobrist;
 			_zobPawn = movehist.ZobristPawn;
             _zobMaterial = movehist.ZobristMaterial;
+            _checkers = movehist.Checkers;
 		}
 
 		public void MoveNullApply()
 		{
 			//save move history
             if (_histCount > _histUB) { HistResize(); }
-            _hist[_histCount++].Reset(ChessMove.EMPTY, (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial);
+            _hist[_histCount++].Reset(ChessMove.EMPTY, (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
 
 			//reset since null count;
 			_movesSinceNull = 0;
@@ -792,6 +807,7 @@ namespace Sinobyl.Engine
 			_zob = movehist.Zobrist;
 			_zobPawn = movehist.ZobristPawn;
             _zobMaterial = movehist.ZobristMaterial;
+            _checkers = movehist.Checkers;
 		}
 
 		public int MovesSinceNull
@@ -836,6 +852,7 @@ namespace Sinobyl.Engine
 			}
 			return ChessPiece.EMPTY;
 		}
+
         public ChessBitboard AttacksTo(ChessPosition to, ChessPlayer by)
 		{
             return AttacksTo(to) & this[by];

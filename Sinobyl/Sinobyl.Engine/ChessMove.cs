@@ -1391,7 +1391,7 @@ namespace Sinobyl.Engine
 
                 foreach (ChessMove genMove in ChessMove.GenMoves(board, capsOnly))
                 {
-                    _array[moveCount++] = new MoveInfo() { Move = genMove };
+                    _array[moveCount++].Move = genMove;// = new MoveInfo() { Move = genMove };
                 }
             }
 
@@ -1453,6 +1453,7 @@ namespace Sinobyl.Engine
                     _array[i].SEE = see;
                     _array[i].PcSq = pcSq;
                     _array[i].Flags = flags;
+                    _array[i].Score = _array[i].ScoreCalc();
 
                 }
 
@@ -1461,7 +1462,7 @@ namespace Sinobyl.Engine
                 {
                     for (int ii = i; ii > 0; ii--)
                     {
-                        if (_array[ii] > _array[ii - 1])
+                        if (_array[ii].Score > _array[ii - 1].Score)
                         {
                             var tmp = _array[ii];
                             _array[ii] = _array[ii - 1];
@@ -1474,10 +1475,6 @@ namespace Sinobyl.Engine
                     }
                 }
 
-                if (ttMove != ChessMove.EMPTY)
-                {
-                    int br = 1;
-                }
             }
 
             public IEnumerable<ChessMove> SortedMoves()
@@ -1497,9 +1494,17 @@ namespace Sinobyl.Engine
             public int SEE;
             public int PcSq;
             public MoveFlags Flags;
+            public int Score;
 
+            public int ScoreCalc()
+            {
+                return SEE + PcSq
+                    + ((Flags & MoveFlags.TransTable) != 0 ? 10000 : 0)
+                    + ((Flags & MoveFlags.Capture) != 0 ? 1000 : 0);
+            }
             public static bool operator > (MoveInfo x, MoveInfo y)
             {
+                return x.Score > y.Score;
                 //first check if any of the flags used for ordering are different, if they are, order using the relevant flags value.
                 //var xOrderFlags = x.Flags & _orderFlags;
                 //var yOrderFlags = y.Flags & _orderFlags;
@@ -1515,6 +1520,7 @@ namespace Sinobyl.Engine
                 }
                 else
                 {
+                    //return false;
                     return x.PcSq > y.PcSq;
                 }
             }

@@ -361,16 +361,16 @@ namespace Sinobyl.Engine
 
 			bool in_check_before_move = board.IsCheck();
 
-            ChessMoves moves = new ChessMoves(ChessMove.GenMovesLegal(board));
-			ChessMove.Comp moveOrderer = new ChessMove.Comp(board, tt_move,true);
-			moves.Sort(moveOrderer);
+            var plyMoves = _moveBuffer[0];
+            plyMoves.Initialize(board);
+            plyMoves.Sort(board, true, tt_move);
 
 			int alpha = -INFINITY;
 			int beta = INFINITY;
 
 			ChessMove bestmove = new ChessMove();
 
-			foreach (ChessMove move in moves)
+            foreach (ChessMove move in plyMoves.SortedMoves())
 			{
 				CurrentVariation[0] = move;
 

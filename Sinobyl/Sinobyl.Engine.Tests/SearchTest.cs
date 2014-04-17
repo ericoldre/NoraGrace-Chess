@@ -89,8 +89,8 @@ namespace Sinobyl.Engine.Tests
         {
             ChessMove m1 = new ChessMove(board, move1);
             ChessMove m2 = new ChessMove(board, move2);
-            int score1 = ChessMove.Comp.CompEstScoreSEE(m1, board);
-            int score2 = ChessMove.Comp.CompEstScoreSEE(m2, board);
+            int score1 = ChessMoveSEE.CompEstScoreSEE(m1, board);
+            int score2 = ChessMoveSEE.CompEstScoreSEE(m2, board);
             Assert.IsTrue(score1 > score2);
         }
     }

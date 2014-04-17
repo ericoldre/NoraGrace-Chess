@@ -64,6 +64,8 @@
     <Compile Include="ChessGameStage.cs" />
     <Compile Include="ChessMatch.cs" />
     <Compile Include="ChessMove.cs" />
+    <Compile Include="ChessMoveBuffer.cs" />
+    <Compile Include="ChessMoveSEE.cs" />
     <Compile Include="ChessOpening.cs" />
     <Compile Include="ChessPGN.cs" />
     <Compile Include="ChessPiece.cs" />

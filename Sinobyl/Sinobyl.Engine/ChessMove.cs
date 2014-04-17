@@ -1391,7 +1391,7 @@ namespace Sinobyl.Engine
 
                 foreach (ChessMove genMove in ChessMove.GenMoves(board, capsOnly))
                 {
-                    _array[moveCount++] = new MoveInfo() { Move = genMove, Score = 0 };
+                    _array[moveCount++] = new MoveInfo() { Move = genMove };
                 }
             }
 
@@ -1416,48 +1416,44 @@ namespace Sinobyl.Engine
                 for (int i = 0; i < moveCount; i++)
                 {
                     ChessMove move = _array[i].Move;
+                    ChessPiece piece = board.PieceAt(move.From);
+                    bool isCap = board.PieceAt(move.To) != ChessPiece.EMPTY;
+
                     System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
 
-                    if (_array[i].Move == ttMove)
+                    //calc pcsq value;
+                    int pcSq = 0;
+                    int dummyPcSq = 0;
+                    board.PcSqEvaluator.PcSqValuesRemove(piece, move.From, ref pcSq, ref dummyPcSq);
+                    board.PcSqEvaluator.PcSqValuesAdd(piece, move.To, ref pcSq, ref dummyPcSq);
+                    if (board.WhosTurn == ChessPlayer.Black) { pcSq = -pcSq; }
+
+                    int see = 0;
+
+                    //calc flags
+                    MoveFlags flags = 0;
+                    if (move == ttMove) { flags |= MoveFlags.TransTable; }
+                    if (move.Promote != ChessPiece.EMPTY) { flags |= MoveFlags.Promote; }
+
+                    if (isCap)
                     {
-                        _array[i].Score = int.MaxValue;
+                        flags |= MoveFlags.Capture;
+                        see = ChessMove.Comp.CompEstScoreSEE(move, board);
+                        //if (see > 0) { flags |= MoveFlags.CapturePositive; }
+                        //if (see == 0) { flags |= MoveFlags.CaptureEqual; }
                     }
-                    else if(useSEE)
-                    {
-                        ChessPiece piece = board.PieceAt(move.From);
-                        bool isCap = board.PieceAt(move.To) != ChessPiece.EMPTY;
 
-                        //calc diff in pcsq
-                        int pcSq = 0;
-                        int dummyPcSq = 0;
-                        board.PcSqEvaluator.PcSqValuesRemove(piece, move.From, ref pcSq, ref dummyPcSq);
-                        board.PcSqEvaluator.PcSqValuesAdd(piece, move.To, ref pcSq, ref dummyPcSq);
-                        if (board.WhosTurn == ChessPlayer.Black) { pcSq = -pcSq; }
+                    //if(piece.ToPieceType() == ChessPieceType.Pawn && (move.To.GetRank() == ChessRank.Rank7 || move.To.GetRank() == ChessRank.Rank2))
+                    //{
+                    //    flags |= MoveFlags.Pawn7th;
+                    //}
 
-                        //get see score
-                        int see = 0;
-                        if (isCap)
-                        {
-                            see = ChessMove.Comp.CompEstScoreSEE(move, board);
-                        }
+                    //if (killers.IsKiller(move)) { flags |= MoveFlags.Killer; }
 
-                        int bonus = 0;
-                        if (isCap && see >= 0)
-                        {
-                            bonus = 1000;
-                        }
-                        else if (!isCap && killers.IsKiller(move))
-                        {
-                            //bonus = 500; //killers not helping right now
-                        }
+                    _array[i].SEE = see;
+                    _array[i].PcSq = pcSq;
+                    _array[i].Flags = flags;
 
-                        //_array[i].Score = ChessMove.Comp.CompEstScore(move, board);
-                        _array[i].Score = see + pcSq + bonus;
-                    }
-                    else
-                    {
-                        _array[i].Score = ChessMove.Comp.CompEstScore(move, board);
-                    }
                 }
 
                 //now sort array.
@@ -1465,9 +1461,7 @@ namespace Sinobyl.Engine
                 {
                     for (int ii = i; ii > 0; ii--)
                     {
-                        int scoreii = _array[ii].Score;
-                        int scoreminus = _array[ii - 1].Score;
-                        if (scoreii > scoreminus)
+                        if (_array[ii] > _array[ii - 1])
                         {
                             var tmp = _array[ii];
                             _array[ii] = _array[ii - 1];
@@ -1478,6 +1472,11 @@ namespace Sinobyl.Engine
                             break;
                         }
                     }
+                }
+
+                if (ttMove != ChessMove.EMPTY)
+                {
+                    int br = 1;
                 }
             }
 
@@ -1491,10 +1490,59 @@ namespace Sinobyl.Engine
 
         }
 
+        [System.Diagnostics.DebuggerDisplay(@"{Move} SEE:{SEE} PcSq:{PcSq} Flags:{Flags}")]
         public struct MoveInfo
         {
             public ChessMove Move;
-            public int Score;
+            public int SEE;
+            public int PcSq;
+            public MoveFlags Flags;
+
+            public static bool operator > (MoveInfo x, MoveInfo y)
+            {
+                //first check if any of the flags used for ordering are different, if they are, order using the relevant flags value.
+                //var xOrderFlags = x.Flags & _orderFlags;
+                //var yOrderFlags = y.Flags & _orderFlags;
+                if (x.Flags != y.Flags)
+                {
+                    //int x2 = (int)xOrderFlags;
+                    //int y2 = (int)yOrderFlags;
+                    return x.Flags > y.Flags;
+                }
+                else if (x.SEE != y.SEE)
+                {
+                    return x.SEE > y.SEE;
+                }
+                else
+                {
+                    return x.PcSq > y.PcSq;
+                }
+            }
+            public static bool operator < (MoveInfo x, MoveInfo y)
+            {
+                return !(x > y);
+            }
+
+
+            //public void SetScores(ChessMove move, int see, int pcSq, MoveFlags flags)
+            //{
+            //    Move = move;
+            //    SEE = see;
+            //    PcSq = pcSq;
+            //    Flags = flags;
+            //}
+
+            //private const MoveFlags _orderFlags = MoveFlags.TransTable | MoveFlags.Promote | MoveFlags.CapturePositive | MoveFlags.CaptureEqual | MoveFlags.Killer;
         }
+
+        [Flags]
+        public enum MoveFlags
+        {
+            Killer = (1 << 0),
+            Capture = (1 << 1),
+            Promote = (1 << 2),
+            TransTable = (1 << 3),
+        }
+
     }
 }

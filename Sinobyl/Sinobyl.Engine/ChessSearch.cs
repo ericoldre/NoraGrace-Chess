@@ -658,7 +658,8 @@ namespace Sinobyl.Engine
             ChessMove bestmove = ChessMove.EMPTY;
 
 
-            foreach (ChessMove move in plyMoves.SortedMoves())
+            ChessMove move;
+            while ((move = plyMoves.NextMove()) != ChessMove.EMPTY)
 			{
 				CurrentVariation[ply] = move;
 
@@ -773,8 +774,8 @@ namespace Sinobyl.Engine
 
 
 			int tried_move_count = 0;
-
-            foreach (ChessMove move in plyMoves.SortedMoves())
+            ChessMove move;
+            while ((move = plyMoves.NextMove()) != ChessMove.EMPTY)
 			{
 
 				//todo: fulitity check 

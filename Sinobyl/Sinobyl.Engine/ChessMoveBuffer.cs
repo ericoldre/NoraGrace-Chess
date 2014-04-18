@@ -52,10 +52,12 @@ namespace Sinobyl.Engine
                 return move == move1 || move == move2;
             }
         }
+
         public class PlyBuffer
         {
             private readonly MoveData[] _array = new MoveData[192];
             private int _moveCount;
+            private int _moveCurrent;
 
             private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
 
@@ -68,11 +70,24 @@ namespace Sinobyl.Engine
             public void Initialize(ChessBoard board, bool capsOnly = false)
             {
                 _moveCount = ChessMoveInfo.GenMovesArray(_array, board, capsOnly);
+                _moveCurrent = 0;
             }
 
             public int MoveCount
             {
                 get { return _moveCount; }
+            }
+
+            public ChessMove NextMove()
+            {
+                if (_moveCurrent < _moveCount)
+                {
+                    return _array[_moveCurrent++].Move;
+                }
+                else
+                {
+                    return ChessMove.EMPTY;
+                }
             }
 
             public void RegisterCutoff(ChessBoard board, ChessMove move)

@@ -123,12 +123,11 @@ namespace Sinobyl.CommandLine
                 return;
             }
 
-            var moves = ChessMoveInfo.GenMoves(board).ToList();
-
+            
             var moveBuffer = buffer[ply];
             moveBuffer.Initialize(board);
 
-            System.Diagnostics.Debug.Assert(moves.Count == moveBuffer.MoveCount);
+            //System.Diagnostics.Debug.Assert(moves.Count == moveBuffer.MoveCount);
             
 
             if (doMoveSort)
@@ -140,9 +139,10 @@ namespace Sinobyl.CommandLine
                 //moves = movelist;
             }
 
-            foreach (ChessMove move in moveBuffer.SortedMoves())
+            ChessMove move;
+            while((move = moveBuffer.NextMove()) != ChessMove.EMPTY)
             {
-                System.Diagnostics.Debug.Assert(moves.Contains(move));
+                //System.Diagnostics.Debug.Assert(moves.Contains(move));
 
                 board.MoveApply(move);
 

@@ -54,8 +54,8 @@ namespace Sinobyl.Engine
         }
         public class PlyBuffer
         {
-            private readonly MoveInfo[] _array = new MoveInfo[192];
-            private int moveCount;
+            private readonly MoveData[] _array = new MoveData[192];
+            private int _moveCount;
 
             private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
 
@@ -67,17 +67,12 @@ namespace Sinobyl.Engine
 
             public void Initialize(ChessBoard board, bool capsOnly = false)
             {
-                moveCount = 0;
-
-                foreach (ChessMove genMove in ChessMoveInfo.GenMoves(board, capsOnly))
-                {
-                    _array[moveCount++].Move = genMove;// = new MoveInfo() { Move = genMove };
-                }
+                _moveCount = ChessMoveInfo.GenMovesArray(_array, board, capsOnly);
             }
 
             public int MoveCount
             {
-                get { return moveCount; }
+                get { return _moveCount; }
             }
 
             public void RegisterCutoff(ChessBoard board, ChessMove move)
@@ -93,7 +88,7 @@ namespace Sinobyl.Engine
                 //useSEE = true;
                 var killers = _playerKillers[(int)board.WhosTurn];
                 //first score moves
-                for (int i = 0; i < moveCount; i++)
+                for (int i = 0; i < _moveCount; i++)
                 {
                     ChessMove move = _array[i].Move;
                     ChessPiece piece = board.PieceAt(move.From());
@@ -138,7 +133,7 @@ namespace Sinobyl.Engine
                 }
 
                 //now sort array.
-                for (int i = 1; i < moveCount; i++)
+                for (int i = 1; i < _moveCount; i++)
                 {
                     for (int ii = i; ii > 0; ii--)
                     {
@@ -159,7 +154,7 @@ namespace Sinobyl.Engine
 
             public IEnumerable<ChessMove> SortedMoves()
             {
-                for (int i = 0; i < moveCount; i++)
+                for (int i = 0; i < _moveCount; i++)
                 {
                     yield return _array[i].Move;
                 }
@@ -168,7 +163,7 @@ namespace Sinobyl.Engine
         }
 
         [System.Diagnostics.DebuggerDisplay(@"{Move.Description()} SEE:{SEE} PcSq:{PcSq} Flags:{Flags}")]
-        public struct MoveInfo
+        public struct MoveData
         {
             public ChessMove Move;
             public int SEE;
@@ -182,7 +177,7 @@ namespace Sinobyl.Engine
                     + ((Flags & MoveFlags.TransTable) != 0 ? 10000 : 0)
                     + ((Flags & MoveFlags.Capture) != 0 ? 1000 : 0);
             }
-            public static bool operator >(MoveInfo x, MoveInfo y)
+            public static bool operator >(MoveData x, MoveData y)
             {
                 return x.Score > y.Score;
                 //first check if any of the flags used for ordering are different, if they are, order using the relevant flags value.
@@ -204,7 +199,7 @@ namespace Sinobyl.Engine
                     return x.PcSq > y.PcSq;
                 }
             }
-            public static bool operator <(MoveInfo x, MoveInfo y)
+            public static bool operator <(MoveData x, MoveData y)
             {
                 return !(x > y);
             }

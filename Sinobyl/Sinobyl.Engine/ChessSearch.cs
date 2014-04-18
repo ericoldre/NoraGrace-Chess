@@ -368,7 +368,7 @@ namespace Sinobyl.Engine
 			int alpha = -INFINITY;
 			int beta = INFINITY;
 
-			ChessMove bestmove = new ChessMove();
+            ChessMove bestmove = ChessMove.EMPTY;
 
             foreach (ChessMove move in plyMoves.SortedMoves())
 			{
@@ -389,7 +389,7 @@ namespace Sinobyl.Engine
 					//first couple nodes search full width
 					score = -ValSearch(depth - 1, 1, -beta, -alpha);
 				}
-				else if (move.Equals(this._bestvariation[0]))
+				else if (_bestvariation != null && _bestvariation.Count > 0 && move == this._bestvariation[0])
 				{
 					//doing first move of deeper search
 
@@ -439,7 +439,7 @@ namespace Sinobyl.Engine
             ChessBoard board = new ChessBoard(fen);
             foreach (var move in moves)
             {
-                if (ChessMove.GenMovesLegal(board).Contains(move))
+                if (ChessMoveInfo.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);
                     board.MoveApply(move);
@@ -455,7 +455,7 @@ namespace Sinobyl.Engine
                 ChessMove move;
                 int score;
                 this.SearchArgs.TransTable.QueryCutoff(board.Zobrist, 0, int.MinValue, int.MaxValue, out move, out score);
-                if (ChessMove.GenMovesLegal(board).Contains(move))
+                if (ChessMoveInfo.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);
                     board.MoveApply(move);
@@ -582,7 +582,7 @@ namespace Sinobyl.Engine
 			}
 
 			//check trans table
-			ChessMove tt_move = new ChessMove();
+            ChessMove tt_move = ChessMove.EMPTY;
             if (SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, alpha, beta, out tt_move, out score))
 			{
                 ////if last two moves were null this is a verification search. 
@@ -676,7 +676,7 @@ namespace Sinobyl.Engine
 
 
 				//check for blunder
-				bool isRecapture = (move.To == board.HistMove(2).To);
+                bool isRecapture = (move.To() == board.HistMove(2).To());
                 if (SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, depth, isRecapture, legalMovesTried, plyMoves.MoveCount, alpha, beta))
                 {
                     if (!in_check_before_move)  //weird behavior if doing blunder when player in check
@@ -761,7 +761,7 @@ namespace Sinobyl.Engine
             plyMoves.Initialize(board, !playerincheck);
             plyMoves.Sort(board, false, ChessMove.EMPTY);
 
-			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,new ChessMove(),false);
+			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,ChessMoveInfo.Create(),false);
 			//moves.Sort(moveOrderer);
 
 
@@ -787,7 +787,7 @@ namespace Sinobyl.Engine
 				int move_score = -ValSearchQ(ply + 1, -beta, -alpha);
 
 				//check for blunder
-				bool isRecapture = (move.To == board.HistMove(2).To);
+                bool isRecapture = (move.To() == board.HistMove(2).To());
                 if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, 0, isRecapture, tried_move_count, plyMoves.MoveCount, alpha, beta))
                 {
                     if (!playerincheck) //weird behavior if doing blunder when player in check

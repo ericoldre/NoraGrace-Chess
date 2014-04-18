@@ -73,13 +73,14 @@ namespace Sinobyl.Engine.Tests
         {
             System.Collections.Generic.Dictionary<int, ChessMove> dic = new System.Collections.Generic.Dictionary<int, ChessMove>();
 
-            foreach (var to in ChessPositionInfo.AllPositions.Union(new ChessPosition[] { ChessPosition.OUTOFBOUNDS }))
+            foreach (var to in ChessPositionInfo.AllPositions)
             {
-                foreach (var from in ChessPositionInfo.AllPositions.Union(new ChessPosition[] { ChessPosition.OUTOFBOUNDS }))
+                foreach (var from in ChessPositionInfo.AllPositions)
                 {
-                    foreach (var prom in ChessPieceInfo.AllPieces.Union(new ChessPiece[] { ChessPiece.EMPTY }))
+                    foreach (var prom in ChessPieceInfo.AllPieces)
                     {
-                        ChessMove move = new ChessMove(from, to, prom);
+                        if (prom.ToPieceType() == ChessPieceType.Pawn || prom.ToPieceType() == ChessPieceType.King) { continue; }
+                        ChessMove move = ChessMoveInfo.Create(from, to, prom);
                         var hash = move.GetHashCode();
                         if (dic.ContainsKey(hash))
                         {

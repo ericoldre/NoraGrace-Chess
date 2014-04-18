@@ -417,7 +417,7 @@ namespace Sinobyl.Engine
 					int ifullmove = (imove / 2) + 1;
 					sbMoves.Append(ifullmove.ToString() + ". ");
 				}
-				sbMoves.Append(move.ToString(board) + " ");
+				sbMoves.Append(move.Description(board) + " ");
 				board.MoveApply(move);
                 
                 if (Comments.ContainsKey(imove - 1))
@@ -642,7 +642,7 @@ namespace Sinobyl.Engine
 						}
 						else
 						{
-							ChessMove move = new ChessMove(board, token);
+							ChessMove move = ChessMoveInfo.Parse(board, token);
 							board.MoveApply(move);
 							moves.Add(move);
 

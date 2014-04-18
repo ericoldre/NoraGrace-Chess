@@ -21,7 +21,7 @@ namespace Sinobyl.Engine.Tests
 
             //Assert.IsFalse(board99.IsDrawBy50MoveRule());
 
-            //ChessMove moveKf3 = new ChessMove(ChessPosition.F4, ChessPosition.F3);
+            //ChessMove moveKf3 = ChessMoveInfo.Create(ChessPosition.F4, ChessPosition.F3);
            // board99.MoveApply(moveKf3);
 
            // Assert.IsTrue(board99.IsDrawBy50MoveRule());
@@ -87,8 +87,8 @@ namespace Sinobyl.Engine.Tests
 
         private void AssertFirstGreaterSEE(ChessBoard board, string move1, string move2)
         {
-            ChessMove m1 = new ChessMove(board, move1);
-            ChessMove m2 = new ChessMove(board, move2);
+            ChessMove m1 = ChessMoveInfo.Parse(board, move1);
+            ChessMove m2 = ChessMoveInfo.Parse(board, move2);
             int score1 = ChessMoveSEE.CompEstScoreSEE(m1, board);
             int score2 = ChessMoveSEE.CompEstScoreSEE(m2, board);
             Assert.IsTrue(score1 > score2);

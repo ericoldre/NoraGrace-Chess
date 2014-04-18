@@ -149,7 +149,7 @@ namespace Sinobyl.Engine.Tests
         {
             ChessPosition f = ChessPositionInfo.AllPositions[random.Next(ChessPositionInfo.AllPositions.Length)];
             ChessPosition t = ChessPositionInfo.AllPositions[random.Next(ChessPositionInfo.AllPositions.Length)];
-            return new ChessMove(f, t);
+            return ChessMoveInfo.Create(f, t);
         }
 
         public ChessTrans.EntryType RandEntryType()

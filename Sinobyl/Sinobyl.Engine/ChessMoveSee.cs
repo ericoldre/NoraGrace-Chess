@@ -16,8 +16,8 @@ namespace Sinobyl.Engine
             int retval = 0;
 
 
-            ChessPiece mover = board.PieceAt(move.From);
-            ChessPiece taken = board.PieceAt(move.To);
+            ChessPiece mover = board.PieceAt(move.From());
+            ChessPiece taken = board.PieceAt(move.To());
             ChessPlayer me = mover.PieceToPlayer();
 
 
@@ -26,9 +26,9 @@ namespace Sinobyl.Engine
             {
                 retval += taken.PieceValBasic();
                 //do see
-                var attacks = board.AttacksTo(move.To);
-                attacks &= ~move.From.Bitboard();
-                retval -= attackswap(board, attacks, me.PlayerOther(), move.To, mover.PieceValBasic());
+                var attacks = board.AttacksTo(move.To());
+                attacks &= ~(move.From().Bitboard());
+                retval -= attackswap(board, attacks, me.PlayerOther(), move.To(), mover.PieceValBasic());
             }
 
             //int pieceSqVal = 0;

@@ -19,7 +19,7 @@ namespace Sinobyl.Engine
 		public override ChessMove FindMove(ChessFEN fen)
 		{
 			ChessBoard board = new ChessBoard(fen);
-			var moves = ChessMove.GenMoves(board);
+			var moves = ChessMoveInfo.GenMoves(board);
 
 			List<moveinfo> infos = new List<moveinfo>();
 			int totalPop = 0;

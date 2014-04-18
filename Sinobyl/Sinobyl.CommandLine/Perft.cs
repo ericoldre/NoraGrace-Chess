@@ -123,7 +123,7 @@ namespace Sinobyl.CommandLine
                 return;
             }
 
-            var moves = ChessMove.GenMoves(board).ToList();
+            var moves = ChessMoveInfo.GenMoves(board).ToList();
 
             var moveBuffer = buffer[ply];
             moveBuffer.Initialize(board);

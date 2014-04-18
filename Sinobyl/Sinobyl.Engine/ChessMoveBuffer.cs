@@ -69,7 +69,7 @@ namespace Sinobyl.Engine
             {
                 moveCount = 0;
 
-                foreach (ChessMove genMove in ChessMove.GenMoves(board, capsOnly))
+                foreach (ChessMove genMove in ChessMoveInfo.GenMoves(board, capsOnly))
                 {
                     _array[moveCount++].Move = genMove;// = new MoveInfo() { Move = genMove };
                 }
@@ -82,7 +82,7 @@ namespace Sinobyl.Engine
 
             public void RegisterCutoff(ChessBoard board, ChessMove move)
             {
-                if (board.PieceAt(move.To) != ChessPiece.EMPTY)
+                if (board.PieceAt(move.To()) != ChessPiece.EMPTY)
                 {
                     _playerKillers[(int)board.WhosTurn].RegisterKiller(move);
                 }
@@ -96,16 +96,16 @@ namespace Sinobyl.Engine
                 for (int i = 0; i < moveCount; i++)
                 {
                     ChessMove move = _array[i].Move;
-                    ChessPiece piece = board.PieceAt(move.From);
-                    bool isCap = board.PieceAt(move.To) != ChessPiece.EMPTY;
+                    ChessPiece piece = board.PieceAt(move.From());
+                    bool isCap = board.PieceAt(move.To()) != ChessPiece.EMPTY;
 
                     System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
 
                     //calc pcsq value;
                     int pcSq = 0;
                     int dummyPcSq = 0;
-                    board.PcSqEvaluator.PcSqValuesRemove(piece, move.From, ref pcSq, ref dummyPcSq);
-                    board.PcSqEvaluator.PcSqValuesAdd(piece, move.To, ref pcSq, ref dummyPcSq);
+                    board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq, ref dummyPcSq);
+                    board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq, ref dummyPcSq);
                     if (board.WhosTurn == ChessPlayer.Black) { pcSq = -pcSq; }
 
                     int see = 0;
@@ -113,7 +113,7 @@ namespace Sinobyl.Engine
                     //calc flags
                     MoveFlags flags = 0;
                     if (move == ttMove) { flags |= MoveFlags.TransTable; }
-                    if (move.Promote != ChessPiece.EMPTY) { flags |= MoveFlags.Promote; }
+                    if (move.Promote() != ChessPiece.EMPTY) { flags |= MoveFlags.Promote; }
 
                     if (isCap)
                     {

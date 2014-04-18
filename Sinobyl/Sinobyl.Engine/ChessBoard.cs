@@ -272,7 +272,7 @@ namespace Sinobyl.Engine
 		{
 			if (IsCheck())
 			{
-				if (!ChessMove.GenMovesLegal(this).Any())
+				if (!ChessMoveInfo.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -284,7 +284,7 @@ namespace Sinobyl.Engine
 		{
 			if (!IsCheck())
 			{
-				if (!ChessMove.GenMovesLegal(this).Any())
+				if (!ChessMoveInfo.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -473,18 +473,18 @@ namespace Sinobyl.Engine
 
 		public void MoveApply(string movedesc)
 		{
-			ChessMove move = new ChessMove(this, movedesc);
+			ChessMove move = ChessMoveInfo.Parse(this, movedesc);
 			this.MoveApply(move);
 		}
 
 		public void MoveApply(ChessMove move)
 		{
-
-			ChessPosition from = move.From;
-			ChessPosition to = move.To;
+            System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
+			ChessPosition from = move.From();
+			ChessPosition to = move.To();
 			ChessPiece piece = this.PieceAt(from);
 			ChessPiece capture = this.PieceAt(to);
-			ChessPiece promote = move.Promote;
+            ChessPiece promote = move.Promote();
             ChessRank fromrank = from.GetRank();
 			ChessRank torank = to.GetRank();
 			ChessFile fromfile = from.GetFile();
@@ -643,49 +643,49 @@ namespace Sinobyl.Engine
 
             ChessMove moveUndoing = movehist.Move;
             //undo promotion
-            if (movehist.Move.Promote != ChessPiece.EMPTY)
+            if (movehist.Move.Promote() != ChessPiece.EMPTY)
             {
-                PieceChange(moveUndoing.To, movehist.PieceMoved);
+                PieceChange(moveUndoing.To(), movehist.PieceMoved);
             }
 			
             //move piece to it's original location
-            PieceMove(moveUndoing.To, moveUndoing.From);
+            PieceMove(moveUndoing.To(), moveUndoing.From());
 
 
 
 			//replace the captured piece
 			if (movehist.Captured != ChessPiece.EMPTY)
 			{
-                PieceAdd(moveUndoing.To, movehist.Captured);
+                PieceAdd(moveUndoing.To(), movehist.Captured);
 			}
 
 			//move rook back if castle
-            if (movehist.PieceMoved == ChessPiece.WKing && moveUndoing.From == ChessPosition.E1 && moveUndoing.To == ChessPosition.G1)
+            if (movehist.PieceMoved == ChessPiece.WKing && moveUndoing.From() == ChessPosition.E1 && moveUndoing.To() == ChessPosition.G1)
 			{
                 this.PieceMove(ChessPosition.F1, ChessPosition.H1);
 			}
-            if (movehist.PieceMoved == ChessPiece.WKing && moveUndoing.From == ChessPosition.E1 && moveUndoing.To == ChessPosition.C1)
+            if (movehist.PieceMoved == ChessPiece.WKing && moveUndoing.From() == ChessPosition.E1 && moveUndoing.To() == ChessPosition.C1)
 			{
                 this.PieceMove(ChessPosition.D1, ChessPosition.A1);
 			}
-            if (movehist.PieceMoved == ChessPiece.BKing && moveUndoing.From == ChessPosition.E8 && moveUndoing.To == ChessPosition.G8)
+            if (movehist.PieceMoved == ChessPiece.BKing && moveUndoing.From() == ChessPosition.E8 && moveUndoing.To() == ChessPosition.G8)
 			{
                 this.PieceMove(ChessPosition.F8, ChessPosition.H8);
 			}
-            if (movehist.PieceMoved == ChessPiece.BKing && moveUndoing.From == ChessPosition.E8 && moveUndoing.To == ChessPosition.C8)
+            if (movehist.PieceMoved == ChessPiece.BKing && moveUndoing.From() == ChessPosition.E8 && moveUndoing.To() == ChessPosition.C8)
 			{
                 this.PieceMove(ChessPosition.D8, ChessPosition.A8);
 			}
 
 			//put back pawn if enpassant capture
-            if (movehist.PieceMoved == ChessPiece.WPawn && moveUndoing.To == movehist.Enpassant)
+            if (movehist.PieceMoved == ChessPiece.WPawn && moveUndoing.To() == movehist.Enpassant)
 			{
-                ChessFile tofile = moveUndoing.To.GetFile();
+                ChessFile tofile = moveUndoing.To().GetFile();
                 PieceAdd(tofile.ToPosition(ChessRank.Rank5), ChessPiece.BPawn);
 			}
-            if (movehist.PieceMoved == ChessPiece.BPawn && moveUndoing.To == movehist.Enpassant)
+            if (movehist.PieceMoved == ChessPiece.BPawn && moveUndoing.To() == movehist.Enpassant)
 			{
-                ChessFile tofile = moveUndoing.To.GetFile();
+                ChessFile tofile = moveUndoing.To().GetFile();
                 PieceAdd(tofile.ToPosition(ChessRank.Rank4), ChessPiece.WPawn);
 			}
 

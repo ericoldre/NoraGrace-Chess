@@ -35,8 +35,8 @@ namespace Sinobyl.Engine
 
         public class KillerInfo
         {
-            private ChessMove move1;
-            private ChessMove move2;
+            public ChessMove move1 { get; private set; }
+            public ChessMove move2 { get; private set; }
 
             public void RegisterKiller(ChessMove move)
             {
@@ -60,11 +60,12 @@ namespace Sinobyl.Engine
             private int _moveCurrent;
 
             private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
-
+            private readonly ChessMove[][] _counterMoves = new ChessMove[16][]; //[16][64];
             public PlyBuffer()
             {
                 _playerKillers[0] = new KillerInfo();
                 _playerKillers[1] = new KillerInfo();
+                for (int i = 0; i <= _counterMoves.GetUpperBound(0); i++) { _counterMoves[i] = new ChessMove[64]; }
             }
 
             public void Initialize(ChessBoard board, bool capsOnly = false)
@@ -92,9 +93,19 @@ namespace Sinobyl.Engine
 
             public void RegisterCutoff(ChessBoard board, ChessMove move)
             {
-                if (board.PieceAt(move.To()) != ChessPiece.EMPTY)
+                if (board.PieceAt(move.To()) == ChessPiece.EMPTY)
                 {
                     _playerKillers[(int)board.WhosTurn].RegisterKiller(move);
+
+                    if (board.HistoryCount > 0 && board.MovesSinceNull > 0)
+                    {
+                        //register counter move hueristic.
+                        ChessMove prevMove = board.HistMove(1);
+                        ChessPiece prevPiece = board.PieceAt(prevMove.To());
+                        System.Diagnostics.Debug.Assert(prevPiece.PieceToPlayer() == board.WhosTurn.PlayerOther());
+                        _counterMoves[(int)prevPiece][(int)prevMove.To()] = move;
+                    }
+                    
                 }
             }
 
@@ -102,6 +113,21 @@ namespace Sinobyl.Engine
             {
                 //useSEE = true;
                 var killers = _playerKillers[(int)board.WhosTurn];
+
+                ChessMove killer1 = killers.move1;
+                ChessMove killer2 = killers.move2;
+
+                //find previous move and last quiet move used to counter it.
+                ChessMove counterMove = ChessMove.EMPTY;
+                if (board.HistoryCount > 0)
+                {
+                    ChessMove prevMove = board.HistMove(1);
+                    ChessPiece prevPiece = board.PieceAt(prevMove.To());
+                    //System.Diagnostics.Debug.Assert(prevPiece.PieceToPlayer() == board.WhosTurn.PlayerOther());
+                    counterMove = _counterMoves[(int)prevPiece][(int)prevMove.To()];
+                }
+                
+
                 //first score moves
                 for (int i = 0; i < _moveCount; i++)
                 {
@@ -137,6 +163,11 @@ namespace Sinobyl.Engine
                     //{
                     //    flags |= MoveFlags.Pawn7th;
                     //}
+
+                    if (move == counterMove || move == killer1 || move == killer2) 
+                    { 
+                        flags |= MoveFlags.Killer; 
+                    }
 
                     //if (killers.IsKiller(move)) { flags |= MoveFlags.Killer; }
 
@@ -189,8 +220,9 @@ namespace Sinobyl.Engine
             public int ScoreCalc()
             {
                 return SEE + PcSq
-                    + ((Flags & MoveFlags.TransTable) != 0 ? 10000 : 0)
-                    + ((Flags & MoveFlags.Capture) != 0 ? 1000 : 0);
+                    + ((Flags & MoveFlags.TransTable) != 0 ? 100000 : 0)
+                    + ((Flags & MoveFlags.Capture) != 0 ? 10000 : 0)
+                    + ((Flags & MoveFlags.Killer) != 0 ? 1000 : 0);
             }
             public static bool operator >(MoveData x, MoveData y)
             {

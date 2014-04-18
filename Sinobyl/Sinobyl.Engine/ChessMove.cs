@@ -32,7 +32,7 @@ namespace Sinobyl.Engine
             StringBuilder sb = new StringBuilder();
             foreach (ChessMove move in this)
             {
-                sb.Append(move.ToString()+ " ");
+                sb.Append(move.Description()+ " ");
             }
             return sb.ToString();
         }

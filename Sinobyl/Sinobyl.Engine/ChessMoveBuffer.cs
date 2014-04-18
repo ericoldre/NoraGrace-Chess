@@ -167,7 +167,7 @@ namespace Sinobyl.Engine
 
         }
 
-        [System.Diagnostics.DebuggerDisplay(@"{Move} SEE:{SEE} PcSq:{PcSq} Flags:{Flags}")]
+        [System.Diagnostics.DebuggerDisplay(@"{Move.Description()} SEE:{SEE} PcSq:{PcSq} Flags:{Flags}")]
         public struct MoveInfo
         {
             public ChessMove Move;

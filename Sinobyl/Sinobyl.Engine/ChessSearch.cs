@@ -381,9 +381,15 @@ namespace Sinobyl.Engine
 
                 board.MoveApply(move);
 
+                if (board.IsCheck(board.WhosTurn.PlayerOther()))
+                {
+                    board.MoveUndo();
+                    continue;
+                }
+
 				int score = 0;
 
-				ChessMoves subline = new ChessMoves();
+				
 				if (depth <= 3)
 				{
 					//first couple nodes search full width
@@ -439,6 +445,7 @@ namespace Sinobyl.Engine
             ChessBoard board = new ChessBoard(fen);
             foreach (var move in moves)
             {
+                //var legalMoves = ChessMoveInfo.GenMovesLegal(board).ToArray();
                 if (ChessMoveInfo.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);

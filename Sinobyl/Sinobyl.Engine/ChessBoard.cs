@@ -394,6 +394,7 @@ namespace Sinobyl.Engine
 				_zob = ChessZobrist.BoardZob(this);
 				_zobPawn = ChessZobrist.BoardZobPawn(this);
                 _zobMaterial = ChessZobrist.BoardZobMaterial(this);
+                _checkers = AttacksTo(_kingpos[(int)_whosturn]) & this[_whosturn.PlayerOther()];
 
 			}
 		}

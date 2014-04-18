@@ -220,9 +220,10 @@ namespace Sinobyl.Engine
             public int ScoreCalc()
             {
                 return SEE + PcSq
-                    + ((Flags & MoveFlags.TransTable) != 0 ? 100000 : 0)
-                    + ((Flags & MoveFlags.Capture) != 0 ? 10000 : 0)
-                    + ((Flags & MoveFlags.Killer) != 0 ? 1000 : 0);
+                    + ((Flags & MoveFlags.TransTable) != 0 ? 1000000 : 0)
+                    + ((Flags & MoveFlags.Capture) != 0 && SEE >= 0 ? 100000 : 0)
+                    + ((Flags & MoveFlags.Killer) != 0 ? 10000 : 0)
+                    + ((Flags & MoveFlags.Capture) != 0 ? 1000 : 0);
             }
             public static bool operator >(MoveData x, MoveData y)
             {

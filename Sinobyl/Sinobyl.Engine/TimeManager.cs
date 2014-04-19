@@ -20,7 +20,7 @@ namespace Sinobyl.Engine
 
         void NewPV(ChessMove move);
 
-        void UpdateProgress();
+        void NodeStart(int nodeCount);
     }
 
     public class TimeManagerRequestNodesEventArgs : EventArgs
@@ -82,7 +82,7 @@ namespace Sinobyl.Engine
             if (_log.IsDebugEnabled) { _log.DebugFormat("NewPV:{0}", move.Description()); }
         }
 
-        public virtual void UpdateProgress()
+        public virtual void NodeStart(int nodeCount)
         {
         }
     }
@@ -162,10 +162,13 @@ namespace Sinobyl.Engine
             CheckStop();
         }
 
-        public override void UpdateProgress()
+        public override void NodeStart(int nodeCount)
         {
-            base.UpdateProgress();
-            CheckStop();
+            base.NodeStart(nodeCount);
+            if ((nodeCount & 0x3FF) == 0)
+            {
+                CheckStop();
+            }
         }
     }
 }

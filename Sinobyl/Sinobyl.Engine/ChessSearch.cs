@@ -559,6 +559,12 @@ namespace Sinobyl.Engine
 			//for logging
 			CountTotalAINodes++;
 			CountAIValSearch++;
+            SearchArgs.TimeManager.NodeStart(CountAIValSearch); //will end up setting abort flag if over allotted time.
+
+            if (_aborting)
+            {
+                return 0;
+            }
 
             if (CountAIValSearch > this.SearchArgs.MaxNodes)
             {
@@ -566,15 +572,8 @@ namespace Sinobyl.Engine
                 return 0;
             }
 
-			//execute this every 1024 nodes
-			if ((CountAIValSearch & 0x3FF) == 0)
+			if ((CountAIValSearch & 0xFFF) == 0)
 			{
-                SearchArgs.TimeManager.UpdateProgress(); //will end up setting abort flag if over allotted time.
-                if (_aborting)
-                {
-                    return 0;
-                }
-
 				DateTime now = DateTime.Now;
 				TimeSpan timeSpent = now - _starttime;
 				TimeSpan amountOfTimeWeShouldHaveSpentToGetThisFar = TimeSpan.FromMilliseconds(1000 * (float)(CountAIQSearch + CountAIValSearch) / (float)SearchArgs.NodesPerSecond);

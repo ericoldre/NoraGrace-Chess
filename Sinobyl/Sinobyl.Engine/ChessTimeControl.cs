@@ -73,17 +73,17 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        public TimeSpan RecommendSearchTime(TimeSpan a_Remaining, int a_MoveNum)
-        {
+        //public TimeSpan RecommendSearchTime(TimeSpan a_Remaining, int a_MoveNum)
+        //{
 
-            TimeSpan ExtraPerMove = TimeSpan.FromSeconds(0);
-            if (this.BonusEveryXMoves > 0)
-            {
-                ExtraPerMove = TimeSpan.FromMilliseconds(this.BonusAmount.TotalMilliseconds / this.BonusEveryXMoves);
-            }
+        //    TimeSpan ExtraPerMove = TimeSpan.FromSeconds(0);
+        //    if (this.BonusEveryXMoves > 0)
+        //    {
+        //        ExtraPerMove = TimeSpan.FromMilliseconds(this.BonusAmount.TotalMilliseconds / this.BonusEveryXMoves);
+        //    }
 
-            return TimeSpan.FromMilliseconds(a_Remaining.TotalMilliseconds / 30) + ExtraPerMove;
-        }
+        //    return TimeSpan.FromMilliseconds(a_Remaining.TotalMilliseconds / 30) + ExtraPerMove;
+        //}
 
 
     }

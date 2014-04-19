@@ -30,7 +30,6 @@ namespace Sinobyl.Engine.Tests
             { 
                 GameStartPosition = fen ,
                 TransTable = new ChessTrans(500),
-                StopAtTime = DateTime.Now.AddDays(1)
             });
 
             int progressCount = 0;

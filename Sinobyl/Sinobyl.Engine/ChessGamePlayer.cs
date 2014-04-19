@@ -210,7 +210,7 @@ namespace Sinobyl.Engine
             args.MaxDepth = _personality.MaxDepth;
             args.NodesPerSecond = _personality.NodesPerSecond;
             args.Blunder = _personality.Blunder;
-            args.StopAtTime = DateTime.Now + timeControl.RecommendSearchTime(timeLeft, FenCurrent.fullmove);
+            args.TimeManager = new TimeManagerBasic() { TimeControl = timeControl, ClockEnd = DateTime.Now + timeLeft };
             args.TransTable = _transTable;
             args.Delay = this.DelaySearch;
             args.Eval = _eval;

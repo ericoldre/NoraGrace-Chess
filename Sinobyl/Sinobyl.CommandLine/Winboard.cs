@@ -227,9 +227,6 @@ namespace Sinobyl.CommandLine
                     ChessEval eval = new ChessEval();
                     int e = eval.EvalFor(_board, _board.WhosTurn);
                     break;
-                case "nodecounttest":
-                    NodeCountTest();
-                    break;
             }
             
 		}
@@ -257,56 +254,5 @@ namespace Sinobyl.CommandLine
 
 		}
 
-		public void NodeCountTest()
-		{
-			using (System.IO.StreamReader reader = new System.IO.StreamReader("c:\\chess\\pgn\\gm2600.pgn"))
-			{
-				int gameCount = 0;
-				ChessTrans trans = new ChessTrans();
-				DateTime timeStart = DateTime.Now;
-
-				while(!reader.EndOfStream)
-				{
-					ChessPGN pgn = ChessPGN.NextGame(reader);
-					if (pgn == null) { break; }
-
-
-					
-					ChessBoard board1 = new ChessBoard(pgn.StartingPosition);
-					foreach (ChessMove move in pgn.Moves)
-					{
-
-						if (board1.HistoryCount % 4 == 0)
-						{
-							ChessSearch.Args args = new ChessSearch.Args();
-							args.MaxDepth = 7;
-							args.TransTable = trans;
-							args.GameStartPosition = new ChessFEN(pgn.StartingPosition);
-							args.GameMoves = board1.HistoryMoves;
-							args.Blunder = new ChessSearch.BlunderChance();
-							args.StopAtTime = DateTime.Now.AddHours(1);
-
-							ChessSearch search = new ChessSearch(args);
-							search.Search();
-
-							Program.ConsoleWriteline(string.Format("Move:{0}\tNodes:{1}\tTotal:{2}", board1.HistoryMoves.Count, search.CountAIValSearch + search.CountAIQSearch, ChessSearch.CountTotalAINodes));
-
-						}
-						
-						board1.MoveApply(move);
-					}
-
-					gameCount++;
-					if (gameCount >= 1) { break; }
-
-				}
-				DateTime timeEnd = DateTime.Now;
-				TimeSpan timeUsed = timeEnd - timeStart;
-
-				Program.ConsoleWriteline(string.Format("DONEALL:\tNodes:{0}\tTime:{1}", ChessSearch.CountTotalAINodes, timeUsed.TotalSeconds));
-
-
-			}
-		}
 	}
 }

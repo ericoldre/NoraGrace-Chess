@@ -213,7 +213,6 @@ namespace Sinobyl.Engine
 		private readonly IChessEval eval;
 		private ChessMove[] CurrentVariation = new ChessMove[50];
 		private DateTime _starttime;
-		private DateTime _stopattime;
 		private bool _aborting = false;
 		private bool _returnBestResult = true; //if false return null
 		private ChessMoves _bestvariation = new ChessMoves();
@@ -276,17 +275,15 @@ namespace Sinobyl.Engine
 		public Progress Search()
 		{
 
-			
-
-			_starttime = DateTime.Now;
-			_stopattime = this.SearchArgs.StopAtTime;
-			
+			_starttime = DateTime.Now;		
 
 			Thread.Sleep(this.SearchArgs.Delay);
 
 			SearchArgs.TransTable.AgeEntries(2);
 
-            
+            SearchArgs.TimeManager.StopSearch += TimeManager_StopSearch;
+            SearchArgs.TimeManager.RequestNodes += TimeManager_RequestNodes;
+            SearchArgs.TimeManager.StartSearch();
 
 			int depth = 1;
 
@@ -315,11 +312,6 @@ namespace Sinobyl.Engine
                     MateScoreLast = 0;
                 }
 
-                //add check for time here because in test games we occasionally never hit the time check in the search. assuming do to trans table cutoff returning before time check.
-                if (DateTime.Now > _stopattime)
-                {
-                    _aborting = true;
-                }
 
                 ////add check for draw on near horizon, in case of 50 move rule approaching, search will output giant amount of data to console if next move forces draw.
                 if (depth > 10 && _bestvariation != null && _bestvariation.Count() < depth - 6 && _bestvariationscore == -_contemptForDrawForPlayer[(int)board.WhosTurn])
@@ -335,6 +327,9 @@ namespace Sinobyl.Engine
 
 			CountTotalAITime += (DateTime.Now - _starttime);
 
+            SearchArgs.TimeManager.StopSearch -= TimeManager_StopSearch;
+            SearchArgs.TimeManager.RequestNodes -= TimeManager_RequestNodes;
+            
 			//return progress
 			if (_returnBestResult)
 			{
@@ -347,8 +342,21 @@ namespace Sinobyl.Engine
 			}
 		}
 
+
+        void TimeManager_RequestNodes(object sender, TimeManagerRequestNodesEventArgs e)
+        {
+            e.NodeCount = this.CountAIValSearch;
+        }
+
+        void TimeManager_StopSearch(object sender, EventArgs e)
+        {
+            _aborting = true;
+        }
+
 		private void ValSearchRoot(int depth)
 		{
+
+            SearchArgs.TimeManager.StartDepth(depth);
 
 			//set trans table entries
 			SearchArgs.TransTable.StoreVariation(board, _bestvariation);
@@ -389,6 +397,7 @@ namespace Sinobyl.Engine
 
 				int score = 0;
 
+                SearchArgs.TimeManager.StartMove(move);
 				
 				if (depth <= 3)
 				{
@@ -406,6 +415,8 @@ namespace Sinobyl.Engine
 					//doing search of a move we believe is going to fail low
 					score = ValSearchAspiration(depth, alpha, alpha, 0);
 				}
+
+                SearchArgs.TimeManager.EndMove(move);
 
 				board.MoveUndo();
 
@@ -435,8 +446,11 @@ namespace Sinobyl.Engine
                     {
                         OnProgressReported(new SearchProgressEventArgs(prog));
                     }
+
+                    SearchArgs.TimeManager.NewPV(move);
 				}
 			}
+            SearchArgs.TimeManager.EndDepth(depth);
 		}
 
         private List<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
@@ -555,13 +569,13 @@ namespace Sinobyl.Engine
 			//execute this every 1024 nodes
 			if ((CountAIValSearch & 0x3FF) == 0)
 			{
-				DateTime now = DateTime.Now;
+                SearchArgs.TimeManager.UpdateProgress(); //will end up setting abort flag if over allotted time.
+                if (_aborting)
+                {
+                    return 0;
+                }
 
-				if (now > _stopattime)
-				{
-					_aborting = true;
-					return 0;
-				}
+				DateTime now = DateTime.Now;
 				TimeSpan timeSpent = now - _starttime;
 				TimeSpan amountOfTimeWeShouldHaveSpentToGetThisFar = TimeSpan.FromMilliseconds(1000 * (float)(CountAIQSearch + CountAIValSearch) / (float)SearchArgs.NodesPerSecond);
 

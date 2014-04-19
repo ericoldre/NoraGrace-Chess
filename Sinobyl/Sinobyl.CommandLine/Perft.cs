@@ -25,7 +25,6 @@ namespace Sinobyl.CommandLine
                 
                 ChessSearch.Args args = new ChessSearch.Args();
 
-                args.StopAtTime = DateTime.Now.AddDays(1);
                 args.Eval = eval;
                 args.GameStartPosition = new ChessFEN(ChessFEN.FENStart);
                 args.GameMoves = movesDone;

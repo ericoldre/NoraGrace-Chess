@@ -121,6 +121,7 @@ namespace Sinobyl.Engine
             
             TimeSpan timeToSpend = TimeSpan.FromMilliseconds(timeLeftAtStart.TotalMilliseconds / 30) + extraPerMove;
             StopAtTime = DateTime.Now + timeToSpend;
+            if (_log.IsInfoEnabled) { _log.InfoFormat("timeToSpend:{0} StopAtTime:{1}", timeToSpend, StopAtTime); }
         }
 
         private void CheckStop()

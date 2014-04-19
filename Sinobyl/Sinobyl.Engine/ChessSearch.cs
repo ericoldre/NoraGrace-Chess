@@ -198,7 +198,7 @@ namespace Sinobyl.Engine
 				NodesPerSecond = int.MaxValue;
 				Blunder = new BlunderChance();
 				Delay = new TimeSpan(0);
-                Eval = new ChessEval();
+                Eval = ChessEval.Default;
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
 			}

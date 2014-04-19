@@ -107,6 +107,7 @@ namespace Sinobyl.Engine
         private ChessGamePlayerPersonality _personality = ChessGamePlayerPersonality.FromStrength(1);
         private readonly ChessTrans _transTable = new ChessTrans();
         private BackgroundWorker BookBackgroundWorker;
+        private ChessEval _eval = new ChessEval();
 
         public TimeSpan DelaySearch { get; set; }
 
@@ -212,6 +213,7 @@ namespace Sinobyl.Engine
             args.StopAtTime = DateTime.Now + timeControl.RecommendSearchTime(timeLeft, FenCurrent.fullmove);
             args.TransTable = _transTable;
             args.Delay = this.DelaySearch;
+            args.Eval = _eval;
 
             search.Abort(false);
             search.SearchAsync(args);

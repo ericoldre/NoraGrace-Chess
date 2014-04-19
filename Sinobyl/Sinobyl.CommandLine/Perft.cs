@@ -17,7 +17,7 @@ namespace Sinobyl.CommandLine
             ChessBoard board = new ChessBoard();
             ChessEval eval = new ChessEval();
             ChessMoves movesDone = new ChessMoves();
-
+            ChessTrans transTable = new ChessTrans();
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
             foreach (ChessMove move in pgn.Moves)
@@ -30,7 +30,7 @@ namespace Sinobyl.CommandLine
                 args.GameStartPosition = new ChessFEN(ChessFEN.FENStart);
                 args.GameMoves = movesDone;
                 args.MaxDepth = depth;
-                args.TransTable = new ChessTrans();
+                args.TransTable = transTable;
 
                 Program.ConsoleWriteline(board.FEN.ToString());
 

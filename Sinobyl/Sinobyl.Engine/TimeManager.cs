@@ -52,6 +52,10 @@ namespace Sinobyl.Engine
             return args.NodeCount;
         }
 
+        protected virtual bool CheckStop()
+        {
+            return false;
+        }
         public virtual void StartSearch()
         {
             if (_log.IsDebugEnabled) { _log.Debug("StopSearch"); }
@@ -59,26 +63,31 @@ namespace Sinobyl.Engine
 
         public virtual void StartDepth(int depth)
         {
+            if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("StartDepth:{0}", depth); }
         }
 
         public virtual void EndDepth(int depth)
         {
+            if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("EndDepth:{0}", depth); }
         }
 
         public virtual void StartMove(ChessMove move)
         {
+            if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("StartMove:{0}", move.Description()); }
         }
 
         public virtual void EndMove(ChessMove move)
         {
+            if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("EndMove:{0}", move.Description()); }
         }
 
         public virtual void NewPV(ChessMove move)
         {
+            if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("NewPV:{0}", move.Description()); }
         }
 
@@ -102,11 +111,6 @@ namespace Sinobyl.Engine
         public DateTime ClockEnd { get; set; }
         public DateTime StopAtTime { get; private set; }
         
-        public TimeManagerBasic()
-        {
-
-        }       
-
         public override void StartSearch()
         {
             base.StartSearch();
@@ -124,42 +128,13 @@ namespace Sinobyl.Engine
             if (_log.IsInfoEnabled) { _log.InfoFormat("timeToSpend:{0} StopAtTime:{1}", timeToSpend, StopAtTime); }
         }
 
-        private void CheckStop()
+        protected override bool CheckStop()
         {
             if (DateTime.Now > StopAtTime)
             {
-                base.RaiseStopSearch();
+                return true;
             }
-        }
-
-        public override void StartDepth(int depth)
-        {
-            base.StartDepth(depth);
-            CheckStop();
-        }
-
-        public override void EndDepth(int depth)
-        {
-            base.EndDepth(depth);
-            CheckStop();
-        }
-
-        public override void StartMove(ChessMove move)
-        {
-            base.StartMove(move);
-            CheckStop();
-        }
-
-        public override void EndMove(ChessMove move)
-        {
-            base.EndMove(move);
-            CheckStop();
-        }
-
-        public override void NewPV(ChessMove move)
-        {
-            base.NewPV(move);
-            CheckStop();
+            return false;
         }
 
         public override void NodeStart(int nodeCount)
@@ -167,7 +142,7 @@ namespace Sinobyl.Engine
             base.NodeStart(nodeCount);
             if ((nodeCount & 0x3FF) == 0)
             {
-                CheckStop();
+                if (CheckStop()) { RaiseStopSearch(); }
             }
         }
     }

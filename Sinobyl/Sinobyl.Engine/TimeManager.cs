@@ -28,73 +28,142 @@ namespace Sinobyl.Engine
         public int NodeCount { get; set; }
     }
 
-    public class TimeManagerBasic: ITimeManager
+    public abstract class TimeManagerBase : ITimeManager
     {
-        private static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(TimeManagerBasic));
-
+        protected static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(TimeManagerBase));
         public event EventHandler<EventArgs> StopSearch;
         public event EventHandler<TimeManagerRequestNodesEventArgs> RequestNodes;
 
-        private readonly ChessTimeControl _timeControl;
-        private readonly TimeSpan _timeLeftAtStart;
-
-        private DateTime _stopAtTime;
-
-        public TimeManagerBasic(ChessTimeControl timeControl, TimeSpan timeLeft)
+        protected void RaiseStopSearch()
         {
-            _timeControl = timeControl;
-            _timeLeftAtStart = timeLeft;
+            if (_log.IsDebugEnabled) { _log.Debug("StopSearch"); }
+            var ev = this.StopSearch;
+            if (ev != null) { ev(this, EventArgs.Empty); }
         }
 
-        
-
-        public void StartSearch()
+        protected int GetNodeCount()
         {
-            TimeSpan extraPerMove = TimeSpan.FromSeconds(0);
-            if (_timeControl.BonusEveryXMoves > 0)
+            var ev = this.RequestNodes;
+            var args = new TimeManagerRequestNodesEventArgs();
+            if (ev != null)
             {
-                extraPerMove = TimeSpan.FromMilliseconds(_timeControl.BonusAmount.TotalMilliseconds / _timeControl.BonusEveryXMoves);
+                ev(this, args);
+            }
+            return args.NodeCount;
+        }
+
+        public virtual void StartSearch()
+        {
+            if (_log.IsDebugEnabled) { _log.Debug("StopSearch"); }
+        }
+
+        public virtual void StartDepth(int depth)
+        {
+            if (_log.IsDebugEnabled) { _log.DebugFormat("StartDepth:{0}", depth); }
+        }
+
+        public virtual void EndDepth(int depth)
+        {
+            if (_log.IsDebugEnabled) { _log.DebugFormat("EndDepth:{0}", depth); }
+        }
+
+        public virtual void StartMove(ChessMove move)
+        {
+            if (_log.IsDebugEnabled) { _log.DebugFormat("StartMove:{0}", move.Description()); }
+        }
+
+        public virtual void EndMove(ChessMove move)
+        {
+            if (_log.IsDebugEnabled) { _log.DebugFormat("EndMove:{0}", move.Description()); }
+        }
+
+        public virtual void NewPV(ChessMove move)
+        {
+            if (_log.IsDebugEnabled) { _log.DebugFormat("NewPV:{0}", move.Description()); }
+        }
+
+        public virtual void UpdateProgress()
+        {
+        }
+    }
+
+    /// <summary>
+    /// Will never abort search;
+    /// </summary>
+    public class TimeManagerAnalyze : TimeManagerBase
+    {
+
+    }
+
+    public class TimeManagerBasic: TimeManagerBase
+    {
+
+        public ChessTimeControl TimeControl { get; set; }
+        public DateTime ClockEnd { get; set; }
+        public DateTime StopAtTime { get; private set; }
+        
+        public TimeManagerBasic()
+        {
+
+        }       
+
+        public override void StartSearch()
+        {
+            base.StartSearch();
+
+            TimeSpan timeLeftAtStart = ClockEnd - DateTime.Now;
+
+            TimeSpan extraPerMove = TimeSpan.FromSeconds(0);
+            if (TimeControl.BonusEveryXMoves > 0)
+            {
+                extraPerMove = TimeSpan.FromMilliseconds(TimeControl.BonusAmount.TotalMilliseconds / TimeControl.BonusEveryXMoves);
             }
             
-            TimeSpan timeToSpend = TimeSpan.FromMilliseconds(_timeLeftAtStart.TotalMilliseconds / 30) + extraPerMove;
-            _stopAtTime = DateTime.Now + timeToSpend;
+            TimeSpan timeToSpend = TimeSpan.FromMilliseconds(timeLeftAtStart.TotalMilliseconds / 30) + extraPerMove;
+            StopAtTime = DateTime.Now + timeToSpend;
         }
 
         private void CheckStop()
         {
-            if (DateTime.Now > _stopAtTime)
+            if (DateTime.Now > StopAtTime)
             {
-                var ev = this.StopSearch;
-                if (ev != null) { ev(this, EventArgs.Empty); }
+                base.RaiseStopSearch();
             }
         }
-        public void StartDepth(int depth)
+
+        public override void StartDepth(int depth)
         {
+            base.StartDepth(depth);
             CheckStop();
         }
 
-        public void EndDepth(int depth)
+        public override void EndDepth(int depth)
         {
+            base.EndDepth(depth);
             CheckStop();
         }
 
-        public void StartMove(ChessMove move)
+        public override void StartMove(ChessMove move)
         {
+            base.StartMove(move);
             CheckStop();
         }
 
-        public void EndMove(ChessMove move)
+        public override void EndMove(ChessMove move)
         {
+            base.EndMove(move);
             CheckStop();
         }
 
-        public void NewPV(ChessMove move)
+        public override void NewPV(ChessMove move)
         {
+            base.NewPV(move);
             CheckStop();
         }
 
-        public void UpdateProgress()
+        public override void UpdateProgress()
         {
+            base.UpdateProgress();
             CheckStop();
         }
     }

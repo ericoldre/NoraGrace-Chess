@@ -180,7 +180,6 @@ namespace Sinobyl.Engine
 		{
 			public ChessFEN GameStartPosition { get; set; }
 			public ChessMoves GameMoves { get; set; }
-			public DateTime StopAtTime { get; set; }
 			public int MaxDepth { get; set; }
 			public int NodesPerSecond { get; set; }
 			public ChessTrans TransTable { get; set; }
@@ -189,11 +188,11 @@ namespace Sinobyl.Engine
             public IChessEval Eval { get; set; }
             public int MaxNodes { get; set; }
             public int ContemptForDraw { get; set; }
+            public ITimeManager TimeManager { get; set; }
 			public Args()
 			{
                 GameStartPosition = new ChessFEN(ChessFEN.FENStart);
 				GameMoves = new ChessMoves();
-				StopAtTime = DateTime.Now.AddSeconds(1);
 				MaxDepth = int.MaxValue;
 				NodesPerSecond = int.MaxValue;
 				Blunder = new BlunderChance();
@@ -201,6 +200,7 @@ namespace Sinobyl.Engine
                 Eval = ChessEval.Default;
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
+                TimeManager = new TimeManagerAnalyze();
 			}
 		}
 

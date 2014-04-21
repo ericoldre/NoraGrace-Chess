@@ -155,12 +155,14 @@ namespace Sinobyl.Engine
 
     public abstract class TimeManagerComplexity : TimeManagerBase
     {
+        public event EventHandler<EventArgs> ComplexityUpdated;
+
         private int _currDepth;
         private int _startMoveNodes;
         private Dictionary<ChessMove, int> _moveNodeCounts = new Dictionary<ChessMove, int>();
         private readonly Dictionary<int, List<ChessMove>> _pvsByDepth = new Dictionary<int, List<ChessMove>>();
 
-        public float Complexity { get; private set; }
+
         
         private double _lastPct1;
         //private double _lastPct2;
@@ -171,11 +173,28 @@ namespace Sinobyl.Engine
         private const double PCT1_TYPICAL = .316; //typical amount of nodes searched to refute 2nd best move compared to best move
         //private const double PCT2_TYPICAL = .250; //typical amount of nodes searched to refute 2nd & 3rd best move compared to best move
 
+        private double _complexity = 1;
+        public double Complexity 
+        {
+            get { return _complexity; }
+            private set
+            {
+                if (value != _complexity)
+                {
+                    _complexity = value;
+                    var ev = this.ComplexityUpdated;
+                    if (ev != null) { ev(this, EventArgs.Empty); }
+                }
+            } 
+        }
+
         public override void StartSearch()
         {
             base.StartSearch();
             _pvsByDepth.Clear();
         }
+
+
 
 
         
@@ -301,6 +320,21 @@ namespace Sinobyl.Engine
             }
         }
 
+    }
+
+    public abstract class TimeManagerNodes : TimeManagerComplexity
+    {
+        
+
+        public TimeManagerNodes()
+        {
+            this.ComplexityUpdated += OnComplexityUpdated;
+        }
+
+        void OnComplexityUpdated(object sender, EventArgs e)
+        {
+
+        }
 
     }
 }

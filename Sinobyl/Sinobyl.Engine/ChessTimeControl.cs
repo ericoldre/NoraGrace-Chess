@@ -5,47 +5,43 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public class ChessTimeControl
+    public abstract class ChessTimeControlGeneric<T>
     {
-        [System.Xml.Serialization.XmlIgnore]
-        public TimeSpan InitialTime = TimeSpan.FromMinutes(1);
-        [System.Xml.Serialization.XmlIgnore]
-        public TimeSpan BonusAmount = TimeSpan.FromSeconds(1);
+        public T InitialAmount { get; set; }
+        public T BonusAmount { get; set; }
+        public int BonusEveryXMoves { get; set; }
 
-        public int BonusEveryXMoves = 1;
+        public T CalcNewTimeLeft(T beforeMove, T amountUsed, int moveNum)
+        {
+            T retval = Subtract(beforeMove, amountUsed);
+            if (BonusEveryXMoves != 0 && moveNum % BonusEveryXMoves == 0)
+            {
+                retval = Add(retval, BonusAmount);
+            }
+            return retval;
+        }
 
-        public double SerializationInitTimeSeconds
-        {
-            get
-            {
-                return InitialTime.TotalSeconds;
-            }
-            set
-            {
-                InitialTime = TimeSpan.FromSeconds(value);
-            }
-        }
-        public double SerializationBonusAmt
-        {
-            get
-            {
-                return BonusAmount.TotalSeconds;
-            }
-            set
-            {
-                BonusAmount = TimeSpan.FromSeconds(value);
-            }
-        }
+        public abstract T Subtract(T x, T y);
+        public abstract T Add(T x, T y);
+        public abstract T Multiply(T x, double y);
+    }
+
+    public class ChessTimeControl: ChessTimeControlGeneric<TimeSpan>
+    {
+
 
         public ChessTimeControl()
         {
+            InitialAmount = TimeSpan.FromMinutes(1);
+            BonusAmount = TimeSpan.FromSeconds(1);
+            BonusEveryXMoves = 1;
 
         }
 
 
         public ChessTimeControl(TimeSpan a_InitialTime, TimeSpan a_BonusAmount, int a_BonusEveryXMoves)
         {
-            InitialTime = a_InitialTime;
+            InitialAmount = a_InitialTime;
             BonusEveryXMoves = a_BonusEveryXMoves;
             BonusAmount = a_BonusAmount;
         }
@@ -62,16 +58,30 @@ namespace Sinobyl.Engine
             return new ChessTimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromMinutes(a_Minutes), a_Moves);
         }
 
-
-        public TimeSpan CalcNewTimeLeft(TimeSpan beforeMove, TimeSpan amountUsed, int moveNum)
+        public override TimeSpan Add(TimeSpan x, TimeSpan y)
         {
-            TimeSpan retval = beforeMove - amountUsed;
-            if (BonusEveryXMoves != 0 && moveNum % BonusEveryXMoves == 0)
-            {
-                retval += BonusAmount;
-            }
-            return retval;
+            return x + y;
         }
+
+        public override TimeSpan Subtract(TimeSpan x, TimeSpan y)
+        {
+            return x - y;
+        }
+
+        public override TimeSpan Multiply(TimeSpan x, double y)
+        {
+            return TimeSpan.FromMilliseconds(x.TotalMilliseconds * y);
+        }
+
+        //public TimeSpan CalcNewTimeLeft(TimeSpan beforeMove, TimeSpan amountUsed, int moveNum)
+        //{
+        //    TimeSpan retval = beforeMove - amountUsed;
+        //    if (BonusEveryXMoves != 0 && moveNum % BonusEveryXMoves == 0)
+        //    {
+        //        retval += BonusAmount;
+        //    }
+        //    return retval;
+        //}
 
         //public TimeSpan RecommendSearchTime(TimeSpan a_Remaining, int a_MoveNum)
         //{
@@ -86,5 +96,21 @@ namespace Sinobyl.Engine
         //}
 
 
+    }
+
+    public class ChessTimeControlNodes : ChessTimeControlGeneric<int>
+    {
+        public override int Add(int x, int y)
+        {
+            return x + y;
+        }
+        public override int Subtract(int x, int y)
+        {
+            return x - y;
+        }
+        public override int Multiply(int x, double y)
+        {
+            return (int)Math.Round((double)x * y);
+        }
     }
 }

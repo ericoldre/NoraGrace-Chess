@@ -212,7 +212,7 @@ namespace Sinobyl.CommandLine
                     string[] args = argument.Split(' ');
                     _timeControl = new ChessTimeControl();
                     _timeControl.BonusEveryXMoves = int.Parse(args[0]);
-                    _timeControl.InitialTime = TimeSpan.FromMinutes(int.Parse(args[1]));
+                    _timeControl.InitialAmount = TimeSpan.FromMinutes(int.Parse(args[1]));
                     _timeControl.BonusAmount = TimeSpan.FromSeconds(int.Parse(args[2]));
                     if (_timeControl.BonusAmount.TotalSeconds > 0) { _timeControl.BonusEveryXMoves = 1; }
                     break;

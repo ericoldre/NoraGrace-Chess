@@ -234,8 +234,8 @@ namespace Sinobyl.Engine
             if (_started) { throw new Exception("game already started"); }
             _started = true;
 
-            _timeRemainingForPlayer[(int)ChessPlayer.White] = _timecontrol.InitialTime;
-            _timeRemainingForPlayer[(int)ChessPlayer.Black] = _timecontrol.InitialTime;
+            _timeRemainingForPlayer[(int)ChessPlayer.White] = _timecontrol.InitialAmount;
+            _timeRemainingForPlayer[(int)ChessPlayer.Black] = _timecontrol.InitialAmount;
             _timeMoveStarted = DateTime.Now;
 
             OnGameStarted();

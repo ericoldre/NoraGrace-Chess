@@ -327,6 +327,7 @@ namespace Sinobyl.Engine
 
 			CountTotalAITime += (DateTime.Now - _starttime);
 
+            SearchArgs.TimeManager.EndSearch();
             SearchArgs.TimeManager.StopSearch -= TimeManager_StopSearch;
             SearchArgs.TimeManager.RequestNodes -= TimeManager_RequestNodes;
             

@@ -20,6 +20,7 @@ namespace Sinobyl.CommandLine
             ChessTrans transTable = new ChessTrans();
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
+            var timeManager = new TimeManagerBasic() { TimeControl = ChessTimeControl.Blitz(100, 100), ClockEnd = DateTime.Now.AddDays(100) };
             foreach (ChessMove move in pgn.Moves)
             {
                 
@@ -30,7 +31,7 @@ namespace Sinobyl.CommandLine
                 args.GameMoves = movesDone;
                 args.MaxDepth = depth;
                 args.TransTable = transTable;
-
+                args.TimeManager = timeManager;
                 Program.ConsoleWriteline(board.FEN.ToString());
 
                 ChessSearch search = new ChessSearch(args);

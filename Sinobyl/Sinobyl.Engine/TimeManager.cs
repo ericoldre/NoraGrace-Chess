@@ -11,7 +11,8 @@ namespace Sinobyl.Engine
         event EventHandler<EventArgs> StopSearch;
         event EventHandler<TimeManagerRequestNodesEventArgs> RequestNodes;
         void StartSearch();
-        
+        void EndSearch();
+
         void StartDepth(int depth);
         void EndDepth(int depth);
 
@@ -61,6 +62,11 @@ namespace Sinobyl.Engine
             if (_log.IsDebugEnabled) { _log.Debug("StopSearch"); }
         }
 
+        public virtual void EndSearch()
+        {
+
+        }
+
         public virtual void StartDepth(int depth)
         {
             if (CheckStop()) { RaiseStopSearch(); }
@@ -104,7 +110,7 @@ namespace Sinobyl.Engine
 
     }
 
-    public class TimeManagerBasic: TimeManagerBase
+    public class TimeManagerBasic : TimeManagerComplexity
     {
 
         public ChessTimeControl TimeControl { get; set; }
@@ -145,5 +151,156 @@ namespace Sinobyl.Engine
                 if (CheckStop()) { RaiseStopSearch(); }
             }
         }
+    }
+
+    public abstract class TimeManagerComplexity : TimeManagerBase
+    {
+        private int _currDepth;
+        private int _startMoveNodes;
+        private Dictionary<ChessMove, int> _moveNodeCounts = new Dictionary<ChessMove, int>();
+        private readonly Dictionary<int, List<ChessMove>> _pvsByDepth = new Dictionary<int, List<ChessMove>>();
+
+        public float Complexity { get; private set; }
+        
+        private double _lastPct1;
+        //private double _lastPct2;
+
+        private List<double> _pct1History = new List<double>();
+        //private List<double> _pct2History = new List<double>();
+
+        private const double PCT1_TYPICAL = .316; //typical amount of nodes searched to refute 2nd best move compared to best move
+        //private const double PCT2_TYPICAL = .250; //typical amount of nodes searched to refute 2nd & 3rd best move compared to best move
+
+        public override void StartSearch()
+        {
+            base.StartSearch();
+            _pvsByDepth.Clear();
+        }
+
+
+        
+        public override void StartDepth(int depth)
+        {
+            _currDepth = depth;
+            base.StartDepth(depth);
+            _moveNodeCounts.Clear();
+        }
+
+        public override void EndDepth(int depth)
+        {
+            base.EndDepth(depth);
+            if (_moveNodeCounts.Count == 1) { Complexity = 0; return; } //only one legal move, this is easy.
+
+            int[] allCounts = _moveNodeCounts.Values.OrderByDescending((i) => i).ToArray();
+
+            double highest = allCounts.First();
+            double next1 = allCounts.Skip(1).Take(1).Average();
+            double pct2nd = next1 / highest;
+
+            if (pct2nd == 1) 
+            {
+                //we are just reading values from the trans table, these numbers are basically worse than garbage.
+                Complexity = 1;
+                return;
+            }
+            _lastPct1 = pct2nd;
+
+            double pct1Complexity = pct2nd / PCT1_TYPICAL;
+            double pvComplexity = PVComplexity();
+
+            
+            
+
+            List<double> factors = new List<double>();
+            factors.Add(pct1Complexity);
+            factors.Add(pvComplexity);
+            //factors.Add(1.00);
+            for (int i = depth; i <= 6; i++)
+            {
+                factors.Add(1);
+            }
+
+            double totalComplexity = factors.Average();
+
+            if (depth >= 4)
+            {
+                _log.InfoFormat(string.Format("total:{0:0.00} compNodes:{1:0.00} compPV:{2:0.00} ", totalComplexity, pct1Complexity, pvComplexity));
+            }
+
+        }
+
+        public override void EndSearch()
+        {
+            base.EndSearch();
+            _pct1History.Add(_lastPct1);
+
+            _pct1History.Sort();
+
+            if (_log.IsInfoEnabled)
+            {
+                int i5 = Math.Min((int)Math.Round(((double)_pct1History.Count * .05f)), _pct1History.Count - 1);
+                int i25 = Math.Min((int)Math.Round(((double)_pct1History.Count * .25f)), _pct1History.Count - 1);
+                int i75 = Math.Min((int)Math.Round(((double)_pct1History.Count * .75f)), _pct1History.Count - 1);
+                int i95 = Math.Min((int)Math.Round(((double)_pct1History.Count * .95f)), _pct1History.Count - 1);
+                
+                _log.InfoFormat(string.Format("count: {0}, {1}, {2}, {3}, {4}", _pct1History.Count, i5, i25, i75, i95));
+                _log.InfoFormat(string.Format("NodePct: avg:{0:0.00} 5pct:{1:0.00} 25:{2:0.00} 75:{3:0.00} 95:{4:0.00}", 
+                    _pct1History.Average(), _pct1History[i5], _pct1History[i25], _pct1History[i75], _pct1History[i95]));
+
+            }
+        }
+
+        public override void StartMove(ChessMove move)
+        {
+            base.StartMove(move);
+            _startMoveNodes = GetNodeCount();
+        }
+
+        public override void EndMove(ChessMove move)
+        {
+            base.EndMove(move);
+            int endMoveNodes = GetNodeCount();
+            int moveNodes = endMoveNodes - _startMoveNodes;
+            _moveNodeCounts.Add(move, moveNodes);
+
+        }
+
+        public override void NewPV(ChessMove move)
+        {
+            base.NewPV(move);
+            if (!_pvsByDepth.ContainsKey(_currDepth)) { _pvsByDepth.Add(_currDepth, new List<ChessMove>()); }
+            if (!_pvsByDepth[_currDepth].Contains(move))
+            {
+                _pvsByDepth[_currDepth].Add(move);
+            }
+        }
+
+        private double PVComplexity()
+        {
+            double retval = 1;
+            int consecutive1PV = PVCounts().TakeWhile(pvc => pvc < 2).Count();
+            int otherPVsInLast4 = PVCounts().Take(2).Select(i => Math.Min(i - 1, 3)).Sum();
+
+            if (consecutive1PV > 0)
+            {
+                retval *= Math.Pow(.85, Math.Min(consecutive1PV, 3));
+            }
+            if (otherPVsInLast4 > 0)
+            {
+                retval *= Math.Pow(1.2, otherPVsInLast4);
+            }
+
+            return retval;
+
+        }
+        private IEnumerable<int> PVCounts()
+        {
+            for (int i = _currDepth; _pvsByDepth.ContainsKey(i); i--)
+            {
+                yield return _pvsByDepth[i].Count;
+            }
+        }
+
+
     }
 }

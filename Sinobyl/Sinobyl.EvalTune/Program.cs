@@ -51,7 +51,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodesPerMove = rand.Next(1000, 1200);
+                int nodesPerMove = rand.Next(10000, 12000);
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };
                 

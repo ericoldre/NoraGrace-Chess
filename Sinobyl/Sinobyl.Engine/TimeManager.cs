@@ -475,7 +475,7 @@ namespace Sinobyl.Engine
 
     }
 
-    public class TimeManagerNew : TimeManagerGeneric<TimeSpan>
+    public class TimeManagerAdvanced : TimeManagerGeneric<TimeSpan>
     {
 
         private TimeSpan _timeSpent = TimeSpan.FromMilliseconds(0);
@@ -524,6 +524,53 @@ namespace Sinobyl.Engine
 
         }
         
+    }
+
+
+    public class TimeManagerNodes : TimeManagerGeneric<int>
+    {
+
+        private int _spent = 0;
+        //private DateTime _searchStartTime = DateTime.Now;
+
+        public override int Add(int x, int y)
+        {
+            return x + y;
+        }
+
+        public override int Subtract(int x, int y)
+        {
+            return x - y;
+        }
+
+        public override int Multiply(int x, double multiplier)
+        {
+            return (int)Math.Round((double)x * multiplier);
+        }
+
+        public override bool IsGreater(int x, int y)
+        {
+            return x > y;
+        }
+
+
+        public override int AmountSpent()
+        {
+            return _spent;
+        }
+
+        public override void StartSearch()
+        {
+            base.StartSearch();
+            _spent = 0;
+        }
+
+        public override void NodeStart(int nodeCount)
+        {
+            _spent = nodeCount;
+            base.NodeStart(nodeCount);
+        }
+
     }
 
 }

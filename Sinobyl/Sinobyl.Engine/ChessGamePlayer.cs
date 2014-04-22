@@ -108,7 +108,7 @@ namespace Sinobyl.Engine
         private readonly ChessTrans _transTable = new ChessTrans();
         private BackgroundWorker BookBackgroundWorker;
         private ChessEval _eval = new ChessEval();
-        private TimeManagerNew _timeManager = new TimeManagerNew();
+        private TimeManagerAdvanced _timeManager = new TimeManagerAdvanced();
         public TimeSpan DelaySearch { get; set; }
 
         public ChessGamePlayerMurderhole()

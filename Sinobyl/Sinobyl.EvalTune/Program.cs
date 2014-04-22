@@ -23,49 +23,63 @@ namespace Sinobyl.EvalTune
             Console.WriteLine("Beginning parse of opening positions");
             using (System.IO.StreamReader reader = new System.IO.StreamReader(System.IO.File.OpenRead("OpeningPositions.pgn")))
             {
-                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(100000));
+                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(100));
             }
             Console.WriteLine("completed parse of opening positions");
-            
-            
-            //Stack<IEvalSettingsMutator> mutatorStack = new Stack<IEvalSettingsMutator>();
-
-            Func<ChessEvalSettings, double> fnGetParamVal = (s) => s.PawnShelterFactor;
-            Action<ChessEvalSettings, double> fnSetEvalScore = (s, v) => { s.PawnShelterFactor = (int)Math.Round(v); };
-            string paramName = "PawnShelterFactor";
 
 
-            double parameterValue = fnGetParamVal(ChessEvalSettings.Default());
+
+            string paramName = "RatioBase";
+
+            //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
+            Func<double, string, DeterministicPlayer> fnCreatePlayer = (pval,pname) =>
+            {
+                string name = string.Format("{0}{1:f4}", pname, pval);
+                ChessEvalSettings evalsettings = ChessEvalSettings.Default();
+                ChessEval eval = new ChessEval(evalsettings);
+                TimeManagerNodes manager = new TimeManagerNodes();
+                
+                manager.RatioBase = pval;
+
+                DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
+
+                return player;
+            };
+
+
+            double parameterValue = (new TimeManagerNodes()).RatioBase;
 
             while (true)
             {
-                int nodes = rand.Next(10000, 12000);
+                int nodesPerMove = rand.Next(1000, 1200);
 
-                double delta = 1.0f;// rand.Next(30, 40);
+                ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };
                 
                 //create list of starting positions
-                int gamesPerMatch = 100;
+                int gamesPerMatch = 10;
                 var startingPGNsForThisMatch = StartingPGNs.OrderBy(x => rand.Next()).Take(gamesPerMatch / 2).ToList();
 
-                
+                //create test param values;
+                double deltaPct = 0.15f;
+                double valHigh = parameterValue * (1f + deltaPct);
+                double valLow = parameterValue * (1f - deltaPct);
+                double delta = parameterValue - valLow;
 
-                //create settings
-                double valHigh = parameterValue + delta;
-                double valLow = parameterValue - delta;
+                Func<DeterministicPlayer> fnHighPlayer = () => fnCreatePlayer(valHigh, paramName);
+                Func<DeterministicPlayer> fnLowPlayer = () => fnCreatePlayer(valLow, paramName);
 
+                //ChessEvalSettings highSettings = ChessEvalSettings.Default();
+                //ChessEvalSettings lowSettings = ChessEvalSettings.Default();
 
-                ChessEvalSettings highSettings = ChessEvalSettings.Default();
-                ChessEvalSettings lowSettings = ChessEvalSettings.Default();
+                //fnSetEvalScore(highSettings, valHigh);
+                //fnSetEvalScore(lowSettings, valLow);
 
-                fnSetEvalScore(highSettings, valHigh);
-                fnSetEvalScore(lowSettings, valLow);
+                string highPlayerName = fnHighPlayer().Name;
+                string lowPlayerName = fnLowPlayer().Name;
 
-                string highPlayerName = string.Format("{0}{1:f4}", paramName, valHigh, nodes);
-                string lowPlayerName = string.Format("{0}{1:f4}", paramName, valLow, nodes);
-
-                var competitors = new List<Func<IChessGamePlayer>>();
-                competitors.Add(() => new DeterministicPlayer(highPlayerName, new ChessEval(highSettings), nodes));
-                competitors.Add(() => new DeterministicPlayer(lowPlayerName, new ChessEval(lowSettings), nodes));
+                var competitors = new List<Func<DeterministicPlayer>>();
+                competitors.Add(fnHighPlayer);
+                competitors.Add(fnLowPlayer);
 
                 string eventName = string.Format("Challenge_{3} {0} {1} vs {2}", paramName, valHigh, valLow, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
                 
@@ -77,11 +91,12 @@ namespace Sinobyl.EvalTune
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                var matchResults = ChessMatch.RunParallelRoundRobinMatch
+                var matchResults = DeterministicChallenge.RunParallelRoundRobinMatch
                 (
                     isGauntlet:true,
                     competitors: competitors,
                     startingPositions: startingPGNsForThisMatch,
+                    timeControl: timeControl,
                     onGameCompleted: (p) => 
                     {
                         //pgnWriter.Write(p.Game.ToString());
@@ -123,7 +138,7 @@ namespace Sinobyl.EvalTune
                 //record and print out results.
                // File.WriteAllText(eventName + "_Summary.txt", matchResults.Summary());
                 Console.WriteLine();
-                Console.WriteLine("Completed {1} node match in {0:c}", stopwatch.Elapsed, nodes);
+                Console.WriteLine("Completed {1} node match in {0:c}", stopwatch.Elapsed, nodesPerMove);
                 foreach (var compName in competitors.Select(f => f().Name))
                 {
                     matchResults.ResultsForPlayer(compName, out wins, out losses, out draws);

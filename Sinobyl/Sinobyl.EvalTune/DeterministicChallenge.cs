@@ -9,152 +9,67 @@ namespace Sinobyl.EvalTune
 {
     public class DeterministicChallenge
     {
-        public static bool Challenge(Func<IChessEval> champion, Func<IChessEval> challenger, IEnumerable<ChessPGN> startingPositions, string EventName, StreamWriter pgnWriter)
+        public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<DeterministicPlayer>> competitors, IEnumerable<ChessPGN> startingPositions, ChessTimeControlNodes timeControl, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
         {
-            int champWins = 0;
-            int challengerWins = 0;
-            int draws = 0;
 
-            object winLock = new object();
-            ParallelOptions options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 6;
-            Parallel.ForEach(startingPositions, options, pgn =>
+            ChessMatchResults retval = new ChessMatchResults();
+
+            Func<DeterministicPlayer> gauntletPlayer = null;
+            if (isGauntlet)
             {
-                //Console.WriteLine("Starting Games");
-                IChessEval championEval = champion();
-                IChessEval challengerEval = challenger();
-
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var result = Match(championEval, challengerEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
-                stopwatch.Stop();
-
-                result.Headers.Add("White", "Champion");
-                result.Headers.Add("Black", "Challenger");
-                result.Headers.Add("Event", EventName);
-                result.Headers.Add("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString());
-
-                if (pgnWriter != null)
+                foreach (var player in competitors)
                 {
-                    string sPgn = result.ToString();
-                    lock (pgnWriter)
-                    {
-                        pgnWriter.Write(sPgn);
-                        pgnWriter.WriteLine();
-                        pgnWriter.WriteLine();
-                    }
+                    gauntletPlayer = player;
+                    break;
                 }
+            }
 
-                lock (winLock)
+            ParallelOptions options = new ParallelOptions();
+            options.MaxDegreeOfParallelism = 1;
+            Parallel.ForEach(startingPositions, options, startingPGN =>
+            {
+                foreach (var fWhitePlayer in competitors)
                 {
-                    switch (result.Result)
+                    foreach (var fBlackPlayer in competitors)
                     {
-                        case ChessResult.WhiteWins:
-                            champWins++;
-                            Console.Write("0");
-                            //Console.WriteLine("Champ wins as white by {0}", reason.ToString());
-                            break;
-                        case ChessResult.BlackWins:
-                            challengerWins++;
-                            Console.Write("1");
-                            //Console.WriteLine("Challenger wins as black by {0}", reason.ToString());
-                            break;
-                        default:
-                            Console.Write("-");
-                            draws++;
-                            //Console.WriteLine("draw by {0}", reason.ToString());
-                            break;
+                        if (fWhitePlayer == fBlackPlayer) { continue; }
+                        if (gauntletPlayer != null && gauntletPlayer != fWhitePlayer && gauntletPlayer != fBlackPlayer) { continue; }
+                        DeterministicPlayer playerWhite = fWhitePlayer();
+                        DeterministicPlayer playerBlack = fBlackPlayer();
+
+                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                        ChessPGN game = Game(playerWhite, playerBlack, new ChessFEN(startingPGN.StartingPosition), startingPGN.Moves, timeControl);
+                        stopwatch.Stop();
+
+                        lock (retval)
+                        {
+                            retval.Add(game);
+                            if (onGameCompleted != null)
+                            {
+                                onGameCompleted(new ChessMatchProgress() { Results = retval, Game = game, GameTime = stopwatch.Elapsed });
+                            }
+                        }
                     }
 
-                    if ((champWins + challengerWins + draws) % 100 == 0)
-                    {
-                        float totalgames = (champWins + challengerWins + draws);
-                        float champPct = ((float)champWins) / totalgames;
-                        float challengerPct = ((float)challengerWins) / totalgames;
-                        float drawPct = ((float)draws) / totalgames;
-                        var champPctString = champPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
-                        var challengerPctString = challengerPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
-                        var drawPctString = drawPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
-                        //.ToString("#0.##%", CultureInfo.InvariantCulture)
-                        Console.Write("[Games:{3} Champ:{0} Challenger:{1} Draws:{2}]", champPctString, challengerPctString, drawPctString, totalgames);
-                    }
                 }
-
-                stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                result = Match(challengerEval, championEval, new ChessFEN(pgn.StartingPosition), pgn.Moves);
-                stopwatch.Stop();
-
-                result.Headers.Add("White", "Challenger");
-                result.Headers.Add("Black", "Champion");
-                result.Headers.Add("Event", EventName);
-                result.Headers.Add("Seconds", (stopwatch.ElapsedMilliseconds / 1000).ToString());
-
-                if (pgnWriter != null)
-                {
-                    string sPgn = result.ToString();
-                    lock (pgnWriter)
-                    {
-                        pgnWriter.Write(sPgn);
-                        pgnWriter.WriteLine();
-                        pgnWriter.WriteLine();
-                    }
-                }
-
-                lock (winLock)
-                {
-                    switch (result.Result)
-                    {
-                        case ChessResult.WhiteWins:
-                            Console.Write("1");
-                            challengerWins++;
-                            //Console.WriteLine("Challenger wins as white by {0}", reason.ToString());
-                            break;
-                        case ChessResult.BlackWins:
-                            Console.Write("0");
-                            champWins++;
-                            //Console.WriteLine("Champ wins as black by {0}", reason.ToString());
-                            break;
-                        default:
-                            Console.Write("-");
-                            draws++;
-                            //Console.WriteLine("draw by {0}", reason.ToString());
-                            break;
-                    }
-                    if ((champWins + challengerWins + draws) % 100 == 0)
-                    {
-                        float totalgames = (champWins + challengerWins + draws);
-                        float champPct = ((float)champWins) / totalgames;
-                        float challengerPct = ((float)challengerWins) / totalgames;
-                        float drawPct = ((float)draws) / totalgames;
-                        var champPctString = champPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
-                        var challengerPctString = challengerPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
-                        var drawPctString = drawPct.ToString("#0.##%", System.Globalization.CultureInfo.InvariantCulture);
-                        //.ToString("#0.##%", CultureInfo.InvariantCulture)
-                        Console.Write("[Games:{3} Champ:{0} Challenger:{1} Draws:{2}]", champPctString, challengerPctString, drawPctString, totalgames);
-                    }
-                }
-
-                //Console.WriteLine("Ending Games");
-
             });
 
-            Console.WriteLine("\nChamp:{0} Challenger:{1} Draws:{2}", champWins, challengerWins, draws);
+            //Console.WriteLine("\nChamp:{0} Challenger:{1} Draws:{2}", champWins, challengerWins, draws);
 
-            return challengerWins > champWins;
+            return retval;
 
         }
 
-        public static ChessPGN Match(IChessEval white, IChessEval black, ChessFEN startingPosition, IEnumerable<ChessMove> initalMoves)
+
+        public static ChessPGN Game(DeterministicPlayer white, DeterministicPlayer black, ChessFEN gameStartPosition, IEnumerable<ChessMove> initalMoves, ChessTimeControlNodes timeControl)
         {
             ChessResult? gameResult = null;
             ChessResultReason reason = ChessResultReason.Unknown;
-            //ChessResult? adjudicatedResult = null;
-           // int adjudicatedResultDuration = 0;
-            ChessTrans whiteTrans = new ChessTrans();
-            ChessTrans blackTrans = new ChessTrans();
 
+            
             ChessMoves gameMoves = new ChessMoves();
             //setup init position
-            ChessBoard board = new ChessBoard(startingPosition);
+            ChessBoard board = new ChessBoard(gameStartPosition);
             Dictionary<int, string> comments = new Dictionary<int, string>();
             foreach (var move in initalMoves)
             {
@@ -162,31 +77,38 @@ namespace Sinobyl.EvalTune
                 gameMoves.Add(move);
             }
 
+            int whiteClock = timeControl.InitialAmount;
+            int blackClock = timeControl.InitialAmount;
+            
             while (gameResult == null)
             {
-                IChessEval eval = board.WhosTurn == ChessPlayer.White ? white : black;
-                ChessTrans trans = board.WhosTurn == ChessPlayer.White ? whiteTrans : blackTrans;
+                DeterministicPlayer player = board.WhosTurn == ChessPlayer.White ? white : black;
+                int playerClock = board.WhosTurn == ChessPlayer.White ? whiteClock : blackClock;
 
-                ChessSearch.Args args = new ChessSearch.Args();
-                args.GameStartPosition = startingPosition;
-                args.GameMoves = new ChessMoves(gameMoves.ToArray());
-                args.TransTable = trans;
-                args.Eval = eval;
-                args.MaxNodes = 1000;
+                string moveComment = null;
+                int nodesUsed = 0;
 
-                ChessSearch search = new ChessSearch(args);
-                var searchResult = search.Search();
-                trans.AgeEntries(2);
-                var bestMove = searchResult.PrincipleVariation[0];
+                var bestMove = player.Move(gameStartPosition, gameMoves.ToArray(), timeControl, playerClock, out moveComment, out nodesUsed);
+
+                int playerClockNew = timeControl.CalcNewTimeLeft(playerClock, nodesUsed, board.FullMoveCount);
+                if (board.WhosTurn == ChessPlayer.White) { whiteClock = playerClockNew; } else { blackClock = playerClockNew; }
+
+                if (bestMove == ChessMove.EMPTY)
+                {
+                    gameResult = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                    reason = ChessResultReason.Resign;
+                    break;
+                }
+
                 gameMoves.Add(bestMove);
 
                 if (bestMove.IsLegal(board))
                 {
-                    string comment = string.Format("Score:{2} Depth:{1} PV:{0}", new ChessMoves(searchResult.PrincipleVariation).ToString(), searchResult.Depth, searchResult.Score);
-
                     board.MoveApply(bestMove);
-
-                    comments.Add(board.HistoryCount - 1, comment);
+                    if (!string.IsNullOrWhiteSpace(moveComment))
+                    {
+                        comments.Add(board.HistoryCount - 1, moveComment);
+                    }
                     gameResult = BoardResult(board, out reason);
                 }
                 else
@@ -198,10 +120,12 @@ namespace Sinobyl.EvalTune
             }
 
             ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, comments, reason);
+            retval.Headers.Add("White", white.Name);
+            retval.Headers.Add("Black", black.Name);
             return retval;
         }
 
-        public static ChessResult? BoardResult(ChessBoard _board, out ChessResultReason _resultReason)
+        private static ChessResult? BoardResult(ChessBoard _board, out ChessResultReason _resultReason)
         {
             ChessResult? _result = null;
             _resultReason = ChessResultReason.Unknown;

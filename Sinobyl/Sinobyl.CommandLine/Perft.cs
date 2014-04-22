@@ -20,7 +20,8 @@ namespace Sinobyl.CommandLine
             ChessTrans transTable = new ChessTrans();
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
-            var timeManager = new TimeManagerBasic() { TimeControl = ChessTimeControl.Blitz(100, 100), ClockEnd = DateTime.Now.AddDays(100) };
+            //var timeManager = new TimeManagerBasic() { TimeControl = ChessTimeControl.Blitz(100, 100), ClockEnd = DateTime.Now.AddDays(100) };
+            var timeManager = new TimeManagerNew() { TimeControl = ChessTimeControl.Blitz(100, 100), AmountOnClock = TimeSpan.FromDays(100) };
             foreach (ChessMove move in pgn.Moves)
             {
                 

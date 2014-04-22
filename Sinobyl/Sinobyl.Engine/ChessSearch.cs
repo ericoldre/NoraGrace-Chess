@@ -220,7 +220,7 @@ namespace Sinobyl.Engine
         private int[] _contemptForDrawForPlayer = new int[3];
         private readonly ChessMoveBuffer _moveBuffer = new ChessMoveBuffer();
         private ChessMove[] _currentPV = new ChessMove[50];
-
+        private readonly Dictionary<ChessMove, int> _rootMoveNodeCounts = new Dictionary<ChessMove, int>();
 		private readonly Int64 BlunderKey = Rand64();
 		
 		public ChessSearch(Args args)
@@ -370,16 +370,20 @@ namespace Sinobyl.Engine
 
 			bool in_check_before_move = board.IsCheck();
 
-            var plyMoves = _moveBuffer[0];
-            plyMoves.Initialize(board);
-            plyMoves.Sort(board, true, tt_move);
+            //get all legal moves ordered first by TT move then by nodes needed to refute.
+            var moves = ChessMoveInfo.GenMovesLegal(board)
+                .Select(m => new { move = m, nodes = _rootMoveNodeCounts.ContainsKey(m) ? _rootMoveNodeCounts[m] : 0 })
+                .OrderBy(m => m.move == tt_move ? 0 : 1)
+                .ThenByDescending(m => m.nodes)
+                .Select(m => m.move)
+                .ToArray();
 
 			int alpha = -INFINITY;
 			int beta = INFINITY;
 
             ChessMove bestmove = ChessMove.EMPTY;
 
-            foreach (ChessMove move in plyMoves.SortedMoves())
+            foreach (ChessMove move in moves)
 			{
 				CurrentVariation[0] = move;
 
@@ -399,7 +403,8 @@ namespace Sinobyl.Engine
 				int score = 0;
 
                 SearchArgs.TimeManager.StartMove(move);
-				
+                int nodeCountBeforeMove = this.CountAIValSearch;
+
 				if (depth <= 3)
 				{
 					//first couple nodes search full width
@@ -417,6 +422,8 @@ namespace Sinobyl.Engine
 					score = ValSearchAspiration(depth, alpha, alpha, 0);
 				}
 
+                _rootMoveNodeCounts.Remove(move);
+                _rootMoveNodeCounts.Add(move, this.CountAIValSearch - nodeCountBeforeMove);
                 SearchArgs.TimeManager.EndMove(move);
 
 				board.MoveUndo();
@@ -525,6 +532,13 @@ namespace Sinobyl.Engine
 				{
 					return score;
 				}
+
+                
+                if (initWindow > 0 && score >= windowBeta) 
+                {
+                    //we are failing high on a non-pv node which is looking better than we thought. extend search time!
+                    SearchArgs.TimeManager.FailingHigh();
+                }
 
 				//ok, we found a score better than alpha
 				//but that falls outside the window we searched, widen the search in the right direction

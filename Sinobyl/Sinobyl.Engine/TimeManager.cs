@@ -22,6 +22,9 @@ namespace Sinobyl.Engine
         void NewPV(ChessMove move);
 
         void NodeStart(int nodeCount);
+
+        void FailingHigh();
+        
     }
 
     public class TimeManagerRequestNodesEventArgs : EventArgs
@@ -34,6 +37,8 @@ namespace Sinobyl.Engine
         protected static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(TimeManagerBase));
         public event EventHandler<EventArgs> StopSearch;
         public event EventHandler<TimeManagerRequestNodesEventArgs> RequestNodes;
+
+        protected virtual bool IsFailingHigh { get; set; }
 
         protected void RaiseStopSearch()
         {
@@ -87,6 +92,7 @@ namespace Sinobyl.Engine
 
         public virtual void EndMove(ChessMove move)
         {
+            IsFailingHigh = false;
             if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("EndMove:{0}", move.Description()); }
         }
@@ -99,7 +105,14 @@ namespace Sinobyl.Engine
 
         public virtual void NodeStart(int nodeCount)
         {
+            
         }
+
+        public virtual void FailingHigh()
+        {
+            IsFailingHigh = true;
+        }
+
     }
 
     /// <summary>
@@ -110,7 +123,7 @@ namespace Sinobyl.Engine
 
     }
 
-    public class TimeManagerBasic : TimeManagerComplexity
+    public class TimeManagerBasic : TimeManagerBase
     {
 
         public ChessTimeControl TimeControl { get; set; }
@@ -208,6 +221,7 @@ namespace Sinobyl.Engine
         public override void EndDepth(int depth)
         {
             base.EndDepth(depth);
+
             if (_moveNodeCounts.Count == 1) { Complexity = 0; return; } //only one legal move, this is easy.
 
             int[] allCounts = _moveNodeCounts.Values.OrderByDescending((i) => i).ToArray();
@@ -245,6 +259,8 @@ namespace Sinobyl.Engine
             {
                 _log.InfoFormat(string.Format("total:{0:0.00} compNodes:{1:0.00} compPV:{2:0.00} ", totalComplexity, pct1Complexity, pvComplexity));
             }
+
+            this.Complexity = totalComplexity;
 
         }
 
@@ -322,19 +338,192 @@ namespace Sinobyl.Engine
 
     }
 
-    public abstract class TimeManagerNodes : TimeManagerComplexity
-    {
-        
 
-        public TimeManagerNodes()
+    public abstract class TimeManagerGeneric<TUnit> : TimeManagerComplexity
+    {
+        //used as inputs
+        public ChessTimeControlGeneric<TUnit> TimeControl { get; set; }
+        public TUnit AmountOnClock { get; set; }
+
+        //
+        public TUnit AmountToSpend { get; protected set; }
+        public TUnit BaseAmount { get; protected set; }
+
+        //configuration factors
+        public double RatioBase { get; set; }
+        public double RatioComplexity { get; set; }
+        public double RatioHistory { get; set; }
+        public double RatioFailHigh { get; set; }
+        public double RatioFloor { get; set; }
+        public double RatioCeiling { get; set; }
+        public double RatioOfTotalCeiling { get; set; }
+
+        //abstract math helpers
+        public abstract TUnit Add(TUnit x, TUnit y);
+        public abstract TUnit Subtract(TUnit x, TUnit y);
+        public abstract TUnit Multiply(TUnit x, double multiplier);
+        public abstract bool IsGreater(TUnit x, TUnit y);
+        public abstract TUnit AmountSpent();
+
+        public TimeManagerGeneric()
         {
-            this.ComplexityUpdated += OnComplexityUpdated;
+            RatioBase = .033333;
+            RatioComplexity = .7;
+            RatioHistory = 1;
+            RatioFailHigh = 1.4;
+            RatioFloor = .333;
+            RatioCeiling = 4;
+            RatioOfTotalCeiling = .25;
+            this.ComplexityUpdated += This_ComplexityUpdated;
         }
 
-        void OnComplexityUpdated(object sender, EventArgs e)
+        void This_ComplexityUpdated(object sender, EventArgs e)
         {
+            AmountToSpendCalc();
+        }
 
+        
+        public override void StartSearch()
+        {
+            base.StartSearch();
+
+            TUnit perMoveBonus = TimeControl.BonusEveryXMoves > 0 ?
+                Multiply(TimeControl.BonusAmount, 1f / TimeControl.BonusEveryXMoves) :
+                Multiply(TimeControl.BonusAmount, 0);
+
+            BaseAmount = Add(Multiply(AmountOnClock, RatioBase), perMoveBonus);
+            AmountToSpend = BaseAmount;
+            AmountToSpendCalc();
+            
+        }
+
+        public virtual void AmountToSpendCalc()
+        {
+            var baseAmount = BaseAmount;
+            double c = Math.Pow(this.Complexity, RatioComplexity);
+
+            double xx = Math.Pow(3.245, .5);
+            double xxx = Math.Pow(0.245, .5);
+            var complex = Multiply(baseAmount, Math.Pow(this.Complexity, RatioComplexity));
+
+
+            var failhigh = complex;
+            if(IsFailingHigh)
+            {
+                failhigh = Multiply(complex, RatioFailHigh);
+            }
+
+            var floor = Multiply(BaseAmount, RatioFloor);
+            var ceiling = Multiply(BaseAmount, RatioCeiling);
+            var ceiling2 = Multiply(this.AmountOnClock, this.RatioOfTotalCeiling);
+            if(IsGreater(ceiling, ceiling2)){ceiling = ceiling2;}
+            
+            var bounded = failhigh;
+            
+            if (IsGreater(floor, bounded)) { bounded = floor; }
+
+            
+            if (IsGreater(bounded, ceiling)) { bounded = ceiling; }
+
+            
+            
+            this.AmountToSpend = bounded;
+
+            _log.InfoFormat("Base:{0} comp:{1} failH:{2} Bounded:{3} litComp:{4} pow{5}", baseAmount, complex, failhigh, bounded, this.Complexity, Math.Pow(this.Complexity, RatioComplexity));
+        }
+
+        private TUnit _spentByDepthStart;
+        public override void StartDepth(int depth)
+        {
+            base.StartDepth(depth);
+
+            _spentByDepthStart = AmountSpent();
+        }
+
+        public override void EndDepth(int depth)
+        {
+            base.EndDepth(depth);
+            AmountToSpendCalc();
+            TUnit spentByDepthEnd = AmountSpent();
+            TUnit spentOnDepth = Subtract(spentByDepthEnd, _spentByDepthStart);
+            TUnit projected = Add(spentByDepthEnd, spentOnDepth);
+            if (IsGreater(projected, AmountToSpend))
+            {
+                RaiseStopSearch();
+            }
+        }
+
+        public override void NodeStart(int nodeCount)
+        {
+            base.NodeStart(nodeCount);
+            if (IsGreater(AmountSpent(), AmountToSpend))
+            {
+                RaiseStopSearch();
+            }
+        }
+        protected override bool IsFailingHigh
+        {
+            set
+            {
+                if (value != IsFailingHigh)
+                {
+                    AmountToSpendCalc();
+                    base.IsFailingHigh = value;
+                }
+            }
         }
 
     }
+
+    public class TimeManagerNew : TimeManagerGeneric<TimeSpan>
+    {
+
+        private TimeSpan _timeSpent = TimeSpan.FromMilliseconds(0);
+        private DateTime _searchStartTime = DateTime.Now;
+
+        public override TimeSpan Add(TimeSpan x, TimeSpan y)
+        {
+            return x + y;
+        }
+
+        public override TimeSpan Subtract(TimeSpan x, TimeSpan y)
+        {
+            return x - y;
+        }
+
+        public override TimeSpan Multiply(TimeSpan x, double multiplier)
+        {
+            return TimeSpan.FromMilliseconds(x.TotalMilliseconds * multiplier);
+        }
+
+        public override bool IsGreater(TimeSpan x, TimeSpan y)
+        {
+            return x > y;
+        }
+
+        
+        public override TimeSpan AmountSpent()
+        {
+            return _timeSpent;
+        }
+
+        public override void StartSearch()
+        {
+            base.StartSearch();
+            _timeSpent = TimeSpan.FromMilliseconds(0);
+            _searchStartTime = DateTime.Now;
+        }
+
+        public override void NodeStart(int nodeCount)
+        {
+            if ((nodeCount & 0x3FF) == 0)
+            {
+                _timeSpent = DateTime.Now - _searchStartTime;
+                base.NodeStart(nodeCount);
+            }
+
+        }
+        
+    }
+
 }

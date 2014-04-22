@@ -108,7 +108,7 @@ namespace Sinobyl.Engine
         private readonly ChessTrans _transTable = new ChessTrans();
         private BackgroundWorker BookBackgroundWorker;
         private ChessEval _eval = new ChessEval();
-        private TimeManagerBasic _timeManager = new TimeManagerBasic();
+        private TimeManagerNew _timeManager = new TimeManagerNew();
         public TimeSpan DelaySearch { get; set; }
 
         public ChessGamePlayerMurderhole()
@@ -211,7 +211,7 @@ namespace Sinobyl.Engine
             args.NodesPerSecond = _personality.NodesPerSecond;
             args.Blunder = _personality.Blunder;
             _timeManager.TimeControl = timeControl;
-            _timeManager.ClockEnd = DateTime.Now + timeLeft;
+            _timeManager.AmountOnClock = timeLeft;
             args.TimeManager = _timeManager;
             args.TransTable = _transTable;
             args.Delay = this.DelaySearch;

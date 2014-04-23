@@ -367,7 +367,7 @@ namespace Sinobyl.Engine
 
         public TimeManagerGeneric()
         {
-            RatioBase = .033333;
+            RatioBase = .0337;
             RatioComplexity = .7;
             RatioHistory = 1;
             RatioFailHigh = 1.4;

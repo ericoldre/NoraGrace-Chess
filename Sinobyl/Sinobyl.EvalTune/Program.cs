@@ -15,7 +15,6 @@ namespace Sinobyl.EvalTune
         static object writeLock = new object();
         static void Main(string[] args)
         {
-
             Random rand = new Random();
 
             //read in a series of openings.
@@ -23,13 +22,13 @@ namespace Sinobyl.EvalTune
             Console.WriteLine("Beginning parse of opening positions");
             using (System.IO.StreamReader reader = new System.IO.StreamReader(System.IO.File.OpenRead("OpeningPositions.pgn")))
             {
-                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(100));
+                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(10000));
             }
             Console.WriteLine("completed parse of opening positions");
 
 
 
-            string paramName = "RatioBase";
+            string paramName = "RatioComplexity";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, string, DeterministicPlayer> fnCreatePlayer = (pval,pname) =>
@@ -39,7 +38,8 @@ namespace Sinobyl.EvalTune
                 ChessEval eval = new ChessEval(evalsettings);
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
-                manager.RatioBase = pval;
+                //manager.RatioBase = pval;
+                manager.RatioComplexity = pval;
 
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
 
@@ -47,20 +47,35 @@ namespace Sinobyl.EvalTune
             };
 
 
-            double parameterValue = (new TimeManagerNodes()).RatioBase;
+            double parameterValue = (new TimeManagerNodes()).RatioComplexity;
+
+            string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
+
+            //try and read previous value from tune log to start there.
+            if (System.IO.File.Exists(tuneFileName))
+            {
+                using (var reader = System.IO.File.OpenText(tuneFileName))
+                {
+                    string line;
+                    while((line = reader.ReadLine()) != null)
+                    {
+                        double.TryParse(line, out parameterValue);
+                    }
+                }
+            }
 
             while (true)
             {
-                int nodesPerMove = rand.Next(10000, 12000);
+                int nodesPerMove = rand.Next(20000, 22000);
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };
                 
                 //create list of starting positions
-                int gamesPerMatch = 10;
+                int gamesPerMatch = 100;
                 var startingPGNsForThisMatch = StartingPGNs.OrderBy(x => rand.Next()).Take(gamesPerMatch / 2).ToList();
 
                 //create test param values;
-                double deltaPct = 0.15f;
+                double deltaPct = 0.25f;
                 double valHigh = parameterValue * (1f + deltaPct);
                 double valLow = parameterValue * (1f - deltaPct);
                 double delta = parameterValue - valLow;
@@ -159,7 +174,9 @@ namespace Sinobyl.EvalTune
                
                 string changeSummary = string.Format("{0}\tFrom\t{1:f4}\tTo\t{2:f4}\tin\t{3}", paramName, parameterValue, newParamValue, timeSpent);
                 Console.WriteLine(changeSummary);
-                System.IO.File.AppendAllLines(string.Format("{0}_TuneResults.txt", paramName), new string[] { changeSummary });
+
+                string newParamValueString = string.Format("{0:f8}", newParamValue);
+                System.IO.File.AppendAllLines(tuneFileName, new string[] { newParamValueString });
 
                 Console.WriteLine("");
                 Console.WriteLine("");

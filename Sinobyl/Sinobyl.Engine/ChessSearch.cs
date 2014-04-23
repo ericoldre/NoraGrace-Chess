@@ -572,7 +572,7 @@ namespace Sinobyl.Engine
 		private int ValSearch(int depth, int ply, int alpha, int beta)
 		{
 			//for logging
-			CountTotalAINodes++;
+			//CountTotalAINodes++;
 			CountAIValSearch++;
             SearchArgs.TimeManager.NodeStart(CountAIValSearch); //will end up setting abort flag if over allotted time.
 

@@ -27,8 +27,8 @@ namespace Sinobyl.EvalTune
             Console.WriteLine("completed parse of opening positions");
 
 
-
-            string paramName = "RatioBase";
+            //ALTER THIS
+            string paramName = "RatioFailHigh";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, string, DeterministicPlayer> fnCreatePlayer = (pval,pname) =>
@@ -38,7 +38,7 @@ namespace Sinobyl.EvalTune
                 ChessEval eval = new ChessEval(evalsettings);
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
-                manager.RatioBase = pval;
+                manager.RatioFailHigh = pval;
                 manager.RatioComplexity = 0;
 
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
@@ -46,8 +46,8 @@ namespace Sinobyl.EvalTune
                 return player;
             };
 
-
-            double parameterValue = (new TimeManagerNodes()).RatioBase;
+            //ALTER THIS
+            double parameterValue = (new TimeManagerNodes()).RatioFailHigh;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 
@@ -75,7 +75,7 @@ namespace Sinobyl.EvalTune
                 var startingPGNsForThisMatch = StartingPGNs.OrderBy(x => rand.Next()).Take(gamesPerMatch / 2).ToList();
 
                 //create test param values;
-                double deltaPct = 0.25f;
+                double deltaPct = 0.20f;
                 double valHigh = parameterValue * (1f + deltaPct);
                 double valLow = parameterValue * (1f - deltaPct);
                 double delta = parameterValue - valLow;

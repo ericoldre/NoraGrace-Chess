@@ -425,16 +425,16 @@ namespace Sinobyl.Engine
 
 
 
-        int _shelterCacheKey = 0;
+        int _shelterCacheKey = 0x3a184743; //random number, important not zero, or anything that key could compute to.
         int _shelterCacheValue = 0;
 
         private static readonly int[] _shelterFactor = new int[] { 7, 0, 2, 5, 6, 7, 7, 7 };
 
         public int EvalShelter(ChessFile whiteKingFile, ChessFile blackKingFile, CastleFlags castleFlags)
         {
-            int key = (int)whiteKingFile
+            int key = ((int)whiteKingFile
                 | ((int)blackKingFile << 8)
-                | ((int)castleFlags << 20);
+                | ((int)castleFlags << 20));
 
             if (key == _shelterCacheKey) 
             {

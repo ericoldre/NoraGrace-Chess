@@ -291,7 +291,7 @@ namespace Sinobyl.Engine
 			int MateScoreCount = 0;
 
 
-            while (depth <= this.SearchArgs.MaxDepth)
+            while (depth <= this.SearchArgs.MaxDepth && depth < 50)
             {
 
                 ValSearchRoot(depth);

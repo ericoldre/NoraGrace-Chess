@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
 
-            string paramName = "RatioComplexity";
+            string paramName = "RatioBase";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, string, DeterministicPlayer> fnCreatePlayer = (pval,pname) =>
@@ -38,8 +38,8 @@ namespace Sinobyl.EvalTune
                 ChessEval eval = new ChessEval(evalsettings);
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
-                //manager.RatioBase = pval;
-                manager.RatioComplexity = pval;
+                manager.RatioBase = pval;
+                manager.RatioComplexity = 0;
 
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
 
@@ -47,7 +47,7 @@ namespace Sinobyl.EvalTune
             };
 
 
-            double parameterValue = (new TimeManagerNodes()).RatioComplexity;
+            double parameterValue = (new TimeManagerNodes()).RatioBase;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 

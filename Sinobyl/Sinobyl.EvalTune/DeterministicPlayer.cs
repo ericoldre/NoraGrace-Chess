@@ -13,7 +13,7 @@ namespace Sinobyl.EvalTune
         public TimeManagerNodes NodeManager { get; set; }
         public ChessTrans TransTable { get; set; }
         public Func<ChessSearch.Progress, string> CommentFormatter { get; set; }
-
+        public Action<ChessSearch.Args> AlterSearchArgs { get; set; }
 
         private int _resignRepCount = 0;
 
@@ -38,7 +38,7 @@ namespace Sinobyl.EvalTune
             args.Eval = Eval;
             args.TimeManager = this.NodeManager;
             args.ContemptForDraw = 70;
-
+            if (AlterSearchArgs != null) { AlterSearchArgs(args); }
             ChessSearch search = new ChessSearch(args);
             var searchResult = search.Search();
 

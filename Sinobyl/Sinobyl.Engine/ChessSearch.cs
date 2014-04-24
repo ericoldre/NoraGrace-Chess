@@ -189,6 +189,7 @@ namespace Sinobyl.Engine
             public int MaxNodes { get; set; }
             public int ContemptForDraw { get; set; }
             public ITimeManager TimeManager { get; set; }
+            public bool ExtendChecks { get; set; }
 			public Args()
 			{
                 GameStartPosition = new ChessFEN(ChessFEN.FENStart);
@@ -201,6 +202,7 @@ namespace Sinobyl.Engine
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
+                ExtendChecks = false;
 			}
 		}
 
@@ -705,10 +707,15 @@ namespace Sinobyl.Engine
 					legalMovesTried++;
 				}
 
+                //decide if we want to extend or maybe reduce this node
+                int ext = 0;
+                bool isCheck = board.IsCheck(board.WhosTurn);
+                if (isCheck && SearchArgs.ExtendChecks) { ext = 1; }
 				
 
+
 				//do subsearch
-				score = -ValSearch(depth - 1, ply + 1, -beta, -alpha);
+				score = -ValSearch(depth - 1 + ext, ply + 1, -beta, -alpha);
 
 
 				//check for blunder

@@ -28,28 +28,36 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "RatioFailHigh";
+            string paramName = "ExtendChecks";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
-            Func<double, string, DeterministicPlayer> fnCreatePlayer = (pval,pname) =>
+            Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
             {
                 string name = string.Format("{0}{1:f4}", pname, pval);
                 ChessEvalSettings evalsettings = ChessEvalSettings.Default();
                 ChessEval eval = new ChessEval(evalsettings);
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
-                manager.RatioFailHigh = pval;
-                manager.RatioComplexity = 0;
+                //manager.RatioFailHigh = pval;
+                //manager.RatioComplexity = 0;
 
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
-
+                player.AlterSearchArgs = (searchArgs) =>
+                {
+                    searchArgs.ExtendChecks = pval > otherval;
+                    //if (pval > otherval) { searchArgs.MaxDepth = 3; }
+                };
                 return player;
             };
 
             //ALTER THIS
-            double parameterValue = (new TimeManagerNodes()).RatioFailHigh;
+            double parameterValue = 1;//(new TimeManagerNodes()).RatioFailHigh;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
+
+            int totalWins = 0;
+            int totalLosses = 0;
+            int totalDraws = 0;
 
             //try and read previous value from tune log to start there.
             if (System.IO.File.Exists(tuneFileName))
@@ -59,14 +67,21 @@ namespace Sinobyl.EvalTune
                     string line;
                     while((line = reader.ReadLine()) != null)
                     {
-                        double.TryParse(line, out parameterValue);
+                        var split = line.Split(new char[] { '\t' });
+                        double.TryParse(split[0], out parameterValue);
+                        int.TryParse(split[1], out totalWins);
+                        int.TryParse(split[2], out totalLosses);
+                        int.TryParse(split[3], out totalDraws);
                     }
                 }
             }
 
+            
+
             while (true)
             {
-                int nodesPerMove = rand.Next(20000, 22000);
+                int nodesPerMove = 15000;
+                nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };
                 
@@ -80,8 +95,8 @@ namespace Sinobyl.EvalTune
                 double valLow = parameterValue * (1f - deltaPct);
                 double delta = parameterValue - valLow;
 
-                Func<DeterministicPlayer> fnHighPlayer = () => fnCreatePlayer(valHigh, paramName);
-                Func<DeterministicPlayer> fnLowPlayer = () => fnCreatePlayer(valLow, paramName);
+                Func<DeterministicPlayer> fnHighPlayer = () => fnCreatePlayer(valHigh,valLow, paramName);
+                Func<DeterministicPlayer> fnLowPlayer = () => fnCreatePlayer(valLow, valHigh, paramName);
 
                 //ChessEvalSettings highSettings = ChessEvalSettings.Default();
                 //ChessEvalSettings lowSettings = ChessEvalSettings.Default();
@@ -100,9 +115,9 @@ namespace Sinobyl.EvalTune
                 
                 //var pgnWriter = File.CreateText(eventName + ".pgn");
                 
-                int wins = 0;
-                int losses = 0;
-                int draws = 0;
+                int matchWins = 0;
+                int matchLosses = 0;
+                int matchDraws = 0;
 
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -156,26 +171,39 @@ namespace Sinobyl.EvalTune
                 Console.WriteLine("Completed {1} node match in {0:c}", stopwatch.Elapsed, nodesPerMove);
                 foreach (var compName in competitors.Select(f => f().Name))
                 {
-                    matchResults.ResultsForPlayer(compName, out wins, out losses, out draws);
-                    float totalgames = (wins + losses + draws);
+                    matchResults.ResultsForPlayer(compName, out matchWins, out matchLosses, out matchDraws);
+                    float matchGames = (matchWins + matchLosses + matchDraws);
                     Console.WriteLine("Player:{4}, WinPct:{0} LossPct:{1} DrawPct:{2} GameCount:{3}",
-                        ((float)wins / (float)totalgames).ToString("#0.##%"),
-                        ((float)losses / (float)totalgames).ToString("#0.##%"),
-                        ((float)draws / (float)totalgames).ToString("#0.##%"),
-                        totalgames,
+                        ((float)matchWins / (float)matchGames).ToString("#0.##%"),
+                        ((float)matchLosses / (float)matchGames).ToString("#0.##%"),
+                        ((float)matchDraws / (float)matchGames).ToString("#0.##%"),
+                        matchGames,
                         compName);
                 }
 
 
-                matchResults.ResultsForPlayer(highPlayerName, out wins, out losses, out draws);
+                matchResults.ResultsForPlayer(highPlayerName, out matchWins, out matchLosses, out matchDraws);
                 //var paramDelta = delta * 0.002f;
                 var paramDelta = delta * 0.004f;
-                var newParamValue = parameterValue + ((wins - losses) * paramDelta);
-               
-                string changeSummary = string.Format("{0}\tFrom\t{1:f4}\tTo\t{2:f4}\tin\t{3}", paramName, parameterValue, newParamValue, timeSpent);
-                Console.WriteLine(changeSummary);
+                var newParamValue = parameterValue + ((matchWins - matchLosses) * paramDelta);
 
-                string newParamValueString = string.Format("{0:f8}", newParamValue);
+                //report to param value.
+                Console.WriteLine(string.Format("{0}\tFrom\t{1:f4}\tTo\t{2:f4}\tin\t{3}", paramName, parameterValue, newParamValue, timeSpent));
+                
+
+                totalWins += matchWins;
+                totalLosses += matchLosses;
+                totalDraws += matchDraws;
+                int totalGames = totalWins + totalLosses + totalDraws;
+
+                //report total results for 'high player'
+                Console.WriteLine("HighPlayer WinPct:{0} LossPct:{1} DrawPct:{2} GameCount:{3}",
+                        ((float)totalWins / (float)totalGames).ToString("#0.##%"),
+                        ((float)totalLosses / (float)totalGames).ToString("#0.##%"),
+                        ((float)totalDraws / (float)totalGames).ToString("#0.##%"),
+                        totalGames);
+
+                string newParamValueString = string.Format("{0:f8}\t{1}\t{2}\t{3}", newParamValue, totalWins, totalLosses, totalDraws);
                 System.IO.File.AppendAllLines(tuneFileName, new string[] { newParamValueString });
 
                 Console.WriteLine("");

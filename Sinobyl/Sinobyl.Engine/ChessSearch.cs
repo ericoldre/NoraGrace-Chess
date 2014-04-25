@@ -202,7 +202,7 @@ namespace Sinobyl.Engine
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
-                ExtendChecks = false;
+                ExtendChecks = true;
 			}
 		}
 
@@ -536,7 +536,7 @@ namespace Sinobyl.Engine
 				}
 
                 
-                if (initWindow > 0 && score >= windowBeta) 
+                if (initWindow == 0 && score >= windowBeta) 
                 {
                     //we are failing high on a non-pv node which is looking better than we thought. extend search time!
                     SearchArgs.TimeManager.FailingHigh();
@@ -574,7 +574,7 @@ namespace Sinobyl.Engine
 		private int ValSearch(int depth, int ply, int alpha, int beta)
 		{
 			//for logging
-			//CountTotalAINodes++;
+			CountTotalAINodes++;
 			CountAIValSearch++;
             SearchArgs.TimeManager.NodeStart(CountAIValSearch); //will end up setting abort flag if over allotted time.
 

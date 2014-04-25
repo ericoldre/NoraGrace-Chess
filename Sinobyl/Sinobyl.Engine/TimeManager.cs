@@ -368,9 +368,9 @@ namespace Sinobyl.Engine
         public TimeManagerGeneric()
         {
             RatioBase = .0337;
-            RatioComplexity = .7;
+            RatioComplexity = 0;//test show not yet really working .7;
             RatioHistory = 1;
-            RatioFailHigh = 1.4;
+            RatioFailHigh = 1.5; //should show good improvement
             RatioFloor = .333;
             RatioCeiling = 4;
             RatioOfTotalCeiling = .25;
@@ -381,6 +381,20 @@ namespace Sinobyl.Engine
         {
             AmountToSpendCalc();
         }
+
+        public override void FailingHigh()
+        {
+            bool oldValue = this.IsFailingHigh;
+            TUnit amountBefore = this.AmountToSpend;
+
+            base.FailingHigh();
+
+            bool newValue = this.IsFailingHigh;
+            TUnit amountAfter = this.AmountToSpend;
+            
+        }
+
+        
 
         
         public override void StartSearch()
@@ -467,8 +481,8 @@ namespace Sinobyl.Engine
             {
                 if (value != IsFailingHigh)
                 {
-                    AmountToSpendCalc();
                     base.IsFailingHigh = value;
+                    AmountToSpendCalc();
                 }
             }
         }

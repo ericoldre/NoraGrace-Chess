@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "ExtendChecks";
+            string paramName = "RatioFailHigh_ONOFF";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -44,7 +44,8 @@ namespace Sinobyl.EvalTune
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
                 player.AlterSearchArgs = (searchArgs) =>
                 {
-                    searchArgs.ExtendChecks = pval > otherval;
+                    manager.RatioComplexity = 0; // pval > otherval ? 1 : 0;
+                    manager.RatioFailHigh = pval > otherval ? 1.5 : 1;
                     //if (pval > otherval) { searchArgs.MaxDepth = 3; }
                 };
                 return player;

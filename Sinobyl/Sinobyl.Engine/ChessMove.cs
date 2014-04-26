@@ -152,6 +152,7 @@ namespace Sinobyl.Engine
                 From = ChessPositionInfo.Parse(movetext.Substring(0, 2));
 				To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				Promote = movetext[4].ParseAsPiece(me);
+                return Create(From, To, Promote);
 			}
 			else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
 			{

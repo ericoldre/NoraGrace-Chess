@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "RatioFailHigh_ONOFF";
+            string paramName = "LateMoveReduction_ONOFF";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -44,8 +44,9 @@ namespace Sinobyl.EvalTune
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
                 player.AlterSearchArgs = (searchArgs) =>
                 {
-                    manager.RatioComplexity = 0; // pval > otherval ? 1 : 0;
-                    manager.RatioFailHigh = pval > otherval ? 1.5 : 1;
+                    searchArgs.UseLMR = pval > otherval;
+                    //manager.RatioComplexity = 0; // pval > otherval ? 1 : 0;
+                   // manager.RatioFailHigh = pval > otherval ? 1.5 : 1;
                     //if (pval > otherval) { searchArgs.MaxDepth = 3; }
                 };
                 return player;
@@ -81,7 +82,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodesPerMove = 15000;
+                int nodesPerMove = 30000;
                 nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };

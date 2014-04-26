@@ -190,6 +190,7 @@ namespace Sinobyl.Engine
             public int ContemptForDraw { get; set; }
             public ITimeManager TimeManager { get; set; }
             public bool ExtendChecks { get; set; }
+            public bool UseLMR { get; set; }
 			public Args()
 			{
                 GameStartPosition = new ChessFEN(ChessFEN.FENStart);
@@ -203,6 +204,7 @@ namespace Sinobyl.Engine
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
                 ExtendChecks = true;
+                UseLMR = true;
 			}
 		}
 
@@ -688,9 +690,12 @@ namespace Sinobyl.Engine
             ChessMove bestmove = ChessMove.EMPTY;
 
 
-            ChessMove move;
-            while ((move = plyMoves.NextMove()) != ChessMove.EMPTY)
+            
+            ChessMoveBuffer.MoveData moveData;
+            while ((moveData = plyMoves.NextMoveData()).Move != ChessMove.EMPTY)
 			{
+                ChessMove move = moveData.Move;    
+
 				CurrentVariation[ply] = move;
 
 				board.MoveApply(move);
@@ -711,11 +716,33 @@ namespace Sinobyl.Engine
                 int ext = 0;
                 bool isCheck = board.IsCheck(board.WhosTurn);
                 if (isCheck && SearchArgs.ExtendChecks) { ext = 1; }
-				
+
+                bool isDangerous = moveData.Flags != 0 || isCheck;
+
+                bool doFullSearch = true;
+
+                if (
+                    SearchArgs.UseLMR == true
+                    //&& beta == alpha + 1
+                    && depth >= 3
+                    && legalMovesTried > 3
+                    && !isDangerous 
+                    && ext == 0)
+                {
+                    doFullSearch = false;
+                    score = -ValSearch(depth - 2, ply + 1, -beta, -alpha);
+                    if (score > alpha) { doFullSearch = true; }
+                }
+
+                if (doFullSearch)
+                {
+                    //do subsearch
+                    score = -ValSearch(depth - 1, ply + 1, -beta, -alpha);
+                }
 
 
 				//do subsearch
-				score = -ValSearch(depth - 1 + ext, ply + 1, -beta, -alpha);
+				//score = -ValSearch(depth - 1 + ext, ply + 1, -beta, -alpha);
 
 
 				//check for blunder

@@ -91,6 +91,19 @@ namespace Sinobyl.Engine
                 }
             }
 
+            public ChessMoveBuffer.MoveData NextMoveData()
+            {
+                if (_moveCurrent < _moveCount)
+                {
+                    return _array[_moveCurrent++];
+                }
+                else
+                {
+                    return new MoveData() { Move = ChessMove.EMPTY };
+                }
+
+            }
+
             public void RegisterCutoff(ChessBoard board, ChessMove move)
             {
                 if (board.PieceAt(move.To()) == ChessPiece.EMPTY)

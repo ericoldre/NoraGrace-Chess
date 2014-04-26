@@ -26,6 +26,10 @@ namespace Sinobyl.EvalTune
 
             ParallelOptions options = new ParallelOptions();
             options.MaxDegreeOfParallelism = 10;
+#if DEBUG
+            options.MaxDegreeOfParallelism = 1;
+#endif
+      
             Parallel.ForEach(startingPositions, options, startingPGN =>
             {
                 foreach (var fWhitePlayer in competitors)

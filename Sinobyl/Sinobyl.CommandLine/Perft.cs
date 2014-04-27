@@ -60,6 +60,8 @@ namespace Sinobyl.CommandLine
                     (totalNodes / totalTime.TotalMilliseconds) * 1000));
             }
 
+            Program.ConsoleWriteline(string.Format("Total Time:{0}", totalTime));
+
         }
 
         #region PerftCalls

@@ -18,7 +18,7 @@ namespace Sinobyl.Engine
 
         public readonly int[, ,] _pcsqPiecePosStage = new int[ChessPieceInfo.LookupArrayLength, 64, 2];
         public readonly int[,] _matPieceStage = new int[ChessPieceInfo.LookupArrayLength, 2];
-        public readonly int[, ,] _mobilityPiecesStage = new int[28, ChessPieceInfo.LookupArrayLength, 2];
+        public readonly int[, ,] _mobilityPiecesStage = new int[28, ChessPieceTypeInfo.LookupArrayLength, 2];
         public readonly int[] _matBishopPairStage = new int[2];
         public readonly int[] _endgameMateKingPcSq;
 
@@ -107,18 +107,18 @@ namespace Sinobyl.Engine
 
             //setup mobility arrays
 
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+            foreach (ChessPieceType pieceType in ChessPieceTypeInfo.AllPieceTypes)
             {
                 foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
                 {
                     for (int attacksCount = 0; attacksCount < 28; attacksCount++)
                     {
                         var mob = settings.Mobility;
-                        var opiece = mob[piece.ToPieceType()];
+                        var opiece = mob[pieceType];
                         var ostage = opiece[stage];
 
                         int val = (attacksCount - ostage.ExpectedAttacksAvailable) * ostage.AmountPerAttackDefault;
-                        _mobilityPiecesStage[attacksCount, (int)piece, (int)stage] = piece.PieceToPlayer() == ChessPlayer.White ? val : -val;
+                        _mobilityPiecesStage[attacksCount, (int)pieceType, (int)stage] = val;
                     }
                     
                 }
@@ -192,65 +192,10 @@ namespace Sinobyl.Engine
             attacksWhite.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.White));
             attacksBlack.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.Black));
 
-            ChessBitboard slidersAndKnights =
-                board[ChessPieceType.Knight]
-                | board[ChessPieceType.Bishop]
-                | board[ChessPieceType.Rook]
-                | board[ChessPieceType.Queen];
 
-
-            while(slidersAndKnights != ChessBitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
-            {
-                ChessPosition pos = ChessBitboardInfo.PopFirst(ref slidersAndKnights);
-                //ChessPosition pos = ChessPositionInfo.AllPositions[ipos];
-                ChessPiece piece = board.PieceAt(pos);
-                //if (piece == ChessPiece.EMPTY) { continue; }
-
-                //generate attacks
-                ChessBitboard slidingAttacks = ChessBitboard.Empty;
-                
-                switch (piece)
-                {
-                    case ChessPiece.WKnight:
-                        slidingAttacks = Attacks.KnightAttacks(pos);
-                        attacksWhite.Knight |= slidingAttacks;
-                        break;
-                    case ChessPiece.WBishop:
-                        slidingAttacks = MagicBitboards.BishopAttacks(pos, board.PieceLocationsAll);
-                        attacksWhite.Bishop |= slidingAttacks;
-                        break;
-                    case ChessPiece.WRook:
-                        slidingAttacks = MagicBitboards.RookAttacks(pos, board.PieceLocationsAll);
-                        attacksWhite.RookQueen |= slidingAttacks;
-                        break;
-                    case ChessPiece.WQueen:
-                        slidingAttacks = MagicBitboards.QueenAttacks(pos, board.PieceLocationsAll);
-                        attacksWhite.RookQueen |= slidingAttacks;
-                        break;
-                    case ChessPiece.BKnight:
-                        slidingAttacks = Attacks.KnightAttacks(pos);
-                        attacksBlack.Knight |= slidingAttacks;
-                        break;
-                    case ChessPiece.BBishop:
-                        slidingAttacks = MagicBitboards.BishopAttacks(pos, board.PieceLocationsAll);
-                        attacksBlack.Bishop |= slidingAttacks;
-                        break;
-                    case ChessPiece.BRook:
-                        slidingAttacks = MagicBitboards.RookAttacks(pos, board.PieceLocationsAll);
-                        attacksBlack.RookQueen |= slidingAttacks;
-                        break;
-                    case ChessPiece.BQueen:
-                        slidingAttacks = MagicBitboards.QueenAttacks(pos, board.PieceLocationsAll);
-                        attacksBlack.RookQueen |= slidingAttacks;
-                        break;
-                }
-                //
-                ChessBitboard slidingMoves = slidingAttacks & ~board[piece.PieceToPlayer()];
-                int moveCount = slidingMoves.BitCount();
-                valStartMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Opening];
-                valEndMobility += _mobilityPiecesStage[moveCount, (int)piece, (int)ChessGameStage.Endgame];
-            }
-            
+            EvaluateMyPieces(board, ChessPlayer.White, evalInfo);
+            EvaluateMyPieces(board, ChessPlayer.Black, evalInfo);
+           
 
             //material
             var material = _evalMaterial.EvalMaterialHash(board);
@@ -296,13 +241,63 @@ namespace Sinobyl.Engine
             evalInfo.MatEnd = material.ScoreEnd;
             evalInfo.PcSqStart = valStartPieceSq;
             evalInfo.PcSqEnd = valEndPieceSq;
-            evalInfo.MobStart = valStartMobility;
-            evalInfo.MobEnd = valEndMobility;
             evalInfo.PawnsStart = pawns.StartVal;
             evalInfo.PawnsEnd = pawns.EndVal;
             evalInfo.StageStartWeight = material.StartWeight;
 
             return evalInfo.Score;
+        }
+
+        protected int EvaluateMyPieces(ChessBoard board, ChessPlayer me, ChessEvalInfo info)
+        {
+            int retval = 0;
+
+            var myAttacks = info.Attacks[(int)me];
+
+            ChessBitboard myPieces = board[me];
+            ChessBitboard pieceLocationsAll = board.PieceLocationsAll;
+            ChessBitboard slidersAndKnights = myPieces &
+               (board[ChessPieceType.Knight]
+               | board[ChessPieceType.Bishop]
+               | board[ChessPieceType.Rook]
+               | board[ChessPieceType.Queen]);
+
+
+            while (slidersAndKnights != ChessBitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
+            {
+                ChessPosition pos = ChessBitboardInfo.PopFirst(ref slidersAndKnights);
+
+                ChessPieceType pieceType = board.PieceAt(pos).ToPieceType();
+
+                //generate attacks
+                ChessBitboard slidingAttacks = ChessBitboard.Empty;
+
+                switch (pieceType)
+                {
+                    case ChessPieceType.Knight:
+                        slidingAttacks = Attacks.KnightAttacks(pos);
+                        myAttacks.Knight |= slidingAttacks;
+                        break;
+                    case ChessPieceType.Bishop:
+                        slidingAttacks = MagicBitboards.BishopAttacks(pos, pieceLocationsAll);
+                        myAttacks.Bishop |= slidingAttacks;
+                        break;
+                    case ChessPieceType.Rook:
+                        slidingAttacks = MagicBitboards.RookAttacks(pos, pieceLocationsAll);
+                        myAttacks.RookQueen |= slidingAttacks;
+                        break;
+                    case ChessPieceType.Queen:
+                        slidingAttacks = MagicBitboards.QueenAttacks(pos, pieceLocationsAll);
+                        myAttacks.RookQueen |= slidingAttacks;
+                        break;
+                }
+                //
+                ChessBitboard slidingMoves = slidingAttacks & ~myPieces;
+                int moveCount = slidingMoves.BitCount();
+                myAttacks.MobilityStart += _mobilityPiecesStage[moveCount, (int)pieceType, (int)ChessGameStage.Opening];
+                myAttacks.MobilityEnd += _mobilityPiecesStage[moveCount, (int)pieceType, (int)ChessGameStage.Endgame];
+            }
+            return retval;
         }
 
         protected virtual float CalcStartWeight(int basicMaterialCount)
@@ -363,6 +358,9 @@ namespace Sinobyl.Engine
 
         public ChessBitboard King;
 
+        public int MobilityStart;
+        public int MobilityEnd;
+
         public void Reset()
         {
             PawnEast = ChessBitboard.Empty;
@@ -371,6 +369,8 @@ namespace Sinobyl.Engine
             Bishop = ChessBitboard.Empty;
             RookQueen = ChessBitboard.Empty;
             King = ChessBitboard.Empty;
+            MobilityStart = 0;
+            MobilityEnd = 0;
         }
 
         public ChessBitboard All()
@@ -399,8 +399,6 @@ namespace Sinobyl.Engine
         public int MatEnd = 0;
         public int PcSqStart = 0;
         public int PcSqEnd = 0;
-        public int MobStart = 0;
-        public int MobEnd = 0;
         public int PawnsStart = 0;
         public int PawnsEnd = 0;
         public int PawnsPassedStart = 0;
@@ -416,8 +414,6 @@ namespace Sinobyl.Engine
             MatEnd = 0;
             PcSqStart = 0;
             PcSqEnd = 0;
-            MobStart = 0;
-            MobEnd = 0;
             PawnsStart = 0;
             PawnsEnd = 0;
             PawnsPassedStart = 0;
@@ -435,14 +431,14 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return MatStart + PcSqStart + MobStart + PawnsStart + PawnsPassedStart + ShelterStorm;
+                return MatStart + PcSqStart + (Attacks[0].MobilityStart - Attacks[1].MobilityStart) + PawnsStart + PawnsPassedStart + ShelterStorm;
             }
         }
         public int ScoreEnd
         {
             get
             {
-                return MatEnd + PcSqEnd + MobEnd + PawnsEnd + PawnsPassedEnd;
+                return MatEnd + PcSqEnd + (Attacks[0].MobilityEnd - Attacks[1].MobilityEnd) + PawnsEnd + PawnsPassedEnd;
             }
         }
         public int Score
@@ -473,7 +469,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return ((MobStart * StageStartWeight) + (MobEnd * StageEndWeight)) / 100;
+                return (((Attacks[0].MobilityStart - Attacks[1].MobilityStart) * StageStartWeight) + ((Attacks[0].MobilityEnd - Attacks[1].MobilityEnd) * StageEndWeight)) / 100;
             }
         }
         public int Pawns

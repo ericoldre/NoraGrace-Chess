@@ -31,6 +31,10 @@ namespace Sinobyl.Engine
 
         protected readonly ChessEvalSettings _settings;
 
+        protected readonly int RookFileOpenOpening;
+        protected readonly int RookFileOpenEndGame;
+        protected readonly int RookFileHalfOpenOpening;
+        protected readonly int RookFileHalfOpenEndGame;
 
         public static readonly ChessEval Default = new ChessEval();
 
@@ -132,7 +136,13 @@ namespace Sinobyl.Engine
                 var minDist = distToMid.Min();
                 _endgameMateKingPcSq[(int)pos] = minDist * 50;
             }
-            
+
+            RookFileOpenOpening = settings.RookFileOpen;
+            RookFileOpenEndGame = RookFileOpenOpening / 2;
+            RookFileHalfOpenOpening = RookFileOpenOpening / 2;
+            RookFileHalfOpenEndGame = RookFileOpenEndGame / 2;
+
+
         }
 
         public void PcSqValuesAdd(ChessPiece piece, ChessPosition pos, ref int startValue, ref int endValue)

@@ -221,6 +221,8 @@ namespace Sinobyl.Engine
 
                 PawnShelterFactor = 5,
 
+                RookFileOpen = 20,
+
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
                 {
                     Knight = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
@@ -269,6 +271,8 @@ namespace Sinobyl.Engine
         public double PawnPassedDangerPct = 0;
         public double PawnPassedOpeningPct = 0;
         public int PawnShelterFactor = 0;
+
+        public int RookFileOpen = 0;
 
         public ChessEvalSettings CloneDeep()
         {

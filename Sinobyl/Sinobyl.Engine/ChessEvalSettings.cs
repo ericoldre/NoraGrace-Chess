@@ -208,31 +208,7 @@ namespace Sinobyl.Engine
 
 
 
-                PawnPassedValues = new ChessGameStageDictionary<ChessPositionDictionary<int>>()
-                {
-                    Opening = new ChessPositionDictionary<int>(new int[]
-                     {
-                          0,  0,  0,  0,  0,  0,  0,  0,
-			             50, 50, 50, 50, 50, 50, 50, 50,
-			             30, 30, 30, 30, 30, 30, 30, 30,
-			             20, 20, 20, 20, 20, 20, 20, 20,
-			             15, 15, 15, 15, 15, 15, 15, 15,
-			             15, 15, 15, 15, 15, 15, 15, 15,
-			             15, 15, 15, 15, 15, 15, 15, 15,
-			              0,  0,  0,  0,  0,  0,  0,  0
-                     }),
-                    Endgame = new ChessPositionDictionary<int>(new int[]
-                     {
-                      	  0,  0,  0,  0,  0,  0,  0,  0,
-			            140,140,140,140,140,140,140,140,
-			             90, 90, 90, 90, 90, 90, 90, 90,
-			             60, 60, 60, 60, 60, 60, 60, 60,
-			             40, 40, 40, 40, 40, 40, 40, 40,
-			             25, 25, 25, 25, 25, 25, 25, 25,
-			             15, 15, 15, 15, 15, 15, 15, 15,
-			              0,  0,  0,  0,  0,  0,  0,  0	
-                     })
-                },
+
                 PawnDoubled = new ChessGameStageDictionary<int>() { Opening = 10, Endgame = 25 },
                 PawnIsolated = new ChessGameStageDictionary<int>() { Opening = 15, Endgame = 25 },
                 PawnUnconnected = new ChessGameStageDictionary<int>(){ Opening = 5, Endgame = 10},
@@ -281,7 +257,6 @@ namespace Sinobyl.Engine
         public ChessPieceTypeDictionary<ChessGameStageDictionary<int>> MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>();
         public ChessGameStageDictionary<int> MaterialBishopPair = new ChessGameStageDictionary<int>();
 
-        public ChessGameStageDictionary<ChessPositionDictionary<int>> PawnPassedValues = new ChessGameStageDictionary<ChessPositionDictionary<int>>();
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnUnconnected = new ChessGameStageDictionary<int>();

@@ -256,6 +256,8 @@ namespace Sinobyl.Engine
 
             ChessBitboard myPieces = board[me];
             ChessBitboard pieceLocationsAll = board.PieceLocationsAll;
+            ChessBitboard pawns = board[ChessPieceType.Pawn];
+
             ChessBitboard slidersAndKnights = myPieces &
                (board[ChessPieceType.Knight]
                | board[ChessPieceType.Bishop]
@@ -285,6 +287,19 @@ namespace Sinobyl.Engine
                     case ChessPieceType.Rook:
                         slidingAttacks = MagicBitboards.RookAttacks(pos, pieceLocationsAll);
                         myAttacks.RookQueen |= slidingAttacks;
+                        if ((pos.GetFile().Bitboard() & pawns & myPieces) == ChessBitboard.Empty)
+                        {
+                            if ((pos.GetFile().Bitboard() & pawns) == ChessBitboard.Empty)
+                            {
+                                myAttacks.MobilityStart += RookFileOpenOpening;
+                                myAttacks.MobilityEnd += RookFileOpenEndGame;
+                            }
+                            else
+                            {
+                                myAttacks.MobilityStart += RookFileHalfOpenOpening;
+                                myAttacks.MobilityEnd += RookFileHalfOpenEndGame;
+                            }
+                        }
                         break;
                     case ChessPieceType.Queen:
                         slidingAttacks = MagicBitboards.QueenAttacks(pos, pieceLocationsAll);

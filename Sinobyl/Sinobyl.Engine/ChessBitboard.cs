@@ -110,6 +110,17 @@ namespace Sinobyl.Engine
                 | ((ulong)(bits & ChessBitboard.Rank8) << 56));
         }
 
+        public static ChessBitboard Flood(this ChessBitboard bits, ChessDirection dir)
+        {
+            while (true)
+            {
+                var shift = bits.Shift(dir);
+                if ((shift & bits) == shift) { break; }
+                bits = shift | bits;
+            }
+            return bits;
+        }
+
         public static ChessBitboard Shift(this ChessBitboard bits, ChessDirection dir)
         {
             switch (dir)

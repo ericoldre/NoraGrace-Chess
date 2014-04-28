@@ -13,8 +13,9 @@ namespace Sinobyl.Engine
         private static readonly ChessBitboard[,] _attacks_from_diagh8_lu = new ChessBitboard[65, 64];
         private static readonly ChessBitboard[] _attacks_from_knight_lu = new ChessBitboard[65];
         private static readonly ChessBitboard[] _attacks_from_king_lu = new ChessBitboard[65];
-        private static readonly ChessBitboard[] _attacks_from_wpawn_lu = new ChessBitboard[65];
-        private static readonly ChessBitboard[] _attacks_from_bpawn_lu = new ChessBitboard[65];
+        private static readonly ChessBitboard[][] _attacks_from_pawn_lu = new ChessBitboard[2][];
+        private static readonly ChessBitboard[][] _attacks_from_pawn_flood_lu = new ChessBitboard[2][];
+        //private static readonly ChessBitboard[] _attacks_from_bpawn_lu = new ChessBitboard[65];
 
         private static int[] _attacks_from_horiz_offset = {
 	        1, 1, 1, 1, 1, 1, 1, 1,
@@ -191,21 +192,21 @@ namespace Sinobyl.Engine
                 _attacks_from_king_lu[sq.GetIndex64()] = board;
             }
 
-            //wpawn attacks
-            foreach (var sq in ChessPositionInfo.AllPositions)
+            //pawn attacks
+            foreach(ChessPlayer player in ChessPlayerInfo.AllPlayers)
             {
-                ChessBitboard board = 0;
-                board |= sq.PositionInDirection(ChessDirection.DirNE).Bitboard();
-                board |= sq.PositionInDirection(ChessDirection.DirNW).Bitboard();
-                _attacks_from_wpawn_lu[sq.GetIndex64()] = board;
-            }
-            //bpawn attacks
-            foreach (var sq in ChessPositionInfo.AllPositions)
-            {
-                ChessBitboard board = 0;
-                board |= sq.PositionInDirection(ChessDirection.DirSE).Bitboard();
-                board |= sq.PositionInDirection(ChessDirection.DirSW).Bitboard();
-                _attacks_from_bpawn_lu[sq.GetIndex64()] = board;
+                _attacks_from_pawn_lu[(int)player] = new ChessBitboard[65];
+                _attacks_from_pawn_flood_lu[(int)player] = new ChessBitboard[65];
+                foreach (var sq in ChessPositionInfo.AllPositions)
+                {
+                    ChessBitboard board = 0;
+                    board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(ChessDirection.DirE).Bitboard();
+                    board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(ChessDirection.DirW).Bitboard();
+
+                    _attacks_from_pawn_lu[(int)player][sq.GetIndex64()] = board;
+                    board = board.Flood(player.MyNorth());
+                    _attacks_from_pawn_flood_lu[(int)player][sq.GetIndex64()] = board;
+                }
             }
         }
 
@@ -268,30 +269,16 @@ namespace Sinobyl.Engine
         {
             return _attacks_from_king_lu[from.GetIndex64()];
         }
-        public static ChessBitboard PawnAttacksWhite(ChessPosition from)
+
+        public static ChessBitboard PawnAttacks(ChessPosition from, ChessPlayer player)
         {
-            return _attacks_from_wpawn_lu[from.GetIndex64()];
-        }
-        public static ChessBitboard PawnAttacksBlack(ChessPosition from)
-        {
-            return _attacks_from_bpawn_lu[from.GetIndex64()];
-        }
-        public static ChessBitboard PawnAttacks(ChessPosition from, ChessPlayer who)
-        {
-            if (who == ChessPlayer.White)
-            {
-                return _attacks_from_wpawn_lu[from.GetIndex64()];
-            }
-            else if (who == ChessPlayer.Black)
-            {
-                return _attacks_from_bpawn_lu[from.GetIndex64()];
-            }
-            else
-            {
-                return 0;
-            }
+            return _attacks_from_pawn_lu[(int)player][(int)from];
         }
 
+        public static ChessBitboard PawnAttacksFlood(ChessPosition from, ChessPlayer player)
+        {
+            return _attacks_from_pawn_flood_lu[(int)player][(int)from];
+        }
 
         public static ChessBitboardRotatedVert RotateVert(ChessPosition position)
         {

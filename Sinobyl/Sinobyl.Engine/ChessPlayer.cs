@@ -69,5 +69,9 @@ namespace Sinobyl.Engine
             System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
             return (ChessPlayer)((int)player ^ 1);
         }
+        public static ChessDirection MyNorth(this ChessPlayer player)
+        {
+            return player == ChessPlayer.White ? ChessDirection.DirN : ChessDirection.DirS;
+        }
     }
 }

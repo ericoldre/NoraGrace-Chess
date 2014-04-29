@@ -80,6 +80,7 @@
     <Compile Include="ChessZobrist.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="MagicBitboards.cs" />
+    <Compile Include="PhasedScore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeManager.cs" />
   </ItemGroup>

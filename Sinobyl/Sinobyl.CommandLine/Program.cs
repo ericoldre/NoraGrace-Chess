@@ -159,7 +159,7 @@ namespace Sinobyl.CommandLine
                         Sinobyl.Engine.ChessSearch.CountTotalAINodes,
                         Sinobyl.Engine.ChessEval.TotalEvalCount, 
                         Sinobyl.Engine.ChessEvalPawns.TotalEvalPawnCount,
-                        Sinobyl.Engine.ChessEvalMaterial.TotalEvalMaterialCount));
+                        Sinobyl.Engine.ChessEvalMaterialBasic.TotalEvalMaterialCount));
                     break;
                 case "genmagic":
                     Sinobyl.Engine.MagicBitboards.Generation.FindMagics();

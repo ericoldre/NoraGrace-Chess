@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
     {
 
         protected readonly ChessEvalPawns _evalPawns;
-        public readonly ChessEvalMaterial _evalMaterial;
+        public readonly ChessEvalMaterialBasic _evalMaterial;
 
         public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[ChessPieceInfo.LookupArrayLength][];
         public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[ChessPieceTypeInfo.LookupArrayLength][];
@@ -44,7 +44,7 @@ namespace Sinobyl.Engine
 
             //setup pawn evaluation
             _evalPawns = new ChessEvalPawns(_settings, 10000);
-            _evalMaterial = new ChessEvalMaterial(_settings);
+            _evalMaterial = new ChessEvalMaterialBasic(_settings);
             
             //bishop pairs
             _matBishopPair = PhasedScoreInfo.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);
@@ -199,7 +199,7 @@ namespace Sinobyl.Engine
             }
 
 
-            evalInfo.Mat = material.PhasedScore;
+            evalInfo.Material = material.Score;
             evalInfo.PcSqStart = valPieceSq;
             evalInfo.PawnsStart = pawns.Value;
             evalInfo.StageStartWeight = material.StartWeight;
@@ -367,7 +367,7 @@ namespace Sinobyl.Engine
     {
         public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
         
-        public PhasedScore Mat = 0;
+        public int Material = 0;
 
         public PhasedScore PcSqStart = 0;
 
@@ -382,7 +382,7 @@ namespace Sinobyl.Engine
         {
             Attacks[0].Reset();
             Attacks[1].Reset();
-            Mat = 0;
+            Material = 0;
             PcSqStart = 0;
             PawnsStart = 0;
             PawnsPassedStart = 0;
@@ -395,31 +395,15 @@ namespace Sinobyl.Engine
             get { return 100 - StageStartWeight; }
         }
 
-        public PhasedScore TotalPhasedScore
-        {
-            get
-            {
-                return Mat
-                    .Add(PcSqStart)
-                    .Add(PawnsStart)
-                    .Add(PawnsPassedStart)
-                    .Add(ShelterStorm)
-                    .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility));
-            }
-        }
         public int Score
         {
             get
             {
-                return TotalPhasedScore.ApplyWeights(StageStartWeight);
-            }
-        }
-
-        public int Material
-        {
-            get
-            {
-                return Mat.ApplyWeights(StageStartWeight);
+                return PcSqStart
+                    .Add(PawnsStart)
+                    .Add(PawnsPassedStart)
+                    .Add(ShelterStorm)
+                    .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
             }
         }
 

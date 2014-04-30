@@ -6,24 +6,28 @@ using System.Threading.Tasks;
 
 namespace Sinobyl.Engine
 {
-    public class ChessEvalMaterial
+    public interface IChessEvalMaterial
+    {
+        EvalMaterialResults EvalMaterialHash(ChessBoard board);
+    }
+    public class ChessEvalMaterialBasic: IChessEvalMaterial
     {
         private readonly ChessEvalSettings _settings;
-        private readonly Results[] _hash = new Results[500];
+        private readonly EvalMaterialResults[] _hash = new EvalMaterialResults[500];
         public static int TotalEvalMaterialCount = 0;
 
-        public ChessEvalMaterial(ChessEvalSettings settings)
+        public ChessEvalMaterialBasic(ChessEvalSettings settings)
         {
             _settings = settings;
         }
 
-        public Results EvalMaterialHash(ChessBoard board)
+        public EvalMaterialResults EvalMaterialHash(ChessBoard board)
         {
             long idx = board.ZobristMaterial % _hash.GetUpperBound(0);
 
             if (idx < 0) { idx = -idx; }
 
-            Results retval = _hash[idx];
+            EvalMaterialResults retval = _hash[idx];
             if (retval != null && retval.ZobristMaterial == board.ZobristMaterial)
             {
                 return retval;
@@ -46,7 +50,7 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        public Results EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        public EvalMaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
             TotalEvalMaterialCount++;
 
@@ -94,8 +98,8 @@ namespace Sinobyl.Engine
             int startWeight = CalcStartWeight(basicCount);
 
             //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
-
-            return new Results(zob, startWeight, startScore, endScore, basicCount);
+            int score = PhasedScoreInfo.Create(startScore, endScore).ApplyWeights(startWeight);
+            return new EvalMaterialResults(zob, startWeight, score);
             //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
         }
 
@@ -120,49 +124,49 @@ namespace Sinobyl.Engine
         }
         
 
-        public class Results
+
+    }
+
+    public class EvalMaterialResults
+    {
+        public readonly Int64 ZobristMaterial;
+        public readonly int StartWeight;
+        public readonly int Score;
+
+        //public readonly int Wp;
+        //public readonly int Wn;
+        //public readonly int Wb;
+        //public readonly int Wr;
+        //public readonly int Wq;
+        //public readonly int Bp;
+        //public readonly int Bn;
+        //public readonly int Bb;
+        //public readonly int Br;
+        //public readonly int Bq;
+
+        public EvalMaterialResults(Int64 zobristMaterial, int startWeight, int score /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
         {
-            public readonly Int64 ZobristMaterial;
-            public readonly int StartWeight;
-            public readonly PhasedScore PhasedScore;
+            ZobristMaterial = zobristMaterial;
+            StartWeight = startWeight;
+            Score = score;
 
-            public readonly int BasicMaterialCount;
-            //public readonly int Wp;
-            //public readonly int Wn;
-            //public readonly int Wb;
-            //public readonly int Wr;
-            //public readonly int Wq;
-            //public readonly int Bp;
-            //public readonly int Bn;
-            //public readonly int Bb;
-            //public readonly int Br;
-            //public readonly int Bq;
-            
-            public Results(Int64 zobristMaterial, int startWeight, int scoreStart, int scoreEnd, int basicMateralCount /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
-            {
-                ZobristMaterial = zobristMaterial;
-                StartWeight = startWeight;
-                PhasedScore = PhasedScoreInfo.Create(scoreStart, scoreEnd);
-                BasicMaterialCount = basicMateralCount;
-
-                //Wp = wp;
-                //Wn = wn;
-                //Wb = wb;
-                //Wr = wr;
-                //Wq = wq;
-                //Bp = bp;
-                //Bn = bn;
-                //Bb = bb;
-                //Br = br;
-                //Bq = bq;
-
-            }
-
-            public bool DoShelter
-            {
-                get { return this.StartWeight > 40; }
-            }
+            //Wp = wp;
+            //Wn = wn;
+            //Wb = wb;
+            //Wr = wr;
+            //Wq = wq;
+            //Bp = bp;
+            //Bn = bn;
+            //Bb = bb;
+            //Br = br;
+            //Bq = bq;
 
         }
+
+        public bool DoShelter
+        {
+            get { return this.StartWeight > 40; }
+        }
+
     }
 }

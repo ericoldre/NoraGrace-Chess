@@ -151,11 +151,10 @@ namespace Sinobyl.Engine
                     System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
 
                     //calc pcsq value;
-                    int pcSq = 0;
-                    int dummyPcSq = 0;
-                    board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq, ref dummyPcSq);
-                    board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq, ref dummyPcSq);
-                    if (board.WhosTurn == ChessPlayer.Black) { pcSq = -pcSq; }
+                    PhasedScore pcSq = 0;
+                    board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
+                    board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
+                    if (board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
 
                     int see = 0;
 
@@ -185,7 +184,7 @@ namespace Sinobyl.Engine
                     //if (killers.IsKiller(move)) { flags |= MoveFlags.Killer; }
 
                     _array[i].SEE = see;
-                    _array[i].PcSq = pcSq;
+                    _array[i].PcSq = pcSq.Opening();
                     _array[i].Flags = flags;
                     _array[i].Score = _array[i].ScoreCalc();
 

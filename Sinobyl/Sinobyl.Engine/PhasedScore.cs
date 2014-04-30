@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace Sinobyl.Engine
 {
+    [System.Diagnostics.DebuggerDisplay(@"{Sinobyl.Engine.PhasedScoreInfo.Description(this),nq}")]
     public enum PhasedScore: long
     {
     }
 
     public static class PhasedScoreInfo
     {
-        public static PhasedScore CreateTestEnum(int opening, int endgame)
+        public static PhasedScore Create(int opening, int endgame)
         {
             //long high = (long)mg << 32;
             //long low = (long)eg;
@@ -41,10 +42,40 @@ namespace Sinobyl.Engine
             return (int)((long)phasedScore & 0xffffffffL);
         }
 
+        public static string Description(this PhasedScore score)
+        {
+            return string.Format("{0}, {1}", score.Opening(), score.Endgame());
+        }
+
         public static PhasedScore Add(this PhasedScore a, PhasedScore b)
         {
             return (PhasedScore)((long)a + (long)b);
         }
+
+        public static PhasedScore Subtract(this PhasedScore a, PhasedScore b)
+        {
+            return (PhasedScore)((long)a - (long)b);
+        }
+
+        public static PhasedScore Negate(this PhasedScore phasedScore)
+        {
+            return (PhasedScore)(-(long)phasedScore);
+        }
+
+        public static PhasedScore Multiply(this PhasedScore phasedScore, int multiplier)
+        {
+            return (PhasedScore)((long)phasedScore * multiplier);
+        }
+
+        public static int ApplyWeights(this PhasedScore phasedScore, int StageStartWeight)
+        {
+            return (
+                    (phasedScore.Opening() * StageStartWeight) 
+                    + (phasedScore.Endgame() * (100 - StageStartWeight)
+                    )) / 100;
+        }
+
+
 
     }
 }

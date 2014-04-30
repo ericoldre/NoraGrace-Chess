@@ -91,8 +91,7 @@ namespace Sinobyl.Engine
 		private int _movesSinceNull = 100;
 
         private readonly ChessEval _pcSqEvaluator;
-        private int _pcSqStart;
-        private int _pcSqEnd;
+        private PhasedScore _pcSq;
 
         public ChessBoard(ChessEval pcSqEvaluator = null)
             : this(new ChessFEN(ChessFEN.FENStart), pcSqEvaluator)
@@ -148,8 +147,7 @@ namespace Sinobyl.Engine
             _playerBoards[(int)ChessPlayer.Black] = 0;
             _allPieces = 0;
 
-            _pcSqStart = 0;
-            _pcSqEnd = 0;
+            _pcSq = 0;
 			
 		}
 
@@ -202,7 +200,7 @@ namespace Sinobyl.Engine
             _zob ^= ChessZobrist.PiecePosition(piece, pos);
             _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[(int)piece]);
             _pieceCount[(int)piece]++;
-            _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSqStart, ref _pcSqEnd);
+            _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSq);
 
             ChessBitboard posBits = pos.Bitboard();
             _pieces[(int)piece] |= posBits;
@@ -231,7 +229,7 @@ namespace Sinobyl.Engine
 			_zob ^= ChessZobrist.PiecePosition(piece, pos);
             _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[(int)piece] - 1);
             _pieceCount[(int)piece]--;
-            _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSqStart, ref _pcSqEnd);
+            _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSq);
 
             ChessBitboard notPosBits = ~pos.Bitboard();
             _pieces[(int)piece] &= notPosBits;
@@ -253,14 +251,9 @@ namespace Sinobyl.Engine
             return _pieceCount[(int)pieceType.ForPlayer(player)];
         }
 
-        public int PcSqValueStart
+        public PhasedScore PcSqValue
         {
-            get { return _pcSqStart; }
-        }
-
-        public int PcSqValueEnd
-        {
-            get { return _pcSqEnd; }
+            get { return _pcSq; }
         }
 
         public ChessEval PcSqEvaluator

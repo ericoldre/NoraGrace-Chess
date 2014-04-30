@@ -16,25 +16,17 @@ namespace Sinobyl.Engine
         protected readonly ChessEvalPawns _evalPawns;
         public readonly ChessEvalMaterial _evalMaterial;
 
-        public readonly int[, ,] _pcsqPiecePosStage = new int[ChessPieceInfo.LookupArrayLength, 64, 2];
-        public readonly int[,] _matPieceStage = new int[ChessPieceInfo.LookupArrayLength, 2];
-        public readonly int[, ,] _mobilityPiecesStage = new int[28, ChessPieceTypeInfo.LookupArrayLength, 2];
-        public readonly int[] _matBishopPairStage = new int[2];
+        public readonly PhasedScore[,] _pcsqPiecePos = new PhasedScore[ChessPieceInfo.LookupArrayLength, 64];
+        public readonly PhasedScore[,] _mobilityPieces = new PhasedScore[28, ChessPieceTypeInfo.LookupArrayLength];
+        public readonly PhasedScore _matBishopPair;
+
         public readonly int[] _endgameMateKingPcSq;
 
-        protected readonly int WeightMaterialOpening;
-        protected readonly int WeightMaterialEndgame;
-        protected readonly int WeightPcSqOpening;
-        protected readonly int WeightPcSqEndgame;
-        protected readonly int WeightMobilityOpening;
-        protected readonly int WeightMobilityEndgame;
 
         protected readonly ChessEvalSettings _settings;
 
-        protected readonly int RookFileOpenOpening;
-        protected readonly int RookFileOpenEndGame;
-        protected readonly int RookFileHalfOpenOpening;
-        protected readonly int RookFileHalfOpenEndGame;
+        protected readonly PhasedScore RookFileOpen;
+        protected readonly PhasedScore RookFileHalfOpen;
 
         public static readonly ChessEval Default = new ChessEval();
 
@@ -53,50 +45,27 @@ namespace Sinobyl.Engine
             //setup pawn evaluation
             _evalPawns = new ChessEvalPawns(_settings, 10000);
             _evalMaterial = new ChessEvalMaterial(_settings);
-
-            //setup weight values;
-            WeightMaterialOpening = settings.Weight.Material.Opening;
-            WeightMaterialEndgame = settings.Weight.Material.Endgame;
-            WeightPcSqOpening = settings.Weight.PcSq.Opening;
-            WeightPcSqEndgame = settings.Weight.PcSq.Endgame;
-            WeightMobilityOpening = settings.Weight.Mobility.Opening;
-            WeightMobilityEndgame = settings.Weight.Mobility.Endgame;
-
+            
             //bishop pairs
-            _matBishopPairStage[(int)ChessGameStage.Opening] = settings.MaterialBishopPair.Opening;
-            _matBishopPairStage[(int)ChessGameStage.Endgame] = settings.MaterialBishopPair.Endgame;
+            _matBishopPair = PhasedScoreInfo.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);
 
-            //setup material arrays
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
-            {
-                foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
-                {
-                    if (piece.PieceToPlayer() == ChessPlayer.White)
-                    {
-                        _matPieceStage[(int)piece, (int)stage] = settings.MaterialValues[piece.ToPieceType()][stage];
-                    }
-                    else
-                    {
-                        _matPieceStage[(int)piece, (int)stage] = -settings.MaterialValues[piece.ToPieceType()][stage];
-                    }
-                }
-            }
 
             //setup piecesq tables
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
                 {
-                    foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
+                    if (piece.PieceToPlayer() == ChessPlayer.White)
                     {
-                        if (piece.PieceToPlayer() == ChessPlayer.White)
-                        {
-                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = settings.PcSqTables[piece.ToPieceType()][stage][pos];
-                        }
-                        else
-                        {
-                            _pcsqPiecePosStage[(int)piece, (int)pos, (int)stage] = -settings.PcSqTables[piece.ToPieceType()][stage][pos.Reverse()];
-                        }
+                        _pcsqPiecePos[(int)piece, (int)pos] = PhasedScoreInfo.Create(
+                            settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos],
+                            settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Endgame][pos]);
+                    }
+                    else
+                    {
+                        _pcsqPiecePos[(int)piece, (int)pos] = PhasedScoreInfo.Create(
+                            -settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos.Reverse()],
+                            -settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Endgame][pos.Reverse()]);
                     }
                     
                 }
@@ -109,18 +78,15 @@ namespace Sinobyl.Engine
 
             foreach (ChessPieceType pieceType in ChessPieceTypeInfo.AllPieceTypes)
             {
-                foreach (ChessGameStage stage in ChessGameStageInfo.AllGameStages)
+                for (int attacksCount = 0; attacksCount < 28; attacksCount++)
                 {
-                    for (int attacksCount = 0; attacksCount < 28; attacksCount++)
-                    {
-                        var mob = settings.Mobility;
-                        var opiece = mob[pieceType];
-                        var ostage = opiece[stage];
+                    var mob = settings.Mobility;
+                    var opiece = mob[pieceType];
 
-                        int val = (attacksCount - ostage.ExpectedAttacksAvailable) * ostage.AmountPerAttackDefault;
-                        _mobilityPiecesStage[attacksCount, (int)pieceType, (int)stage] = val;
-                    }
-                    
+                    int startVal = (attacksCount - opiece[ChessGameStage.Opening].ExpectedAttacksAvailable) * opiece[ChessGameStage.Opening].AmountPerAttackDefault;
+                    int endVal = (attacksCount - opiece[ChessGameStage.Endgame].ExpectedAttacksAvailable) * opiece[ChessGameStage.Endgame].AmountPerAttackDefault;
+
+                    _mobilityPieces[attacksCount, (int)pieceType] = PhasedScoreInfo.Create(startVal, endVal);
                 }
             }
 
@@ -137,23 +103,18 @@ namespace Sinobyl.Engine
                 _endgameMateKingPcSq[(int)pos] = minDist * 50;
             }
 
-            RookFileOpenOpening = settings.RookFileOpen;
-            RookFileOpenEndGame = RookFileOpenOpening / 2;
-            RookFileHalfOpenOpening = RookFileOpenOpening / 2;
-            RookFileHalfOpenEndGame = RookFileOpenEndGame / 2;
-
+            RookFileOpen = PhasedScoreInfo.Create(settings.RookFileOpen, settings.RookFileOpen / 2);
+            RookFileHalfOpen = PhasedScoreInfo.Create(settings.RookFileOpen / 2, settings.RookFileOpen / 4);
 
         }
 
-        public void PcSqValuesAdd(ChessPiece piece, ChessPosition pos, ref int startValue, ref int endValue)
+        public void PcSqValuesAdd(ChessPiece piece, ChessPosition pos, ref PhasedScore value)
         {
-            startValue += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
-            endValue += this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
+            value = value.Add(_pcsqPiecePos[(int)piece, (int)pos]);
         }
-        public void PcSqValuesRemove(ChessPiece piece, ChessPosition pos, ref int startValue, ref int endValue)
+        public void PcSqValuesRemove(ChessPiece piece, ChessPosition pos, ref PhasedScore value)
         {
-            startValue -= this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Opening];
-            endValue -= this._pcsqPiecePosStage[(int)piece, (int)pos, (int)ChessGameStage.Endgame];
+            value = value.Subtract(_pcsqPiecePos[(int)piece, (int)pos]);
         }
 
         public int EvalFor(ChessBoard board, ChessPlayer who)
@@ -177,9 +138,6 @@ namespace Sinobyl.Engine
             evalInfo.Reset();
             
             
-            int valStartMobility = 0;
-            int valEndMobility = 0;
-
             var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
             var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
 
@@ -209,10 +167,10 @@ namespace Sinobyl.Engine
             //shelter storm;
             if (material.DoShelter)
             {
-                evalInfo.ShelterStorm = _settings.PawnShelterFactor * pawns.EvalShelter(
+                evalInfo.ShelterStorm = PhasedScoreInfo.Create(_settings.PawnShelterFactor * pawns.EvalShelter(
                     whiteKingFile: board.KingPosition(ChessPlayer.White).GetFile(),
                     blackKingFile: board.KingPosition(ChessPlayer.Black).GetFile(),
-                    castleFlags: board.CastleRights);
+                    castleFlags: board.CastleRights), 0);
             }
             
             //evalInfo.ShelterStorm = this._evalPawns.EvalKingShelterStormBlackPerspective(board.KingPosition(ChessPlayer.White).GetFile(), board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn));
@@ -220,29 +178,27 @@ namespace Sinobyl.Engine
 
 
             //get pcsq values from board.
-            int valStartPieceSq = board.PcSqValueStart;
-            int valEndPieceSq = board.PcSqValueEnd;
+            var valPieceSq = board.PcSqValue;
 
             //test to see if we are just trying to force the king to the corner for mate.
-            int endGamePcSq = 0;
+            PhasedScore endGamePcSq = 0;
             if (UseEndGamePcSq(board, ChessPlayer.White, out endGamePcSq))
             {
-                valEndPieceSq = endGamePcSq;
-                valEndMobility = 0;
+                valPieceSq = endGamePcSq;
+                evalInfo.Attacks[0].Mobility = 0;
+                evalInfo.Attacks[1].Mobility = 0;
             }
             else if (UseEndGamePcSq(board, ChessPlayer.Black, out endGamePcSq))
             {
-                valEndPieceSq = -endGamePcSq;
-                valEndMobility = 0;
+                valPieceSq = endGamePcSq.Negate();
+                evalInfo.Attacks[0].Mobility = 0;
+                evalInfo.Attacks[1].Mobility = 0;
             }
 
 
-            evalInfo.MatStart = material.ScoreStart;
-            evalInfo.MatEnd = material.ScoreEnd;
-            evalInfo.PcSqStart = valStartPieceSq;
-            evalInfo.PcSqEnd = valEndPieceSq;
-            evalInfo.PawnsStart = pawns.StartVal;
-            evalInfo.PawnsEnd = pawns.EndVal;
+            evalInfo.Mat = material.PhasedScore;
+            evalInfo.PcSqStart = valPieceSq;
+            evalInfo.PawnsStart = pawns.Value;
             evalInfo.StageStartWeight = material.StartWeight;
 
             return evalInfo.Score;
@@ -251,7 +207,7 @@ namespace Sinobyl.Engine
         protected int EvaluateMyPieces(ChessBoard board, ChessPlayer me, ChessEvalInfo info)
         {
             int retval = 0;
-
+            PhasedScore mobility = 0;
             var myAttacks = info.Attacks[(int)me];
 
             ChessBitboard myPieces = board[me];
@@ -291,13 +247,11 @@ namespace Sinobyl.Engine
                         {
                             if ((pos.GetFile().Bitboard() & pawns) == ChessBitboard.Empty)
                             {
-                                myAttacks.MobilityStart += RookFileOpenOpening;
-                                myAttacks.MobilityEnd += RookFileOpenEndGame;
+                                mobility = mobility.Add(RookFileOpen);
                             }
                             else
                             {
-                                myAttacks.MobilityStart += RookFileHalfOpenOpening;
-                                myAttacks.MobilityEnd += RookFileHalfOpenEndGame;
+                                mobility = mobility.Add(RookFileHalfOpen);
                             }
                         }
                         break;
@@ -309,9 +263,10 @@ namespace Sinobyl.Engine
                 //
                 ChessBitboard slidingMoves = slidingAttacks & ~myPieces;
                 int moveCount = slidingMoves.BitCount();
-                myAttacks.MobilityStart += _mobilityPiecesStage[moveCount, (int)pieceType, (int)ChessGameStage.Opening];
-                myAttacks.MobilityEnd += _mobilityPiecesStage[moveCount, (int)pieceType, (int)ChessGameStage.Endgame];
+                mobility = mobility.Add(_mobilityPieces[moveCount, (int)pieceType]);
             }
+
+            myAttacks.Mobility = mobility;
             return retval;
         }
 
@@ -334,7 +289,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        protected bool UseEndGamePcSq(ChessBoard board, ChessPlayer winPlayer, out int newPcSq)
+        protected bool UseEndGamePcSq(ChessBoard board, ChessPlayer winPlayer, out PhasedScore newPcSq)
         {
             ChessPlayer losePlayer = winPlayer.PlayerOther();
             if (
@@ -349,7 +304,7 @@ namespace Sinobyl.Engine
                 {
                     ChessPosition loseKing = board.KingPosition(losePlayer);
                     ChessPosition winKing = board.KingPosition(winPlayer);
-                    newPcSq = _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25);
+                    newPcSq = PhasedScoreInfo.Create(0, _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25));
                     return true;
                 }
             }
@@ -373,8 +328,7 @@ namespace Sinobyl.Engine
 
         public ChessBitboard King;
 
-        public int MobilityStart;
-        public int MobilityEnd;
+        public PhasedScore Mobility;
 
         public void Reset()
         {
@@ -384,8 +338,7 @@ namespace Sinobyl.Engine
             Bishop = ChessBitboard.Empty;
             RookQueen = ChessBitboard.Empty;
             King = ChessBitboard.Empty;
-            MobilityStart = 0;
-            MobilityEnd = 0;
+            Mobility = 0;
         }
 
         public ChessBitboard All()
@@ -410,29 +363,26 @@ namespace Sinobyl.Engine
     public class ChessEvalInfo
     {
         public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
-        public int MatStart = 0;
-        public int MatEnd = 0;
-        public int PcSqStart = 0;
-        public int PcSqEnd = 0;
-        public int PawnsStart = 0;
-        public int PawnsEnd = 0;
-        public int PawnsPassedStart = 0;
-        public int PawnsPassedEnd = 0;
-        public int ShelterStorm = 0;
+        
+        public PhasedScore Mat = 0;
+
+        public PhasedScore PcSqStart = 0;
+
+        public PhasedScore PawnsStart = 0;
+
+        public PhasedScore PawnsPassedStart = 0;
+
+        public PhasedScore ShelterStorm = 0;
         public int StageStartWeight = 0;
 
         public void Reset()
         {
             Attacks[0].Reset();
             Attacks[1].Reset();
-            MatStart = 0;
-            MatEnd = 0;
+            Mat = 0;
             PcSqStart = 0;
-            PcSqEnd = 0;
             PawnsStart = 0;
-            PawnsEnd = 0;
             PawnsPassedStart = 0;
-            PawnsPassedEnd = 0;
             ShelterStorm = 0;
             StageStartWeight = 0;
         }
@@ -442,25 +392,23 @@ namespace Sinobyl.Engine
             get { return 100 - StageStartWeight; }
         }
 
-        public int ScoreStart
+        public PhasedScore TotalPhasedScore
         {
             get
             {
-                return MatStart + PcSqStart + (Attacks[0].MobilityStart - Attacks[1].MobilityStart) + PawnsStart + PawnsPassedStart + ShelterStorm;
-            }
-        }
-        public int ScoreEnd
-        {
-            get
-            {
-                return MatEnd + PcSqEnd + (Attacks[0].MobilityEnd - Attacks[1].MobilityEnd) + PawnsEnd + PawnsPassedEnd;
+                return Mat
+                    .Add(PcSqStart)
+                    .Add(PawnsStart)
+                    .Add(PawnsPassedStart)
+                    .Add(ShelterStorm)
+                    .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility));
             }
         }
         public int Score
         {
             get
             {
-                return ((ScoreStart * StageStartWeight) + (ScoreEnd * StageEndWeight)) / 100;
+                return TotalPhasedScore.ApplyWeights(StageStartWeight);
             }
         }
 
@@ -468,7 +416,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return ((MatStart * StageStartWeight) + (MatEnd * StageEndWeight)) / 100;
+                return Mat.ApplyWeights(StageStartWeight);
             }
         }
 
@@ -476,7 +424,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return ((PcSqStart * StageStartWeight) + (PcSqEnd * StageEndWeight)) / 100;
+                return PcSqStart.ApplyWeights(StageStartWeight);
             }
         }
 
@@ -484,14 +432,14 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return (((Attacks[0].MobilityStart - Attacks[1].MobilityStart) * StageStartWeight) + ((Attacks[0].MobilityEnd - Attacks[1].MobilityEnd) * StageEndWeight)) / 100;
+                return Attacks[0].Mobility.Subtract(Attacks[1].Mobility).ApplyWeights(StageStartWeight);
             }
         }
         public int Pawns
         {
             get
             {
-                return ((PawnsStart * StageStartWeight) + (PawnsEnd * StageEndWeight)) / 100;
+                return PawnsStart.ApplyWeights(StageStartWeight);
             }
         }
 
@@ -499,7 +447,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return ((PawnsPassedStart * StageStartWeight) + (PawnsPassedEnd * StageEndWeight)) / 100;
+                return PawnsPassedStart.ApplyWeights(StageStartWeight);
             }
         }
 

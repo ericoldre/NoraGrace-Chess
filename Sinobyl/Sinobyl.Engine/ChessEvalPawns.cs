@@ -260,8 +260,8 @@ namespace Sinobyl.Engine
                         endScore = endScore / 2;
                     }
 
-                    evalInfo.PawnsPassedStart += startScore;
-                    evalInfo.PawnsPassedEnd += endScore;
+                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Add(PhasedScoreInfo.Create(startScore, endScore));
+
                     ///evalInfo.PawnsPassedStart += mbonus;
                     //evalInfo.PawnsPassedEnd += ebonus;
                 }
@@ -314,8 +314,7 @@ namespace Sinobyl.Engine
                         endScore = endScore / 2;
                     }
 
-                    evalInfo.PawnsPassedStart -= startScore;
-                    evalInfo.PawnsPassedEnd -= endScore;
+                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Subtract(PhasedScoreInfo.Create(startScore, endScore));
                 }
             }
 
@@ -400,8 +399,7 @@ namespace Sinobyl.Engine
         public readonly Int64 PawnZobrist;
         public readonly ChessBitboard WhitePawns;
         public readonly ChessBitboard BlackPawns;
-        public readonly int StartVal;
-        public readonly int EndVal;
+        public readonly PhasedScore Value;
         public readonly ChessBitboard PassedPawns;
         public readonly ChessBitboard Doubled;
         public readonly ChessBitboard Isolated;
@@ -414,8 +412,7 @@ namespace Sinobyl.Engine
             PawnZobrist = pawnZobrist;
             WhitePawns = whitePawns;
             BlackPawns = blackPawns;
-            StartVal = startVal;
-            EndVal = endVal;
+            Value = PhasedScoreInfo.Create(startVal, endVal);
             PassedPawns = passedPawns;
             Doubled = doubled;
             Isolated = isolated;

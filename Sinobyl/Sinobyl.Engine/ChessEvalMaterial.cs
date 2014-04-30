@@ -124,8 +124,8 @@ namespace Sinobyl.Engine
         {
             public readonly Int64 ZobristMaterial;
             public readonly int StartWeight;
-            public readonly int ScoreStart;
-            public readonly int ScoreEnd;
+            public readonly PhasedScore PhasedScore;
+
             public readonly int BasicMaterialCount;
             //public readonly int Wp;
             //public readonly int Wn;
@@ -142,8 +142,7 @@ namespace Sinobyl.Engine
             {
                 ZobristMaterial = zobristMaterial;
                 StartWeight = startWeight;
-                ScoreStart = scoreStart;
-                ScoreEnd = scoreEnd;
+                PhasedScore = PhasedScoreInfo.Create(scoreStart, scoreEnd);
                 BasicMaterialCount = basicMateralCount;
 
                 //Wp = wp;

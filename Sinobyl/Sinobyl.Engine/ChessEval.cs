@@ -16,8 +16,8 @@ namespace Sinobyl.Engine
         protected readonly ChessEvalPawns _evalPawns;
         public readonly ChessEvalMaterial _evalMaterial;
 
-        public readonly PhasedScore[,] _pcsqPiecePos = new PhasedScore[ChessPieceInfo.LookupArrayLength, 64];
-        public readonly PhasedScore[,] _mobilityPieces = new PhasedScore[28, ChessPieceTypeInfo.LookupArrayLength];
+        public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[ChessPieceInfo.LookupArrayLength][];
+        public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[ChessPieceTypeInfo.LookupArrayLength][];
         public readonly PhasedScore _matBishopPair;
 
         public readonly int[] _endgameMateKingPcSq;
@@ -51,26 +51,28 @@ namespace Sinobyl.Engine
 
 
             //setup piecesq tables
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
             {
-                foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+                _pcsqPiecePos[(int)piece] = new PhasedScore[64];
+                foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
                 {
+                
                     if (piece.PieceToPlayer() == ChessPlayer.White)
                     {
-                        _pcsqPiecePos[(int)piece, (int)pos] = PhasedScoreInfo.Create(
+                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreInfo.Create(
                             settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos],
                             settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Endgame][pos]);
                     }
                     else
                     {
-                        _pcsqPiecePos[(int)piece, (int)pos] = PhasedScoreInfo.Create(
+                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreInfo.Create(
                             -settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos.Reverse()],
                             -settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Endgame][pos.Reverse()]);
                     }
                     
+                
                 }
             }
-            
 
 
 
@@ -78,6 +80,7 @@ namespace Sinobyl.Engine
 
             foreach (ChessPieceType pieceType in ChessPieceTypeInfo.AllPieceTypes)
             {
+                _mobilityPieceTypeCount[(int)pieceType] = new PhasedScore[28];
                 for (int attacksCount = 0; attacksCount < 28; attacksCount++)
                 {
                     var mob = settings.Mobility;
@@ -86,7 +89,7 @@ namespace Sinobyl.Engine
                     int startVal = (attacksCount - opiece[ChessGameStage.Opening].ExpectedAttacksAvailable) * opiece[ChessGameStage.Opening].AmountPerAttackDefault;
                     int endVal = (attacksCount - opiece[ChessGameStage.Endgame].ExpectedAttacksAvailable) * opiece[ChessGameStage.Endgame].AmountPerAttackDefault;
 
-                    _mobilityPieces[attacksCount, (int)pieceType] = PhasedScoreInfo.Create(startVal, endVal);
+                    _mobilityPieceTypeCount[(int)pieceType][attacksCount] = PhasedScoreInfo.Create(startVal, endVal);
                 }
             }
 
@@ -110,11 +113,11 @@ namespace Sinobyl.Engine
 
         public void PcSqValuesAdd(ChessPiece piece, ChessPosition pos, ref PhasedScore value)
         {
-            value = value.Add(_pcsqPiecePos[(int)piece, (int)pos]);
+            value = value.Add(_pcsqPiecePos[(int)piece][(int)pos]);
         }
         public void PcSqValuesRemove(ChessPiece piece, ChessPosition pos, ref PhasedScore value)
         {
-            value = value.Subtract(_pcsqPiecePos[(int)piece, (int)pos]);
+            value = value.Subtract(_pcsqPiecePos[(int)piece][(int)pos]);
         }
 
         public int EvalFor(ChessBoard board, ChessPlayer who)
@@ -263,7 +266,7 @@ namespace Sinobyl.Engine
                 //
                 ChessBitboard slidingMoves = slidingAttacks & ~myPieces;
                 int moveCount = slidingMoves.BitCount();
-                mobility = mobility.Add(_mobilityPieces[moveCount, (int)pieceType]);
+                mobility = mobility.Add(_mobilityPieceTypeCount[(int)pieceType][moveCount]);
             }
 
             myAttacks.Mobility = mobility;

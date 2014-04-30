@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
     {
 
         protected readonly ChessEvalPawns _evalPawns;
-        public readonly ChessEvalMaterialBasic _evalMaterial;
+        public readonly IChessEvalMaterial _evalMaterial;
 
         public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[ChessPieceInfo.LookupArrayLength][];
         public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[ChessPieceTypeInfo.LookupArrayLength][];
@@ -38,13 +38,13 @@ namespace Sinobyl.Engine
 
         }
 
-        public ChessEval(ChessEvalSettings settings)
+        public ChessEval(ChessEvalSettings settings, IChessEvalMaterial evalMaterial = null)
         {
             _settings = settings.CloneDeep();
 
             //setup pawn evaluation
             _evalPawns = new ChessEvalPawns(_settings, 10000);
-            _evalMaterial = new ChessEvalMaterialBasic(_settings);
+            _evalMaterial = evalMaterial ?? new ChessEvalMaterialBasic(_settings);
             
             //bishop pairs
             _matBishopPair = PhasedScoreInfo.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);

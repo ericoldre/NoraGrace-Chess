@@ -12,7 +12,7 @@ namespace Sinobyl.Engine
     }
     public class ChessEvalMaterialBasic: IChessEvalMaterial
     {
-        private readonly ChessEvalSettings _settings;
+        protected readonly ChessEvalSettings _settings;
         private readonly EvalMaterialResults[] _hash = new EvalMaterialResults[500];
         public static int TotalEvalMaterialCount = 0;
 
@@ -50,7 +50,7 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        public EvalMaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        public virtual EvalMaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
             TotalEvalMaterialCount++;
 
@@ -62,40 +62,31 @@ namespace Sinobyl.Engine
 
             
 
-            int startScore = (wp * _settings.MaterialValues[ChessPieceType.Pawn][ChessGameStage.Opening])
-                + (wn * _settings.MaterialValues[ChessPieceType.Knight][ChessGameStage.Opening])
-                + (wb * _settings.MaterialValues[ChessPieceType.Bishop][ChessGameStage.Opening])
-                + (wr * _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Opening])
-                + (wq * _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Opening])
-                - (bp * _settings.MaterialValues[ChessPieceType.Pawn][ChessGameStage.Opening])
-                - (bn * _settings.MaterialValues[ChessPieceType.Knight][ChessGameStage.Opening])
-                - (bb * _settings.MaterialValues[ChessPieceType.Bishop][ChessGameStage.Opening])
-                - (br * _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Opening])
-                - (bq * _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Opening]);
+            int startScore = (wp * 100)
+                + (wn * 300)
+                + (wb * 300)
+                + (wr * 500)
+                + (wq * 900)
+                - (bp * 100)
+                - (bn * 300)
+                - (bb * 300)
+                - (br * 500)
+                - (bq * 900);
 
-            int endScore = (wp * _settings.MaterialValues[ChessPieceType.Pawn][ChessGameStage.Endgame])
-                + (wn * _settings.MaterialValues[ChessPieceType.Knight][ChessGameStage.Endgame])
-                + (wb * _settings.MaterialValues[ChessPieceType.Bishop][ChessGameStage.Endgame])
-                + (wr * _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Endgame])
-                + (wq * _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Endgame])
-                - (bp * _settings.MaterialValues[ChessPieceType.Pawn][ChessGameStage.Endgame])
-                - (bn * _settings.MaterialValues[ChessPieceType.Knight][ChessGameStage.Endgame])
-                - (bb * _settings.MaterialValues[ChessPieceType.Bishop][ChessGameStage.Endgame])
-                - (br * _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Endgame])
-                - (bq * _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Endgame]);
+            int endScore = startScore;
 
             if (wb > 1)
             {
-                startScore += _settings.MaterialBishopPair[ChessGameStage.Opening];
-                endScore += _settings.MaterialBishopPair[ChessGameStage.Endgame];
+                startScore += 50;
+                endScore += 50;
             }
             if (bb > 1)
             {
-                startScore -= _settings.MaterialBishopPair[ChessGameStage.Opening];
-                endScore -= _settings.MaterialBishopPair[ChessGameStage.Endgame];
+                startScore -= 50;
+                endScore -= 50;
             }
 
-            int startWeight = CalcStartWeight(basicCount);
+            int startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
 
             //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
             int score = PhasedScoreInfo.Create(startScore, endScore).ApplyWeights(startWeight);
@@ -103,8 +94,14 @@ namespace Sinobyl.Engine
             //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
         }
 
-        protected virtual int CalcStartWeight(int basicMaterialCount)
+        protected virtual int CalcStartWeight(int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
+            int basicMaterialCount =
+                (wn * 3) + (bn * 3)
+                + (wb * 3) + (bb * 3)
+                + (wr * 5) + (br * 5)
+                + (wq * 9) + (bq * 9);
+
             //full material would be 62
             if (basicMaterialCount >= 56)
             {
@@ -168,5 +165,84 @@ namespace Sinobyl.Engine
             get { return this.StartWeight > 40; }
         }
 
+    }
+
+    public class ChessEvalMaterial2 : ChessEvalMaterialBasic
+    {
+        
+        public ChessEvalMaterial2(ChessEvalSettings settings)
+            : base(settings)
+        {
+        }
+
+
+        public override EvalMaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        {
+            TotalEvalMaterialCount++;
+
+
+
+
+
+            int startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
+            double startWeightPct = (double)startWeight / 100f;
+
+            
+            double pctPawns = (double)(wp + bp) / 16f;
+            double pctMinors = (double)(wn + bn + wb + bb) / 8;
+            double totalPct = (startWeightPct + pctPawns) / 2f;
+
+            double white = MyMaterial(totalPct, pctPawns, pctMinors, wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
+            double black = MyMaterial(totalPct, pctPawns, pctMinors, bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
+
+            double diff = white - black;
+
+            double endgameMaterialBonus = 0;// (1f - totalPct) * .2f;
+
+            double adjusted = diff * (1 + endgameMaterialBonus);
+
+            return new EvalMaterialResults(zob, startWeight, (int)adjusted);
+
+        }
+
+        private double MyMaterial(double totalPct, double pawnPct, double minorPct, int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
+        {
+            double pawnVal = CalcWeight(totalPct, _settings.MaterialValues[ChessPieceType.Pawn][ChessGameStage.Opening], _settings.MaterialValues[ChessPieceType.Pawn][ChessGameStage.Endgame]);
+            double knightVal = CalcWeight(pawnPct, _settings.MaterialValues[ChessPieceType.Knight][ChessGameStage.Opening], _settings.MaterialValues[ChessPieceType.Knight][ChessGameStage.Endgame]);
+            double bishopVal = CalcWeight(pawnPct, _settings.MaterialValues[ChessPieceType.Bishop][ChessGameStage.Opening], _settings.MaterialValues[ChessPieceType.Bishop][ChessGameStage.Endgame]);
+            double rookVal = CalcWeight(pawnPct, _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Opening], _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Endgame]);
+            double queenVal = CalcWeight(minorPct, _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Opening], _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Endgame]);
+            double bishopPairValue = CalcWeight(pawnPct, _settings.MaterialBishopPair.Opening, _settings.MaterialBishopPair.Endgame);
+
+            //if (hisQ > myQ)
+            //{
+            //    knightVal *= 1.08f;
+            //}
+
+            double retval = 0;
+            retval += (myP * pawnVal);
+            retval += (myN * knightVal);
+            retval += (myB * bishopVal);
+            retval += (myR * rookVal);
+            retval += (myQ * queenVal);
+
+            if (myB > 1)
+            {
+                retval += bishopPairValue;
+            }
+            
+            ////would like to have at least 1 of knight, bishop, rook
+            //if (myN > 0) { retval += (knightVal * .05f); }
+            //if (myB > 0) { retval += (bishopVal * .05f); }
+            //if (myR > 0) { retval += (rookVal * .05f); }
+
+            return retval;
+        }
+
+        private double CalcWeight(double startWeight, double startScore, double endScore)
+        {
+            System.Diagnostics.Debug.Assert(startWeight >= 0 && startWeight <= 1);
+            return (startScore * startWeight) + (endScore * (1f - startWeight));
+        }
     }
 }

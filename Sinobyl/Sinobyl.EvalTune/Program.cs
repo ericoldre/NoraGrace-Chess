@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "RookFileOpen";
+            string paramName = "KaufmanOnOff";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -36,10 +36,19 @@ namespace Sinobyl.EvalTune
                 string name = string.Format("{0}{1:f4}", pname, pval);
                 ChessEvalSettings evalsettings = ChessEvalSettings.Default();
 
-                evalsettings.RookFileOpen = (int)Math.Round(pval);
+                //evalsettings.MaterialValues.Queen.Endgame = (int)pval;
+                //evalsettings.RookFileOpen = (int)Math.Round(pval);
                 //evalsettings.RookFileOpen = pval > otherval ? 25 : 0;
                 
-                ChessEval eval = new ChessEval(evalsettings);
+                ChessEval eval;// = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
+                if (pval > otherval)
+                {
+                    eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
+                }
+                else
+                {
+                    eval = new ChessEval(evalsettings, new ChessEvalMaterialBasic(evalsettings));
+                }
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
                 
@@ -58,7 +67,7 @@ namespace Sinobyl.EvalTune
             };
 
             //ALTER THIS
-            double parameterValue = ChessEvalSettings.Default().RookFileOpen;// ;//(new TimeManagerNodes()).RatioFailHigh;
+            double parameterValue = 1;// ChessEvalSettings.Default().MaterialValues.Queen.Endgame;// ;//(new TimeManagerNodes()).RatioFailHigh;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 
@@ -87,7 +96,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodesPerMove = 15000;
+                int nodesPerMove = 15000;// 15000;
                 nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };
@@ -97,7 +106,7 @@ namespace Sinobyl.EvalTune
                 var startingPGNsForThisMatch = StartingPGNs.OrderBy(x => rand.Next()).Take(gamesPerMatch / 2).ToList();
 
                 //create test param values;
-                double deltaPct = 0.30f;
+                double deltaPct = 0.08f;
                 double valHigh = parameterValue * (1f + deltaPct);
                 double valLow = parameterValue * (1f - deltaPct);
                 double delta = parameterValue - valLow;

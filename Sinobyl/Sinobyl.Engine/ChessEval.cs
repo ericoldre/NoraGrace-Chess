@@ -34,6 +34,27 @@ namespace Sinobyl.Engine
 
         public bool UseMobilityTargets { get; set; }
 
+        private static ChessBitboard[] _kingSafetyRegion;
+        static ChessEval()
+        {
+            _kingSafetyRegion = new ChessBitboard[64];
+            foreach (var kingPos in ChessPositionInfo.AllPositions)
+            {
+                var rank = kingPos.GetRank();
+                if (rank == ChessRank.Rank1) { rank = ChessRank.Rank2; }
+                if (rank == ChessRank.Rank8) { rank = ChessRank.Rank7; }
+                var file = kingPos.GetFile();
+                if (file == ChessFile.FileA) { file = ChessFile.FileB; }
+                if (file == ChessFile.FileH) { file = ChessFile.FileG; }
+                var adjusted = rank.ToPosition(file);
+                _kingSafetyRegion[(int)kingPos] = Attacks.KingAttacks(adjusted) | adjusted.Bitboard();
+
+                System.Diagnostics.Debug.Assert(_kingSafetyRegion[(int)kingPos].BitCount() == 9);
+
+            }
+
+        }
+
         public ChessEval()
             : this(ChessEvalSettings.Default())
         {

@@ -28,13 +28,21 @@ namespace Sinobyl.Engine
         protected readonly PhasedScore RookFileOpen;
         protected readonly PhasedScore RookFileHalfOpen;
 
+        public readonly int KingAttackCountValue = 0;
+        public readonly int KingAttackWeightValue = 0;
+        public readonly int KingAttackWeightCutoff = 0;
+        public readonly int KingRingAttack = 0;
+        public readonly int KingRingAttackControlBonus = 0;
+
+
         public static readonly ChessEval Default = new ChessEval();
 
         public static int TotalEvalCount = 0;
 
-        public bool UseMobilityTargets { get; set; }
-
+        
         private static ChessBitboard[] _kingSafetyRegion;
+        private static int[] _kingAttackerWeight;
+
         static ChessEval()
         {
             _kingSafetyRegion = new ChessBitboard[64];
@@ -52,6 +60,15 @@ namespace Sinobyl.Engine
                 System.Diagnostics.Debug.Assert(_kingSafetyRegion[(int)kingPos].BitCount() == 9);
 
             }
+
+            _kingAttackerWeight = new int[6];
+            _kingAttackerWeight[(int)ChessPieceType.Pawn] = 1;
+            _kingAttackerWeight[(int)ChessPieceType.Knight] = 2;
+            _kingAttackerWeight[(int)ChessPieceType.Bishop] = 2;
+            _kingAttackerWeight[(int)ChessPieceType.Rook] = 3;
+            _kingAttackerWeight[(int)ChessPieceType.Queen] = 4;
+            _kingAttackerWeight[(int)ChessPieceType.King] = 1;
+            
 
         }
 
@@ -132,6 +149,12 @@ namespace Sinobyl.Engine
             RookFileOpen = PhasedScoreInfo.Create(settings.RookFileOpen, settings.RookFileOpen / 2);
             RookFileHalfOpen = PhasedScoreInfo.Create(settings.RookFileOpen / 2, settings.RookFileOpen / 4);
 
+            KingAttackCountValue = settings.KingAttackCountValue;
+            KingAttackWeightValue = settings.KingAttackWeightValue;
+            KingAttackWeightCutoff = settings.KingAttackWeightCutoff;
+            KingRingAttack = settings.KingRingAttack;
+            KingRingAttackControlBonus = settings.KingRingAttackControlBonus;
+
         }
 
         public void PcSqValuesAdd(ChessPiece piece, ChessPosition pos, ref PhasedScore value)
@@ -167,7 +190,9 @@ namespace Sinobyl.Engine
             var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
             var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
 
-            
+
+
+
             attacksWhite.PawnEast = board[ChessPiece.WPawn].ShiftDirNE();
             attacksWhite.PawnWest = board[ChessPiece.WPawn].ShiftDirNW();
             attacksBlack.PawnEast = board[ChessPiece.BPawn].ShiftDirSE();
@@ -175,7 +200,6 @@ namespace Sinobyl.Engine
 
             attacksWhite.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.White));
             attacksBlack.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.Black));
-
 
             EvaluateMyPieces(board, ChessPlayer.White, evalInfo);
             EvaluateMyPieces(board, ChessPlayer.Black, evalInfo);
@@ -240,6 +264,9 @@ namespace Sinobyl.Engine
             var myAttacks = info.Attacks[(int)me];
             var hisAttacks = info.Attacks[(int)him];
 
+            var hisKingZone = _kingSafetyRegion[(int)board.KingPosition(him)];
+
+
             ChessBitboard myPieces = board[me];
             ChessBitboard pieceLocationsAll = board.PieceLocationsAll;
             ChessBitboard pawns = board[ChessPieceType.Pawn];
@@ -250,11 +277,7 @@ namespace Sinobyl.Engine
                | board[ChessPieceType.Rook]
                | board[ChessPieceType.Queen]);
 
-            ChessBitboard MobilityTargets = ~myPieces;// &~(hisAttacks.PawnEast | hisAttacks.PawnWest);
-            if (UseMobilityTargets)
-            {
-                MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
-            }
+            ChessBitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
 
             while (slidersAndKnights != ChessBitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
@@ -296,9 +319,25 @@ namespace Sinobyl.Engine
                         break;
                 }
 
+                // calc mobility score
                 int mobilityCount = (slidingAttacks & MobilityTargets).BitCount();
                 mobility = mobility.Add(_mobilityPieceTypeCount[(int)pieceType][mobilityCount]);
+
+                //see if involved in a king attack
+                if((hisKingZone & slidingAttacks) != ChessBitboard.Empty)
+                {
+                    myAttacks.KingAttackerCount++;
+                    myAttacks.KingAttackerWeight += _kingAttackerWeight[(int)pieceType];
+                }
+                
             }
+            
+            //decide if we
+            if (myAttacks.KingAttackerCount >= 2 && myAttacks.KingAttackerWeight >= 5)
+            {
+
+            }
+
 
             myAttacks.Mobility = mobility;
             return retval;
@@ -364,6 +403,10 @@ namespace Sinobyl.Engine
 
         public PhasedScore Mobility;
 
+        public int KingAttackerWeight;
+        public int KingAttackerCount;
+        public int KingAttackerScore;
+
         public void Reset()
         {
             PawnEast = ChessBitboard.Empty;
@@ -374,6 +417,9 @@ namespace Sinobyl.Engine
             Queen = ChessBitboard.Empty;
             King = ChessBitboard.Empty;
             Mobility = 0;
+            KingAttackerWeight = 0;
+            KingAttackerCount = 0;
+            KingAttackerScore = 0;
         }
 
         public ChessBitboard All()

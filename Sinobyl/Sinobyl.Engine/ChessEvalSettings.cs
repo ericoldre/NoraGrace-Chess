@@ -223,6 +223,12 @@ namespace Sinobyl.Engine
 
                 RookFileOpen = 20,
 
+                KingAttackCountValue = 5,
+                KingAttackWeightValue = 5,
+                KingAttackWeightCutoff = 6,
+                KingRingAttack = 8,
+                KingRingAttackControlBonus = 8,
+
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
                 {
                     Knight = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
@@ -273,6 +279,12 @@ namespace Sinobyl.Engine
         public int PawnShelterFactor = 0;
 
         public int RookFileOpen = 0;
+
+        public int KingAttackCountValue = 0;
+        public int KingAttackWeightValue = 0;
+        public int KingAttackWeightCutoff = 0;
+        public int KingRingAttack = 0;
+        public int KingRingAttackControlBonus = 0;
 
         public ChessEvalSettings CloneDeep()
         {

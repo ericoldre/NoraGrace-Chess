@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "MaterialValues.Knight.Both";
+            string paramName = "MobilityPawnAttacks";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -37,14 +37,16 @@ namespace Sinobyl.EvalTune
                 ChessEvalSettings evalsettings = ChessEvalSettings.Default();
 
                 //evalsettings.MaterialValues.Queen.Endgame = (int)pval;
-                evalsettings.MaterialValues.Knight.Opening = (int)pval;
-                evalsettings.MaterialValues.Knight.Endgame = (int)pval;
+                //evalsettings.MaterialValues.Knight.Opening = (int)pval;
+                //evalsettings.MaterialValues.Knight.Endgame = (int)pval;
                 //evalsettings.RookFileOpen = (int)Math.Round(pval);
                 //evalsettings.RookFileOpen = pval > otherval ? 25 : 0;
                 
                 ChessEval eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
+                eval.UseMobilityTargets = pval > otherval;
                 //if (pval > otherval)
                 //{
+                    
                 //    eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
                 //}
                 //else
@@ -69,7 +71,7 @@ namespace Sinobyl.EvalTune
             };
 
             //ALTER THIS
-            double parameterValue = ChessEvalSettings.Default().MaterialValues.Knight.Opening;// ;//(new TimeManagerNodes()).RatioFailHigh;
+            double parameterValue = 1;// ChessEvalSettings.Default().MaterialValues.Knight.Opening;// ;//(new TimeManagerNodes()).RatioFailHigh;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 

@@ -36,6 +36,18 @@ namespace Sinobyl.EvalTune
                 string name = string.Format("{0}{1:f4}", pname, pval);
                 ChessEvalSettings evalsettings = ChessEvalSettings.Default();
 
+                if (pval > otherval)
+                {
+                    
+                }
+                else
+                {
+                    evalsettings.KingAttackCountValue = 0;
+                    evalsettings.KingAttackWeightValue = 0;
+                    evalsettings.KingAttackWeightCutoff = 20;
+                    evalsettings.KingRingAttack = 0;
+                    evalsettings.KingRingAttackControlBonus = 0;
+                }
                 //evalsettings.MaterialValues.Queen.Endgame = (int)pval;
                 //evalsettings.MaterialValues.Knight.Opening = (int)pval;
                 //evalsettings.MaterialValues.Knight.Endgame = (int)pval;
@@ -43,7 +55,7 @@ namespace Sinobyl.EvalTune
                 //evalsettings.RookFileOpen = pval > otherval ? 25 : 0;
                 
                 ChessEval eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
-                eval.UseMobilityTargets = pval > otherval;
+
                 //if (pval > otherval)
                 //{
                     
@@ -100,7 +112,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodesPerMove = 5000;// 15000;
+                int nodesPerMove = 15000;// 15000;
                 nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };

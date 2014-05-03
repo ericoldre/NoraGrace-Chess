@@ -61,7 +61,7 @@ namespace Sinobyl.Engine
 
             }
 
-            _kingAttackerWeight = new int[6];
+            _kingAttackerWeight = new int[7];
             _kingAttackerWeight[(int)ChessPieceType.Pawn] = 1;
             _kingAttackerWeight[(int)ChessPieceType.Knight] = 2;
             _kingAttackerWeight[(int)ChessPieceType.Bishop] = 2;
@@ -185,13 +185,19 @@ namespace Sinobyl.Engine
         {
             TotalEvalCount++;
             evalInfo.Reset();
-            
-            
+
+            //material
+            var material = _evalMaterial.EvalMaterialHash(board);
+
+            //pawns
+            PawnInfo pawns = this._evalPawns.PawnEval(board);  
+
+
+            //in lazy eval we'd quit here.
+
+            //set up 
             var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
             var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
-
-
-
 
             attacksWhite.PawnEast = board[ChessPiece.WPawn].ShiftDirNE();
             attacksWhite.PawnWest = board[ChessPiece.WPawn].ShiftDirNW();
@@ -203,13 +209,9 @@ namespace Sinobyl.Engine
 
             EvaluateMyPieces(board, ChessPlayer.White, evalInfo);
             EvaluateMyPieces(board, ChessPlayer.Black, evalInfo);
-           
 
-            //material
-            var material = _evalMaterial.EvalMaterialHash(board);
-
-            //pawns
-            PawnInfo pawns = this._evalPawns.PawnEval(board);            
+            EvaluateMyKingAttack(board, ChessPlayer.White, evalInfo);
+            EvaluateMyKingAttack(board, ChessPlayer.Black, evalInfo);
 
             //eval passed pawns;
             this._evalPawns.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
@@ -256,6 +258,81 @@ namespace Sinobyl.Engine
             return evalInfo.Score;
         }
 
+        protected int EvaluateMyKingAttack(ChessBoard board, ChessPlayer me, ChessEvalInfo info)
+        {
+            //king attack info should have counts and weight of everything but pawns and kings.
+
+            var him = me.PlayerOther();
+            var myAttacks = info.Attacks[(int)me];
+            var hisAttacks = info.Attacks[(int)him];
+
+            var hisKingZone = _kingSafetyRegion[(int)board.KingPosition(him)];
+
+            int retval = 0;
+            int c;
+            if (myAttacks.KingAttackerCount >= 2 && myAttacks.KingAttackerWeight >= KingAttackWeightCutoff)
+            {
+                //if we don't at least have a decent attack, just give credit for building count of attackers and move on.
+
+                //add in pawns to king attack.
+                ChessBitboard myInvolvedPawns = ChessBitboard.Empty;
+                ChessBitboard myPawns = board[me] & board[ChessPieceType.Pawn];
+
+                if (me == ChessPlayer.White)
+                {
+                    myInvolvedPawns |= hisKingZone.ShiftDirSE() & myPawns;
+                    myInvolvedPawns |= hisKingZone.ShiftDirSW() & myPawns;
+                }
+                else
+                {
+                    myInvolvedPawns |= hisKingZone.ShiftDirNE() & myPawns;
+                    myInvolvedPawns |= hisKingZone.ShiftDirNW() & myPawns;
+                }
+
+                if (myInvolvedPawns != ChessBitboard.Empty)
+                {
+                    c = myInvolvedPawns.BitCount();
+                    myAttacks.KingAttackerCount += c;
+                    myAttacks.KingAttackerWeight += c * _kingAttackerWeight[(int)ChessPieceType.Pawn];
+                }
+
+                //add in my king to the attack.
+                if ((Attacks.KingAttacks(board.KingPosition(me)) & hisKingZone) != ChessBitboard.Empty)
+                {
+                    myAttacks.KingAttackerCount++;
+                    myAttacks.KingAttackerWeight += _kingAttackerWeight[(int)ChessPieceType.King];
+                }
+
+                //add bonus for piece involvement over threshold;
+                retval += (myAttacks.KingAttackerWeight - KingAttackWeightCutoff) * KingAttackWeightValue;
+
+                //now calculate bonus for attacking squares directly surrounding king;
+                ChessBitboard kingAdjecent = Attacks.KingAttacks(board.KingPosition(him));
+                while (kingAdjecent != ChessBitboard.Empty)
+                {
+                    ChessPosition pos = ChessBitboardInfo.PopFirst(ref kingAdjecent);
+                    ChessBitboard posBB = pos.Bitboard();
+                    if ((posBB & myAttacks.All()) != ChessBitboard.Empty)
+                    {
+                        retval += KingRingAttack; //attacking surrounding square in some aspect.
+
+                        int myCount = myAttacks.AttackCountToSlow(pos);
+                        int hisCount = hisAttacks.AttackCountToSlow(pos);
+                        if (myCount > hisCount)
+                        {
+                            retval += KingRingAttackControlBonus * (myCount - hisCount);
+                        }
+                    }
+                }
+            }
+
+            retval += KingAttackCountValue * myAttacks.KingAttackerCount;
+
+            myAttacks.KingAttackerScore = retval;
+
+            return retval;
+
+        }
         protected int EvaluateMyPieces(ChessBoard board, ChessPlayer me, ChessEvalInfo info)
         {
             int retval = 0;
@@ -427,6 +504,20 @@ namespace Sinobyl.Engine
             return PawnEast | PawnWest | Knight | Bishop | Rook | Queen | King;
         }
 
+        public int AttackCountToSlow(ChessPosition pos)
+        {
+            ChessBitboard bb = pos.Bitboard();
+            int retval = 0;
+            if ((PawnEast & bb) != ChessBitboard.Empty) { retval++; }
+            if ((PawnWest & bb) != ChessBitboard.Empty) { retval++; }
+            if ((Knight & bb) != ChessBitboard.Empty) { retval++; }
+            if ((Bishop & bb) != ChessBitboard.Empty) { retval++; }
+            if ((Rook & bb) != ChessBitboard.Empty) { retval++; }
+            if ((Queen & bb) != ChessBitboard.Empty) { retval++; }
+            if ((King & bb) != ChessBitboard.Empty) { retval++; }
+            return retval;
+        }
+
         public ChessEvalAttackInfo Reverse()
         {
             return new ChessEvalAttackInfo()
@@ -486,6 +577,9 @@ namespace Sinobyl.Engine
                     .Add(PawnsPassedStart)
                     .Add(ShelterStorm)
                     .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
+
+                nonScaled += this.Attacks[0].KingAttackerScore;
+                nonScaled -= this.Attacks[1].KingAttackerScore;
 
                 if (nonScaled > 0)
                 {

@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "MobilityPawnAttacks";
+            string paramName = "KingAttackOnOff";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>

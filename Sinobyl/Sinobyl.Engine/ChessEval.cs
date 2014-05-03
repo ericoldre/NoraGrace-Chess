@@ -33,7 +33,7 @@ namespace Sinobyl.Engine
         public readonly int KingAttackWeightCutoff = 0;
         public readonly int KingRingAttack = 0;
         public readonly int KingRingAttackControlBonus = 0;
-
+        public readonly int[] KingQueenTropismFactor;
 
         public static readonly ChessEval Default = new ChessEval();
 
@@ -154,6 +154,26 @@ namespace Sinobyl.Engine
             KingAttackWeightCutoff = settings.KingAttackWeightCutoff;
             KingRingAttack = settings.KingRingAttack;
             KingRingAttackControlBonus = settings.KingRingAttackControlBonus;
+
+            KingQueenTropismFactor = new int[25];
+            for (int d = 0; d <= 24; d++)
+            {
+                int min = 4;
+                int max = 12;
+                double maxFactor = 1.5;
+                double minFactor = 1;
+                if (d >= max) { KingQueenTropismFactor[d] = (int)Math.Round(100 * minFactor); continue; }
+                if (d <= min) { KingQueenTropismFactor[d] = (int)Math.Round(100 * maxFactor); continue; }
+
+                var each = (1f / (max - min)) * (maxFactor - minFactor);
+                double thisFactor = minFactor + (each * (max - d));
+
+                KingQueenTropismFactor[d] = KingQueenTropismFactor[d] = (int)Math.Round(100 * thisFactor);
+
+
+                //double pct = minFactor + (maxFactor * ((d - min) / (max - min)));
+
+            }
 
         }
 
@@ -328,6 +348,7 @@ namespace Sinobyl.Engine
 
             retval += KingAttackCountValue * myAttacks.KingAttackerCount;
 
+            //retval = (retval * KingQueenTropismFactor[myAttacks.KingQueenTropism]) / 100;
             myAttacks.KingAttackerScore = retval;
 
             return retval;
@@ -341,7 +362,8 @@ namespace Sinobyl.Engine
             var myAttacks = info.Attacks[(int)me];
             var hisAttacks = info.Attacks[(int)him];
 
-            var hisKingZone = _kingSafetyRegion[(int)board.KingPosition(him)];
+            var hisKing = board.KingPosition(him);
+            var hisKingZone = _kingSafetyRegion[(int)hisKing];
 
 
             ChessBitboard myPieces = board[me];
@@ -396,6 +418,8 @@ namespace Sinobyl.Engine
                     case ChessPieceType.Queen:
                         slidingAttacks = MagicBitboards.QueenAttacks(pos, pieceLocationsAll & ~(myDiagSliders | myHorizSliders));
                         myAttacks.Queen |= slidingAttacks;
+
+                        myAttacks.KingQueenTropism = hisKing.DistanceTo(pos) + hisKing.DistanceToNoDiag(pos);
                         break;
                 }
 
@@ -483,6 +507,7 @@ namespace Sinobyl.Engine
 
         public PhasedScore Mobility;
 
+        public int KingQueenTropism;
         public int KingAttackerWeight;
         public int KingAttackerCount;
         public int KingAttackerScore;
@@ -497,6 +522,7 @@ namespace Sinobyl.Engine
             Queen = ChessBitboard.Empty;
             King = ChessBitboard.Empty;
             Mobility = 0;
+            KingQueenTropism = 24; //init to far away.
             KingAttackerWeight = 0;
             KingAttackerCount = 0;
             KingAttackerScore = 0;

@@ -32,6 +32,8 @@ namespace Sinobyl.Engine
 
         public static int TotalEvalCount = 0;
 
+        public bool UseMobilityTargets { get; set; }
+
         public ChessEval()
             : this(ChessEvalSettings.Default())
         {
@@ -213,7 +215,9 @@ namespace Sinobyl.Engine
         {
             int retval = 0;
             PhasedScore mobility = 0;
+            var him = me.PlayerOther();
             var myAttacks = info.Attacks[(int)me];
+            var hisAttacks = info.Attacks[(int)him];
 
             ChessBitboard myPieces = board[me];
             ChessBitboard pieceLocationsAll = board.PieceLocationsAll;
@@ -225,6 +229,11 @@ namespace Sinobyl.Engine
                | board[ChessPieceType.Rook]
                | board[ChessPieceType.Queen]);
 
+            ChessBitboard MobilityTargets = ~myPieces;// &~(hisAttacks.PawnEast | hisAttacks.PawnWest);
+            if (UseMobilityTargets)
+            {
+                MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
+            }
 
             while (slidersAndKnights != ChessBitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
@@ -247,7 +256,7 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPieceType.Rook:
                         slidingAttacks = MagicBitboards.RookAttacks(pos, pieceLocationsAll);
-                        myAttacks.RookQueen |= slidingAttacks;
+                        myAttacks.Rook |= slidingAttacks;
                         if ((pos.GetFile().Bitboard() & pawns & myPieces) == ChessBitboard.Empty)
                         {
                             if ((pos.GetFile().Bitboard() & pawns) == ChessBitboard.Empty)
@@ -262,13 +271,12 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPieceType.Queen:
                         slidingAttacks = MagicBitboards.QueenAttacks(pos, pieceLocationsAll);
-                        myAttacks.RookQueen |= slidingAttacks;
+                        myAttacks.Queen |= slidingAttacks;
                         break;
                 }
-                //
-                ChessBitboard slidingMoves = slidingAttacks & ~myPieces;
-                int moveCount = slidingMoves.BitCount();
-                mobility = mobility.Add(_mobilityPieceTypeCount[(int)pieceType][moveCount]);
+
+                int mobilityCount = (slidingAttacks & MobilityTargets).BitCount();
+                mobility = mobility.Add(_mobilityPieceTypeCount[(int)pieceType][mobilityCount]);
             }
 
             myAttacks.Mobility = mobility;
@@ -329,8 +337,8 @@ namespace Sinobyl.Engine
         public ChessBitboard Knight;
         public ChessBitboard Bishop;
 
-        public ChessBitboard RookQueen;
-
+        public ChessBitboard Rook;
+        public ChessBitboard Queen;
         public ChessBitboard King;
 
         public PhasedScore Mobility;
@@ -341,14 +349,15 @@ namespace Sinobyl.Engine
             PawnWest = ChessBitboard.Empty;
             Knight = ChessBitboard.Empty;
             Bishop = ChessBitboard.Empty;
-            RookQueen = ChessBitboard.Empty;
+            Rook = ChessBitboard.Empty;
+            Queen = ChessBitboard.Empty;
             King = ChessBitboard.Empty;
             Mobility = 0;
         }
 
         public ChessBitboard All()
         {
-            return PawnEast | PawnWest | Knight | Bishop | RookQueen | King;
+            return PawnEast | PawnWest | Knight | Bishop | Rook | Queen | King;
         }
 
         public ChessEvalAttackInfo Reverse()
@@ -359,7 +368,8 @@ namespace Sinobyl.Engine
                 PawnWest = PawnWest.Reverse(),
                 Knight = Knight.Reverse(),
                 Bishop = Bishop.Reverse(),
-                RookQueen = RookQueen.Reverse(),
+                Rook = Rook.Reverse(),
+                Queen = Queen.Reverse(),
                 King = King.Reverse()
             };
         }

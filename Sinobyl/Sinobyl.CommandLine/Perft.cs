@@ -206,7 +206,17 @@ namespace Sinobyl.CommandLine
                     ChessEvalInfo eval = new ChessEvalInfo();
                     var evalScore = _annotateEval.EvalDetail(board, eval);
 
-                    string evalComment = string.Format("white:{0} mat:{2} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", eval.Score, eval.StageStartWeight, eval.Material, eval.PcSq, eval.Mobility, eval.Pawns, eval.PawnsPassed);
+                    string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 
+                        eval.Score, 
+                        eval.StageStartWeight, 
+                        eval.Material, 
+                        eval.PcSq, 
+                        eval.Mobility, 
+                        eval.Pawns, 
+                        eval.PawnsPassed, 
+                        eval.Attacks[0].KingAttackerScore,
+                        eval.Attacks[1].KingAttackerScore);
+
                     if (pgn.Comments.ContainsKey(board.HistoryMoves.Count - 1))
                     {
                         evalComment = pgn.Comments[board.HistoryMoves.Count - 1] + " " + evalComment;

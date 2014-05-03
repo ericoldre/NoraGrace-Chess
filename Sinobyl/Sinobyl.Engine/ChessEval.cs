@@ -356,6 +356,9 @@ namespace Sinobyl.Engine
 
             ChessBitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
 
+            ChessBitboard myDiagSliders = myPieces & (board[ChessPieceType.Bishop] | board[ChessPieceType.Queen]);
+            ChessBitboard myHorizSliders = myPieces & (board[ChessPieceType.Rook] | board[ChessPieceType.Queen]);
+
             while (slidersAndKnights != ChessBitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
                 ChessPosition pos = ChessBitboardInfo.PopFirst(ref slidersAndKnights);
@@ -372,11 +375,11 @@ namespace Sinobyl.Engine
                         myAttacks.Knight |= slidingAttacks;
                         break;
                     case ChessPieceType.Bishop:
-                        slidingAttacks = MagicBitboards.BishopAttacks(pos, pieceLocationsAll);
+                        slidingAttacks = MagicBitboards.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
                         myAttacks.Bishop |= slidingAttacks;
                         break;
                     case ChessPieceType.Rook:
-                        slidingAttacks = MagicBitboards.RookAttacks(pos, pieceLocationsAll);
+                        slidingAttacks = MagicBitboards.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
                         myAttacks.Rook |= slidingAttacks;
                         if ((pos.GetFile().Bitboard() & pawns & myPieces) == ChessBitboard.Empty)
                         {
@@ -391,7 +394,7 @@ namespace Sinobyl.Engine
                         }
                         break;
                     case ChessPieceType.Queen:
-                        slidingAttacks = MagicBitboards.QueenAttacks(pos, pieceLocationsAll);
+                        slidingAttacks = MagicBitboards.QueenAttacks(pos, pieceLocationsAll & ~(myDiagSliders | myHorizSliders));
                         myAttacks.Queen |= slidingAttacks;
                         break;
                 }

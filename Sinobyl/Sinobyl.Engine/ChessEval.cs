@@ -200,6 +200,8 @@ namespace Sinobyl.Engine
 
 
             evalInfo.Material = material.Score;
+            evalInfo.ScaleWhite = material.ScaleWhite;
+            evalInfo.ScaleBlack = material.ScaleBlack;
             evalInfo.PcSqStart = valPieceSq;
             evalInfo.PawnsStart = pawns.Value;
             evalInfo.StageStartWeight = material.StartWeight;
@@ -377,7 +379,8 @@ namespace Sinobyl.Engine
 
         public PhasedScore ShelterStorm = 0;
         public int StageStartWeight = 0;
-
+        public int ScaleWhite = 100;
+        public int ScaleBlack = 100;
         public void Reset()
         {
             Attacks[0].Reset();
@@ -388,6 +391,8 @@ namespace Sinobyl.Engine
             PawnsPassedStart = 0;
             ShelterStorm = 0;
             StageStartWeight = 0;
+            ScaleWhite = 100;
+            ScaleBlack = 100;
         }
 
         public int StageEndWeight
@@ -399,11 +404,20 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return PcSqStart
+                int nonScaled = PcSqStart
                     .Add(PawnsStart)
                     .Add(PawnsPassedStart)
                     .Add(ShelterStorm)
                     .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
+
+                if (nonScaled > 0)
+                {
+                    return (nonScaled * ScaleWhite) / 100;
+                }
+                else
+                {
+                    return (nonScaled * ScaleBlack) / 100;
+                }
             }
         }
 

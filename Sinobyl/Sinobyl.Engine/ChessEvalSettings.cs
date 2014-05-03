@@ -46,7 +46,7 @@ namespace Sinobyl.Engine
                     Knight = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
                     Bishop = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
                     Rook = new ChessGameStageDictionary<int>() { Opening = 500, Endgame = 500 },
-                    Queen = new ChessGameStageDictionary<int>() { Opening = 900, Endgame = 900 },
+                    Queen = new ChessGameStageDictionary<int>() { Opening = 950, Endgame = 950 },
                     King = new ChessGameStageDictionary<int>() { Opening = 0, Endgame = 0 },
                 },
 

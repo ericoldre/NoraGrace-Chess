@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "KaufmanOnOff";
+            string paramName = "MaterialValues.Knight.Both";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -37,18 +37,20 @@ namespace Sinobyl.EvalTune
                 ChessEvalSettings evalsettings = ChessEvalSettings.Default();
 
                 //evalsettings.MaterialValues.Queen.Endgame = (int)pval;
+                evalsettings.MaterialValues.Knight.Opening = (int)pval;
+                evalsettings.MaterialValues.Knight.Endgame = (int)pval;
                 //evalsettings.RookFileOpen = (int)Math.Round(pval);
                 //evalsettings.RookFileOpen = pval > otherval ? 25 : 0;
                 
-                ChessEval eval;// = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
-                if (pval > otherval)
-                {
-                    eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
-                }
-                else
-                {
-                    eval = new ChessEval(evalsettings, new ChessEvalMaterialBasic(evalsettings));
-                }
+                ChessEval eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
+                //if (pval > otherval)
+                //{
+                //    eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
+                //}
+                //else
+                //{
+                //    eval = new ChessEval(evalsettings, new ChessEvalMaterialBasic(evalsettings));
+                //}
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
                 
@@ -67,7 +69,7 @@ namespace Sinobyl.EvalTune
             };
 
             //ALTER THIS
-            double parameterValue = 1;// ChessEvalSettings.Default().MaterialValues.Queen.Endgame;// ;//(new TimeManagerNodes()).RatioFailHigh;
+            double parameterValue = ChessEvalSettings.Default().MaterialValues.Knight.Opening;// ;//(new TimeManagerNodes()).RatioFailHigh;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 
@@ -96,7 +98,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodesPerMove = 15000;// 15000;
+                int nodesPerMove = 5000;// 15000;
                 nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };

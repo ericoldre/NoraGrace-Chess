@@ -87,10 +87,9 @@ namespace Sinobyl.Engine
             }
 
             int startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
-
             //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
             int score = PhasedScoreInfo.Create(startScore, endScore).ApplyWeights(startWeight);
-            return new EvalMaterialResults(zob, startWeight, score);
+            return new EvalMaterialResults(zob, startWeight, score, 100, 100);
             //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
         }
 
@@ -130,6 +129,8 @@ namespace Sinobyl.Engine
         public readonly int StartWeight;
         public readonly int Score;
 
+        public readonly int ScaleWhite;
+        public readonly int ScaleBlack;
         //public readonly int Wp;
         //public readonly int Wn;
         //public readonly int Wb;
@@ -141,12 +142,13 @@ namespace Sinobyl.Engine
         //public readonly int Br;
         //public readonly int Bq;
 
-        public EvalMaterialResults(Int64 zobristMaterial, int startWeight, int score /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
+        public EvalMaterialResults(Int64 zobristMaterial, int startWeight, int score, int scaleWhite, int scaleBlack /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
         {
             ZobristMaterial = zobristMaterial;
             StartWeight = startWeight;
             Score = score;
-
+            ScaleWhite = scaleWhite;
+            ScaleBlack = scaleBlack;
             //Wp = wp;
             //Wn = wn;
             //Wb = wb;
@@ -195,15 +197,171 @@ namespace Sinobyl.Engine
             double white = MyMaterial(totalPct, pctPawns, pctMinors, wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
             double black = MyMaterial(totalPct, pctPawns, pctMinors, bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
 
-            double diff = white - black;
+            double score = white - black;
 
-            double endgameMaterialBonus = 0;// (1f - totalPct) * .2f;
-
-            double adjusted = diff * (1 + endgameMaterialBonus);
-
-            return new EvalMaterialResults(zob, startWeight, (int)adjusted);
+            double scaleWhite = ScaleFactor(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
+            double scaleBlack = ScaleFactor(bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
+            return new EvalMaterialResults(zob, startWeight, (int)score, (int)(scaleWhite * 100), (int)(scaleBlack * 100));
 
         }
+
+        /// <summary>
+        /// Functionally equivilent to Fruit2.1, although surprised adding it did not improve much.
+        /// </summary>
+        /// <returns></returns>
+        private double ScaleFactor(int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
+        {
+            if (myP == 0)
+            { // white has no pawns
+
+                int myMaj = myQ * 2 + myR;
+                int myMin = myB + myN;
+                int myTot = myMaj * 2 + myMin;
+
+                int hisMaj = hisQ * 2 + hisR;
+                int hisMin = hisB + hisN;
+                int hisTot = hisMaj * 2 + hisMin;
+
+                if (myTot == 1)
+                {
+                    System.Diagnostics.Debug.Assert(myMaj == 0);
+                    System.Diagnostics.Debug.Assert(myMin == 1);
+                    // KBK* or KNK*, always insufficient
+                    return 0;
+                }
+                else if (myTot == 2 && myN == 2)
+                {
+
+                    System.Diagnostics.Debug.Assert(myMaj == 0);
+                    System.Diagnostics.Debug.Assert(myMin == 2);
+
+                    // KNNK*, usually insufficient
+
+                    if (hisTot != 0 || hisP == 0)
+                    {
+                        return 0;
+                    }
+                    else
+                    { // KNNKP+, might not be draw
+                        return .1f;
+                    }
+
+                }
+                else if (myTot == 2 && myB == 2 && hisTot == 1 && hisN == 1)
+                {
+
+                    System.Diagnostics.Debug.Assert(myMaj == 0);
+                    System.Diagnostics.Debug.Assert(myMin == 2);
+                    System.Diagnostics.Debug.Assert(hisMaj == 0);
+                    System.Diagnostics.Debug.Assert(hisMin == 1);
+
+                    // KBBKN*, barely drawish (not at all?)
+
+                    return .5;
+
+                }
+                else if (myTot - hisTot <= 1 && myMaj <= 2)
+                {
+
+                    // no more than 1 minor up, drawish
+
+                    return .15;
+                }
+
+            }
+            else if (myP == 1)
+            { // white has one pawn
+
+                int w_maj = myQ * 2 + myR;
+                int w_min = myB + myN;
+                int w_tot = w_maj * 2 + w_min;
+
+                int b_maj = hisQ * 2 + hisR;
+                int b_min = hisB + hisN;
+                int b_tot = b_maj * 2 + b_min;
+
+                if (b_min != 0)
+                {
+
+                    // assume black sacrifices a minor against the lone pawn
+
+                    b_min--;
+                    b_tot--;
+
+                    if (w_tot == 1)
+                    {
+
+                        System.Diagnostics.Debug.Assert(w_maj == 0);
+                        System.Diagnostics.Debug.Assert(w_min == 1);
+
+                        // KBK* or KNK*, always insufficient
+                        return .25;
+
+                    }
+                    else if (w_tot == 2 && myN == 2)
+                    {
+
+                        System.Diagnostics.Debug.Assert(w_maj == 0);
+                        System.Diagnostics.Debug.Assert(w_min == 2);
+
+                        // KNNK*, usually insufficient
+                        return .25f;
+                        //mul[White] = 4; // 1/4
+
+                    }
+                    else if (w_tot - b_tot <= 1 && w_maj <= 2)
+                    {
+
+                        // no more than 1 minor up, drawish
+                        return .5f;
+                        //mul[White] = 8; // 1/2
+                    }
+
+                }
+                else if (hisR != 0)
+                {
+
+                    // assume black sacrifices a rook against the lone pawn
+
+                    b_maj--;
+                    b_tot -= 2;
+
+                    if (w_tot == 1)
+                    {
+
+                        System.Diagnostics.Debug.Assert(w_maj == 0);
+                        System.Diagnostics.Debug.Assert(w_min == 1);
+
+                        // KBK* or KNK*, always insufficient
+                        return .25f;
+                        //mul[White] = 4; // 1/4
+
+                    }
+                    else if (w_tot == 2 && myN == 2)
+                    {
+
+                        System.Diagnostics.Debug.Assert(w_maj == 0);
+                        System.Diagnostics.Debug.Assert(w_min == 2);
+
+                        // KNNK*, usually insufficient
+                        return .25f;
+                        //mul[White] = 4; // 1/4
+
+                    }
+                    else if (w_tot - b_tot <= 1 && w_maj <= 2)
+                    {
+
+                        // no more than 1 minor up, drawish
+                        return .5f;
+                        //mul[White] = 8; // 1/2
+                    }
+                }
+            }
+
+            return 1;
+
+        }
+
 
         private double MyMaterial(double totalPct, double pawnPct, double minorPct, int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
         {
@@ -213,6 +371,8 @@ namespace Sinobyl.Engine
             double rookVal = CalcWeight(pawnPct, _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Opening], _settings.MaterialValues[ChessPieceType.Rook][ChessGameStage.Endgame]);
             double queenVal = CalcWeight(minorPct, _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Opening], _settings.MaterialValues[ChessPieceType.Queen][ChessGameStage.Endgame]);
             double bishopPairValue = CalcWeight(pawnPct, _settings.MaterialBishopPair.Opening, _settings.MaterialBishopPair.Endgame);
+
+            
 
             //if (hisQ > myQ)
             //{
@@ -235,6 +395,7 @@ namespace Sinobyl.Engine
             //if (myN > 0) { retval += (knightVal * .05f); }
             //if (myB > 0) { retval += (bishopVal * .05f); }
             //if (myR > 0) { retval += (rookVal * .05f); }
+
 
             return retval;
         }

@@ -316,8 +316,8 @@ namespace Sinobyl.Engine
                     {
                         retval += KingRingAttack; //attacking surrounding square in some aspect.
 
-                        int myCount = myAttacks.AttackCountToSlow(pos);
-                        int hisCount = hisAttacks.AttackCountToSlow(pos);
+                        int myCount = myAttacks.AttackCountTo(pos);
+                        int hisCount = hisAttacks.AttackCountTo(pos);
                         if (myCount > hisCount)
                         {
                             retval += KingRingAttackControlBonus * (myCount - hisCount);
@@ -504,18 +504,16 @@ namespace Sinobyl.Engine
             return PawnEast | PawnWest | Knight | Bishop | Rook | Queen | King;
         }
 
-        public int AttackCountToSlow(ChessPosition pos)
+        public int AttackCountTo(ChessPosition pos)
         {
-            ChessBitboard bb = pos.Bitboard();
-            int retval = 0;
-            if ((PawnEast & bb) != ChessBitboard.Empty) { retval++; }
-            if ((PawnWest & bb) != ChessBitboard.Empty) { retval++; }
-            if ((Knight & bb) != ChessBitboard.Empty) { retval++; }
-            if ((Bishop & bb) != ChessBitboard.Empty) { retval++; }
-            if ((Rook & bb) != ChessBitboard.Empty) { retval++; }
-            if ((Queen & bb) != ChessBitboard.Empty) { retval++; }
-            if ((King & bb) != ChessBitboard.Empty) { retval++; }
-            return retval;
+            return 0
+                + (int)(((ulong)PawnEast >> (int)pos) & 1)
+                + (int)(((ulong)PawnWest >> (int)pos) & 1)
+                + (int)(((ulong)Knight >> (int)pos) & 1)
+                + (int)(((ulong)Bishop >> (int)pos) & 1)
+                + (int)(((ulong)Rook >> (int)pos) & 1)
+                + (int)(((ulong)Queen >> (int)pos) & 1)
+                + (int)(((ulong)King >> (int)pos) & 1);
         }
 
         public ChessEvalAttackInfo Reverse()

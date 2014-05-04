@@ -8,6 +8,7 @@ namespace Sinobyl.Engine
     public interface IChessEval
     {
         int EvalFor(ChessBoard board, ChessPlayer who);
+        int DrawScore { get; set; }
     }
 
     public class ChessEval: IChessEval
@@ -39,6 +40,7 @@ namespace Sinobyl.Engine
 
         public static int TotalEvalCount = 0;
 
+        public int DrawScore { get; set; }
         
         private static ChessBitboard[] _kingSafetyRegion;
         private static int[] _kingAttackerWeight;
@@ -600,6 +602,7 @@ namespace Sinobyl.Engine
         public int StageStartWeight = 0;
         public int ScaleWhite = 100;
         public int ScaleBlack = 100;
+        public int DrawScore = 0;
         public void Reset()
         {
             Attacks[0].Reset();
@@ -612,6 +615,7 @@ namespace Sinobyl.Engine
             StageStartWeight = 0;
             ScaleWhite = 100;
             ScaleBlack = 100;
+            DrawScore = 0;
         }
 
         public int StageEndWeight
@@ -632,14 +636,17 @@ namespace Sinobyl.Engine
                 nonScaled += this.Attacks[0].KingAttackerScore;
                 nonScaled -= this.Attacks[1].KingAttackerScore;
 
-                if (nonScaled > 0)
+                if (nonScaled > DrawScore && ScaleWhite < 100)
                 {
-                    return (nonScaled * ScaleWhite) / 100;
+                    int scaled = (((nonScaled - DrawScore) * ScaleWhite) / 100) + DrawScore;
+                    return scaled;
                 }
-                else
+                else if (nonScaled < DrawScore && ScaleBlack < 100)
                 {
-                    return (nonScaled * ScaleBlack) / 100;
+                    int scaled = (((nonScaled - DrawScore) * ScaleBlack) / 100) + DrawScore;
+                    return scaled;
                 }
+                return nonScaled;
             }
         }
 

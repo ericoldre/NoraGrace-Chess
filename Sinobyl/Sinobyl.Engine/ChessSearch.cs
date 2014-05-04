@@ -221,7 +221,7 @@ namespace Sinobyl.Engine
 		private bool _returnBestResult = true; //if false return null
 		private ChessMoves _bestvariation = new ChessMoves();
 		private int _bestvariationscore = 0;
-        private int[] _contemptForDrawForPlayer = new int[3];
+
         private readonly ChessMoveBuffer _moveBuffer = new ChessMoveBuffer();
         private ChessMove[] _currentPV = new ChessMove[50];
         private readonly Dictionary<ChessMove, int> _rootMoveNodeCounts = new Dictionary<ChessMove, int>();
@@ -238,16 +238,6 @@ namespace Sinobyl.Engine
 				board.MoveApply(histmove);
 			}
 
-            if (board.WhosTurn == ChessPlayer.White)
-            {
-                _contemptForDrawForPlayer[(int)ChessPlayer.White] = args.ContemptForDraw;
-                _contemptForDrawForPlayer[(int)ChessPlayer.Black] = -args.ContemptForDraw;
-            }
-            else
-            {
-                _contemptForDrawForPlayer[(int)ChessPlayer.White] = -args.ContemptForDraw;
-                _contemptForDrawForPlayer[(int)ChessPlayer.Black] = args.ContemptForDraw;
-            }
 		}
 
         private static Random rand = new Random();
@@ -283,11 +273,14 @@ namespace Sinobyl.Engine
 
 			Thread.Sleep(this.SearchArgs.Delay);
 
+            //setup evaluation score for draw.
+            eval.DrawScore = board.WhosTurn == ChessPlayer.White ? -SearchArgs.ContemptForDraw : SearchArgs.ContemptForDraw;
 			SearchArgs.TransTable.AgeEntries(2);
-
+             
             SearchArgs.TimeManager.StopSearch += TimeManager_StopSearch;
             SearchArgs.TimeManager.RequestNodes += TimeManager_RequestNodes;
             SearchArgs.TimeManager.StartSearch();
+
 
 			int depth = 1;
 
@@ -318,7 +311,7 @@ namespace Sinobyl.Engine
 
 
                 ////add check for draw on near horizon, in case of 50 move rule approaching, search will output giant amount of data to console if next move forces draw.
-                if (depth > 10 && _bestvariation != null && _bestvariation.Count() < depth - 6 && _bestvariationscore == -_contemptForDrawForPlayer[(int)board.WhosTurn])
+                if (depth > 10 && _bestvariation != null && _bestvariation.Count() < depth - 6 && _bestvariationscore == eval.DrawScore)
                 {
                     _aborting = true;
                 }
@@ -611,7 +604,7 @@ namespace Sinobyl.Engine
 			//check for draw
 			if (board.IsDrawByRepetition() || board.IsDrawBy50MoveRule())
 			{
-                return -_contemptForDrawForPlayer[(int)board.WhosTurn];
+                return eval.DrawScore;
 			}
 
 			if (depth <= 0) 

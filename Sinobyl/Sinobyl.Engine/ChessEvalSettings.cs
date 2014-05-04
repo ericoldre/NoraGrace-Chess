@@ -228,6 +228,8 @@ namespace Sinobyl.Engine
                 KingAttackWeightCutoff = 6,
                 KingRingAttack = 8,
                 KingRingAttackControlBonus = 8,
+                KingAttackFactor = .7f,
+                KingAttackFactorQueenTropismBonus = .5f,
 
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
                 {
@@ -285,6 +287,10 @@ namespace Sinobyl.Engine
         public int KingAttackWeightCutoff = 0;
         public int KingRingAttack = 0;
         public int KingRingAttackControlBonus = 0;
+
+        public double KingAttackFactor = 0;
+        public double KingAttackFactorQueenTropismBonus = 0;
+
 
         public ChessEvalSettings CloneDeep()
         {

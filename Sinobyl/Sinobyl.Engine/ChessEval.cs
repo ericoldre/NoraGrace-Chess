@@ -160,8 +160,9 @@ namespace Sinobyl.Engine
             {
                 int min = 4;
                 int max = 12;
-                double maxFactor = 1.2;
-                double minFactor = .8;
+                double minFactor = settings.KingAttackFactor;
+                double maxFactor = minFactor + settings.KingAttackFactorQueenTropismBonus;
+                
                 if (d >= max) { KingQueenTropismFactor[d] = (int)Math.Round(100 * minFactor); continue; }
                 if (d <= min) { KingQueenTropismFactor[d] = (int)Math.Round(100 * maxFactor); continue; }
 

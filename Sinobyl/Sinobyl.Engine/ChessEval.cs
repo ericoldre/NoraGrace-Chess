@@ -160,8 +160,8 @@ namespace Sinobyl.Engine
             {
                 int min = 4;
                 int max = 12;
-                double maxFactor = 1.5;
-                double minFactor = 1;
+                double maxFactor = 1.2;
+                double minFactor = .8;
                 if (d >= max) { KingQueenTropismFactor[d] = (int)Math.Round(100 * minFactor); continue; }
                 if (d <= min) { KingQueenTropismFactor[d] = (int)Math.Round(100 * maxFactor); continue; }
 
@@ -348,7 +348,7 @@ namespace Sinobyl.Engine
 
             retval += KingAttackCountValue * myAttacks.KingAttackerCount;
 
-            //retval = (retval * KingQueenTropismFactor[myAttacks.KingQueenTropism]) / 100;
+            retval = (retval * KingQueenTropismFactor[myAttacks.KingQueenTropism]) / 100;
             myAttacks.KingAttackerScore = retval;
 
             return retval;
@@ -394,6 +394,14 @@ namespace Sinobyl.Engine
                 {
                     case ChessPieceType.Knight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
+                        if (myAttacks.Knight != ChessBitboard.Empty)
+                        {
+                            myAttacks.Knight2 |= slidingAttacks;
+                        }
+                        else
+                        {
+                            myAttacks.Knight |= slidingAttacks;
+                        }
                         myAttacks.Knight |= slidingAttacks;
                         break;
                     case ChessPieceType.Bishop:
@@ -402,7 +410,14 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPieceType.Rook:
                         slidingAttacks = MagicBitboards.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
-                        myAttacks.Rook |= slidingAttacks;
+                        if (myAttacks.Rook != ChessBitboard.Empty)
+                        {
+                            myAttacks.Rook2 |= slidingAttacks;
+                        }
+                        else
+                        {
+                            myAttacks.Rook |= slidingAttacks;
+                        }
                         if ((pos.GetFile().Bitboard() & pawns & myPieces) == ChessBitboard.Empty)
                         {
                             if ((pos.GetFile().Bitboard() & pawns) == ChessBitboard.Empty)
@@ -499,9 +514,11 @@ namespace Sinobyl.Engine
         public ChessBitboard PawnWest;
 
         public ChessBitboard Knight;
+        public ChessBitboard Knight2;
         public ChessBitboard Bishop;
 
         public ChessBitboard Rook;
+        public ChessBitboard Rook2;
         public ChessBitboard Queen;
         public ChessBitboard King;
 
@@ -517,8 +534,10 @@ namespace Sinobyl.Engine
             PawnEast = ChessBitboard.Empty;
             PawnWest = ChessBitboard.Empty;
             Knight = ChessBitboard.Empty;
+            Knight2 = ChessBitboard.Empty;
             Bishop = ChessBitboard.Empty;
             Rook = ChessBitboard.Empty;
+            Rook2 = ChessBitboard.Empty;
             Queen = ChessBitboard.Empty;
             King = ChessBitboard.Empty;
             Mobility = 0;
@@ -530,7 +549,7 @@ namespace Sinobyl.Engine
 
         public ChessBitboard All()
         {
-            return PawnEast | PawnWest | Knight | Bishop | Rook | Queen | King;
+            return PawnEast | PawnWest | Knight | Knight2 | Bishop | Rook | Rook2 | Queen | King;
         }
 
         public int AttackCountTo(ChessPosition pos)
@@ -539,8 +558,10 @@ namespace Sinobyl.Engine
                 + (int)(((ulong)PawnEast >> (int)pos) & 1)
                 + (int)(((ulong)PawnWest >> (int)pos) & 1)
                 + (int)(((ulong)Knight >> (int)pos) & 1)
+                + (int)(((ulong)Knight2 >> (int)pos) & 1)
                 + (int)(((ulong)Bishop >> (int)pos) & 1)
                 + (int)(((ulong)Rook >> (int)pos) & 1)
+                + (int)(((ulong)Rook2 >> (int)pos) & 1)
                 + (int)(((ulong)Queen >> (int)pos) & 1)
                 + (int)(((ulong)King >> (int)pos) & 1);
         }
@@ -552,8 +573,10 @@ namespace Sinobyl.Engine
                 PawnEast = PawnEast.Reverse(),
                 PawnWest = PawnWest.Reverse(),
                 Knight = Knight.Reverse(),
+                Knight2 = Knight2.Reverse(),
                 Bishop = Bishop.Reverse(),
                 Rook = Rook.Reverse(),
+                Rook2 = Rook2.Reverse(),
                 Queen = Queen.Reverse(),
                 King = King.Reverse()
             };

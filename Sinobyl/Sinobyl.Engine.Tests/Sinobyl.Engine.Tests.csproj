@@ -59,6 +59,7 @@
     <Compile Include="ChessPieceTypeTest.cs" />
     <Compile Include="Core.cs" />
     <Compile Include="EvalMaterialTests.cs" />
+    <Compile Include="EvalPawnTest.cs" />
     <Compile Include="EvalSettingsTest.cs" />
     <Compile Include="EvalTest.cs" />
     <Compile Include="FENTest.cs" />

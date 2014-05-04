@@ -270,6 +270,8 @@ namespace Sinobyl.Engine
                 evalInfo.Attacks[1].Mobility = 0;
             }
 
+            evalInfo.PassedPawns = pawns.PassedPawns;
+            evalInfo.CandidatePawns = pawns.Candidates;
 
             evalInfo.Material = material.Score;
             evalInfo.ScaleWhite = material.ScaleWhite;
@@ -603,6 +605,10 @@ namespace Sinobyl.Engine
         public int ScaleWhite = 100;
         public int ScaleBlack = 100;
         public int DrawScore = 0;
+
+        public ChessBitboard PassedPawns;
+        public ChessBitboard CandidatePawns;
+
         public void Reset()
         {
             Attacks[0].Reset();
@@ -616,6 +622,8 @@ namespace Sinobyl.Engine
             ScaleWhite = 100;
             ScaleBlack = 100;
             DrawScore = 0;
+            PassedPawns = ChessBitboard.Empty;
+            CandidatePawns = ChessBitboard.Empty;
         }
 
         public int StageEndWeight

@@ -84,7 +84,7 @@ namespace Sinobyl.Engine
 
             //setup pawn evaluation
             _evalPawns = new ChessEvalPawns(_settings, 10000);
-            _evalMaterial = evalMaterial ?? new ChessEvalMaterialBasic(_settings);
+            _evalMaterial = evalMaterial ?? new ChessEvalMaterial2(_settings);
             
             //bishop pairs
             _matBishopPair = PhasedScoreInfo.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);

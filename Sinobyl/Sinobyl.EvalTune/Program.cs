@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "KingAttackFactor";
+            string paramName = "PawnCandidatePct";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -36,9 +36,9 @@ namespace Sinobyl.EvalTune
                 string name = string.Format("{0}{1:f4}", pname, pval);
                 ChessEvalSettings evalsettings = ChessEvalSettings.Default();
 
-                evalsettings.KingAttackFactor = pval;
-                evalsettings.KingAttackFactorQueenTropismBonus = pval / 2;
-
+                //evalsettings.KingAttackFactor = pval;
+               // evalsettings.KingAttackFactorQueenTropismBonus = pval / 2;
+                evalsettings.PawnCandidatePct = pval;
 
                 
                 ChessEval eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
@@ -58,7 +58,7 @@ namespace Sinobyl.EvalTune
             };
 
             //ALTER THIS
-            double parameterValue = ChessEvalSettings.Default().KingAttackFactor;
+            double parameterValue = ChessEvalSettings.Default().PawnCandidatePct;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 
@@ -87,7 +87,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodesPerMove = 15000;// 15000;
+                int nodesPerMove = 10000;// 15000;
                 nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };

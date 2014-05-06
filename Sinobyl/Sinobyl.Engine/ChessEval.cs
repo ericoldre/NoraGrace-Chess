@@ -239,7 +239,7 @@ namespace Sinobyl.Engine
             //do old eval.
             //this._evalPawns.EvalPassedPawnsOld(board, evalInfo, pawns.PassedPawns);
             //var oldPassed = evalInfo.PawnsPassedStart;
-            evalInfo.PawnsPassedStart = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, evalInfo.Workspace); ;
+            evalInfo.PawnsPassedStart = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
             //if(oldPassed != newPassed)
             //{
             //    this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, evalInfo.Workspace); ;

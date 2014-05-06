@@ -14,6 +14,8 @@ namespace Sinobyl.Engine
         public readonly int IsolatedPawnValueEnd;
         public readonly int UnconnectedPawnStart;
         public readonly int UnconnectedPawnEnd;
+        public readonly double CandidatePct;
+
         //public readonly int[,] PcSqValuePosStage;
         //public readonly int[,] PawnPassedValuePosStage;
         public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
@@ -46,7 +48,7 @@ namespace Sinobyl.Engine
             this.IsolatedPawnValueEnd = settings.PawnIsolated.Endgame;
             this.UnconnectedPawnStart = settings.PawnUnconnected.Opening;
             this.UnconnectedPawnEnd = settings.PawnUnconnected.Endgame;
-
+            this.CandidatePct = settings.PawnCandidatePct;
             this.PassedInitialization(settings);
         }
 
@@ -248,23 +250,23 @@ namespace Sinobyl.Engine
 
 
 
-        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, ChessBitboard passedPawns, int[] workspace)
+        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, ChessBitboard passedPawns, ChessBitboard candidatePawns, int[] workspace)
         {
             
             PhasedScore retval = PhasedScoreInfo.Create(0, 0);
 
-            var positions = passedPawns & board[ChessPlayer.White];
+            var positions = (passedPawns | candidatePawns) & board[ChessPlayer.White];
             if (positions != ChessBitboard.Empty)
             {
-                var white = EvalPassedPawnsSide(ChessPlayer.White, board, attackInfo[0], attackInfo[1], positions, workspace);
+                var white = EvalPassedPawnsSide(ChessPlayer.White, board, attackInfo[0], attackInfo[1], passedPawns & board[ChessPlayer.White], candidatePawns & board[ChessPlayer.White], workspace);
                 retval = retval.Add(white);
 
             }
 
-            positions = passedPawns & board[ChessPlayer.Black];
+            positions = (passedPawns | candidatePawns) & board[ChessPlayer.Black];
             if (positions != ChessBitboard.Empty)
             {
-                var black = EvalPassedPawnsSide(ChessPlayer.Black, board, attackInfo[1], attackInfo[0], positions, workspace);
+                var black = EvalPassedPawnsSide(ChessPlayer.Black, board, attackInfo[1], attackInfo[0], passedPawns & board[ChessPlayer.Black], candidatePawns & board[ChessPlayer.Black], workspace);
                 retval = retval.Subtract(black);
             }
 
@@ -273,9 +275,9 @@ namespace Sinobyl.Engine
 
         }
 
-        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, ChessBitboard passedPawns, int[] workspace)
+        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, ChessBitboard passedPawns, ChessBitboard candidatePawns, int[] workspace)
         {
-
+            
             int bestEndScore = -1;
             int bestEndFile = -1;
             int totalStartScore = 0;
@@ -287,7 +289,7 @@ namespace Sinobyl.Engine
             ChessBitboard myPawnAttacks = myAttackInfo.PawnEast | myAttackInfo.PawnWest;
             ChessBitboard myAttacks = myAttackInfo.All();
             ChessBitboard hisAttacks = hisAttackInfo.All();
-            ChessBitboard positions = passedPawns;
+            ChessBitboard positions = passedPawns | candidatePawns;
 
             ChessDirection mySouth = me == ChessPlayer.White ? ChessDirection.DirS : ChessDirection.DirN;
 
@@ -299,6 +301,8 @@ namespace Sinobyl.Engine
                 ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
 
                 ChessPiece trailerPiece = board.PieceInDirection(passedPos, mySouth, ref trailerPos);
+
+                bool isCandidate = candidatePawns.Contains(passedPos);
 
                 bool attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == him;
                 bool supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == me;
@@ -319,8 +323,15 @@ namespace Sinobyl.Engine
                     supportingTrailer: supportingTrailer,
                     mbonus: out startScore,
                     ebonus: out endScore);
-
+                 
                 int iFile = (int)passedPos.GetFile();
+
+                //adjust scores down for candidates.
+                if (isCandidate)
+                {
+                    startScore = 0;
+                    endScore = (int)(endScore * CandidatePct);
+                }
 
                 totalStartScore += startScore;
 

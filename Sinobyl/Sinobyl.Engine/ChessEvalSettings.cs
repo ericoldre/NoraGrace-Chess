@@ -218,7 +218,7 @@ namespace Sinobyl.Engine
                 PawnPassedDangerPct = .10f,
                 PawnPassedMinScore = 10,
                 PawnPassedOpeningPct = .31f,
-
+                PawnCandidatePct = .5f,
                 PawnShelterFactor = 5,
 
                 RookFileOpen = 20,
@@ -278,6 +278,7 @@ namespace Sinobyl.Engine
         public int PawnPassedMinScore = 0;
         public double PawnPassedDangerPct = 0;
         public double PawnPassedOpeningPct = 0;
+        public double PawnCandidatePct = 0;
         public int PawnShelterFactor = 0;
 
         public int RookFileOpen = 0;

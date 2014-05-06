@@ -245,7 +245,7 @@ namespace Sinobyl.Engine
 
 
 
-        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, ChessBitboard passedPawns)
+        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, ChessBitboard passedPawns, int[] workspace)
         {
             
             PhasedScore retval = PhasedScoreInfo.Create(0, 0);
@@ -253,7 +253,7 @@ namespace Sinobyl.Engine
             var positions = passedPawns & board[ChessPlayer.White];
             if (positions != ChessBitboard.Empty)
             {
-                var white = EvalPassedPawnsSide(ChessPlayer.White, board, attackInfo[0], attackInfo[1], positions);
+                var white = EvalPassedPawnsSide(ChessPlayer.White, board, attackInfo[0], attackInfo[1], positions, workspace);
                 retval = retval.Add(white);
 
             }
@@ -261,7 +261,7 @@ namespace Sinobyl.Engine
             positions = passedPawns & board[ChessPlayer.Black];
             if (positions != ChessBitboard.Empty)
             {
-                var black = EvalPassedPawnsSide(ChessPlayer.Black, board, attackInfo[1], attackInfo[0], positions);
+                var black = EvalPassedPawnsSide(ChessPlayer.Black, board, attackInfo[1], attackInfo[0], positions, workspace);
                 retval = retval.Subtract(black);
             }
 
@@ -270,16 +270,16 @@ namespace Sinobyl.Engine
 
         }
 
-        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, ChessBitboard passedPawns)
+        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, ChessBitboard passedPawns, int[] workspace)
         {
-            PhasedScore retval = PhasedScoreInfo.Create(0, 0);
 
-            int bestEndScore = 0;
-
+            int bestEndScore = -1;
+            int bestEndFile = -1;
+            int totalStartScore = 0;
             ChessPlayer him = me.PlayerOther();
 
             ChessPosition myKing = board.KingPosition(me);
-            ChessPosition hisKing = board.KingPosition(me.PlayerOther());
+            ChessPosition hisKing = board.KingPosition(him);
             ChessBitboard allPieces = board.PieceLocationsAll;
             ChessBitboard myPawnAttacks = myAttackInfo.PawnEast | myAttackInfo.PawnWest;
             ChessBitboard myAttacks = myAttackInfo.All();
@@ -288,18 +288,20 @@ namespace Sinobyl.Engine
 
             ChessDirection mySouth = me == ChessPlayer.White ? ChessDirection.DirS : ChessDirection.DirN;
 
+            Array.Clear(workspace, 0, 8);
+
             while (positions != ChessBitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
             {
                 ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
                 ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
-                
+
                 ChessPiece trailerPiece = board.PieceInDirection(passedPos, mySouth, ref trailerPos);
 
                 bool attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == him;
                 bool supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == me;
 
                 int startScore;
-                int endScore; 
+                int endScore;
 
                 EvalPassedPawn(
                     me: me,
@@ -315,25 +317,38 @@ namespace Sinobyl.Engine
                     mbonus: out startScore,
                     ebonus: out endScore);
 
+                int iFile = (int)passedPos.GetFile();
+
+                totalStartScore += startScore;
+
+                
 
                 //scores other than best are halved
                 endScore = endScore & ~1; //make even number for div /2
-                if (endScore >= bestEndScore)
+                workspace[iFile] = endScore;
+                if (endScore > bestEndScore)
                 {
-                    int reduce = bestEndScore / 2;
                     bestEndScore = endScore;
-                    endScore -= reduce;
+                    bestEndFile = iFile;
                 }
-                else
-                {
-                    endScore = endScore / 2;
-                }
-
-                retval = retval.Add(PhasedScoreInfo.Create(startScore, endScore));
 
             }
 
-            return retval;
+            System.Diagnostics.Debug.Assert(bestEndScore > 0);
+            System.Diagnostics.Debug.Assert(bestEndFile >= 0 && bestEndFile <= 7);
+
+            int totalEndScore = 0;
+
+            for (int i = 0; i < 8; i++)
+            {
+                if (i != bestEndFile && workspace[i] != 0)
+                {
+                    workspace[i] = workspace[i] / 2;
+                }
+                totalEndScore += workspace[i];
+            }
+
+            return PhasedScoreInfo.Create(totalStartScore, totalEndScore);
         }
 
         private void EvalPassedPawn(ChessPlayer me, ChessPosition p, ChessPosition myKing, ChessPosition hisKing,

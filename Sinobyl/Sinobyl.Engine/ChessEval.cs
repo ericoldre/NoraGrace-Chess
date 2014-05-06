@@ -236,8 +236,17 @@ namespace Sinobyl.Engine
             EvaluateMyKingAttack(board, ChessPlayer.White, evalInfo);
             EvaluateMyKingAttack(board, ChessPlayer.Black, evalInfo);
 
+            //do old eval.
+            //this._evalPawns.EvalPassedPawnsOld(board, evalInfo, pawns.PassedPawns);
+            //var oldPassed = evalInfo.PawnsPassedStart;
+            evalInfo.PawnsPassedStart = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, evalInfo.Workspace); ;
+            //if(oldPassed != newPassed)
+            //{
+            //    this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, evalInfo.Workspace); ;
+            //}
             //eval passed pawns;
-            evalInfo.PawnsPassedStart = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, evalInfo.Workspace);
+
+
 
             //shelter storm;
             if (material.DoShelter)

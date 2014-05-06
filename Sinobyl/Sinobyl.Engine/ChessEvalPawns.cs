@@ -130,11 +130,10 @@ namespace Sinobyl.Engine
                 ChessBitboard bbFile = pos.GetFile().Bitboard();
                 ChessBitboard bbFile2E = bbFile.ShiftDirE();
                 ChessBitboard bbFile2W = bbFile.ShiftDirW();
-                ChessBitboard bballNorth = r.BitboardAllNorth() & bbFile;
-
+                ChessBitboard telestop = _telestop[(int)pos];
 
                 //substract doubled score
-                if (!(bballNorth & ~pos.Bitboard() & whitePawns).Empty())
+                if (!(telestop & whitePawns).Empty())
                 {
                     StartVal -= this.DoubledPawnValueStart;
                     EndVal -= this.DoubledPawnValueEnd;
@@ -164,17 +163,21 @@ namespace Sinobyl.Engine
                     }
                 }
 
-                ChessBitboard blockPositions = _attackMask[0][(int)pos] | _telestop[(int)pos];
-                if ((blockPositions & blackPawns).Empty())
+                if ((telestop & whitePawns).Empty())
                 {
-                    //StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
-                    //EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
-                    passed |= pos.Bitboard();
+                    ChessBitboard blockPositions = _attackMask[0][(int)pos] | _telestop[(int)pos];
+                    if ((blockPositions & blackPawns).Empty())
+                    {
+                        //StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
+                        //EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
+                        passed |= pos.Bitboard();
+                    }
+                    else if (IsCandidate(pos, whitePawns, blackPawns))
+                    {
+                        candidates |= pos.Bitboard();
+                    }
                 }
-                else if (IsCandidate(pos, whitePawns, blackPawns))
-                {
-                    candidates |= pos.Bitboard();
-                }
+                
             }
 
         }
@@ -418,6 +421,192 @@ namespace Sinobyl.Engine
 
         }
 
+
+        public void EvalPassedPawnsOld(ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
+        {
+
+            ChessPosition myKing, hisKing;
+            ChessBitboard allPieces, myPawnAttacks, myAttacks, hisAttacks;
+            bool attackingTrailer, supportingTrailer;
+
+            int startScore, endScore, bestEndScore;
+
+            var positions = passedPawns & board[ChessPlayer.White];
+            if (positions != ChessBitboard.Empty)
+            {
+                bestEndScore = 0;
+
+                myKing = board.KingPosition(ChessPlayer.White);
+                hisKing = board.KingPosition(ChessPlayer.Black);
+                allPieces = board.PieceLocationsAll;
+                myPawnAttacks = evalInfo.Attacks[(int)ChessPlayer.White].PawnEast | evalInfo.Attacks[(int)ChessPlayer.White].PawnWest;
+                myAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All();
+                hisAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All();
+
+                while (positions != ChessBitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
+                {
+                    ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
+                    ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
+                    ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirS, ref trailerPos);
+
+                    attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.Black;
+                    supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.White;
+
+                    EvalPassedPawnBoth(
+                        p: passedPos,
+                        allPieces: allPieces,
+                        myAttacks: myAttacks,
+                        hisAttacks: hisAttacks,
+                        myKing: myKing,
+                        hisKing: hisKing,
+                        myPawnAttacks: myPawnAttacks,
+                        attackingTrailer: attackingTrailer,
+                        supportingTrailer: supportingTrailer,
+                        mbonus: out startScore,
+                        ebonus: out endScore);
+
+
+                    //scores other than best are halved
+                    endScore = endScore & ~1; //make even number for div /2
+                    if (endScore >= bestEndScore)
+                    {
+                        int reduce = bestEndScore / 2;
+                        bestEndScore = endScore;
+                        endScore -= reduce;
+                    }
+                    else
+                    {
+                        endScore = endScore / 2;
+                    }
+
+                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Add(PhasedScoreInfo.Create(startScore, endScore));
+
+                    ///evalInfo.PawnsPassedStart += mbonus;
+                    //evalInfo.PawnsPassedEnd += ebonus;
+                }
+            }
+
+            positions = passedPawns & board[ChessPlayer.Black];
+            if (positions != ChessBitboard.Empty)
+            {
+                bestEndScore = 0;
+                myKing = board.KingPosition(ChessPlayer.Black).Reverse();
+                hisKing = board.KingPosition(ChessPlayer.White).Reverse();
+                allPieces = board.PieceLocationsAll.Reverse();
+                myPawnAttacks = (evalInfo.Attacks[(int)ChessPlayer.Black].PawnEast | evalInfo.Attacks[(int)ChessPlayer.Black].PawnWest).Reverse();
+                myAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All().Reverse();
+                hisAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All().Reverse();
+
+                while (positions != ChessBitboard.Empty) // (ChessPosition passedPos in black.ToPositions())
+                {
+                    ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
+                    ChessPosition passesPos2 = passedPos.Reverse();
+                    ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
+                    ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirN, ref trailerPos);
+
+                    attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.White;
+                    supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == ChessPlayer.Black;
+
+                    EvalPassedPawnBoth(
+                        p: passesPos2,
+                        allPieces: allPieces,
+                        myAttacks: myAttacks,
+                        hisAttacks: hisAttacks,
+                        myKing: myKing,
+                        hisKing: hisKing,
+                        myPawnAttacks: myPawnAttacks,
+                        attackingTrailer: attackingTrailer,
+                        supportingTrailer: supportingTrailer,
+                        mbonus: out startScore,
+                        ebonus: out endScore);
+
+                    //scores other than best are halved
+                    endScore = endScore & ~1; //make even number for div /2
+                    if (endScore >= bestEndScore)
+                    {
+                        int reduce = bestEndScore / 2;
+                        bestEndScore = endScore;
+                        endScore -= reduce;
+                    }
+                    else
+                    {
+                        endScore = endScore / 2;
+                    }
+
+                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Subtract(PhasedScoreInfo.Create(startScore, endScore));
+                }
+            }
+
+
+
+
+        }
+
+
+        private void EvalPassedPawnBoth(ChessPosition p, ChessPosition myKing, ChessPosition hisKing,
+            ChessBitboard allPieces, ChessBitboard myPawnAttacks, ChessBitboard myAttacks, ChessBitboard hisAttacks,
+            bool attackingTrailer, bool supportingTrailer, out int mbonus, out int ebonus)
+        {
+            ChessRank rank = p.GetRank();
+
+            //int r = Math.Abs(rank - ChessRank.Rank2);
+            //int rr = r * (r - 1);
+
+            // Base bonus based on rank
+            mbonus = startScore[(int)rank];
+            ebonus = endScore[(int)rank];
+            int dangerFactor = factors[(int)rank];
+
+            ChessPosition blockSq = p.PositionInDirection(ChessDirection.DirN);
+
+            int k = 0;
+
+            if (rank <= ChessRank.Rank5)
+            {
+
+                k += hisKing.DistanceTo(blockSq);
+                k -= myKing.DistanceTo(blockSq);
+
+                if (!allPieces.Contains(blockSq))
+                {
+                    k += 2;
+
+                    if (hisAttacks.Contains(blockSq))
+                    {
+                        k -= 1;
+                    }
+                    if (!myAttacks.Contains(blockSq))
+                    {
+                        k += 1;
+                    }
+                }
+            }
+
+            if (attackingTrailer)
+            {
+                k -= 2;
+            }
+
+            if (supportingTrailer)
+            {
+                k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
+            }
+
+            if (myPawnAttacks.Contains(blockSq))
+            {
+                k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
+            }
+            else if (myPawnAttacks.Contains(p))
+            {
+                k += 2;
+                ebonus += PASSED_PAWN_MIN_SCORE;
+            }
+
+            ebonus += k * dangerFactor;
+
+        }
 
         #endregion
 

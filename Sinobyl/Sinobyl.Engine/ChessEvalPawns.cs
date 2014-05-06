@@ -243,7 +243,8 @@ namespace Sinobyl.Engine
             }
         }
 
-        public void EvalPassedPawns(ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
+
+        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
         {
 
             ChessPosition myKing, hisKing;
@@ -251,6 +252,8 @@ namespace Sinobyl.Engine
             bool attackingTrailer, supportingTrailer;
 
             int startScore, endScore, bestEndScore;
+
+            PhasedScore retval = PhasedScoreInfo.Create(0, 0);
 
             var positions = passedPawns & board[ChessPlayer.White];
             if (positions != ChessBitboard.Empty)
@@ -300,7 +303,7 @@ namespace Sinobyl.Engine
                         endScore = endScore / 2;
                     }
 
-                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Add(PhasedScoreInfo.Create(startScore, endScore));
+                    retval = retval.Add(PhasedScoreInfo.Create(startScore, endScore));
 
                     ///evalInfo.PawnsPassedStart += mbonus;
                     //evalInfo.PawnsPassedEnd += ebonus;
@@ -353,13 +356,12 @@ namespace Sinobyl.Engine
                     {
                         endScore = endScore / 2;
                     }
-
-                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Subtract(PhasedScoreInfo.Create(startScore, endScore));
+                    retval = retval.Subtract(PhasedScoreInfo.Create(startScore, endScore));
                 }
             }
 
 
-
+            return retval;
 
         }
 

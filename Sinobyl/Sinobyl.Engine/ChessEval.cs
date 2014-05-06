@@ -237,7 +237,7 @@ namespace Sinobyl.Engine
             EvaluateMyKingAttack(board, ChessPlayer.Black, evalInfo);
 
             //eval passed pawns;
-            this._evalPawns.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
+            evalInfo.PawnsPassedStart = this._evalPawns.EvalPassedPawns(board, evalInfo, pawns.PassedPawns);
 
             //shelter storm;
             if (material.DoShelter)

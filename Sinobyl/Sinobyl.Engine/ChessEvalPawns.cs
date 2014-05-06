@@ -245,7 +245,7 @@ namespace Sinobyl.Engine
 
 
 
-        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
+        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, ChessBitboard passedPawns)
         {
             
             PhasedScore retval = PhasedScoreInfo.Create(0, 0);
@@ -253,7 +253,7 @@ namespace Sinobyl.Engine
             var positions = passedPawns & board[ChessPlayer.White];
             if (positions != ChessBitboard.Empty)
             {
-                var white = EvalPassedPawnsSide(ChessPlayer.White, board, evalInfo, positions);
+                var white = EvalPassedPawnsSide(ChessPlayer.White, board, attackInfo[0], attackInfo[1], positions);
                 retval = retval.Add(white);
 
             }
@@ -261,7 +261,7 @@ namespace Sinobyl.Engine
             positions = passedPawns & board[ChessPlayer.Black];
             if (positions != ChessBitboard.Empty)
             {
-                var black = EvalPassedPawnsSide(ChessPlayer.Black, board, evalInfo, positions);
+                var black = EvalPassedPawnsSide(ChessPlayer.Black, board, attackInfo[1], attackInfo[0], positions);
                 retval = retval.Subtract(black);
             }
 
@@ -270,7 +270,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
+        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, ChessBitboard passedPawns)
         {
             PhasedScore retval = PhasedScoreInfo.Create(0, 0);
 
@@ -281,9 +281,9 @@ namespace Sinobyl.Engine
             ChessPosition myKing = board.KingPosition(me);
             ChessPosition hisKing = board.KingPosition(me.PlayerOther());
             ChessBitboard allPieces = board.PieceLocationsAll;
-            ChessBitboard myPawnAttacks = evalInfo.Attacks[(int)me].PawnEast | evalInfo.Attacks[(int)me].PawnWest;
-            ChessBitboard myAttacks = evalInfo.Attacks[(int)me].All();
-            ChessBitboard hisAttacks = evalInfo.Attacks[(int)him].All();
+            ChessBitboard myPawnAttacks = myAttackInfo.PawnEast | myAttackInfo.PawnWest;
+            ChessBitboard myAttacks = myAttackInfo.All();
+            ChessBitboard hisAttacks = hisAttackInfo.All();
             ChessBitboard positions = passedPawns;
 
             ChessDirection mySouth = me == ChessPlayer.White ? ChessDirection.DirS : ChessDirection.DirN;

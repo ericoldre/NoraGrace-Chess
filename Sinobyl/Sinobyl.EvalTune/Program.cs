@@ -28,7 +28,7 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "KingAttackOnOff";
+            string paramName = "KingAttackFactor";
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -36,41 +36,16 @@ namespace Sinobyl.EvalTune
                 string name = string.Format("{0}{1:f4}", pname, pval);
                 ChessEvalSettings evalsettings = ChessEvalSettings.Default();
 
-                if (pval > otherval)
-                {
-                    
-                }
-                else
-                {
-                    evalsettings.KingAttackCountValue = 0;
-                    evalsettings.KingAttackWeightValue = 0;
-                    evalsettings.KingAttackWeightCutoff = 20;
-                    evalsettings.KingRingAttack = 0;
-                    evalsettings.KingRingAttackControlBonus = 0;
-                }
-                //evalsettings.MaterialValues.Queen.Endgame = (int)pval;
-                //evalsettings.MaterialValues.Knight.Opening = (int)pval;
-                //evalsettings.MaterialValues.Knight.Endgame = (int)pval;
-                //evalsettings.RookFileOpen = (int)Math.Round(pval);
-                //evalsettings.RookFileOpen = pval > otherval ? 25 : 0;
+                evalsettings.KingAttackFactor = pval;
+                evalsettings.KingAttackFactorQueenTropismBonus = pval / 2;
+
+
                 
                 ChessEval eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
 
-                //if (pval > otherval)
-                //{
-                    
-                //    eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
-                //}
-                //else
-                //{
-                //    eval = new ChessEval(evalsettings, new ChessEvalMaterialBasic(evalsettings));
-                //}
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
                 
-                //manager.RatioFailHigh = pval;
-                //manager.RatioComplexity = 0;
-
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
                 player.AlterSearchArgs = (searchArgs) =>
                 {
@@ -83,7 +58,7 @@ namespace Sinobyl.EvalTune
             };
 
             //ALTER THIS
-            double parameterValue = 1;// ChessEvalSettings.Default().MaterialValues.Knight.Opening;// ;//(new TimeManagerNodes()).RatioFailHigh;
+            double parameterValue = ChessEvalSettings.Default().KingAttackFactor;
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 
@@ -122,7 +97,7 @@ namespace Sinobyl.EvalTune
                 var startingPGNsForThisMatch = StartingPGNs.OrderBy(x => rand.Next()).Take(gamesPerMatch / 2).ToList();
 
                 //create test param values;
-                double deltaPct = 0.08f;
+                double deltaPct = 0.2f;
                 double valHigh = parameterValue * (1f + deltaPct);
                 double valLow = parameterValue * (1f - deltaPct);
                 double delta = parameterValue - valLow;

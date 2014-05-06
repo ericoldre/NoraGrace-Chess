@@ -590,6 +590,7 @@ namespace Sinobyl.Engine
 
     public class ChessEvalInfo
     {
+        public int[] Workspace = new int[64];
         public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
         
         public int Material = 0;

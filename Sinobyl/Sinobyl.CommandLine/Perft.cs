@@ -52,15 +52,14 @@ namespace Sinobyl.CommandLine
                 movesDone.Add(move);
 
                 //double nodesPerSecond = ((double)totalNodes / (double)totalTime.TotalMilliseconds) * 1000;
-                Program.ConsoleWriteline(string.Format("Position {0} of {1}, {2} Nodes {3} Avg Nodes {4} Nodes/Sec",
+                Program.ConsoleWriteline(string.Format("Position {0} of {1}, {2} Nodes {3} Avg Nodes",
                     movesDone.Count,
                     pgn.Moves.Count,
                     searchResults.Nodes,
-                    totalNodes / movesDone.Count,
-                    (totalNodes / totalTime.TotalMilliseconds) * 1000));
+                    totalNodes / movesDone.Count));
             }
 
-            Program.ConsoleWriteline(string.Format("Total Time:{0}", totalTime));
+            Program.ConsoleWriteline(string.Format("Total Time:{0}, Nodes/Sec {1}", totalTime, (totalNodes / totalTime.TotalMilliseconds) * 1000));
 
         }
 

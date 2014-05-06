@@ -150,6 +150,11 @@ namespace Sinobyl.CommandLine
                 case "nodestodepth":
                     Perft.NodesToDepth(int.Parse(split[1]));
                     PrintSearchCutoffStats();
+                    ConsoleWriteline(string.Format(" nodes:{0,10}\n evals:{1,10}\n pawns:{2,10}\n mater:{3,10}",
+                        Sinobyl.Engine.ChessSearch.CountTotalAINodes,
+                        Sinobyl.Engine.ChessEval.TotalEvalCount,
+                        Sinobyl.Engine.ChessEvalPawns.TotalEvalPawnCount,
+                        Sinobyl.Engine.ChessEvalMaterialBasic.TotalEvalMaterialCount));
                     break;
                 case "annotateeval":
                     Perft.AnnotatePGNEval(split[1], split[2]);

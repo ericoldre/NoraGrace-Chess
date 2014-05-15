@@ -203,7 +203,7 @@ namespace Sinobyl.CommandLine
                 {
                     board.MoveApply(move);
                     ChessEvalInfo eval = new ChessEvalInfo();
-                    var evalScore = _annotateEval.EvalDetail(board, eval);
+                    var evalScore = _annotateEval.EvalLazy(board, eval, null);
 
                     //string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 
                     string evalComment = string.Format("watt:{7} batt:{8} passed:{9} candid:{10}", 

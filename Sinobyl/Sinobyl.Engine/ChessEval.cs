@@ -200,23 +200,41 @@ namespace Sinobyl.Engine
         private ChessEvalInfo _evalInfo = new ChessEvalInfo();
         public virtual int Eval(ChessBoard board)
         {
-            return EvalDetail(board, _evalInfo);
+            return EvalLazy(board, _evalInfo, null);
         }
 
-
-        public int EvalDetail(ChessBoard board, ChessEvalInfo evalInfo)
+        public int EvalLazy(ChessBoard board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo)
         {
-            TotalEvalCount++;
             evalInfo.Reset();
 
+            System.Diagnostics.Debug.Assert(evalInfo.State == ChessEvalInfo.EvalState.Initialized);
+
             //material
-            var material = _evalMaterial.EvalMaterialHash(board);
+            EvalMaterialResults material = _evalMaterial.EvalMaterialHash(board);
 
             //pawns
-            PawnInfo pawns = this._evalPawns.PawnEval(board);  
+            PawnInfo pawns = this._evalPawns.PawnEval(board);
 
+            evalInfo.MaterialPawnsApply(board, material, pawns);
 
-            //in lazy eval we'd quit here.
+            if (prevEvalInfo != null)
+            {
+                //possibly cut off here.
+            }
+
+            EvalAdvanced(board, evalInfo, material, pawns);
+
+            return evalInfo.Score;
+        }
+
+        public void EvalAdvanced(ChessBoard board, ChessEvalInfo evalInfo, EvalMaterialResults material, PawnInfo pawns)
+        {
+            System.Diagnostics.Debug.Assert(evalInfo.State == ChessEvalInfo.EvalState.Lazy);
+
+            TotalEvalCount++;
+
+            evalInfo.State = ChessEvalInfo.EvalState.Full;
+            
 
             //set up 
             var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
@@ -236,16 +254,8 @@ namespace Sinobyl.Engine
             EvaluateMyKingAttack(board, ChessPlayer.White, evalInfo);
             EvaluateMyKingAttack(board, ChessPlayer.Black, evalInfo);
 
-            //do old eval.
-            //this._evalPawns.EvalPassedPawnsOld(board, evalInfo, pawns.PassedPawns);
-            //var oldPassed = evalInfo.PawnsPassedStart;
-            evalInfo.PawnsPassedStart = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
-            //if(oldPassed != newPassed)
-            //{
-            //    this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, evalInfo.Workspace); ;
-            //}
-            //eval passed pawns;
 
+            evalInfo.PawnsPassedStart = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
 
 
             //shelter storm;
@@ -257,39 +267,22 @@ namespace Sinobyl.Engine
                     castleFlags: board.CastleRights), 0);
             }
             
-            //evalInfo.ShelterStorm = this._evalPawns.EvalKingShelterStormBlackPerspective(board.KingPosition(ChessPlayer.White).GetFile(), board.PieceLocations(ChessPiece.WPawn), board.PieceLocations(ChessPiece.BPawn));
-            //evalInfo.ShelterStorm -= this._evalPawns.EvalKingShelterStormBlackPerspective(, board.PieceLocations(ChessPiece.BPawn), board.PieceLocations(ChessPiece.WPawn));
-
-
-            //get pcsq values from board.
-            var valPieceSq = board.PcSqValue;
-
             //test to see if we are just trying to force the king to the corner for mate.
             PhasedScore endGamePcSq = 0;
             if (UseEndGamePcSq(board, ChessPlayer.White, out endGamePcSq))
             {
-                valPieceSq = endGamePcSq;
+                evalInfo.PcSqStart = endGamePcSq;
                 evalInfo.Attacks[0].Mobility = 0;
                 evalInfo.Attacks[1].Mobility = 0;
             }
             else if (UseEndGamePcSq(board, ChessPlayer.Black, out endGamePcSq))
             {
-                valPieceSq = endGamePcSq.Negate();
+                evalInfo.PcSqStart = endGamePcSq.Negate();
                 evalInfo.Attacks[0].Mobility = 0;
                 evalInfo.Attacks[1].Mobility = 0;
             }
 
-            evalInfo.PassedPawns = pawns.PassedPawns;
-            evalInfo.CandidatePawns = pawns.Candidates;
 
-            evalInfo.Material = material.Score;
-            evalInfo.ScaleWhite = material.ScaleWhite;
-            evalInfo.ScaleBlack = material.ScaleBlack;
-            evalInfo.PcSqStart = valPieceSq;
-            evalInfo.PawnsStart = pawns.Value;
-            evalInfo.StageStartWeight = material.StartWeight;
-
-            return evalInfo.Score;
         }
 
         protected int EvaluateMyKingAttack(ChessBoard board, ChessPlayer me, ChessEvalInfo info)
@@ -599,28 +592,38 @@ namespace Sinobyl.Engine
 
     public class ChessEvalInfo
     {
+
+        public enum EvalState
+        {
+            Initialized,
+            Lazy,
+            Full
+        }
+
+        public EvalState State { get; set; }
         public int[] Workspace = new int[64];
         public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
-        
-        public int Material = 0;
 
-        public PhasedScore PcSqStart = 0;
+        public int Material { get; private set; }
 
-        public PhasedScore PawnsStart = 0;
+        public PhasedScore PcSqStart { get; set; }
+
+        public PhasedScore PawnsStart { get; private set; }
 
         public PhasedScore PawnsPassedStart = 0;
 
         public PhasedScore ShelterStorm = 0;
-        public int StageStartWeight = 0;
-        public int ScaleWhite = 100;
-        public int ScaleBlack = 100;
+        public int StageStartWeight { get; private set; }
+        public int ScaleWhite { get; private set; }
+        public int ScaleBlack { get; private set; }
         public int DrawScore = 0;
 
-        public ChessBitboard PassedPawns;
-        public ChessBitboard CandidatePawns;
+        public ChessBitboard PassedPawns { get; private set; }
+        public ChessBitboard CandidatePawns { get; private set; }
 
         public void Reset()
         {
+            State = EvalState.Initialized;
             Attacks[0].Reset();
             Attacks[1].Reset();
             Material = 0;
@@ -634,6 +637,44 @@ namespace Sinobyl.Engine
             DrawScore = 0;
             PassedPawns = ChessBitboard.Empty;
             CandidatePawns = ChessBitboard.Empty;
+        }
+
+        public void MaterialPawnsApply(ChessBoard board, EvalMaterialResults material, PawnInfo pawns)
+        {
+            this.State = EvalState.Lazy;
+            this.PcSqStart = board.PcSqValue;
+            this.Material = material.Score;
+            this.StageStartWeight = material.StartWeight;
+            this.ScaleWhite = material.ScaleWhite;
+            this.ScaleBlack = material.ScaleBlack;
+            this.PawnsStart = pawns.Value;
+            this.PassedPawns = pawns.PassedPawns;
+            this.CandidatePawns = pawns.Candidates;
+        }
+
+        public int LazyScore(ChessEvalInfo prevEvalInfo)
+        {
+
+                int nonScaled = PcSqStart
+                    .Add(PawnsStart)
+                    .Add(prevEvalInfo.PawnsPassedStart)
+                    .Add(prevEvalInfo.ShelterStorm)
+                    .Add(prevEvalInfo.Attacks[0].Mobility.Subtract(prevEvalInfo.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
+
+                nonScaled += prevEvalInfo.Attacks[0].KingAttackerScore;
+                nonScaled -= prevEvalInfo.Attacks[1].KingAttackerScore;
+
+                if (nonScaled > DrawScore && ScaleWhite < 100)
+                {
+                    int scaled = (((nonScaled - DrawScore) * ScaleWhite) / 100) + DrawScore;
+                    return scaled;
+                }
+                else if (nonScaled < DrawScore && ScaleBlack < 100)
+                {
+                    int scaled = (((nonScaled - DrawScore) * ScaleBlack) / 100) + DrawScore;
+                    return scaled;
+                }
+                return nonScaled;
         }
 
         public int StageEndWeight

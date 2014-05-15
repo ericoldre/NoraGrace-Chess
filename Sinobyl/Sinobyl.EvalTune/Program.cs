@@ -28,7 +28,10 @@ namespace Sinobyl.EvalTune
 
 
             //ALTER THIS
-            string paramName = "PawnCandidatePct";
+            string paramName = "PawnPassed8thRankScore";
+
+            //ALTER THIS
+            double parameterValue = ChessEvalSettings.Default().PawnPassed8thRankScore;
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
@@ -38,8 +41,21 @@ namespace Sinobyl.EvalTune
 
                 //evalsettings.KingAttackFactor = pval;
                // evalsettings.KingAttackFactorQueenTropismBonus = pval / 2;
-                evalsettings.PawnCandidatePct = pval;
-
+                //evalsettings.PawnCandidatePct = pval;
+                evalsettings.PawnPassed8thRankScore = (int)pval;
+                //evalsettings.PawnPassedFarPct = pval + .1f;
+                //if (pval > otherval)
+                //{
+                //    evalsettings.PawnPassedClosePct = .4f;
+                //    evalsettings.PawnPassedFarPct = 1.2f;
+                //}
+                //else
+                //{
+                //    evalsettings.PawnPassedClosePct = .5f;
+                //    evalsettings.PawnPassedFarPct = .5f;
+                //}
+                
+                
                 
                 ChessEval eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
 
@@ -57,8 +73,7 @@ namespace Sinobyl.EvalTune
                 return player;
             };
 
-            //ALTER THIS
-            double parameterValue = ChessEvalSettings.Default().PawnCandidatePct;
+
 
             string tuneFileName = string.Format("{0}_TuneResults.txt", paramName);
 
@@ -87,7 +102,7 @@ namespace Sinobyl.EvalTune
 
             while (true)
             {
-                int nodesPerMove = 10000;// 15000;
+                int nodesPerMove = 20000;// 15000;
                 nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 ChessTimeControlNodes timeControl = new ChessTimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };
@@ -191,7 +206,7 @@ namespace Sinobyl.EvalTune
 
                 matchResults.ResultsForPlayer(highPlayerName, out matchWins, out matchLosses, out matchDraws);
                 //var paramDelta = delta * 0.002f;
-                var paramDelta = delta * 0.004f;
+                var paramDelta = delta * 0.003f;
                 var newParamValue = parameterValue + ((matchWins - matchLosses) * paramDelta);
 
                 //report to param value.

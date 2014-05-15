@@ -37,7 +37,7 @@ namespace Sinobyl.EvalTune
             args.TransTable = TransTable;
             args.Eval = Eval;
             args.TimeManager = this.NodeManager;
-            args.ContemptForDraw = 0;
+            args.ContemptForDraw = 50;
             if (AlterSearchArgs != null) { AlterSearchArgs(args); }
             ChessSearch search = new ChessSearch(args);
             var searchResult = search.Search();

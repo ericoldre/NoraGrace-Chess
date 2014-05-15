@@ -15,6 +15,7 @@ namespace Sinobyl.Engine
         public readonly int UnconnectedPawnStart;
         public readonly int UnconnectedPawnEnd;
         public readonly double CandidatePct;
+        private readonly double[] PassedDistancePct;
 
         //public readonly int[,] PcSqValuePosStage;
         //public readonly int[,] PawnPassedValuePosStage;
@@ -50,6 +51,22 @@ namespace Sinobyl.Engine
             this.UnconnectedPawnEnd = settings.PawnUnconnected.Endgame;
             this.CandidatePct = settings.PawnCandidatePct;
             this.PassedInitialization(settings);
+
+            this.PassedDistancePct = new double[8];
+            for (int i = 0; i < 8; i++)
+            {
+                int min = 3;
+                int max = 7;
+
+                if (i <= min) { PassedDistancePct[i] = settings.PawnPassedClosePct; continue; }
+                double p = (double)(i - min) / (double)(max - min);
+                double d = settings.PawnPassedFarPct - settings.PawnPassedClosePct;
+
+                PassedDistancePct[i] = settings.PawnPassedClosePct + (p * d);
+
+                //this.PassedDistancePct[i] = 
+                    
+            }
         }
 
 
@@ -192,6 +209,12 @@ namespace Sinobyl.Engine
             {
                 return false;
             }
+
+            if(!(ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7).Contains(pos))
+            {
+                return false;
+            }
+
             ChessBitboard blockers = _attackMask[0][(int)pos] & black;
             ChessBitboard helpers = _attackMask[1][(int)pos.PositionInDirectionUnsafe(ChessDirection.DirN)] & white;
 
@@ -357,7 +380,8 @@ namespace Sinobyl.Engine
             {
                 if (i != bestEndFile && workspace[i] != 0)
                 {
-                    workspace[i] = workspace[i] / 2;
+                    int fileDiff = Math.Abs(i - bestEndFile);
+                    workspace[i] = (int)((double)workspace[i] * PassedDistancePct[fileDiff]);
                 }
                 totalEndScore += workspace[i];
             }

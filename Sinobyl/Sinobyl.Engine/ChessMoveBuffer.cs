@@ -241,32 +241,6 @@ namespace Sinobyl.Engine
                 + ((Flags & MoveFlags.Killer) != 0 ? 10000 : 0)
                 + ((Flags & MoveFlags.Capture) != 0 ? 1000 : 0);
         }
-        public static bool operator >(ChessMoveData x, ChessMoveData y)
-        {
-            return x.Score > y.Score;
-            //first check if any of the flags used for ordering are different, if they are, order using the relevant flags value.
-            //var xOrderFlags = x.Flags & _orderFlags;
-            //var yOrderFlags = y.Flags & _orderFlags;
-            if (x.Flags != y.Flags)
-            {
-                //int x2 = (int)xOrderFlags;
-                //int y2 = (int)yOrderFlags;
-                return x.Flags > y.Flags;
-            }
-            else if (x.SEE != y.SEE)
-            {
-                return x.SEE > y.SEE;
-            }
-            else
-            {
-                //return false;
-                return x.PcSq > y.PcSq;
-            }
-        }
-        public static bool operator <(ChessMoveData x, ChessMoveData y)
-        {
-            return !(x > y);
-        }
 
 
         //public void SetScores(ChessMove move, int see, int pcSq, MoveFlags flags)

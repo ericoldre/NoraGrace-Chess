@@ -492,9 +492,18 @@ namespace Sinobyl.Engine
             //return GenMoves(board, board[board.WhosTurn], capsOnly ? board[board.WhosTurn.PlayerOther()] : ~board[board.WhosTurn], !capsOnly);
             if (board.Checkers == ChessBitboard.Empty)
             {
-                //not in check, normal logic
-                if (capsOnly) { kingAttacks &= hispieces; }
-                return GenMoves(array, board, mypieces, capsOnly ? hispieces : ~mypieces, !capsOnly, kingAttacks);
+                var caps = GenCapsNonCaps(array, board, true, 0);
+                if (!capsOnly)
+                {
+                    return GenCapsNonCaps(array, board, false, caps);
+                }
+                else
+                {
+                    return caps;
+                }
+                ////not in check, normal logic
+                //if (capsOnly) { kingAttacks &= hispieces; }
+                //return GenMoves(array, board, mypieces, capsOnly ? hispieces : ~mypieces, !capsOnly, kingAttacks);
             }
             else
             {
@@ -521,6 +530,198 @@ namespace Sinobyl.Engine
             }
         }
 
+        private static int GenCapsNonCaps(ChessMoveData[] array, ChessBoard board, bool captures, int arrayIndex)
+        {
+            
+            ChessPiece mypawn = board.WhosTurn == ChessPlayer.White ? ChessPiece.WPawn : ChessPiece.BPawn;
+            ChessPiece myknight = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKnight : ChessPiece.BKnight;
+            ChessPiece mybishop = board.WhosTurn == ChessPlayer.White ? ChessPiece.WBishop : ChessPiece.BBishop;
+            ChessPiece myrook = board.WhosTurn == ChessPlayer.White ? ChessPiece.WRook : ChessPiece.BRook;
+            ChessPiece myqueen = board.WhosTurn == ChessPlayer.White ? ChessPiece.WQueen : ChessPiece.BQueen;
+            ChessPiece myking = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKing : ChessPiece.BKing;
+
+            ChessDirection mypawnwest = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirNW : ChessDirection.DirSW;
+            ChessDirection mypawneast = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirNE : ChessDirection.DirSE;
+            ChessDirection mypawnnorth = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirN : ChessDirection.DirS;
+            ChessDirection mypawnsouth = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirS : ChessDirection.DirN;
+            ChessRank myrank8 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank8 : ChessRank.Rank1;
+            ChessRank myrank2 = board.WhosTurn == ChessPlayer.White ? ChessRank.Rank2 : ChessRank.Rank7;
+
+            ChessPlayer me = board.WhosTurn;
+
+            ChessBitboard attacks = ChessBitboard.Empty;
+
+            ChessBitboard targetLocations = captures ? board[me.PlayerOther()] : ~board.PieceLocationsAll;
+
+            //loop through all non pawn locations
+            ChessBitboard piecePositions = board[me] & ~board[ChessPieceType.Pawn];
+            while (piecePositions != ChessBitboard.Empty)// (ChessPosition piecepos in (board[board.WhosTurn] & ~board[ChessPieceType.Pawn]).ToPositions())
+            {
+                ChessPosition piecepos = ChessBitboardInfo.PopFirst(ref piecePositions);
+                ChessPiece piece = board.PieceAt(piecepos);
+                ChessPieceType pieceType = piece.ToPieceType();
+                switch (pieceType)
+                {
+                    case ChessPieceType.Knight:
+                        attacks = Attacks.KnightAttacks(piecepos) & targetLocations;
+                        break;
+                    case ChessPieceType.Bishop:
+                        attacks = MagicBitboards.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        break;
+                    case ChessPieceType.Rook:
+                        attacks = MagicBitboards.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        break;
+                    case ChessPieceType.Queen:
+                        attacks = MagicBitboards.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        break;
+                    case ChessPieceType.King:
+                        attacks = Attacks.KingAttacks(piecepos) & targetLocations;;
+                        break;
+                }
+                while (attacks != ChessBitboard.Empty)
+                {
+                    ChessPosition attackPos = ChessBitboardInfo.PopFirst(ref attacks);
+                    array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, attackPos);
+                }
+            }
+
+
+            //pawn caps
+            piecePositions = board[me] & board[ChessPieceType.Pawn];
+
+            if (piecePositions != ChessBitboard.Empty)
+            {
+                if (captures)
+                {
+                    //pawn captures.
+                    targetLocations = board[me.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
+
+                    foreach (ChessDirection capDir in new ChessDirection[] { mypawneast, mypawnwest })
+                    {
+                        attacks = piecePositions.Shift(capDir) & targetLocations;
+                        while (attacks != ChessBitboard.Empty)
+                        {
+                            ChessPosition targetpos = ChessBitboardInfo.PopFirst(ref attacks);
+                            ChessPosition piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
+                            if (targetpos.GetRank() == myrank8)
+                            {
+                                array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, myqueen);
+                                array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, myrook);
+                                array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, mybishop);
+                                array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, myknight);
+                            }
+                            else
+                            {
+                                array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //pawn jumps
+                    targetLocations = ~board.PieceLocationsAll; //empty squares pawns could jump to
+
+                    //find single jumpers.
+                    attacks = targetLocations.Shift(mypawnsouth) & piecePositions;
+                    while (attacks != ChessBitboard.Empty)
+                    {
+                        ChessPosition piecepos = ChessBitboardInfo.PopFirst(ref attacks);
+                        ChessPosition targetpos = piecepos.PositionInDirectionUnsafe(mypawnnorth);
+                        if (targetpos.GetRank() == myrank8)
+                        {
+                            array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, myqueen);
+                            array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, myrook);
+                            array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, mybishop);
+                            array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos, myknight);
+                        }
+                        else
+                        {
+                            array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos);
+                        }
+                    }
+
+                    //pawn double jumps
+                    attacks = myrank2.Bitboard()
+                        & piecePositions
+                        & targetLocations.Shift(mypawnsouth).Shift(mypawnsouth)
+                        & ~board.PieceLocationsAll.Shift(mypawnsouth);
+                    while (attacks != ChessBitboard.Empty)
+                    {
+                        ChessPosition piecepos = ChessBitboardInfo.PopFirst(ref attacks);
+                        ChessPosition targetpos = piecepos.PositionInDirectionUnsafe(mypawnnorth).PositionInDirectionUnsafe(mypawnnorth);
+                        array[arrayIndex++].Move = ChessMoveInfo.Create(piecepos, targetpos);
+                    }
+                }
+
+                
+
+            }
+
+            if (!captures)
+            {
+
+
+                //castling
+                if (board.WhosTurn == ChessPlayer.White)
+                {
+                    if ((board.CastleRights & CastleFlags.WhiteShort) != 0
+                        && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
+                        && board.PieceAt(ChessPosition.H1) == ChessPiece.WRook
+                        && board.PieceAt(ChessPosition.F1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.G1) == ChessPiece.EMPTY
+                        && !board.PositionAttacked(ChessPosition.E1, ChessPlayer.Black)
+                        && !board.PositionAttacked(ChessPosition.F1, ChessPlayer.Black)
+                        && !board.PositionAttacked(ChessPosition.G1, ChessPlayer.Black))
+                    {
+                        array[arrayIndex++].Move = ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.G1);
+                    }
+                    if ((board.CastleRights & CastleFlags.WhiteLong) != 0
+                        && board.PieceAt(ChessPosition.E1) == ChessPiece.WKing
+                        && board.PieceAt(ChessPosition.A1) == ChessPiece.WRook
+                        && board.PieceAt(ChessPosition.B1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.C1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.D1) == ChessPiece.EMPTY
+                        && !board.PositionAttacked(ChessPosition.E1, ChessPlayer.Black)
+                        && !board.PositionAttacked(ChessPosition.D1, ChessPlayer.Black)
+                        && !board.PositionAttacked(ChessPosition.C1, ChessPlayer.Black))
+                    {
+                        array[arrayIndex++].Move = ChessMoveInfo.Create(ChessPosition.E1, ChessPosition.C1);
+                    }
+                }
+                else
+                {
+                    if ((board.CastleRights & CastleFlags.BlackShort) != 0
+                        && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
+                        && board.PieceAt(ChessPosition.H8) == ChessPiece.BRook
+                        && board.PieceAt(ChessPosition.F8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.G8) == ChessPiece.EMPTY
+                        && !board.PositionAttacked(ChessPosition.E8, ChessPlayer.White)
+                        && !board.PositionAttacked(ChessPosition.F8, ChessPlayer.White)
+                        && !board.PositionAttacked(ChessPosition.G8, ChessPlayer.White))
+                    {
+                        array[arrayIndex++].Move = ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.G8);
+                    }
+                    if ((board.CastleRights & CastleFlags.BlackLong) != 0
+                        && board.PieceAt(ChessPosition.E8) == ChessPiece.BKing
+                        && board.PieceAt(ChessPosition.A8) == ChessPiece.BRook
+                        && board.PieceAt(ChessPosition.B8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.C8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.D8) == ChessPiece.EMPTY
+                        && !board.PositionAttacked(ChessPosition.E8, ChessPlayer.White)
+                        && !board.PositionAttacked(ChessPosition.D8, ChessPlayer.White)
+                        && !board.PositionAttacked(ChessPosition.C8, ChessPlayer.White))
+                    {
+                        array[arrayIndex++].Move = ChessMoveInfo.Create(ChessPosition.E8, ChessPosition.C8);
+                    }
+
+                }
+            }
+            return arrayIndex;
+
+        }
+
+        
         private static int GenMoves(ChessMoveData[] array, ChessBoard board, ChessBitboard possibleMovers, ChessBitboard targetLocations, bool castling, ChessBitboard kingTargets)
         {
             System.Diagnostics.Debug.Assert((possibleMovers & ~board[board.WhosTurn]) == ChessBitboard.Empty); //possible movers must be subset of my pieces

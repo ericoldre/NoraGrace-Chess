@@ -476,7 +476,7 @@ namespace Sinobyl.Engine
 
 		public static IEnumerable<ChessMove> GenMoves(ChessBoard board)
 		{
-            ChessMoveBuffer.MoveData[] array = new ChessMoveBuffer.MoveData[210];
+            ChessMoveData[] array = new ChessMoveData[210];
 			int count = GenMovesArray(array, board, false);
             for (int i = 0; i < count; i++)
             {
@@ -484,7 +484,7 @@ namespace Sinobyl.Engine
             }
 		}
 
-        public static int GenMovesArray(ChessMoveBuffer.MoveData[] array, ChessBoard board, bool capsOnly)
+        public static int GenMovesArray(ChessMoveData[] array, ChessBoard board, bool capsOnly)
         {
             ChessBitboard mypieces = board[board.WhosTurn];
             ChessBitboard hispieces = board[board.WhosTurn.PlayerOther()];
@@ -521,7 +521,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        private static int GenMoves(ChessMoveBuffer.MoveData[] array, ChessBoard board, ChessBitboard possibleMovers, ChessBitboard targetLocations, bool castling, ChessBitboard kingTargets)
+        private static int GenMoves(ChessMoveData[] array, ChessBoard board, ChessBitboard possibleMovers, ChessBitboard targetLocations, bool castling, ChessBitboard kingTargets)
         {
             System.Diagnostics.Debug.Assert((possibleMovers & ~board[board.WhosTurn]) == ChessBitboard.Empty); //possible movers must be subset of my pieces
             System.Diagnostics.Debug.Assert((targetLocations & board[board.WhosTurn]) == ChessBitboard.Empty); //targets may not include my pieces.

@@ -684,7 +684,7 @@ namespace Sinobyl.Engine
 
 
             
-            ChessMoveBuffer.MoveData moveData;
+            ChessMoveData moveData;
             while ((moveData = plyMoves.NextMoveData()).Move != ChessMove.EMPTY)
 			{
                 ChessMove move = moveData.Move;    

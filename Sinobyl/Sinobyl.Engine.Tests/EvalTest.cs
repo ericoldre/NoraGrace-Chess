@@ -135,8 +135,8 @@ namespace Sinobyl.Engine.Tests
                     
                     ChessEvalInfo e1 = new ChessEvalInfo();
                     ChessEvalInfo e2 = new ChessEvalInfo();
-                    eval.EvalAdvanced(board, e1);
-                    eval.EvalAdvanced(boardRev, e2);
+                    eval.EvalLazy(board, e1, null);
+                    eval.EvalLazy(boardRev, e2, null);
 
                     if (e1.Score != -e2.Score)
                     {

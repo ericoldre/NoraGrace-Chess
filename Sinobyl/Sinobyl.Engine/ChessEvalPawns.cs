@@ -210,7 +210,7 @@ namespace Sinobyl.Engine
                 return false;
             }
 
-            if(!(ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7).Contains(pos))
+            if (!(ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7).Contains(pos))
             {
                 return false;
             }

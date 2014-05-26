@@ -145,6 +145,7 @@ namespace Sinobyl.Engine.Tests
 
             foreach (ChessMove move in plyBuffer.SortedMoves())
             {
+                Assert.IsTrue(move.IsPsuedoLegal(board));
                 board.MoveApply(move);
                 //VerifyBoardBitboards(board);
                 if (!board.IsCheck(board.WhosTurn.PlayerOther()))

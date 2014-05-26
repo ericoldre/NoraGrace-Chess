@@ -220,7 +220,7 @@ namespace Sinobyl.Engine
 				//pawn attack
                 To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
 				tmpfile = ChessFileInfo.Parse(movetext[0]);
-				From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
+				From = ParseFilter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
                 return Create(From, To);
 			}
 			else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678][BNRQK]$"))
@@ -228,7 +228,7 @@ namespace Sinobyl.Engine
 				//pawn attack, promote
 				To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
                 tmpfile = ChessFileInfo.Parse(movetext[0]);
-				From = filter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
+				From = ParseFilter(board, To, mypawn, tmpfile, ChessRank.EMPTY);
 				Promote = movetext[3].ParseAsPiece(me);
                 return Create(From, To, Promote);
 			}
@@ -237,7 +237,7 @@ namespace Sinobyl.Engine
 				//normal attack
 				To = ChessPositionInfo.Parse(movetext.Substring(1, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
-				From = filter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
+				From = ParseFilter(board, To, tmppiece, ChessFile.EMPTY, ChessRank.EMPTY);
                 return Create(From, To);
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][abcdefgh][12345678]$"))
@@ -246,7 +246,7 @@ namespace Sinobyl.Engine
 				To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmpfile = ChessFileInfo.Parse(movetext[1]);
-				From = filter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
+				From = ParseFilter(board, To, tmppiece, tmpfile, ChessRank.EMPTY);
                 return Create(From, To);
 			}
 			else if (Regex.IsMatch(movetext, "^[BNRQK][12345678][abcdefgh][12345678]$"))
@@ -255,7 +255,7 @@ namespace Sinobyl.Engine
 				To = ChessPositionInfo.Parse(movetext.Substring(2, 2));
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmprank = ChessRankInfo.Parse(movetext[1]);
-				From = filter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
+				From = ParseFilter(board, To, tmppiece, ChessFile.EMPTY, tmprank);
                 return Create(From, To);
 
 			}
@@ -266,13 +266,13 @@ namespace Sinobyl.Engine
 				tmppiece = movetext[0].ParseAsPiece(me);
                 tmpfile = ChessFileInfo.Parse(movetext[1]);
                 tmprank = ChessRankInfo.Parse(movetext[2]);
-				From = filter(board, To, tmppiece, tmpfile, tmprank);
+				From = ParseFilter(board, To, tmppiece, tmpfile, tmprank);
                 return Create(From, To);
 			}
             return ChessMoveInfo.Create(From, To);
 		}
 
-		private static ChessPosition filter(ChessBoard board, ChessPosition attackto, ChessPiece piece, ChessFile file, ChessRank rank)
+		private static ChessPosition ParseFilter(ChessBoard board, ChessPosition attackto, ChessPiece piece, ChessFile file, ChessRank rank)
 		{
             List<ChessPosition> fits = new List<ChessPosition>();
             var attacksTo = board.AttacksTo(attackto, board.WhosTurn);
@@ -460,6 +460,121 @@ namespace Sinobyl.Engine
 		}
 
 
+        public static bool IsPsuedoLegal(this ChessMove move, ChessBoard board)
+        {
+            var from = move.From();
+            var to = move.To();
+            var piece = board.PieceAt(from);
+            var pieceType = piece.ToPieceType();
+            var me = piece.PieceToPlayer();
+
+            if (board.WhosTurn != me) { return false; }            
+            if (board[me].Contains(to)) { return false; }
+
+            if (move.Promote() != ChessPiece.EMPTY)
+            {
+                if (pieceType != ChessPieceType.Pawn) { return false; }
+                if (to.GetRank() != ChessRank.Rank1 && to.GetRank() != ChessRank.Rank8) { return false; }
+                if (move.Promote().PieceToPlayer() != me) { return false; }
+            }
+
+            var targets = ~board[me];
+
+            switch (pieceType)
+            {
+                case ChessPieceType.Knight:
+                    return (Attacks.KnightAttacks(from) & targets).Contains(to);
+                case ChessPieceType.Bishop:
+                    return (MagicBitboards.BishopAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
+                case ChessPieceType.Rook:
+                    return (MagicBitboards.RookAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
+                case ChessPieceType.Queen:
+                    return (MagicBitboards.QueenAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
+                case ChessPieceType.King:
+                    if ((Attacks.KingAttacks(from) & targets).Contains(to))
+                    {
+                        return true;
+                    }
+                    else if(me== ChessPlayer.White
+                        && from == ChessPosition.E1
+                        && to == ChessPosition.G1
+                        && board.PieceAt(ChessPosition.F1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.G1) == ChessPiece.EMPTY
+                        && (board.CastleRights & CastleFlags.WhiteShort) == CastleFlags.WhiteShort
+                        && !board.IsCheck()
+                        && !board.AttacksTo(ChessPosition.F1).Contains(targets)
+                        && !board.AttacksTo(ChessPosition.G1).Contains(targets))
+                    {
+                        return true;
+                    }
+                    else if (me == ChessPlayer.White
+                        && from == ChessPosition.E1
+                        && to == ChessPosition.C1
+                        && board.PieceAt(ChessPosition.B1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.C1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.D1) == ChessPiece.EMPTY
+                        && (board.CastleRights & CastleFlags.WhiteLong) == CastleFlags.WhiteLong
+                        && !board.IsCheck()
+                        && !board.AttacksTo(ChessPosition.D1).Contains(targets)
+                        && !board.AttacksTo(ChessPosition.C1).Contains(targets))
+                    {
+                        return true;
+                    }
+                    else if (me == ChessPlayer.Black
+                        && from == ChessPosition.E8
+                        && to == ChessPosition.G8
+                        && board.PieceAt(ChessPosition.F8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.G8) == ChessPiece.EMPTY
+                        && (board.CastleRights & CastleFlags.BlackShort) == CastleFlags.BlackShort
+                        && !board.IsCheck()
+                        && !board.AttacksTo(ChessPosition.F8).Contains(targets)
+                        && !board.AttacksTo(ChessPosition.G8).Contains(targets))
+                    {
+                        return true;
+                    }
+                    else if (me == ChessPlayer.Black
+                        && from == ChessPosition.E8
+                        && to == ChessPosition.C8
+                        && board.PieceAt(ChessPosition.B8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.C8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.D8) == ChessPiece.EMPTY
+                        && (board.CastleRights & CastleFlags.BlackLong) == CastleFlags.BlackLong
+                        && !board.IsCheck()
+                        && !board.AttacksTo(ChessPosition.D8).Contains(targets)
+                        && !board.AttacksTo(ChessPosition.C8).Contains(targets))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                case ChessPieceType.Pawn:
+                    if (Attacks.PawnAttacks(from, me).Contains(to))
+                    {
+                        return board[me.PlayerOther()].Contains(to) || to == board.EnPassant;
+                    }
+                    else if (from.PositionInDirection(me.MyNorth()) == to 
+                        && board.PieceAt(to) == ChessPiece.EMPTY)
+                    {
+                        return true;
+                    }
+                    else if(from.GetRank() == me.MyRank2()   //rank 2
+                        && from.PositionInDirection(me.MyNorth()).PositionInDirection(me.MyNorth()) == to //is double jump
+                        && board.PieceAt(to) == ChessPiece.EMPTY //target empty
+                        && board.PieceAt(from.PositionInDirection(me.MyNorth())) == ChessPiece.EMPTY) //single jump empty
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                default:
+                    return false;
+            }
+
+        }
 
 
 	}

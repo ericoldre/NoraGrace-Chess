@@ -69,9 +69,23 @@ namespace Sinobyl.Engine
             System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
             return (ChessPlayer)((int)player ^ 1);
         }
+
         public static ChessDirection MyNorth(this ChessPlayer player)
         {
+            System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
             return player == ChessPlayer.White ? ChessDirection.DirN : ChessDirection.DirS;
+        }
+
+        public static ChessRank MyRank2(this ChessPlayer player)
+        {
+            System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
+            return player == ChessPlayer.White ? ChessRank.Rank2 : ChessRank.Rank7;
+        }
+
+        public static ChessRank MyRank8(this ChessPlayer player)
+        {
+            System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
+            return player == ChessPlayer.White ? ChessRank.Rank8 : ChessRank.Rank1;
         }
     }
 }

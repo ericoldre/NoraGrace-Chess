@@ -604,7 +604,7 @@ namespace Sinobyl.Engine
 			//check for draw
 			if (board.IsDrawByRepetition() || board.IsDrawBy50MoveRule())
 			{
-                return eval.DrawScore;
+                return board.WhosTurn == ChessPlayer.White ? eval.DrawScore : -eval.DrawScore;
 			}
 
 			if (depth <= 0) 

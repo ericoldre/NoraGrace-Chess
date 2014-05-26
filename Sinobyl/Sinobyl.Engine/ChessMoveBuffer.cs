@@ -294,7 +294,7 @@ namespace Sinobyl.Engine
             
         }
 
-        public void Initialize(ChessBoard board, ChessMove ttMove, ChessMove lastMove, bool capsOnly = false)
+        public void Initialize(ChessBoard board, ChessMove ttMove = ChessMove.EMPTY, bool capsOnly = false)
         {
             _board = board;
             _boardZob = board.Zobrist;
@@ -369,6 +369,12 @@ namespace Sinobyl.Engine
                     }
 
                 case steps.Killers:
+                    if (_capsOnly)
+                    {
+                        _currIndex = 0;
+                        _currStep++;
+                        return NextMoveData();
+                    }
                     var killerInfo = _playerKillers[(int)_board.WhosTurn];
                     if (_currIndex < _killerCount)
                     {
@@ -406,6 +412,13 @@ namespace Sinobyl.Engine
                         return NextMoveData();
                     }
                 case steps.InitQuiet:
+                    if (_capsOnly)
+                    {
+                        _currIndex = 0;
+                        _currStep++;
+                        return NextMoveData();
+                    }
+
                     _quietCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, false, 0);
                     for (int i = 0; i < _quietCount; i++)
                     {
@@ -430,6 +443,12 @@ namespace Sinobyl.Engine
                     _currStep++;
                     return NextMoveData();
                 case steps.Quiet:
+                    if (_capsOnly)
+                    {
+                        _tmpData.Move = ChessMove.EMPTY;
+                        return _tmpData;
+                    }
+
                     if (_currIndex < _quietCount)
                     {
                         var m = _array[_currIndex].Move;
@@ -453,6 +472,16 @@ namespace Sinobyl.Engine
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public IEnumerable<ChessMove> SortedMoves()
+        {
+            ChessMoveData moveData;
+
+            while ((moveData = NextMoveData()).Move != ChessMove.EMPTY)
+            {
+                yield return moveData.Move;
             }
         }
 

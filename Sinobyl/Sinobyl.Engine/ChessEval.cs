@@ -409,7 +409,6 @@ namespace Sinobyl.Engine
                         {
                             myAttacks.Knight |= slidingAttacks;
                         }
-                        myAttacks.Knight |= slidingAttacks;
                         break;
                     case ChessPieceType.Bishop:
                         slidingAttacks = MagicBitboards.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);

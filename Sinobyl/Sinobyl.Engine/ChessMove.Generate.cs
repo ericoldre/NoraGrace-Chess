@@ -80,7 +80,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        private static int GenCapsNonCaps(ChessMoveData[] array, ChessBoard board, bool captures, int arrayIndex)
+        public static int GenCapsNonCaps(ChessMoveData[] array, ChessBoard board, bool captures, int arrayIndex)
         {
 
             ChessPiece mypawn = board.WhosTurn == ChessPlayer.White ? ChessPiece.WPawn : ChessPiece.BPawn;

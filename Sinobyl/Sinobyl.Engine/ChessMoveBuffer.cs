@@ -8,17 +8,17 @@ namespace Sinobyl.Engine
 {
     public class ChessMoveBuffer
     {
-        List<PlyBuffer> _plyBuffers = new List<PlyBuffer>();
+        List<PlyBuffer2> _plyBuffers = new List<PlyBuffer2>();
 
         public ChessMoveBuffer(int plyCapacity = 50)
         {
             while (_plyBuffers.Count < plyCapacity)
             {
-                _plyBuffers.Add(new PlyBuffer());
+                _plyBuffers.Add(new PlyBuffer2());
             }
         }
 
-        public PlyBuffer this[int ply]
+        public PlyBuffer2 this[int ply]
         {
             get
             {
@@ -26,7 +26,7 @@ namespace Sinobyl.Engine
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        _plyBuffers.Add(new PlyBuffer());
+                        _plyBuffers.Add(new PlyBuffer2());
                     }
                 }
                 return _plyBuffers[ply];
@@ -315,6 +315,10 @@ namespace Sinobyl.Engine
             //_moveCurrent = 0;
         }
 
+        public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
+        {
+
+        }
 
 
         public ChessMoveData NextMoveData()

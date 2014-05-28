@@ -277,5 +277,32 @@ namespace Sinobyl.Engine.Tests
 
         }
 
+        [TestMethod]
+        public void MoveBufferExcludeTest()
+        {
+            ChessMoveData[] array = new ChessMoveData[192];
+            ChessMove[] exclude = new ChessMove[20];
+
+            for (int i = 0; i < 10; i++) { array[i].Move = (ChessMove)i; }
+
+            exclude[0] = (ChessMove)2;
+            exclude[1] = (ChessMove)3;
+            exclude[2] = (ChessMove)4;
+            exclude[3] = (ChessMove)49;
+            exclude[4] = (ChessMove)3;
+
+            int newCount = PlyBuffer2.ExcludeFrom(array, 0, 10, exclude, 5);
+
+            Assert.AreEqual<int>(7, newCount);
+            Assert.AreEqual<ChessMove>((ChessMove)0, array[0].Move);
+            Assert.AreEqual<ChessMove>((ChessMove)1, array[1].Move);
+            Assert.AreEqual<ChessMove>((ChessMove)5, array[2].Move);
+            Assert.AreEqual<ChessMove>((ChessMove)6, array[3].Move);
+            Assert.AreEqual<ChessMove>((ChessMove)7, array[4].Move);
+            Assert.AreEqual<ChessMove>((ChessMove)8, array[5].Move);
+            Assert.AreEqual<ChessMove>((ChessMove)9, array[6].Move);
+
+        }
+
     }
 }

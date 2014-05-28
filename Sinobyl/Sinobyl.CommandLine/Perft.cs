@@ -134,16 +134,19 @@ namespace Sinobyl.CommandLine
 
             if (doMoveSort)
             {
-                moveBuffer.Sort(board, true, ChessMove.EMPTY);
+                //moveBuffer.Sort(board, true, ChessMove.EMPTY);
                 //var movelist = moves.ToList();
                 //ChessMove.Comp moveOrderer = new ChessMove.Comp(board, ChessMove.EMPTY, true);
                 //movelist.Sort(moveOrderer);
                 //moves = movelist;
             }
 
-            ChessMove move;
-            while((move = moveBuffer.NextMove()) != ChessMove.EMPTY)
+            
+            ChessMoveData moveData;
+            while ((moveData = moveBuffer.NextMoveData()).Move != ChessMove.EMPTY)
             {
+
+                ChessMove move = moveData.Move;
                 //System.Diagnostics.Debug.Assert(moves.Contains(move));
 
                 board.MoveApply(move);

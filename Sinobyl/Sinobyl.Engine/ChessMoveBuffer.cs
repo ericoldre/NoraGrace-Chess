@@ -61,6 +61,7 @@ namespace Sinobyl.Engine
         private readonly ChessMoveData[] _array = new ChessMoveData[192];
         private int _moveCount;
         private int _moveCurrent;
+        public readonly PlyBuffer2 Buffer2 = new PlyBuffer2();
 
         private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
         private readonly ChessMove[][] _counterMoves = new ChessMove[16][]; //[16][64];
@@ -287,6 +288,9 @@ namespace Sinobyl.Engine
         private int _killerCount;
         private int _quietCount;
 
+        private readonly ChessMove[] _exclude = new ChessMove[20];
+        private int _excludeCount = 0;
+
         public PlyBuffer2()
         {
             _playerKillers[0] = new KillerInfo();
@@ -306,9 +310,11 @@ namespace Sinobyl.Engine
             _currIndex = 0;
             _killerCount = 0;
             _quietCount = 0;
+            _excludeCount = 0;
             //_moveCount = ChessMoveInfo.GenMovesArray(_array, board, capsOnly);
             //_moveCurrent = 0;
         }
+
 
 
         public ChessMoveData NextMoveData()
@@ -323,6 +329,7 @@ namespace Sinobyl.Engine
                         _currStep++;
                         _tmpData.Move = _ttMove;
                         _tmpData.Flags = MoveFlags.TransTable;
+                        _exclude[_excludeCount++] = _ttMove;
                         return _tmpData;
                     }
                     else
@@ -334,6 +341,7 @@ namespace Sinobyl.Engine
 
                 case steps.InitCaps:
                     _capsCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, true, 0);
+                    _capsCount = ExcludeFrom(_array, 0, _capsCount, _exclude, _excludeCount);
                     for (int i = 0; i < _capsCount; i++)
                     {
                         _array[i].SEE = ChessMoveSEE.CompEstScoreSEE(_array[i].Move, _board); //calculate if winning capture.
@@ -384,6 +392,7 @@ namespace Sinobyl.Engine
                             _tmpData.Move = move;
                             _tmpData.Flags = MoveFlags.Killer;
                             _currIndex++;
+                            _exclude[_excludeCount++] = _ttMove;
                             return _tmpData;
                         }
                         else
@@ -420,6 +429,7 @@ namespace Sinobyl.Engine
                     }
 
                     _quietCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, false, 0);
+                    _quietCount = ExcludeFrom(_array, 0, _quietCount, _exclude, _excludeCount);
                     for (int i = 0; i < _quietCount; i++)
                     {
                         _array[i].SEE = 0;
@@ -473,6 +483,31 @@ namespace Sinobyl.Engine
                     System.Diagnostics.Debug.Assert(false);
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public static int ExcludeFrom(ChessMoveData[] source, int sourceStart, int sourceEnd, ChessMove[] exclude, int excludeCount)
+        {
+            int foundCount = 0;
+            for (int i = sourceStart; i < sourceEnd - foundCount; i++)
+            {
+                bool excludeThis = false;
+                for (int ii = 0; ii < excludeCount; ii++)
+                {
+                    if (source[i].Move == exclude[ii]) 
+                    { 
+                        excludeThis = true; 
+                        break; 
+                    }
+                }
+
+                if (excludeThis)
+                {
+                    Array.Copy(source, i + 1, source, i, sourceEnd - i);
+                    foundCount++;
+                    i--;
+                }
+            }
+            return sourceEnd - foundCount;
         }
 
         public IEnumerable<ChessMove> SortedMoves()

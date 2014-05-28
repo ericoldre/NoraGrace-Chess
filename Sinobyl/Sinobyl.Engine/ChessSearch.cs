@@ -775,6 +775,7 @@ namespace Sinobyl.Engine
                     plyMoves.RegisterCutoff(board, move);
 					return score;
 				}
+
 				if (score > alpha)
 				{
 					tt_entryType = ChessTrans.EntryType.Exactly;
@@ -782,8 +783,14 @@ namespace Sinobyl.Engine
 					bestmove = move;
 
                     _currentPV[ply] = move;
+
+                    //?? plyMoves.RegisterCutoff(board, move);
                     
 				}
+                else
+                {
+                    plyMoves.RegisterFailLow(board, move);
+                }
 			}
 
 			if (legalMovesTried == 0) //no legal moves?

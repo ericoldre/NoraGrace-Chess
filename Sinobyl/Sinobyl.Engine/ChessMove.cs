@@ -462,9 +462,14 @@ namespace Sinobyl.Engine
 
         public static bool IsPsuedoLegal(this ChessMove move, ChessBoard board)
         {
+            if (move == ChessMove.EMPTY) { return false; }
+            
             var from = move.From();
             var to = move.To();
+            
+            
             var piece = board.PieceAt(from);
+            if (piece == ChessPiece.EMPTY) { return false; }
             var pieceType = piece.ToPieceType();
             var me = piece.PieceToPlayer();
 

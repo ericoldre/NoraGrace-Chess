@@ -258,6 +258,11 @@ namespace Sinobyl.Engine
                 }
             }
 
+            public int Count
+            {
+                get { return 2; }
+            }
+
         }
 
         private enum steps
@@ -285,7 +290,6 @@ namespace Sinobyl.Engine
         private int _capsCount;
         private int _capsGoodCount;
         private int _currIndex;
-        private int _killerCount;
         private int _quietCount;
 
         private readonly ChessMove[] _exclude = new ChessMove[20];
@@ -308,7 +312,6 @@ namespace Sinobyl.Engine
             _capsCount = 0;
             _capsGoodCount = 0;
             _currIndex = 0;
-            _killerCount = 0;
             _quietCount = 0;
             _excludeCount = 0;
             //_moveCount = ChessMoveInfo.GenMovesArray(_array, board, capsOnly);
@@ -351,9 +354,20 @@ namespace Sinobyl.Engine
                         _array[i].SEE = ChessMoveSEE.CompEstScoreSEE(_array[i].Move, _board); //calculate if winning capture.
                         _array[i].Flags = MoveFlags.Capture;
                         if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
+
+                        ChessMove move = _array[i].Move;
+                        ChessPiece piece = _board.PieceAt(move.From());
+                        
+                        //calc pcsq value;
+                        PhasedScore pcSq = 0;
+                        _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
+                        _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
+                        if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
+                        _array[i].PcSq = pcSq.Opening();
+
                         for (int ii = i; ii > 0; ii--)
                         {
-                            if (_array[ii].SEE > _array[ii - 1].SEE)
+                            if (_array[ii].SEE + _array[ii].PcSq > _array[ii - 1].SEE + _array[ii - 1].PcSq)
                             {
                                 _tmpData = _array[ii];
                                 _array[ii] = _array[ii - 1];
@@ -388,7 +402,7 @@ namespace Sinobyl.Engine
                         return NextMoveData();
                     }
                     var killerInfo = _playerKillers[(int)_board.WhosTurn];
-                    if (_currIndex < _killerCount)
+                    if (_currIndex < killerInfo.Count)
                     {
                         ChessMove move = killerInfo[_currIndex];
                         if (move.IsPsuedoLegal(_board))
@@ -396,7 +410,7 @@ namespace Sinobyl.Engine
                             _tmpData.Move = move;
                             _tmpData.Flags = MoveFlags.Killer;
                             _currIndex++;
-                            _exclude[_excludeCount++] = _ttMove;
+                            _exclude[_excludeCount++] = move;
                             return _tmpData;
                         }
                         else
@@ -438,20 +452,33 @@ namespace Sinobyl.Engine
                     {
                         _array[i].SEE = 0;
                         _array[i].Flags = 0;
+                        _array[i].PcSq = 0;
+
+                        ChessMove move = _array[i].Move;
+                        ChessPiece piece = _board.PieceAt(move.From());
+
+                        //calc pcsq value;
+                        PhasedScore pcSq = 0;
+                        _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
+                        _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
+                        if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
+
+                        _array[i].PcSq = pcSq.Opening();
+
                         //if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
-                        //for (int ii = i; ii > 0; ii--)
-                        //{
-                        //    if (_array[ii].SEE > _array[ii - 1].SEE)
-                        //    {
-                        //        _tmpData = _array[ii];
-                        //        _array[ii] = _array[ii - 1];
-                        //        _array[ii - 1] = _tmpData;
-                        //    }
-                        //    else
-                        //    {
-                        //        break;
-                        //    }
-                        //}
+                        for (int ii = i; ii > 0; ii--)
+                        {
+                            if (_array[ii].PcSq > _array[ii - 1].PcSq)
+                            {
+                                _tmpData = _array[ii];
+                                _array[ii] = _array[ii - 1];
+                                _array[ii - 1] = _tmpData;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
                     }
                     _currIndex = 0;
                     _currStep++;
@@ -467,15 +494,9 @@ namespace Sinobyl.Engine
                     {
                         var m = _array[_currIndex].Move;
 
-                        if (!_playerKillers[(int)_board.WhosTurn].IsKiller(m))
-                        {
-                            return _array[_currIndex++];
-                        }
-                        else
-                        {
-                            _currIndex++;
-                            return NextMoveData();
-                        }
+                        return _array[_currIndex++];
+
+                        
                     }
                     else
                     {

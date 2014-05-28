@@ -40,7 +40,7 @@ namespace Sinobyl.Engine
             ChessBitboard hispieces = board[board.WhosTurn.PlayerOther()];
             ChessBitboard kingAttacks = Attacks.KingAttacks(board.KingPosition(board.WhosTurn)) & ~mypieces;
             //return GenMoves(board, board[board.WhosTurn], capsOnly ? board[board.WhosTurn.PlayerOther()] : ~board[board.WhosTurn], !capsOnly);
-            if (board.Checkers == ChessBitboard.Empty)
+            if (true || board.Checkers == ChessBitboard.Empty)
             {
                 var caps = GenCapsNonCaps(array, board, true, 0);
                 if (!capsOnly)

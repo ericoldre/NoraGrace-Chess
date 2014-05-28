@@ -141,7 +141,7 @@ namespace Sinobyl.Engine
 				
 			}
 
-			public double CalcBlunderPct(int depth, bool isRecapture, int moveNum, int moveCount)
+			public double CalcBlunderPct(int depth, bool isRecapture, int moveNum)
 			{
 				//find chance of blunder at this depth.
 				double pct = BlunderPct;
@@ -158,7 +158,7 @@ namespace Sinobyl.Engine
 
 			}
 
-			public bool DoBlunder(Int64 Zob, int depth, bool isRecapture, int moveNum, int moveCount, int alpha, int beta)
+			public bool DoBlunder(Int64 Zob, int depth, bool isRecapture, int moveNum, int alpha, int beta)
 			{
                 if (alpha < -ChessSearch.MateIn(5) || beta > ChessSearch.MateIn(5)) { return false; }
 				if (moveNum < this.BlunderSkipCount) { return false; }
@@ -166,7 +166,7 @@ namespace Sinobyl.Engine
 				
 				double MoveChanceKey = ((double)(Zob & 255)) / 255;
 				if (MoveChanceKey < 0) { MoveChanceKey = -MoveChanceKey; }
-				double blunderchance = this.CalcBlunderPct(depth, isRecapture,moveNum, moveCount);
+				double blunderchance = this.CalcBlunderPct(depth, isRecapture, moveNum);
 				if (MoveChanceKey < blunderchance)
 				{
 					return true;
@@ -666,9 +666,21 @@ namespace Sinobyl.Engine
 
 
             var plyMoves = _moveBuffer[ply];
-            plyMoves.Initialize(board);
+            plyMoves.Initialize(board, tt_move, false);
             plyMoves.Sort(board, true, tt_move);
 
+
+            //var plyMoves2 = plyMoves.Buffer2;
+            //plyMoves2.Initialize(board, tt_move, false);
+            //var moves2 = plyMoves2.SortedMoves().ToArray();
+            //if (moves2.Length != plyMoves.MoveCount)
+            //{
+            //    var moves1 = plyMoves.SortedMoves().ToArray();
+
+            //    var extra = moves2.Where(m => !moves1.Contains(m)).ToArray();
+            //    var leftout = moves1.Where(m => !moves2.Contains(m)).ToArray();
+            //    System.Diagnostics.Debug.Assert(false);
+            //}
             //ChessMoves moves = new ChessMoves(ChessMove.GenMoves(board));
 			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,tt_move,depth > 3);
 			//moves.Sort(moveOrderer);
@@ -740,7 +752,7 @@ namespace Sinobyl.Engine
 
 				//check for blunder
                 bool isRecapture = (move.To() == board.HistMove(2).To());
-                if (SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, depth, isRecapture, legalMovesTried, plyMoves.MoveCount, alpha, beta))
+                if (SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, depth, isRecapture, legalMovesTried, alpha, beta))
                 {
                     if (!in_check_before_move)  //weird behavior if doing blunder when player in check
                     {
@@ -821,7 +833,7 @@ namespace Sinobyl.Engine
 			}
 
             var plyMoves = _moveBuffer[ply];
-            plyMoves.Initialize(board, !playerincheck);
+            plyMoves.Initialize(board, ChessMove.EMPTY, !playerincheck);
             plyMoves.Sort(board, false, ChessMove.EMPTY);
 
 			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,ChessMoveInfo.Create(),false);
@@ -829,10 +841,10 @@ namespace Sinobyl.Engine
 
 
 			int tried_move_count = 0;
-            ChessMove move;
-            while ((move = plyMoves.NextMove()) != ChessMove.EMPTY)
+            ChessMoveData moveData;
+            while ((moveData = plyMoves.NextMoveData()).Move != ChessMove.EMPTY)
 			{
-
+                ChessMove move = moveData.Move;
 				//todo: fulitity check 
 				CurrentVariation[ply] = move;
 
@@ -851,7 +863,7 @@ namespace Sinobyl.Engine
 
 				//check for blunder
                 bool isRecapture = (move.To() == board.HistMove(2).To());
-                if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, 0, isRecapture, tried_move_count, plyMoves.MoveCount, alpha, beta))
+                if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, 0, isRecapture, tried_move_count, alpha, beta))
                 {
                     if (!playerincheck) //weird behavior if doing blunder when player in check
                     {

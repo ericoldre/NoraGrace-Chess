@@ -118,6 +118,21 @@ namespace Sinobyl.Engine
             return bitboard;
         }
 
+        public static ChessBitboard Between(this ChessPosition from, ChessPosition to)
+        {
+            ChessDirection dir = from.DirectionTo(to);
+            ChessBitboard retval = ChessBitboard.Empty;
+            if (dir != 0)
+            {
+                while (from != to)
+                {
+                    from = from.PositionInDirectionUnsafe(dir);
+                    retval |= from.Bitboard();
+                }
+            }
+            return retval;
+        }
+
         public static ChessDirection DirectionTo(this ChessPosition from, ChessPosition to)
         {
 

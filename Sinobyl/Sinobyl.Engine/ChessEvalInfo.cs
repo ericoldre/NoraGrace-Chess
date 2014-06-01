@@ -9,42 +9,33 @@ namespace Sinobyl.Engine
     public class ChessEvalInfo
     {
 
-        //public enum EvalState
-        //{
-        //    Initialized,
-        //    Lazy,
-        //    Full
-        //}
-
-        //public EvalState State { get; set; }
         public int[] Workspace = new int[64];
-        public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
 
+
+        //basic eval terms:
+        public long Zobrist { get; private set; }
+        public int DrawScore { get; private set; }
         public int Material { get; private set; }
-
-        public PhasedScore PcSqStart { get; set; }
-
+        public PhasedScore PcSq { get; set; }
         public PhasedScore Pawns { get; private set; }
-
-        public PhasedScore PawnsPassed = 0;
-
-        public PhasedScore ShelterStorm = 0;
         public int StageStartWeight { get; private set; }
         public int ScaleWhite { get; private set; }
         public int ScaleBlack { get; private set; }
-        public int DrawScore = 0;
+        public ChessBitboard PassedPawns { get; private set; }   //not a score but information
+        public ChessBitboard CandidatePawns { get; private set; }  //not a score but information
+
+        //advanced eval terms.
         public int LazyAge { get; set; }
+        public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
+        public PhasedScore PawnsPassed = 0;
+        public PhasedScore ShelterStorm = 0;
 
-        public ChessBitboard PassedPawns { get; private set; }
-        public ChessBitboard CandidatePawns { get; private set; }
-
-        
         public void Reset()
         {
             Attacks[0].Reset();
             Attacks[1].Reset();
             Material = 0;
-            PcSqStart = 0;
+            PcSq = 0;
             Pawns = 0;
             PawnsPassed = 0;
             ShelterStorm = 0;
@@ -55,11 +46,13 @@ namespace Sinobyl.Engine
             PassedPawns = ChessBitboard.Empty;
             CandidatePawns = ChessBitboard.Empty;
             LazyAge = -1;
-        }
+        } 
 
-        public void MaterialPawnsApply(ChessBoard board, EvalMaterialResults material, PawnInfo pawns)
+        public void MaterialPawnsApply(ChessBoard board, EvalMaterialResults material, PawnInfo pawns, int drawScore)
         {
-            this.PcSqStart = board.PcSqValue;
+            this.Zobrist = board.Zobrist;
+            this.DrawScore = drawScore;
+            this.PcSq = board.PcSqValue;
             this.Material = material.Score;
             this.StageStartWeight = material.StartWeight;
             this.ScaleWhite = material.ScaleWhite;
@@ -89,7 +82,7 @@ namespace Sinobyl.Engine
         public int LazyScore(ChessEvalInfo prevEvalInfo)
         {
 
-            int nonScaled = PcSqStart
+            int nonScaled = PcSq
                 .Add(Pawns)
                 .Add(prevEvalInfo.PawnsPassed)
                 .Add(prevEvalInfo.ShelterStorm)
@@ -120,7 +113,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                int nonScaled = PcSqStart
+                int nonScaled = PcSq
                     .Add(Pawns)
                     .Add(PawnsPassed)
                     .Add(ShelterStorm)
@@ -147,7 +140,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return PcSqStart.ApplyWeights(StageStartWeight);
+                return PcSq.ApplyWeights(StageStartWeight);
             }
         }
 

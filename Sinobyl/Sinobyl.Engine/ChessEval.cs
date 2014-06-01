@@ -281,13 +281,13 @@ namespace Sinobyl.Engine
             PhasedScore endGamePcSq = 0;
             if (UseEndGamePcSq(board, ChessPlayer.White, out endGamePcSq))
             {
-                evalInfo.PcSqStart = endGamePcSq;
+                evalInfo.PcSq = endGamePcSq;
                 evalInfo.Attacks[0].Mobility = 0;
                 evalInfo.Attacks[1].Mobility = 0;
             }
             else if (UseEndGamePcSq(board, ChessPlayer.Black, out endGamePcSq))
             {
-                evalInfo.PcSqStart = endGamePcSq.Negate();
+                evalInfo.PcSq = endGamePcSq.Negate();
                 evalInfo.Attacks[0].Mobility = 0;
                 evalInfo.Attacks[1].Mobility = 0;
             }

@@ -54,6 +54,7 @@
     <Compile Include="ChessBook.cs" />
     <Compile Include="ChessDirection.cs" />
     <Compile Include="ChessEval.cs" />
+    <Compile Include="ChessEvalInfo.cs" />
     <Compile Include="ChessEvalMaterial.cs" />
     <Compile Include="ChessEvalPawns.cs" />
     <Compile Include="ChessEvalSettings.cs" />

@@ -69,10 +69,6 @@ namespace Sinobyl.Engine
 
         public static Int64 Material(ChessPiece piece, int pieceCountBesidesThis)
         {
-            if (pieceCountBesidesThis < 0)
-            {
-                throw new Exception();
-            }
             return _piecepos[(int)piece, pieceCountBesidesThis];
         }
 		public static Int64 CastleWS

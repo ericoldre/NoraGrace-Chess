@@ -223,6 +223,7 @@ namespace Sinobyl.Engine
 		private int _bestvariationscore = 0;
 
         private readonly ChessMoveBuffer _moveBuffer = new ChessMoveBuffer();
+        private readonly ChessEvalInfoStack _evalInfoStack; 
         private ChessMove[] _currentPV = new ChessMove[50];
         private readonly Dictionary<ChessMove, int> _rootMoveNodeCounts = new Dictionary<ChessMove, int>();
 		private readonly Int64 BlunderKey = Rand64();
@@ -230,9 +231,12 @@ namespace Sinobyl.Engine
 		public ChessSearch(Args args)
 		{
 			SearchArgs = args;
-			board = new ChessBoard(SearchArgs.GameStartPosition);
             eval = args.Eval;
+            _evalInfoStack = new ChessEvalInfoStack(args.Eval as ChessEval);
+
+            board = new ChessBoard(SearchArgs.GameStartPosition);
             
+
 			foreach (ChessMove histmove in SearchArgs.GameMoves)
 			{
 				board.MoveApply(histmove);
@@ -280,7 +284,7 @@ namespace Sinobyl.Engine
             SearchArgs.TimeManager.StopSearch += TimeManager_StopSearch;
             SearchArgs.TimeManager.RequestNodes += TimeManager_RequestNodes;
             SearchArgs.TimeManager.StartSearch();
-
+             
 
 			int depth = 1;
 
@@ -694,7 +698,8 @@ namespace Sinobyl.Engine
 			int blunders = 0;
             ChessMove bestmove = ChessMove.EMPTY;
 
-
+            ChessEvalInfo init_info;
+            int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, ChessEval.MinValue, ChessEval.MaxValue);
             
             ChessMoveData moveData;
             while ((moveData = plyMoves.NextMoveData()).Move != ChessMove.EMPTY)
@@ -826,11 +831,25 @@ namespace Sinobyl.Engine
 			CountTotalAINodes++;
 			CountAIQSearch++;
 
-			int init_score = eval.EvalFor(board, board.WhosTurn);
+
+			//int oldScore = eval.EvalFor(board, board.WhosTurn);
+            
+            ChessEvalInfo init_info;
+            int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, alpha, beta);
+            //int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, ChessEval.MinValue, ChessEval.MaxValue);
+
+            //if (init_score >= beta && oldScore < beta)
+            //{
+            //    var oldInfo = (eval as ChessEval)._evalInfo;
+
+            //    int b = 1;
+            //}
+
+            
 			bool playerincheck = board.IsCheck();
 
 
-			if (init_score > beta && !playerincheck)
+			if (init_score >= beta && !playerincheck)
 			{
 				return beta;
 			}

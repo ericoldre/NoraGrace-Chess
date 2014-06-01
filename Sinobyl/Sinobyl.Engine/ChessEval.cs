@@ -14,6 +14,9 @@ namespace Sinobyl.Engine
     public class ChessEval: IChessEval
     {
 
+        public const int MaxValue = int.MaxValue - 100;
+        public const int MinValue = -MaxValue;
+
         protected readonly ChessEvalPawns _evalPawns;
         public readonly IChessEvalMaterial _evalMaterial;
 
@@ -197,14 +200,17 @@ namespace Sinobyl.Engine
 
         }
 
-        private ChessEvalInfo _evalInfo = new ChessEvalInfo();
+        public ChessEvalInfo _evalInfo = new ChessEvalInfo();
         public virtual int Eval(ChessBoard board)
         {
-            return EvalLazy(board, _evalInfo, null, int.MinValue, int.MaxValue);
+            return EvalLazy(board, _evalInfo, null, ChessEval.MinValue, ChessEval.MaxValue);
         }
 
         public int EvalLazy(ChessBoard board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo, int alpha, int beta)
         {
+            System.Diagnostics.Debug.Assert(alpha >= MinValue);
+            System.Diagnostics.Debug.Assert(beta <= MaxValue);
+
             evalInfo.Reset();
 
 
@@ -213,6 +219,8 @@ namespace Sinobyl.Engine
 
             //pawns
             PawnInfo pawns = this._evalPawns.PawnEval(board);
+            System.Diagnostics.Debug.Assert(pawns.WhitePawns == board[ChessPiece.WPawn]);
+            System.Diagnostics.Debug.Assert(pawns.BlackPawns == board[ChessPiece.BPawn]);
 
             evalInfo.MaterialPawnsApply(board, material, pawns, this.DrawScore);
 
@@ -275,6 +283,10 @@ namespace Sinobyl.Engine
                     whiteKingFile: board.KingPosition(ChessPlayer.White).GetFile(),
                     blackKingFile: board.KingPosition(ChessPlayer.Black).GetFile(),
                     castleFlags: board.CastleRights), 0);
+            }
+            else
+            {
+                evalInfo.ShelterStorm = 0;
             }
             
             //test to see if we are just trying to force the king to the corner for mate.

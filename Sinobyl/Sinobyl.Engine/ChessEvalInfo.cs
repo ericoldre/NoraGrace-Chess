@@ -158,6 +158,14 @@ namespace Sinobyl.Engine
             }
         }
 
+        public int KingSafetyPhased
+        {
+            get
+            {
+                return Attacks[0].KingAttackerScore - Attacks[1].KingAttackerScore;
+            }
+        }
+
 
     }
 
@@ -180,6 +188,9 @@ namespace Sinobyl.Engine
 
         public int EvalFor(int ply, ChessBoard board, ChessPlayer player, out ChessEvalInfo info, int alpha, int beta)
         {
+            System.Diagnostics.Debug.Assert(alpha >= ChessEval.MinValue);
+            System.Diagnostics.Debug.Assert(beta <= ChessEval.MaxValue);
+
             if (player == ChessPlayer.White)
             {
                 return Eval(ply, board, out info, alpha, beta);
@@ -192,6 +203,9 @@ namespace Sinobyl.Engine
 
         public int Eval(int ply, ChessBoard board, out ChessEvalInfo info, int alpha, int beta)
         {
+            System.Diagnostics.Debug.Assert(alpha >= ChessEval.MinValue);
+            System.Diagnostics.Debug.Assert(beta <= ChessEval.MaxValue);
+
             info = _plyInfoList[ply];
 
 
@@ -214,6 +228,10 @@ namespace Sinobyl.Engine
             if (ply > 0)
             {
                 prev = _plyInfoList[ply - 1];
+                if (prev.Zobrist != board.ZobristPrevious)
+                {
+                    prev = null;
+                }
             }
 
             return _eval.EvalLazy(board, info, prev, alpha, beta);

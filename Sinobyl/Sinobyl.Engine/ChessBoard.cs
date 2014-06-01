@@ -397,6 +397,11 @@ namespace Sinobyl.Engine
             get { return _zob; }
 		}
 
+        public Int64 ZobristPrevious
+        {
+            get { return _hist[_histCount - 1].Zobrist; }
+        }
+
 		public Int64 ZobristPawn
 		{
             get { return _zobPawn; }

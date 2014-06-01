@@ -200,14 +200,13 @@ namespace Sinobyl.Engine
         private ChessEvalInfo _evalInfo = new ChessEvalInfo();
         public virtual int Eval(ChessBoard board)
         {
-            return EvalLazy(board, _evalInfo, null);
+            return EvalLazy(board, _evalInfo, null, int.MinValue, int.MaxValue);
         }
 
-        public int EvalLazy(ChessBoard board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo)
+        public int EvalLazy(ChessBoard board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo, int alpha, int beta)
         {
             evalInfo.Reset();
 
-            System.Diagnostics.Debug.Assert(evalInfo.State == ChessEvalInfo.EvalState.Initialized);
 
             //material
             EvalMaterialResults material = _evalMaterial.EvalMaterialHash(board);
@@ -219,7 +218,19 @@ namespace Sinobyl.Engine
 
             if (prevEvalInfo != null)
             {
-                //possibly cut off here.
+                evalInfo.ApplyPreviousEval(board, prevEvalInfo);
+                System.Diagnostics.Debug.Assert(evalInfo.LazyAge > 0);
+
+                int fuzzyLazyScore = evalInfo.Score;
+                int margin = evalInfo.LazyAge * 50;
+                if (fuzzyLazyScore + margin < alpha)
+                {
+                    return alpha;
+                }
+                if (fuzzyLazyScore - margin > beta)
+                {
+                    return beta;
+                }
             }
 
             EvalAdvanced(board, evalInfo, material, pawns);
@@ -229,12 +240,11 @@ namespace Sinobyl.Engine
 
         public void EvalAdvanced(ChessBoard board, ChessEvalInfo evalInfo, EvalMaterialResults material, PawnInfo pawns)
         {
-            System.Diagnostics.Debug.Assert(evalInfo.State == ChessEvalInfo.EvalState.Lazy);
-
+            
             TotalEvalCount++;
 
-            evalInfo.State = ChessEvalInfo.EvalState.Full;
-            
+            //mark that advanced eval terms are from this ply
+            evalInfo.LazyAge = 0;
 
             //set up 
             var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];

@@ -9,14 +9,14 @@ namespace Sinobyl.Engine
     public class ChessEvalInfo
     {
 
-        public enum EvalState
-        {
-            Initialized,
-            Lazy,
-            Full
-        }
+        //public enum EvalState
+        //{
+        //    Initialized,
+        //    Lazy,
+        //    Full
+        //}
 
-        public EvalState State { get; set; }
+        //public EvalState State { get; set; }
         public int[] Workspace = new int[64];
         public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
 
@@ -33,13 +33,14 @@ namespace Sinobyl.Engine
         public int ScaleWhite { get; private set; }
         public int ScaleBlack { get; private set; }
         public int DrawScore = 0;
+        public int LazyAge { get; set; }
 
         public ChessBitboard PassedPawns { get; private set; }
         public ChessBitboard CandidatePawns { get; private set; }
 
+        
         public void Reset()
         {
-            State = EvalState.Initialized;
             Attacks[0].Reset();
             Attacks[1].Reset();
             Material = 0;
@@ -53,11 +54,11 @@ namespace Sinobyl.Engine
             DrawScore = 0;
             PassedPawns = ChessBitboard.Empty;
             CandidatePawns = ChessBitboard.Empty;
+            LazyAge = -1;
         }
 
         public void MaterialPawnsApply(ChessBoard board, EvalMaterialResults material, PawnInfo pawns)
         {
-            this.State = EvalState.Lazy;
             this.PcSqStart = board.PcSqValue;
             this.Material = material.Score;
             this.StageStartWeight = material.StartWeight;
@@ -66,6 +67,23 @@ namespace Sinobyl.Engine
             this.Pawns = pawns.Value;
             this.PassedPawns = pawns.PassedPawns;
             this.CandidatePawns = pawns.Candidates;
+        }
+
+        public void ApplyPreviousEval(ChessBoard board, ChessEvalInfo prev)
+        {
+            System.Diagnostics.Debug.Assert(prev != null);
+
+            //age of this lazy eval is one greater than previous.
+            this.LazyAge = prev.LazyAge + 1;
+            
+            //copy advanced evaluation items.
+            this.Attacks[0].KingAttackerScore = prev.Attacks[0].KingAttackerScore;
+            this.Attacks[1].KingAttackerScore = prev.Attacks[1].KingAttackerScore;
+            this.Attacks[0].Mobility = prev.Attacks[0].Mobility;
+            this.Attacks[1].Mobility = prev.Attacks[1].Mobility;
+            this.PawnsPassed = prev.PawnsPassed;
+            this.ShelterStorm = prev.ShelterStorm;
+
         }
 
         public int LazyScore(ChessEvalInfo prevEvalInfo)

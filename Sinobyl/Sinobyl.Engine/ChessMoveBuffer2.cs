@@ -137,189 +137,227 @@ namespace Sinobyl.Engine
 
         }
 
+        private ChessMoveData StepTTMove()
+        {
+            if (_ttMove != ChessMove.EMPTY)
+            {
+                System.Diagnostics.Debug.Assert(_ttMove.IsPsuedoLegal(_board));
+                _currStep++;
+                _tmpData.Move = _ttMove;
+                _tmpData.Flags = MoveFlags.TransTable;
+                _exclude[_excludeCount++] = _ttMove;
+                return _tmpData;
+            }
+            else
+            {
+                _currIndex = 0;
+                _currStep++;
+                return NextMoveData();
+            }
+        }
 
+        private ChessMoveData StepInitCaps()
+        {
+            _capsCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, true, 0);
+            _capsCount = ExcludeFrom(_array, 0, _capsCount, _exclude, _excludeCount);
+            for (int i = 0; i < _capsCount; i++)
+            {
+                _array[i].SEE = ChessMoveSEE.CompEstScoreSEE(_array[i].Move, _board); //calculate if winning capture.
+                _array[i].Flags = MoveFlags.Capture;
+                if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
+
+                ChessMove move = _array[i].Move;
+                ChessPiece piece = _board.PieceAt(move.From());
+
+                //calc pcsq value;
+                PhasedScore pcSq = 0;
+                _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
+                _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
+                if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
+                _array[i].PcSq = pcSq.Opening();
+
+                for (int ii = i; ii > 0; ii--)
+                {
+                    if (_array[ii].SEE + _array[ii].PcSq > _array[ii - 1].SEE + _array[ii - 1].PcSq)
+                    {
+                        _tmpData = _array[ii];
+                        _array[ii] = _array[ii - 1];
+                        _array[ii - 1] = _tmpData;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            _currIndex = 0;
+            _currStep++;
+            return NextMoveData();
+        }
+
+        private ChessMoveData StepGoodCaps()
+        {
+            if (_currIndex < _capsGoodCount)
+            {
+                return _array[_currIndex++];
+            }
+            else
+            {
+                _currStep++;
+                _currIndex = 0;
+                return NextMoveData();
+            }
+        }
+
+        private ChessMoveData StepKillers()
+        {
+            if (_capsOnly)
+            {
+                _currIndex = 0;
+                _currStep++;
+                return NextMoveData();
+            }
+            var killerInfo = _playerKillers[(int)_board.WhosTurn];
+            if (_currIndex < killerInfo.Count)
+            {
+                ChessMove move = killerInfo[_currIndex];
+                if (move.IsPsuedoLegal(_board))
+                {
+                    _tmpData.Move = move;
+                    _tmpData.Flags = MoveFlags.Killer;
+                    _currIndex++;
+                    _exclude[_excludeCount++] = move;
+                    return _tmpData;
+                }
+                else
+                {
+                    _currIndex++;
+                    return NextMoveData();
+                }
+            }
+            else
+            {
+                _currIndex = 0;
+                _currStep++;
+                return NextMoveData();
+            }
+        }
+
+        public ChessMoveData StepBadCaps()
+        {
+            int badCapIndex = _currIndex + _capsGoodCount;
+            if (badCapIndex < _capsCount)
+            {
+                _currIndex++;
+                return _array[badCapIndex];
+            }
+            else
+            {
+                _currStep++;
+                _currIndex = 0;
+                return NextMoveData();
+            }
+        }
+
+        public ChessMoveData StepInitQuiet()
+        {
+            if (_capsOnly)
+            {
+                _currIndex = 0;
+                _currStep++;
+                return NextMoveData();
+            }
+
+            _quietCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, false, 0);
+            _quietCount = ExcludeFrom(_array, 0, _quietCount, _exclude, _excludeCount);
+            for (int i = 0; i < _quietCount; i++)
+            {
+                _array[i].SEE = 0;
+                _array[i].Flags = 0;
+                _array[i].PcSq = 0;
+
+                ChessMove move = _array[i].Move;
+                ChessPiece piece = _board.PieceAt(move.From());
+
+                //calc pcsq value;
+                PhasedScore pcSq = 0;
+                _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
+                _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
+                if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
+
+                _array[i].PcSq = pcSq.Opening();
+
+                _array[i].PcSq = _playerKillers[(int)_board.WhosTurn].HistoryScore(_board, move) + pcSq.Opening();
+
+                //if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
+                for (int ii = i; ii > 0; ii--)
+                {
+                    if (_array[ii].PcSq > _array[ii - 1].PcSq)
+                    {
+                        _tmpData = _array[ii];
+                        _array[ii] = _array[ii - 1];
+                        _array[ii - 1] = _tmpData;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            _currIndex = 0;
+            _currStep++;
+            return NextMoveData();
+
+        }
+
+        private ChessMoveData StepQuiet()
+        {
+            if (_capsOnly)
+            {
+                _tmpData.Move = ChessMove.EMPTY;
+                return _tmpData;
+            }
+
+            if (_currIndex < _quietCount)
+            {
+                var m = _array[_currIndex].Move;
+
+                return _array[_currIndex++];
+
+
+            }
+            else
+            {
+                _tmpData.Move = ChessMove.EMPTY;
+                return _tmpData;
+            }
+
+        }
         public ChessMoveData NextMoveData()
         {
             System.Diagnostics.Debug.Assert(_board.Zobrist == _boardZob);
             switch (_currStep)
             {
                 case steps.ttMove:
-                    if (_ttMove != ChessMove.EMPTY)
-                    {
-                        System.Diagnostics.Debug.Assert(_ttMove.IsPsuedoLegal(_board));
-                        _currStep++;
-                        _tmpData.Move = _ttMove;
-                        _tmpData.Flags = MoveFlags.TransTable;
-                        _exclude[_excludeCount++] = _ttMove;
-                        return _tmpData;
-                    }
-                    else
-                    {
-                        _currIndex = 0;
-                        _currStep++;
-                        return NextMoveData();
-                    }
+                    return StepTTMove();
 
                 case steps.InitCaps:
-                    _capsCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, true, 0);
-                    _capsCount = ExcludeFrom(_array, 0, _capsCount, _exclude, _excludeCount);
-                    for (int i = 0; i < _capsCount; i++)
-                    {
-                        _array[i].SEE = ChessMoveSEE.CompEstScoreSEE(_array[i].Move, _board); //calculate if winning capture.
-                        _array[i].Flags = MoveFlags.Capture;
-                        if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
-
-                        ChessMove move = _array[i].Move;
-                        ChessPiece piece = _board.PieceAt(move.From());
-
-                        //calc pcsq value;
-                        PhasedScore pcSq = 0;
-                        _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
-                        _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
-                        if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
-                        _array[i].PcSq = pcSq.Opening();
-
-                        for (int ii = i; ii > 0; ii--)
-                        {
-                            if (_array[ii].SEE + _array[ii].PcSq > _array[ii - 1].SEE + _array[ii - 1].PcSq)
-                            {
-                                _tmpData = _array[ii];
-                                _array[ii] = _array[ii - 1];
-                                _array[ii - 1] = _tmpData;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    _currIndex = 0;
-                    _currStep++;
-                    return NextMoveData();
+                    return StepInitCaps();
                 case steps.GoodCaps:
-                    if (_currIndex < _capsGoodCount)
-                    {
-                        return _array[_currIndex++];
-                    }
-                    else
-                    {
-                        _currStep++;
-                        _currIndex = 0;
-                        return NextMoveData();
-                    }
+                    return StepGoodCaps();
 
                 case steps.Killers:
-                    if (_capsOnly)
-                    {
-                        _currIndex = 0;
-                        _currStep++;
-                        return NextMoveData();
-                    }
-                    var killerInfo = _playerKillers[(int)_board.WhosTurn];
-                    if (_currIndex < killerInfo.Count)
-                    {
-                        ChessMove move = killerInfo[_currIndex];
-                        if (move.IsPsuedoLegal(_board))
-                        {
-                            _tmpData.Move = move;
-                            _tmpData.Flags = MoveFlags.Killer;
-                            _currIndex++;
-                            _exclude[_excludeCount++] = move;
-                            return _tmpData;
-                        }
-                        else
-                        {
-                            _currIndex++;
-                            return NextMoveData();
-                        }
-                    }
-                    else
-                    {
-                        _currIndex = 0;
-                        _currStep++;
-                        return NextMoveData();
-                    }
+                    return StepKillers();
+
                 case steps.BadCaps:
-                    int badCapIndex = _currIndex + _capsGoodCount;
-                    if (badCapIndex < _capsCount)
-                    {
-                        _currIndex++;
-                        return _array[badCapIndex];
-                    }
-                    else
-                    {
-                        _currStep++;
-                        _currIndex = 0;
-                        return NextMoveData();
-                    }
+                    return StepBadCaps();
+
                 case steps.InitQuiet:
-                    if (_capsOnly)
-                    {
-                        _currIndex = 0;
-                        _currStep++;
-                        return NextMoveData();
-                    }
+                    return StepInitQuiet();
 
-                    _quietCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, false, 0);
-                    _quietCount = ExcludeFrom(_array, 0, _quietCount, _exclude, _excludeCount);
-                    for (int i = 0; i < _quietCount; i++)
-                    {
-                        _array[i].SEE = 0;
-                        _array[i].Flags = 0;
-                        _array[i].PcSq = 0;
-
-                        ChessMove move = _array[i].Move;
-                        ChessPiece piece = _board.PieceAt(move.From());
-
-                        //calc pcsq value;
-                        PhasedScore pcSq = 0;
-                        _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
-                        _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
-                        if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
-
-                        _array[i].PcSq = pcSq.Opening();
-
-                        _array[i].PcSq = _playerKillers[(int)_board.WhosTurn].HistoryScore(_board, move) +pcSq.Opening();
-
-                        //if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
-                        for (int ii = i; ii > 0; ii--)
-                        {
-                            if (_array[ii].PcSq > _array[ii - 1].PcSq)
-                            {
-                                _tmpData = _array[ii];
-                                _array[ii] = _array[ii - 1];
-                                _array[ii - 1] = _tmpData;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    _currIndex = 0;
-                    _currStep++;
-                    return NextMoveData();
                 case steps.Quiet:
-                    if (_capsOnly)
-                    {
-                        _tmpData.Move = ChessMove.EMPTY;
-                        return _tmpData;
-                    }
+                    return StepQuiet();
 
-                    if (_currIndex < _quietCount)
-                    {
-                        var m = _array[_currIndex].Move;
-
-                        return _array[_currIndex++];
-
-
-                    }
-                    else
-                    {
-                        _tmpData.Move = ChessMove.EMPTY;
-                        return _tmpData;
-                    }
-                    break;
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     throw new ArgumentOutOfRangeException();

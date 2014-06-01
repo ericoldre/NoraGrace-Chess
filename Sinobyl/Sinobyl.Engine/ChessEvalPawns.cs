@@ -514,7 +514,7 @@ namespace Sinobyl.Engine
                         endScore = endScore / 2;
                     }
 
-                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Add(PhasedScoreInfo.Create(startScore, endScore));
+                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Add(PhasedScoreInfo.Create(startScore, endScore));
 
                     ///evalInfo.PawnsPassedStart += mbonus;
                     //evalInfo.PawnsPassedEnd += ebonus;
@@ -568,7 +568,7 @@ namespace Sinobyl.Engine
                         endScore = endScore / 2;
                     }
 
-                    evalInfo.PawnsPassedStart = evalInfo.PawnsPassedStart.Subtract(PhasedScoreInfo.Create(startScore, endScore));
+                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Subtract(PhasedScoreInfo.Create(startScore, endScore));
                 }
             }
 

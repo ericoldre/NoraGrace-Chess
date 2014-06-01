@@ -24,9 +24,9 @@ namespace Sinobyl.Engine
 
         public PhasedScore PcSqStart { get; set; }
 
-        public PhasedScore PawnsStart { get; private set; }
+        public PhasedScore Pawns { get; private set; }
 
-        public PhasedScore PawnsPassedStart = 0;
+        public PhasedScore PawnsPassed = 0;
 
         public PhasedScore ShelterStorm = 0;
         public int StageStartWeight { get; private set; }
@@ -44,8 +44,8 @@ namespace Sinobyl.Engine
             Attacks[1].Reset();
             Material = 0;
             PcSqStart = 0;
-            PawnsStart = 0;
-            PawnsPassedStart = 0;
+            Pawns = 0;
+            PawnsPassed = 0;
             ShelterStorm = 0;
             StageStartWeight = 0;
             ScaleWhite = 100;
@@ -63,7 +63,7 @@ namespace Sinobyl.Engine
             this.StageStartWeight = material.StartWeight;
             this.ScaleWhite = material.ScaleWhite;
             this.ScaleBlack = material.ScaleBlack;
-            this.PawnsStart = pawns.Value;
+            this.Pawns = pawns.Value;
             this.PassedPawns = pawns.PassedPawns;
             this.CandidatePawns = pawns.Candidates;
         }
@@ -72,8 +72,8 @@ namespace Sinobyl.Engine
         {
 
             int nonScaled = PcSqStart
-                .Add(PawnsStart)
-                .Add(prevEvalInfo.PawnsPassedStart)
+                .Add(Pawns)
+                .Add(prevEvalInfo.PawnsPassed)
                 .Add(prevEvalInfo.ShelterStorm)
                 .Add(prevEvalInfo.Attacks[0].Mobility.Subtract(prevEvalInfo.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
 
@@ -103,8 +103,8 @@ namespace Sinobyl.Engine
             get
             {
                 int nonScaled = PcSqStart
-                    .Add(PawnsStart)
-                    .Add(PawnsPassedStart)
+                    .Add(Pawns)
+                    .Add(PawnsPassed)
                     .Add(ShelterStorm)
                     .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
 
@@ -125,7 +125,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public int PcSq
+        public int PcSqPhased
         {
             get
             {
@@ -133,26 +133,26 @@ namespace Sinobyl.Engine
             }
         }
 
-        public int Mobility
+        public int MobilityPhased
         {
             get
             {
                 return Attacks[0].Mobility.Subtract(Attacks[1].Mobility).ApplyWeights(StageStartWeight);
             }
         }
-        public int Pawns
+        public int PawnsPhased
         {
             get
             {
-                return PawnsStart.ApplyWeights(StageStartWeight);
+                return Pawns.ApplyWeights(StageStartWeight);
             }
         }
 
-        public int PawnsPassed
+        public int PawnsPassedPhased
         {
             get
             {
-                return PawnsPassedStart.ApplyWeights(StageStartWeight);
+                return PawnsPassed.ApplyWeights(StageStartWeight);
             }
         }
 

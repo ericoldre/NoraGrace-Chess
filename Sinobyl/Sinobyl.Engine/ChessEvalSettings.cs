@@ -237,23 +237,23 @@ namespace Sinobyl.Engine
                 {
                     Knight = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 4, AmountPerAttackDefault = 4 },
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 3, AmountPerAttackDefault = 3 },
                         Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 4, AmountPerAttackDefault = 4 },
                     },
                     Bishop = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 6, AmountPerAttackDefault = 5 },
-                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 6, AmountPerAttackDefault = 5 },
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 3, AmountPerAttackDefault = 5 },
+                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 5, AmountPerAttackDefault = 4 },
                     },
                     Rook = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 5, AmountPerAttackDefault = 2 },
-                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 7, AmountPerAttackDefault = 4 },
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 3, AmountPerAttackDefault = 2 },
+                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 5, AmountPerAttackDefault = 3 },
                     },
                     Queen = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 9, AmountPerAttackDefault = 1 },
-                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 13, AmountPerAttackDefault = 2 },
+                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 6, AmountPerAttackDefault = 1 },
+                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 10, AmountPerAttackDefault = 2 },
                     },
                 }
             };

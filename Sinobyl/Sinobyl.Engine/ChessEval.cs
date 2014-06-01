@@ -214,7 +214,7 @@ namespace Sinobyl.Engine
             //pawns
             PawnInfo pawns = this._evalPawns.PawnEval(board);
 
-            evalInfo.MaterialPawnsApply(board, material, pawns);
+            evalInfo.MaterialPawnsApply(board, material, pawns, this.DrawScore);
 
             if (prevEvalInfo != null)
             {

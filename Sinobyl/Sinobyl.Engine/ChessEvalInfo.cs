@@ -79,31 +79,22 @@ namespace Sinobyl.Engine
 
         }
 
-        public int LazyScore(ChessEvalInfo prevEvalInfo)
+        public int LazyHigh
         {
-
-            int nonScaled = PcSq
-                .Add(Pawns)
-                .Add(prevEvalInfo.PawnsPassed)
-                .Add(prevEvalInfo.ShelterStorm)
-                .Add(prevEvalInfo.Attacks[0].Mobility.Subtract(prevEvalInfo.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
-
-            nonScaled += prevEvalInfo.Attacks[0].KingAttackerScore;
-            nonScaled -= prevEvalInfo.Attacks[1].KingAttackerScore;
-
-            if (nonScaled > DrawScore && ScaleWhite < 100)
+            get
             {
-                int scaled = (((nonScaled - DrawScore) * ScaleWhite) / 100) + DrawScore;
-                return scaled;
+                int margin = LazyAge * 50;
+                return Score + margin;
             }
-            else if (nonScaled < DrawScore && ScaleBlack < 100)
-            {
-                int scaled = (((nonScaled - DrawScore) * ScaleBlack) / 100) + DrawScore;
-                return scaled;
-            }
-            return nonScaled;
         }
-
+        public int LazyLow
+        {
+            get
+            {
+                int margin = LazyAge * 50;
+                return Score - margin;
+            }
+        }
         public int StageEndWeight
         {
             get { return 100 - StageStartWeight; }
@@ -166,6 +157,69 @@ namespace Sinobyl.Engine
                 return PawnsPassed.ApplyWeights(StageStartWeight);
             }
         }
+
+
+    }
+
+    public class ChessEvalInfoStack
+    {
+
+        public readonly ChessEval _eval;
+
+        List<ChessEvalInfo> _plyInfoList = new List<ChessEvalInfo>();
+
+        public ChessEvalInfoStack(ChessEval eval, int plyCapacity = 50)
+        {
+            _eval = eval;
+            while (_plyInfoList.Count < plyCapacity)
+            {
+                _plyInfoList.Add(new ChessEvalInfo());
+            }
+        }
+
+
+        public int EvalFor(int ply, ChessBoard board, ChessPlayer player, out ChessEvalInfo info, int alpha, int beta)
+        {
+            if (player == ChessPlayer.White)
+            {
+                return Eval(ply, board, out info, alpha, beta);
+            }
+            else
+            {
+                return -Eval(ply, board, out info, -beta, -alpha);
+            }
+        }
+
+        public int Eval(int ply, ChessBoard board, out ChessEvalInfo info, int alpha, int beta)
+        {
+            info = _plyInfoList[ply];
+
+
+            //check to see if we already have evaluated.
+            if(board.Zobrist == info.Zobrist)
+            {
+                if (info.LazyAge == 0) { return info.Score; }
+                if (info.LazyHigh < alpha) 
+                { 
+                    return alpha; 
+                }
+                else if (info.LazyLow > beta) 
+                { 
+                    return beta; 
+                }
+            }
+
+            
+            ChessEvalInfo prev = null;
+            if (ply > 0)
+            {
+                prev = _plyInfoList[ply - 1];
+            }
+
+            return _eval.EvalLazy(board, info, prev, alpha, beta);
+            
+        }
+
 
 
     }

@@ -177,9 +177,12 @@ namespace Sinobyl.Engine
                 if (captures)
                 {
                     //pawn captures.
-                    targetLocations = board[me.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
-                    targetLocations &= evasionTargets;
+                    //must include enpassant in evasion target locations. possible could be an evasion cap such as in response to 
+                    //8/4r3/R4n2/2pPk3/p1P1B1p1/3K2P1/5P2/8 w - - 4 54 
 
+                    targetLocations = board[me.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
+                    targetLocations &= evasionTargets | (board.EnPassant.IsInBounds() ? board.EnPassant.Bitboard() : 0);
+                    
                     foreach (ChessDirection capDir in new ChessDirection[] { mypawneast, mypawnwest })
                     {
                         attacks = piecePositions.Shift(capDir) & targetLocations;

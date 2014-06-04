@@ -48,7 +48,7 @@ namespace Sinobyl.Engine
         }
 	}
 
-
+    [System.Diagnostics.DebuggerDisplay(@"{FEN,nq}")]
 	public sealed class ChessBoard
     {
 

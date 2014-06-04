@@ -836,15 +836,6 @@ namespace Sinobyl.Engine
             
             ChessEvalInfo init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, alpha, beta);
-            //int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, ChessEval.MinValue, ChessEval.MaxValue);
-
-            //if (init_score >= beta && oldScore < beta)
-            //{
-            //    var oldInfo = (eval as ChessEval)._evalInfo;
-
-            //    int b = 1;
-            //}
-
             
 			bool playerincheck = board.IsCheck();
 
@@ -871,8 +862,17 @@ namespace Sinobyl.Engine
             while ((moveData = plyMoves.NextMoveData()).Move != ChessMove.EMPTY)
 			{
                 ChessMove move = moveData.Move;
-				//todo: fulitity check 
-				CurrentVariation[ply] = move;
+
+                //futility check
+                if (!playerincheck)
+                {
+                    if (moveData.SEE < 0) { continue; }
+
+                    var capPieceVal = board.PieceAt(move.To()).PieceValBasic();
+                    if (init_score + capPieceVal < alpha) { continue; }
+                }
+
+                CurrentVariation[ply] = move;
 
 				board.MoveApply(move);
 

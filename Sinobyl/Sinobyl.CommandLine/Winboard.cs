@@ -221,7 +221,7 @@ namespace Sinobyl.CommandLine
                     break;
                 //custom stuff for debugging
                 case "setpos1":
-                    _board.FEN = new ChessFEN("8/8/7N/8/5k2/8/8/5K2 b - - 0 56 ");
+                    _board.FEN = new ChessFEN("8/4r3/R4n2/2pPk3/p1P1B1p1/3K2P1/5P2/8 w - - 4 54 ");
                     break;
                 case "eval":
                     ChessEval eval = new ChessEval();

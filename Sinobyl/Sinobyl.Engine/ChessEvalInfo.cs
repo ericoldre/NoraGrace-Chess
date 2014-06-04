@@ -185,6 +185,10 @@ namespace Sinobyl.Engine
             }
         }
 
+        public ChessEval Evaluator
+        {
+            get { return _eval; }
+        }
 
         public int EvalFor(int ply, ChessBoard board, ChessPlayer player, out ChessEvalInfo info, int alpha, int beta)
         {
@@ -214,12 +218,12 @@ namespace Sinobyl.Engine
             {
                 if (info.LazyAge == 0) { return info.Score; }
                 if (info.LazyHigh < alpha) 
-                { 
-                    return alpha; 
+                {
+                    return info.LazyHigh; 
                 }
                 else if (info.LazyLow > beta) 
-                { 
-                    return beta; 
+                {
+                    return info.LazyLow; 
                 }
             }
 

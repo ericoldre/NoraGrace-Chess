@@ -577,6 +577,8 @@ namespace Sinobyl.Engine
 			CountAIValSearch++;
             SearchArgs.TimeManager.NodeStart(CountAIValSearch); //will end up setting abort flag if over allotted time.
 
+            bool isPvNode = (beta - alpha) > 1;
+
             if (_aborting)
             {
                 return 0;
@@ -673,23 +675,6 @@ namespace Sinobyl.Engine
             plyMoves.Initialize(board, tt_move, false);
             plyMoves.Sort(board, true, tt_move);
 
-
-            //var plyMoves2 = plyMoves.Buffer2;
-            //plyMoves2.Initialize(board, tt_move, false);
-            //var moves2 = plyMoves2.SortedMoves().ToArray();
-            //if (moves2.Length != plyMoves.MoveCount)
-            //{
-            //    var moves1 = plyMoves.SortedMoves().ToArray();
-
-            //    var extra = moves2.Where(m => !moves1.Contains(m)).ToArray();
-            //    var leftout = moves1.Where(m => !moves2.Contains(m)).ToArray();
-            //    System.Diagnostics.Debug.Assert(false);
-            //}
-            //ChessMoves moves = new ChessMoves(ChessMove.GenMoves(board));
-			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,tt_move,depth > 3);
-			//moves.Sort(moveOrderer);
-
-
 			ChessTrans.EntryType tt_entryType = ChessTrans.EntryType.AtMost;
 
 			score = -INFINITY;
@@ -707,6 +692,24 @@ namespace Sinobyl.Engine
                 ChessMove move = moveData.Move;    
 
 				CurrentVariation[ply] = move;
+
+                //futility check
+                if (!isPvNode
+                    && moveData.Flags == 0
+                    && !in_check_before_move
+                    && legalMovesTried > 3)
+                {
+                    if (depth <= 1
+                        && init_score + 150 < alpha)
+                    {
+                        continue;
+                    }
+                    if (depth <= 2
+                        && init_score + 250 < alpha)
+                    {
+                        continue;
+                    }
+                }
 
 				board.MoveApply(move);
 
@@ -728,6 +731,8 @@ namespace Sinobyl.Engine
                 if (isCheck && SearchArgs.ExtendChecks) { ext = 1; }
 
                 bool isDangerous = moveData.Flags != 0 || isCheck;
+
+                
 
                 bool doFullSearch = true;
 

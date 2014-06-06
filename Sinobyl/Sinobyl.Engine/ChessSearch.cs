@@ -608,7 +608,7 @@ namespace Sinobyl.Engine
 			int score = -INFINITY;
 
 			//check for draw
-			if (board.IsDrawByRepetition() || board.IsDrawBy50MoveRule())
+            if (board.PositionRepetitionCount() > 1 || board.IsDrawBy50MoveRule())
 			{
                 return board.WhosTurn == ChessPlayer.White ? eval.DrawScore : -eval.DrawScore;
 			}

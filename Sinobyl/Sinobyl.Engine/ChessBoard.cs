@@ -290,30 +290,35 @@ namespace Sinobyl.Engine
 		}
 		public bool IsDrawByRepetition()
 		{
-			Int64 currzob = this.Zobrist;
-			int repcount = 1;
-			for (int i = _histCount - 1; i >= 0; i--)
-			{
-				ChessMoveHistory movehist = _hist[i];
-				if (movehist.Zobrist == currzob)
-				{
-					repcount++;
-				}
-				if (repcount >= 3)
-				{
-					return true;
-				}
-				if (movehist.Captured != ChessPiece.EMPTY)
-				{
-					break;
-				}
-				if (movehist.PieceMoved == ChessPiece.WPawn || movehist.PieceMoved == ChessPiece.BPawn)
-				{
-					break;
-				}
-			}
-			return false;
+            return PositionRepetitionCount() >= 3;
 		}
+
+        public int PositionRepetitionCount()
+        {
+            Int64 currzob = this.Zobrist;
+            int repcount = 1;
+            for (int i = _histCount - 1; i >= 0; i--)
+            {
+                ChessMoveHistory movehist = _hist[i];
+                if (movehist.Zobrist == currzob)
+                {
+                    repcount++;
+                }
+                if (repcount >= 3)
+                {
+                    return repcount;
+                }
+                if (movehist.Captured != ChessPiece.EMPTY)
+                {
+                    break;
+                }
+                if (movehist.PieceMoved == ChessPiece.WPawn || movehist.PieceMoved == ChessPiece.BPawn)
+                {
+                    break;
+                }
+            }
+            return repcount;
+        }
 		public int FiftyMovePlyCount
 		{
 			get

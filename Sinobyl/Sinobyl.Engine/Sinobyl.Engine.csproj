@@ -67,8 +67,8 @@
     <Compile Include="ChessMove.cs" />
     <Compile Include="ChessMove.Generate.cs" />
     <Compile Include="MovePicker.cs" />
-    <Compile Include="ChessMoveSEE.cs" />
-    <Compile Include="ChessOpening.cs" />
+    <Compile Include="StaticExchange.cs" />
+    <Compile Include="Opening.cs" />
     <Compile Include="PGN.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="PieceType.cs" />

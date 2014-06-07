@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Sinobyl.Engine
 {
-	public class ChessOpening
+	public class Opening
 	{
 		private class ECOEntry
 		{
@@ -33,7 +33,7 @@ namespace Sinobyl.Engine
 		private static Dictionary<Int64, PositionEntry> _positions;
 
 
-		static ChessOpening()
+		static Opening()
 		{
 			_names = new List<ECOEntry>();
 			_positions = new Dictionary<long, PositionEntry>();

@@ -193,7 +193,7 @@ namespace Sinobyl.Engine
             _capsCount = ExcludeFrom(_array, 0, _capsCount, _exclude, _excludeCount);
             for (int i = 0; i < _capsCount; i++)
             {
-                _array[i].SEE = ChessMoveSEE.CompEstScoreSEE(_array[i].Move, _board); //calculate if winning capture.
+                _array[i].SEE = StaticExchange.CalculateScore(_array[i].Move, _board); //calculate if winning capture.
                 _array[i].Flags = MoveFlags.Capture;
                 if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
 

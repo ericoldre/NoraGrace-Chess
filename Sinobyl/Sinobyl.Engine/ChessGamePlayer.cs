@@ -181,7 +181,7 @@ namespace Sinobyl.Engine
         {
             //ChessSearch a = new ChessSearch(game.FENCurrent);
 
-            ChessOpening opening = new ChessOpening();//only here to debug static contructor
+            Opening opening = new Opening();//only here to debug static contructor
 
             Board currBoard = new Board(initalPosition, prevMoves);
 

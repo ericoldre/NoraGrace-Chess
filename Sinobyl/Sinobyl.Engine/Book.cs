@@ -36,7 +36,7 @@ namespace Sinobyl.Engine
 				int pop = 0;
 				string eco = "";
 				string name = "";
-				if(ChessOpening.GetInfoFromPosition(board.ZobristBoard, ref pop, ref eco, ref name))
+				if(Opening.GetInfoFromPosition(board.ZobristBoard, ref pop, ref eco, ref name))
 				{
 					moveinfo info = new moveinfo();
 					info.pop = pop;

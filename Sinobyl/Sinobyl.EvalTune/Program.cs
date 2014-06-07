@@ -18,11 +18,11 @@ namespace Sinobyl.EvalTune
             Random rand = new Random();
 
             //read in a series of openings.
-            List<ChessPGN> StartingPGNs = new List<ChessPGN>();
+            List<PGN> StartingPGNs = new List<PGN>();
             Console.WriteLine("Beginning parse of opening positions");
             using (System.IO.StreamReader reader = new System.IO.StreamReader(System.IO.File.OpenRead("OpeningPositions.pgn")))
             {
-                StartingPGNs.AddRange(ChessPGN.AllGames(reader).Take(10000));
+                StartingPGNs.AddRange(PGN.AllGames(reader).Take(10000));
             }
             Console.WriteLine("completed parse of opening positions");
 
@@ -155,13 +155,13 @@ namespace Sinobyl.EvalTune
                        // pgnWriter.Write("\n\n");
                         switch (p.Game.Result)
                         {
-                            case ChessResult.Draw:
+                            case GameResult.Draw:
                                 Console.Write("-");
                                 break;
-                            case ChessResult.WhiteWins:
+                            case GameResult.WhiteWins:
                                 Console.Write(p.Game.White == highPlayerName ? @"/" : @"\");
                                 break;
-                            case ChessResult.BlackWins:
+                            case GameResult.BlackWins:
                                 Console.Write(p.Game.White == highPlayerName ? @"\" : @"/");
                                 break;
                         }

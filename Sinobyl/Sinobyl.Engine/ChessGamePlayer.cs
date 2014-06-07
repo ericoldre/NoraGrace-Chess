@@ -188,7 +188,7 @@ namespace Sinobyl.Engine
             FEN FenCurrent = currBoard.FENCurrent;
 
             //check opening book
-            ChessBookOpening book = new ChessBookOpening();
+            BookOpening book = new BookOpening();
             ChessMove bookMove = book.FindMove(FenCurrent);
             if (bookMove != ChessMove.EMPTY)
             {

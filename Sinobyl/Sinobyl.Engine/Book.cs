@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-	public abstract class ChessBook
+	public abstract class Book
 	{
 		public abstract ChessMove FindMove(FEN fen);
 	}
-	public class ChessBookOpening: ChessBook
+	public class BookOpening: Book
 	{
 		private class moveinfo
 		{

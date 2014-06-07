@@ -9,12 +9,12 @@ using System.Linq;
 namespace Sinobyl.Engine
 {
 
-    public enum ChessResult
+    public enum GameResult
     {
         Draw = 0, WhiteWins = 1, BlackWins = -1
     }
 
-    public enum ChessResultReason
+    public enum GameResultReason
     {
         NotDecided = 0,
         Checkmate = 1, Resign = 2, OutOfTime = 3, Adjudication = 4, //win reasons
@@ -61,78 +61,19 @@ namespace Sinobyl.Engine
         
 	}
 
-    //public class ChessPGNComment
-    //{
-    //    private int _movenum;
-    //    private string _text;
-    //    public ChessPGNComment(int movenum, string text)
-    //    {
-    //        _movenum = movenum;
-    //        _text = text;
-    //    }
-    //    public int MoveNum
-    //    {
-    //        get
-    //        {
-    //            return _movenum;
-    //        }
-    //    }
-    //    public string Text
-    //    {
-    //        get
-    //        {
-    //            return _text;
-    //        }
-    //    }
-    //}
-
-
-    //public class ChessPGNHeader
-    //{
-        
-    //    private readonly string _key;
-    //    private readonly string _value;
-    //    public ChessPGNHeader(string key, string val)
-    //    {
-    //        _key = key;
-    //        _value = val;
-    //    }
-
-        
-    //    public string Key
-    //    {
-    //        get
-    //        {
-    //            return _key;
-    //        }
-    //    }
-    //    public string Value
-    //    {
-    //        get
-    //        {
-    //            return _value;
-    //        }
-    //    }
-    //    public override string ToString()
-    //    {
-    //        return "[" + this.Key + " \"" + this.Value + "\"]";
-    //    }
-
-
-    //}
-	public class ChessPGN
+	public class PGN
 	{
 
 		
 		private readonly List<ChessMove> _moves = new List<ChessMove>();
-		private ChessResult? _result;
-		private ChessResultReason _resultReason;
+		private GameResult? _result;
+		private GameResultReason _resultReason;
         private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 		private readonly Dictionary<int, string> _comments = new Dictionary<int,string>();
 
 
 
-        public ChessPGN(IEnumerable<KeyValuePair<string, string>> headers, IEnumerable<ChessMove> moves, ChessResult? result, IEnumerable<KeyValuePair<int, string>> comments, ChessResultReason reason)
+        public PGN(IEnumerable<KeyValuePair<string, string>> headers, IEnumerable<ChessMove> moves, GameResult? result, IEnumerable<KeyValuePair<int, string>> comments, GameResultReason reason)
 		{
             if (_headers != null)
             {
@@ -154,7 +95,7 @@ namespace Sinobyl.Engine
             }
 			_resultReason = reason;
 		}
-        public ChessPGN(IEnumerable<KeyValuePair<string, string>> headers, Board board)
+        public PGN(IEnumerable<KeyValuePair<string, string>> headers, Board board)
 		{
             if (_headers != null)
             {
@@ -165,7 +106,7 @@ namespace Sinobyl.Engine
             }
             _moves.AddRange(board.HistoryMoves);
 			_result = null;
-			_resultReason = ChessResultReason.NotDecided;
+			_resultReason = GameResultReason.NotDecided;
 		}
 
         //public ChessPGN(ChessGame game)
@@ -250,14 +191,14 @@ namespace Sinobyl.Engine
 			}
 		}
 
-		public ChessResult? Result
+		public GameResult? Result
 		{
 			get
 			{
 				return _result;
 			}
 		}
-		public ChessResultReason ResultReason
+		public GameResultReason ResultReason
 		{
 			get
 			{
@@ -431,15 +372,15 @@ namespace Sinobyl.Engine
 				imove++;
 			}
 			//result
-			if (_result == ChessResult.WhiteWins)
+			if (_result == GameResult.WhiteWins)
 			{
 				sbMoves.Append("1-0 ");
 			}
-			else if (_result == ChessResult.BlackWins)
+			else if (_result == GameResult.BlackWins)
 			{
 				sbMoves.Append("0-1 ");
 			}
-			else if (_result == ChessResult.Draw)
+			else if (_result == GameResult.Draw)
 			{
 				sbMoves.Append("1/2-1/2 ");
 			}
@@ -477,29 +418,29 @@ namespace Sinobyl.Engine
 		}
 
 
-        public static IEnumerable<ChessPGN> AllGames(System.IO.StreamReader reader)
+        public static IEnumerable<PGN> AllGames(System.IO.StreamReader reader)
         {
             while (true)
             {
-                ChessPGN pgn = NextGame(reader);
+                PGN pgn = NextGame(reader);
                 if (pgn == null) { break; }
                 yield return pgn;
             }
         }
 
-		public static ChessPGN NextGame(string PGNString)
+		public static PGN NextGame(string PGNString)
 		{
             System.IO.MemoryStream memory = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(PGNString));
             System.IO.StreamReader reader = new System.IO.StreamReader(memory);
 			return NextGame(reader);
 		}
-        public static ChessPGN NextGame(System.IO.StreamReader reader)
+        public static PGN NextGame(System.IO.StreamReader reader)
 		{
 			ChessPGNHeaders headers = new ChessPGNHeaders();
             Dictionary<int, string> comments = new Dictionary<int, string>();
 			ChessMoves moves = new ChessMoves();
-			ChessResult? result = null;
-			ChessResultReason reason = ChessResultReason.NotDecided;
+			GameResult? result = null;
+			GameResultReason reason = GameResultReason.NotDecided;
 			Board board = new Board();
 
 
@@ -603,11 +544,11 @@ namespace Sinobyl.Engine
 						{
 							if (OkToProcessResults)
 							{
-								result = ChessResult.Draw;
-								if (board.IsDrawByStalemate()) { reason = ChessResultReason.Stalemate; }
-								else if (board.IsDrawByRepetition()) { reason = ChessResultReason.Repetition; }
-								else if (board.IsDrawBy50MoveRule()) { reason = ChessResultReason.FiftyMoveRule; }
-								else { reason = ChessResultReason.MutualAgreement; }
+								result = GameResult.Draw;
+								if (board.IsDrawByStalemate()) { reason = GameResultReason.Stalemate; }
+								else if (board.IsDrawByRepetition()) { reason = GameResultReason.Repetition; }
+								else if (board.IsDrawBy50MoveRule()) { reason = GameResultReason.FiftyMoveRule; }
+								else { reason = GameResultReason.MutualAgreement; }
 
 								gamedone = true;
 							}
@@ -616,9 +557,9 @@ namespace Sinobyl.Engine
 						{
 							if (OkToProcessResults)
 							{
-								result = ChessResult.WhiteWins;
-								if (board.IsMate()) { reason = ChessResultReason.Checkmate; }
-								else { reason = ChessResultReason.Resign; }
+								result = GameResult.WhiteWins;
+								if (board.IsMate()) { reason = GameResultReason.Checkmate; }
+								else { reason = GameResultReason.Resign; }
 								gamedone = true;
 							}
 						}
@@ -626,9 +567,9 @@ namespace Sinobyl.Engine
 						{
 							if (OkToProcessResults)
 							{
-								result = ChessResult.BlackWins;
-								if (board.IsMate()) { reason = ChessResultReason.Checkmate; }
-								else { reason = ChessResultReason.Resign; }
+								result = GameResult.BlackWins;
+								if (board.IsMate()) { reason = GameResultReason.Checkmate; }
+								else { reason = GameResultReason.Resign; }
 								gamedone = true;
 							}
 						}
@@ -651,13 +592,13 @@ namespace Sinobyl.Engine
 							{
 								if (board.WhosTurn == Player.White)
 								{
-									result = ChessResult.BlackWins;
-									reason = ChessResultReason.Checkmate;
+									result = GameResult.BlackWins;
+									reason = GameResultReason.Checkmate;
 								}
 								else
 								{
-									result = ChessResult.WhiteWins;
-									reason = ChessResultReason.Checkmate;
+									result = GameResult.WhiteWins;
+									reason = GameResultReason.Checkmate;
 								}
 								gamedone = true;
 							}
@@ -669,7 +610,7 @@ namespace Sinobyl.Engine
 			}
 			if (moves.Count > 0 || headers.Count > 0)
 			{
-				return new ChessPGN(headers, moves, result, comments, reason);
+				return new PGN(headers, moves, result, comments, reason);
 			}
 			else
 			{
@@ -681,10 +622,10 @@ namespace Sinobyl.Engine
 
     public static class ExtensionsChessPGN
     {
-        public static string Summary(this IEnumerable<ChessPGN> PGNs)
+        public static string Summary(this IEnumerable<PGN> PGNs)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var winnerGroup in PGNs.GroupBy(pgn => new { Winner = pgn.Result == ChessResult.WhiteWins ? pgn.White : pgn.Result == ChessResult.BlackWins ? pgn.Black : "Draw" }))
+            foreach (var winnerGroup in PGNs.GroupBy(pgn => new { Winner = pgn.Result == GameResult.WhiteWins ? pgn.White : pgn.Result == GameResult.BlackWins ? pgn.Black : "Draw" }))
             {
                 sb.AppendLine(string.Format("{0,-20} Wins:{1,-4} AvgLen:{2,-5}", winnerGroup.Key.Winner, winnerGroup.Count(), winnerGroup.Average(pgn => pgn.Moves.Count())));
                 foreach (var reasongroup in winnerGroup.GroupBy(pgn => pgn.ResultReason))
@@ -700,24 +641,24 @@ namespace Sinobyl.Engine
             return sb.ToString();
         }
 
-        public static void ResultsForPlayer(this IEnumerable<ChessPGN> PGNs, string playerName, out int wins, out int losses, out int draws)
+        public static void ResultsForPlayer(this IEnumerable<PGN> PGNs, string playerName, out int wins, out int losses, out int draws)
         {
             wins=0;
             losses=0;
             draws=0;
-            foreach (ChessPGN pgn in PGNs)
+            foreach (PGN pgn in PGNs)
             {
                 if (playerName == pgn.White)
                 {
-                    if (pgn.Result == ChessResult.WhiteWins) { wins++; }
-                    else if (pgn.Result == ChessResult.BlackWins) { losses++; }
-                    else if (pgn.Result == ChessResult.Draw) { draws++; }
+                    if (pgn.Result == GameResult.WhiteWins) { wins++; }
+                    else if (pgn.Result == GameResult.BlackWins) { losses++; }
+                    else if (pgn.Result == GameResult.Draw) { draws++; }
                 }
                 else if (playerName == pgn.Black)
                 {
-                    if (pgn.Result == ChessResult.WhiteWins) { losses++; }
-                    else if (pgn.Result == ChessResult.BlackWins) { wins++; }
-                    else if (pgn.Result == ChessResult.Draw) { draws++; }
+                    if (pgn.Result == GameResult.WhiteWins) { losses++; }
+                    else if (pgn.Result == GameResult.BlackWins) { wins++; }
+                    else if (pgn.Result == GameResult.Draw) { draws++; }
                 }
             }
         }

@@ -51,7 +51,7 @@
     <Compile Include="Attacks.cs" />
     <Compile Include="Bitboard.cs" />
     <Compile Include="Board.cs" />
-    <Compile Include="ChessBook.cs" />
+    <Compile Include="Book.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="ChessEval.cs" />
     <Compile Include="ChessEvalInfo.cs" />
@@ -69,7 +69,7 @@
     <Compile Include="MovePicker.cs" />
     <Compile Include="ChessMoveSEE.cs" />
     <Compile Include="ChessOpening.cs" />
-    <Compile Include="ChessPGN.cs" />
+    <Compile Include="PGN.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="PieceType.cs" />
     <Compile Include="Player.cs" />

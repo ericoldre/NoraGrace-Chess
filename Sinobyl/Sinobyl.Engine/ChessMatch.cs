@@ -13,21 +13,21 @@ namespace Sinobyl.Engine
         ChessMove Move(FEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControl timeControls, TimeSpan timeLeft, out string Comment);
     }
 
-    public class ChessMatchResults: List<ChessPGN>
+    public class ChessMatchResults: List<PGN>
     {
         
     }
     public class ChessMatchProgress
     {
         public ChessMatchResults Results { get; set; }
-        public ChessPGN Game { get; set; }
+        public PGN Game { get; set; }
         public TimeSpan GameTime { get; set; }
     }
     public class ChessMatch
     {
         
 
-        public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<IChessGamePlayer>> competitors, IEnumerable<ChessPGN> startingPositions, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
+        public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<IChessGamePlayer>> competitors, IEnumerable<PGN> startingPositions, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
         {
             
             ChessMatchResults retval = new ChessMatchResults();
@@ -56,7 +56,7 @@ namespace Sinobyl.Engine
                         IChessGamePlayer playerBlack = fBlackPlayer();
 
                         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                        ChessPGN game = Game(playerWhite, playerBlack, new FEN(startingPGN.StartingPosition), startingPGN.Moves, null);
+                        PGN game = Game(playerWhite, playerBlack, new FEN(startingPGN.StartingPosition), startingPGN.Moves, null);
                         stopwatch.Stop();
 
                         lock (retval)
@@ -80,7 +80,7 @@ namespace Sinobyl.Engine
 
 
 
-        public static ChessMatchResults RunParallelMatch(Func<IChessGamePlayer> createPlayer1, Func<IChessGamePlayer> createPlayer2, IEnumerable<ChessPGN> startingPositions, Action<ChessMatchProgress> onGameCompleted = null)
+        public static ChessMatchResults RunParallelMatch(Func<IChessGamePlayer> createPlayer1, Func<IChessGamePlayer> createPlayer2, IEnumerable<PGN> startingPositions, Action<ChessMatchProgress> onGameCompleted = null)
         {
             ChessMatchResults retval = new ChessMatchResults();
 
@@ -100,7 +100,7 @@ namespace Sinobyl.Engine
                     IChessGamePlayer playerBlack = player1IsWhite?player2:player1;
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    ChessPGN game = Game(playerWhite, playerBlack, new FEN(startingPGN.StartingPosition), startingPGN.Moves, null);
+                    PGN game = Game(playerWhite, playerBlack, new FEN(startingPGN.StartingPosition), startingPGN.Moves, null);
                     stopwatch.Stop();
 
                     lock (retval)
@@ -122,10 +122,10 @@ namespace Sinobyl.Engine
 
         }
 
-        public static ChessPGN Game(IChessGamePlayer white, IChessGamePlayer black, FEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControl timeControl)
+        public static PGN Game(IChessGamePlayer white, IChessGamePlayer black, FEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControl timeControl)
         {
-            ChessResult? gameResult = null;
-            ChessResultReason reason = ChessResultReason.Unknown;
+            GameResult? gameResult = null;
+            GameResultReason reason = GameResultReason.Unknown;
 
 
             ChessMoves gameMoves = new ChessMoves();
@@ -146,8 +146,8 @@ namespace Sinobyl.Engine
                 var bestMove = player.Move(gameStartPosition, gameMoves.ToArray(), timeControl, new TimeSpan(1,0,0), out moveComment);
                 if (bestMove == ChessMove.EMPTY)
                 {
-                    gameResult = board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
-                    reason = ChessResultReason.Resign;
+                    gameResult = board.WhosTurn == Player.White ? GameResult.BlackWins : GameResult.WhiteWins;
+                    reason = GameResultReason.Resign;
                     break;
                 }
 
@@ -164,41 +164,41 @@ namespace Sinobyl.Engine
                 }
                 else
                 {
-                    reason = ChessResultReason.IllegalMove;
-                    gameResult = board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                    reason = GameResultReason.IllegalMove;
+                    gameResult = board.WhosTurn == Player.White ? GameResult.BlackWins : GameResult.WhiteWins;
                 }
 
             }
 
-            ChessPGN retval = new ChessPGN(new ChessPGNHeaders(), gameMoves, gameResult, comments, reason);
+            PGN retval = new PGN(new ChessPGNHeaders(), gameMoves, gameResult, comments, reason);
             retval.Headers.Add("White", white.Name);
             retval.Headers.Add("Black", black.Name);
             return retval;
         }
 
-        private static ChessResult? BoardResult(Board _board, out ChessResultReason _resultReason)
+        private static GameResult? BoardResult(Board _board, out GameResultReason _resultReason)
         {
-            ChessResult? _result = null;
-            _resultReason = ChessResultReason.Unknown;
+            GameResult? _result = null;
+            _resultReason = GameResultReason.Unknown;
             if (_board.IsMate())
             {
-                _result = _board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
-                _resultReason = ChessResultReason.Checkmate;
+                _result = _board.WhosTurn == Player.White ? GameResult.BlackWins : GameResult.WhiteWins;
+                _resultReason = GameResultReason.Checkmate;
             }
             else if (_board.IsDrawBy50MoveRule())
             {
-                _result = ChessResult.Draw;
-                _resultReason = ChessResultReason.FiftyMoveRule;
+                _result = GameResult.Draw;
+                _resultReason = GameResultReason.FiftyMoveRule;
             }
             else if (_board.IsDrawByRepetition())
             {
-                _result = ChessResult.Draw;
-                _resultReason = ChessResultReason.Repetition;
+                _result = GameResult.Draw;
+                _resultReason = GameResultReason.Repetition;
             }
             else if (_board.IsDrawByStalemate())
             {
-                _result = ChessResult.Draw;
-                _resultReason = ChessResultReason.Stalemate;
+                _result = GameResult.Draw;
+                _resultReason = GameResultReason.Stalemate;
             }
             return _result;
         }

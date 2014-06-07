@@ -39,8 +39,8 @@ namespace Sinobyl.Engine
         private bool _started = false;
         private readonly Board _board = new Board();
         private readonly ChessMoves _moves = new ChessMoves();
-        public ChessResult? _result = null;
-        public ChessResultReason _resultReason = ChessResultReason.NotDecided;
+        public GameResult? _result = null;
+        public GameResultReason _resultReason = GameResultReason.NotDecided;
         private TimeSpan[] _timeRemainingForPlayer = new TimeSpan[2];
         private DateTime _timeMoveStarted;
 
@@ -100,13 +100,13 @@ namespace Sinobyl.Engine
         {
             if (sender.Equals(PlayerBlack))
             {
-                _result = ChessResult.WhiteWins;
+                _result = GameResult.WhiteWins;
             }
             else if (sender.Equals(PlayerWhite))
             {
-                _result = ChessResult.BlackWins;
+                _result = GameResult.BlackWins;
             }
-            _resultReason = ChessResultReason.Resign;
+            _resultReason = GameResultReason.Resign;
             OnGameFinished();
         }
 
@@ -220,9 +220,9 @@ namespace Sinobyl.Engine
             {
                 _timeRemainingForPlayer[(int)_board.WhosTurn] = this.ClockTime(_board.WhosTurn);
 
-                if (_board.WhosTurn == Player.White) { _result = ChessResult.BlackWins; }
-                if (_board.WhosTurn == Player.Black) { _result = ChessResult.WhiteWins; }
-                _resultReason = ChessResultReason.OutOfTime;
+                if (_board.WhosTurn == Player.White) { _result = GameResult.BlackWins; }
+                if (_board.WhosTurn == Player.Black) { _result = GameResult.WhiteWins; }
+                _resultReason = GameResultReason.OutOfTime;
 
                 OnGameFinished();
                 return; //game over
@@ -256,21 +256,21 @@ namespace Sinobyl.Engine
             }
         }
 
-        public ChessResult? Result
+        public GameResult? Result
         {
             get { return _result; }
         }
-        public ChessResultReason ResultReason
+        public GameResultReason ResultReason
         {
             get
             {
-                if (_result != null && _resultReason == ChessResultReason.NotDecided)
+                if (_result != null && _resultReason == GameResultReason.NotDecided)
                 {
-                    return ChessResultReason.Unknown;
+                    return GameResultReason.Unknown;
                 }
                 else if (_result == null)
                 {
-                    return ChessResultReason.NotDecided;
+                    return GameResultReason.NotDecided;
                 }
                 return _resultReason;
             }
@@ -329,23 +329,23 @@ namespace Sinobyl.Engine
 
             if (_board.IsMate())
             {
-                _result = _board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
-                _resultReason = ChessResultReason.Checkmate;
+                _result = _board.WhosTurn == Player.White ? GameResult.BlackWins : GameResult.WhiteWins;
+                _resultReason = GameResultReason.Checkmate;
             }
             else if (_board.IsDrawBy50MoveRule())
             {
-                _result = ChessResult.Draw;
-                _resultReason = ChessResultReason.FiftyMoveRule;
+                _result = GameResult.Draw;
+                _resultReason = GameResultReason.FiftyMoveRule;
             }
             else if (_board.IsDrawByRepetition())
             {
-                _result = ChessResult.Draw;
-                _resultReason = ChessResultReason.Repetition;
+                _result = GameResult.Draw;
+                _resultReason = GameResultReason.Repetition;
             }
             else if (_board.IsDrawByStalemate())
             {
-                _result = ChessResult.Draw;
-                _resultReason = ChessResultReason.Stalemate;
+                _result = GameResult.Draw;
+                _resultReason = GameResultReason.Stalemate;
             }
 
             OnGameMoveApplied(move);

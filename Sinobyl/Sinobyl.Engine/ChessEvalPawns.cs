@@ -226,14 +226,14 @@ namespace Sinobyl.Engine
         }
         
 
-        public static ChessResult? EndgameKPK(Position whiteKing, Position blackKing, Position whitePawn, bool whiteToMove)
+        public static GameResult? EndgameKPK(Position whiteKing, Position blackKing, Position whitePawn, bool whiteToMove)
         {
             if (!whiteToMove
                 && ((Attacks.KingAttacks(blackKing) & whitePawn.ToBitboard()) != Bitboard.Empty)
                 && (Attacks.KingAttacks(whiteKing) & whitePawn.ToBitboard()) == Bitboard.Empty)
             {
                 //black can just take white.
-                return ChessResult.Draw;
+                return GameResult.Draw;
             }
 
             Position prom = Rank.Rank8.ToPosition(whitePawn.ToFile());
@@ -243,7 +243,7 @@ namespace Sinobyl.Engine
             if (prom.DistanceTo(blackKing) > pdist)
             {
                 //pawn can run for end.
-                return ChessResult.WhiteWins;
+                return GameResult.WhiteWins;
             }
 
             return null;

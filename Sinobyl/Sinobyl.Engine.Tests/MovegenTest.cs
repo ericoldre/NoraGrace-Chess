@@ -200,7 +200,7 @@ namespace Sinobyl.Engine.Tests
             while (!reader.EndOfStream)
             {
                 iCount++;
-                ChessPGN pgn = ChessPGN.NextGame(reader);
+                PGN pgn = PGN.NextGame(reader);
                 if (pgn == null) { break; }
 
                 Board board = new Board();

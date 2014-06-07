@@ -18,21 +18,21 @@ namespace Sinobyl.Engine.Tests
             {
                 StreamReader reader = new StreamReader(stream);
 
-                var games = ChessPGN.AllGames(reader).ToList();
+                var games = PGN.AllGames(reader).ToList();
                 Assert.AreEqual<int>(8, games.Count);
                 Assert.IsTrue(Enumerable.SequenceEqual<int>(games.Select(g => g.Moves.Count), new int[] { 70, 44, 113, 63, 77, 135, 55, 82 }));
 
                 var results = games.Select(g => g.Result.Value).ToArray();
-                bool resultsEqual = Enumerable.SequenceEqual<ChessResult>(results, new ChessResult[] 
+                bool resultsEqual = Enumerable.SequenceEqual<GameResult>(results, new GameResult[] 
                 { 
-                    ChessResult.Draw, 
-                    ChessResult.Draw,
-                    ChessResult.Draw,
-                    ChessResult.WhiteWins,
-                    ChessResult.WhiteWins,
-                    ChessResult.Draw,
-                    ChessResult.WhiteWins,
-                    ChessResult.BlackWins
+                    GameResult.Draw, 
+                    GameResult.Draw,
+                    GameResult.Draw,
+                    GameResult.WhiteWins,
+                    GameResult.WhiteWins,
+                    GameResult.Draw,
+                    GameResult.WhiteWins,
+                    GameResult.BlackWins
                 });
                 Assert.IsTrue(resultsEqual);
             }

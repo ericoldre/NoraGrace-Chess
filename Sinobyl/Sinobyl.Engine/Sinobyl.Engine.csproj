@@ -75,12 +75,12 @@
     <Compile Include="ChessPieceType.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="ChessPosition.cs" />
-    <Compile Include="ChessRank.cs" />
+    <Compile Include="Rank.cs" />
     <Compile Include="ChessSearch.cs" />
     <Compile Include="ChessSearchAsync.cs" />
     <Compile Include="ChessTimeControl.cs" />
-    <Compile Include="ChessTrans.cs" />
-    <Compile Include="ChessZobrist.cs" />
+    <Compile Include="TranspositionTable.cs" />
+    <Compile Include="Zobrist.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="PhasedScore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -11,7 +11,7 @@ namespace Sinobyl.EvalTune
         public string Name { get; set; }
         public IChessEval Eval { get; set; }
         public TimeManagerNodes NodeManager { get; set; }
-        public ChessTrans TransTable { get; set; }
+        public TranspositionTable TransTable { get; set; }
         public Func<ChessSearch.Progress, string> CommentFormatter { get; set; }
         public Action<ChessSearch.Args> AlterSearchArgs { get; set; }
 
@@ -22,7 +22,7 @@ namespace Sinobyl.EvalTune
             Name = name;
             Eval = eval;
             NodeManager = nodeManager;
-            TransTable = new ChessTrans(10000);
+            TransTable = new TranspositionTable(10000);
         }
 
 

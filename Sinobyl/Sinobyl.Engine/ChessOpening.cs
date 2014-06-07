@@ -69,9 +69,9 @@ namespace Sinobyl.Engine
                         ChessPosition to = ChessPositionInfo.Parse(smove.Substring(2, 2));
 						ChessMove move = ChessMoveInfo.Create(from, to);
 						board.MoveApply(move);
-						if (_positions.ContainsKey(board.Zobrist))
+						if (_positions.ContainsKey(board.ZobristBoard))
 						{
-							PositionEntry posinfo = _positions[board.Zobrist];
+							PositionEntry posinfo = _positions[board.ZobristBoard];
 							posinfo.ECO = info;
 							posinfo.OpeningCount++;
 						}
@@ -80,7 +80,7 @@ namespace Sinobyl.Engine
 							PositionEntry posinfo = new PositionEntry();
 							posinfo.ECO = info;
 							posinfo.OpeningCount = 1;
-							_positions.Add(board.Zobrist, posinfo);
+							_positions.Add(board.ZobristBoard, posinfo);
 						}
 					}
 				}

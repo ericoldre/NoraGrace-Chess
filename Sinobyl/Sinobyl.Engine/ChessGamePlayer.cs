@@ -105,7 +105,7 @@ namespace Sinobyl.Engine
 
         private readonly ChessSearchAsync search;
         private ChessGamePlayerPersonality _personality = ChessGamePlayerPersonality.FromStrength(1);
-        private readonly ChessTrans _transTable = new ChessTrans();
+        private readonly TranspositionTable _transTable = new TranspositionTable();
         private BackgroundWorker BookBackgroundWorker;
         private ChessEval _eval = new ChessEval();
         private TimeManagerAdvanced _timeManager = new TimeManagerAdvanced();

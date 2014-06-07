@@ -50,7 +50,7 @@ namespace Sinobyl.Engine
 
         public void MaterialPawnsApply(ChessBoard board, EvalMaterialResults material, PawnInfo pawns, int drawScore)
         {
-            this.Zobrist = board.Zobrist;
+            this.Zobrist = board.ZobristBoard;
             this.DrawScore = drawScore;
             this.PcSq = board.PcSqValue;
             this.Material = material.Score;
@@ -214,7 +214,7 @@ namespace Sinobyl.Engine
 
 
             //check to see if we already have evaluated.
-            if(board.Zobrist == info.Zobrist)
+            if(board.ZobristBoard == info.Zobrist)
             {
                 if (info.LazyAge == 0) { return info.Score; }
                 if (info.LazyHigh < alpha) 

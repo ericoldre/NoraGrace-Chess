@@ -39,7 +39,7 @@ namespace Sinobyl.Engine
 		public string ToString(ChessBoard board, bool isVariation)
 		{
 			StringBuilder sb = new StringBuilder();
-			long zobInit = board.Zobrist;
+			long zobInit = board.ZobristBoard;
 			foreach (ChessMove move in this)
 			{
 				if (isVariation && board.WhosTurn==Player.White)

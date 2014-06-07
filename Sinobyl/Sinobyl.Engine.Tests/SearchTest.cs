@@ -29,7 +29,7 @@ namespace Sinobyl.Engine.Tests
             ChessSearch search = new ChessSearch(new ChessSearch.Args() 
             { 
                 GameStartPosition = fen ,
-                TransTable = new ChessTrans(500),
+                TransTable = new TranspositionTable(500),
             });
 
             int progressCount = 0;

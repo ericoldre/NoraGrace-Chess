@@ -119,7 +119,7 @@ namespace Sinobyl.Engine
         public void Initialize(ChessBoard board, ChessMove ttMove = ChessMove.EMPTY, bool capsOnly = false)
         {
             _board = board;
-            _boardZob = board.Zobrist;
+            _boardZob = board.ZobristBoard;
             _ttMove = ttMove;
             _capsOnly = capsOnly;
             _currStep = 0;
@@ -335,7 +335,7 @@ namespace Sinobyl.Engine
         }
         public ChessMoveData NextMoveData()
         {
-            System.Diagnostics.Debug.Assert(_board.Zobrist == _boardZob);
+            System.Diagnostics.Debug.Assert(_board.ZobristBoard == _boardZob);
             switch (_currStep)
             {
                 case steps.ttMove:

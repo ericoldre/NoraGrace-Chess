@@ -5,13 +5,12 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-	public class ChessTrans
+	public class TranspositionTable
 	{
 		//public static ChessTrans Global = new ChessTrans();
 
 
 		private readonly EntryPair[] hashtable;
-        private readonly int _hashTableSize;
 
 		public enum EntryType
 		{
@@ -64,7 +63,7 @@ namespace Sinobyl.Engine
 			
 		}
 
-        public ChessTrans(int hastTableSize = 250000)
+        public TranspositionTable(int hastTableSize = 250000)
         {
             if (hastTableSize <= 0) { throw new ArgumentOutOfRangeException("hashTableSize"); }
 
@@ -171,13 +170,13 @@ namespace Sinobyl.Engine
 
 		public void StoreVariation(ChessBoard board, ChessMoves pv)
 		{
-			Int64 zobInit = board.Zobrist;
+			Int64 zobInit = board.ZobristBoard;
 			foreach (ChessMove move in pv)
 			{
-				this.Store(board.Zobrist, 0, EntryType.Worthless, 0, move);
+				this.Store(board.ZobristBoard, 0, EntryType.Worthless, 0, move);
 				board.MoveApply(move);
 			}
-			while (board.Zobrist != zobInit)
+			while (board.ZobristBoard != zobInit)
 			{
 				board.MoveUndo();
 			}

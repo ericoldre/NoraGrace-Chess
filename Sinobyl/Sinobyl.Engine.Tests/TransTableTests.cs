@@ -14,7 +14,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void TransTable_GetAddress()
         {
-            ChessTrans trans2 = new ChessTrans(2);
+            TranspositionTable trans2 = new TranspositionTable(2);
             
             Assert.AreEqual<int>(0, trans2.GetAddress(0));
             Assert.AreEqual<int>(1, trans2.GetAddress(1));
@@ -29,7 +29,7 @@ namespace Sinobyl.Engine.Tests
             Assert.AreEqual<int>(1, trans2.GetAddress(-5));
 
 
-            ChessTrans trans3 = new ChessTrans(3);
+            TranspositionTable trans3 = new TranspositionTable(3);
 
             Assert.AreEqual<int>(0, trans3.GetAddress(0));
             Assert.AreEqual<int>(1, trans3.GetAddress(1));
@@ -49,7 +49,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void TransCutoff1()
         {
-            ChessTrans trans = new ChessTrans(1);
+            TranspositionTable trans = new TranspositionTable(1);
 
             ChessMove storeMove = RandomMove();
             int storeScore = RandScore();
@@ -57,7 +57,7 @@ namespace Sinobyl.Engine.Tests
             int readScore = 0;
 
 
-            trans.Store(0, 2, ChessTrans.EntryType.Exactly, storeScore, storeMove);
+            trans.Store(0, 2, TranspositionTable.EntryType.Exactly, storeScore, storeMove);
             var doCutoff = trans.QueryCutoff(0, 2, -1000, 1000, out readMove, out readScore);
             Assert.IsTrue(doCutoff == true);
             Assert.AreEqual<int>(storeScore, readScore);
@@ -72,20 +72,20 @@ namespace Sinobyl.Engine.Tests
         public void CheckAllStored()
         {
 
-            ChessTrans trans = new ChessTrans(100);
+            TranspositionTable trans = new TranspositionTable(100);
 
             var moves = Enumerable.Range(0, 500).Select(i => RandomMove()).ToArray();
 
             //store deep entries
             for (int i = 0; i < 100; i++)
             {
-                trans.Store(i, 10, ChessTrans.EntryType.Worthless, 0, moves[i]);
+                trans.Store(i, 10, TranspositionTable.EntryType.Worthless, 0, moves[i]);
             }
 
             //store shallow entries
             for (int i = 100; i < 200; i++)
             {
-                trans.Store(i, 3, ChessTrans.EntryType.Worthless, 0, moves[i]);
+                trans.Store(i, 3, TranspositionTable.EntryType.Worthless, 0, moves[i]);
             }
 
             for (int i = 0; i < 200; i++)
@@ -99,7 +99,7 @@ namespace Sinobyl.Engine.Tests
             //store even more shallow entries
             for (int i = 200; i < 300; i++)
             {
-                trans.Store(i, 1, ChessTrans.EntryType.Worthless, 0, moves[i]);
+                trans.Store(i, 1, TranspositionTable.EntryType.Worthless, 0, moves[i]);
             }
 
             //assert deepest entries still there
@@ -121,7 +121,7 @@ namespace Sinobyl.Engine.Tests
             }
         }
 
-        public void AssertNotIncorrect(ChessTrans trans, long storedZob, int storedDepth, int storedScore, ChessMove storedMove)
+        public void AssertNotIncorrect(TranspositionTable trans, long storedZob, int storedDepth, int storedScore, ChessMove storedMove)
         {
             //if entry replaced nothing we can check;
             if (trans.GetEntry(storedZob) == null) { return; }
@@ -152,9 +152,9 @@ namespace Sinobyl.Engine.Tests
             return ChessMoveInfo.Create(f, t);
         }
 
-        public ChessTrans.EntryType RandEntryType()
+        public TranspositionTable.EntryType RandEntryType()
         {
-            return (ChessTrans.EntryType)random.Next(0, 5);
+            return (TranspositionTable.EntryType)random.Next(0, 5);
         }
 
         private Int64 Rand64()

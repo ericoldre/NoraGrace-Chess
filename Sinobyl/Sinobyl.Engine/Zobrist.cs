@@ -8,7 +8,7 @@ namespace Sinobyl.Engine
 	/// <summary>
 	/// Summary description for ChessZobrist.
 	/// </summary>
-	public class ChessZobrist
+	public class Zobrist
 	{
         private static readonly Int64[,] _piecepos = new Int64[ChessPieceInfo.LookupArrayLength, 64];
 		private static readonly Int64[] _enpassant = new Int64[64];
@@ -19,7 +19,7 @@ namespace Sinobyl.Engine
         private static readonly Int64 _castleBL;
         private static readonly Int64 _player;
 
-		static ChessZobrist()
+		static Zobrist()
 		{
 			Random rand = new Random(12345);
 
@@ -131,27 +131,27 @@ namespace Sinobyl.Engine
 			}
 			if (board.WhosTurn == Player.Black)
 			{
-				retval ^= ChessZobrist.PlayerKey;
+				retval ^= Zobrist.PlayerKey;
 			}
             if ((board.CastleRights & CastleFlags.WhiteShort) != 0)
 			{
-				retval ^= ChessZobrist.CastleWS;
+				retval ^= Zobrist.CastleWS;
 			}
             if ((board.CastleRights & CastleFlags.WhiteLong) != 0)
 			{
-				retval ^= ChessZobrist.CastleWL;
+				retval ^= Zobrist.CastleWL;
 			}
             if ((board.CastleRights & CastleFlags.BlackShort) != 0)
 			{
-				retval ^= ChessZobrist.CastleBS;
+				retval ^= Zobrist.CastleBS;
 			}
             if ((board.CastleRights & CastleFlags.BlackLong) != 0)
 			{
-				retval ^= ChessZobrist.CastleBL;
+				retval ^= Zobrist.CastleBL;
 			}
 			if (board.EnPassant.IsInBounds())
 			{
-				retval ^= ChessZobrist.Enpassant(board.EnPassant);
+				retval ^= Zobrist.Enpassant(board.EnPassant);
 			}
 			return retval;
 

@@ -182,7 +182,7 @@ namespace Sinobyl.Engine
 			public ChessMoves GameMoves { get; set; }
 			public int MaxDepth { get; set; }
 			public int NodesPerSecond { get; set; }
-			public ChessTrans TransTable { get; set; }
+			public TranspositionTable TransTable { get; set; }
 			public BlunderChance Blunder { get; set; }
 			public TimeSpan Delay { get; set; }
             public IChessEval Eval { get; set; }
@@ -366,7 +366,7 @@ namespace Sinobyl.Engine
 			//get trans table move
 			int tt_score = 0;
             ChessMove tt_move = ChessMove.EMPTY;
-            SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, -INFINITY, INFINITY, out tt_move, out tt_score);
+            SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, depth, -INFINITY, INFINITY, out tt_move, out tt_score);
 			
 
 			bool in_check_before_move = board.IsCheck();
@@ -447,7 +447,7 @@ namespace Sinobyl.Engine
 					_bestvariationscore = alpha;
 
 					//store to trans table
-                    SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.Exactly, alpha, move);
+                    SearchArgs.TransTable.Store(board.ZobristBoard, depth, TranspositionTable.EntryType.Exactly, alpha, move);
 
 					//announce new best line if not trivial
                     Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), _bestvariation, this.board.FEN);
@@ -484,7 +484,7 @@ namespace Sinobyl.Engine
             {
                 ChessMove move;
                 int score;
-                this.SearchArgs.TransTable.QueryCutoff(board.Zobrist, 0, int.MinValue, int.MaxValue, out move, out score);
+                this.SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, 0, int.MinValue, int.MaxValue, out move, out score);
                 if (ChessMoveInfo.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);
@@ -621,7 +621,7 @@ namespace Sinobyl.Engine
 
 			//check trans table
             ChessMove tt_move = ChessMove.EMPTY;
-            if (SearchArgs.TransTable.QueryCutoff(board.Zobrist, depth, alpha, beta, out tt_move, out score))
+            if (SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, depth, alpha, beta, out tt_move, out score))
 			{
                 ////if last two moves were null this is a verification search. 
                 ////do not allow cutoff here as original search may have had null cutoff
@@ -663,7 +663,7 @@ namespace Sinobyl.Engine
 				{
 					//record in trans table?
 					//(board,depth_remaining,TRANSVALUEATLEAST,beta,0);
-                    SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.AtLeast, beta, ChessMove.EMPTY);
+                    SearchArgs.TransTable.Store(board.ZobristBoard, depth, TranspositionTable.EntryType.AtLeast, beta, ChessMove.EMPTY);
 					return beta;
 					//wouldDoNullCutoff = true;
 				}
@@ -675,7 +675,7 @@ namespace Sinobyl.Engine
             plyMoves.Initialize(board, tt_move, false);
             plyMoves.Sort(board, true, tt_move);
 
-			ChessTrans.EntryType tt_entryType = ChessTrans.EntryType.AtMost;
+			TranspositionTable.EntryType tt_entryType = TranspositionTable.EntryType.AtMost;
 
 			score = -INFINITY;
 			//bool haslegalmove = false;
@@ -762,7 +762,7 @@ namespace Sinobyl.Engine
 
 				//check for blunder
                 bool isRecapture = (move.To() == board.HistMove(2).To());
-                if (SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, depth, isRecapture, legalMovesTried, alpha, beta))
+                if (SearchArgs.Blunder.DoBlunder(board.ZobristBoard ^ this.BlunderKey, depth, isRecapture, legalMovesTried, alpha, beta))
                 {
                     if (!in_check_before_move)  //weird behavior if doing blunder when player in check
                     {
@@ -780,7 +780,7 @@ namespace Sinobyl.Engine
 
 				if (score >= beta)
 				{
-                    SearchArgs.TransTable.Store(board.Zobrist, depth, ChessTrans.EntryType.AtLeast, beta, move);
+                    SearchArgs.TransTable.Store(board.ZobristBoard, depth, TranspositionTable.EntryType.AtLeast, beta, move);
                     CutoffStats.AtDepth[depth].CutoffAfter[legalMovesTried] += 1;
                     plyMoves.RegisterCutoff(board, move);
 					return score;
@@ -788,7 +788,7 @@ namespace Sinobyl.Engine
 
 				if (score > alpha)
 				{
-					tt_entryType = ChessTrans.EntryType.Exactly;
+					tt_entryType = TranspositionTable.EntryType.Exactly;
 					alpha = score;
 					bestmove = move;
 
@@ -817,9 +817,9 @@ namespace Sinobyl.Engine
 			}
 
 
-            SearchArgs.TransTable.Store(board.Zobrist, depth, tt_entryType, alpha, bestmove);
+            SearchArgs.TransTable.Store(board.ZobristBoard, depth, tt_entryType, alpha, bestmove);
 
-            if (tt_entryType == ChessTrans.EntryType.Exactly)
+            if (tt_entryType == TranspositionTable.EntryType.Exactly)
             {
                 CutoffStats.AtDepth[depth].PVNodes += 1;
             }
@@ -894,7 +894,7 @@ namespace Sinobyl.Engine
 
 				//check for blunder
                 bool isRecapture = (move.To() == board.HistMove(2).To());
-                if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.Zobrist ^ this.BlunderKey, 0, isRecapture, tried_move_count, alpha, beta))
+                if (tried_move_count > 1 && SearchArgs.Blunder.DoBlunder(board.ZobristBoard ^ this.BlunderKey, 0, isRecapture, tried_move_count, alpha, beta))
                 {
                     if (!playerincheck) //weird behavior if doing blunder when player in check
                     {

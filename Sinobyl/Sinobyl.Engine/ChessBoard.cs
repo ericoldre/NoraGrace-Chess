@@ -197,8 +197,8 @@ namespace Sinobyl.Engine
         private void PieceAdd(ChessPosition pos, ChessPiece piece)
 		{
             _pieceat[(int)pos] = piece;
-            _zob ^= ChessZobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[(int)piece]);
+            _zob ^= Zobrist.PiecePosition(piece, pos);
+            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)piece]);
             _pieceCount[(int)piece]++;
             _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSq);
 
@@ -210,7 +210,7 @@ namespace Sinobyl.Engine
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
-                _zobPawn ^= ChessZobrist.PiecePosition(piece, pos);
+                _zobPawn ^= Zobrist.PiecePosition(piece, pos);
 			}
 			else if (piece == ChessPiece.WKing)
 			{
@@ -226,8 +226,8 @@ namespace Sinobyl.Engine
             ChessPiece piece = PieceAt(pos);
 
             _pieceat[(int)pos] = ChessPiece.EMPTY;
-			_zob ^= ChessZobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= ChessZobrist.Material(piece, _pieceCount[(int)piece] - 1);
+			_zob ^= Zobrist.PiecePosition(piece, pos);
+            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)piece] - 1);
             _pieceCount[(int)piece]--;
             _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSq);
 
@@ -239,7 +239,7 @@ namespace Sinobyl.Engine
 
 			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
 			{
-                _zobPawn ^= ChessZobrist.PiecePosition(piece, pos); 
+                _zobPawn ^= Zobrist.PiecePosition(piece, pos); 
 			}
 		}
 		public int PieceCount(ChessPiece piece)
@@ -295,7 +295,7 @@ namespace Sinobyl.Engine
 
         public int PositionRepetitionCount()
         {
-            Int64 currzob = this.Zobrist;
+            Int64 currzob = this.ZobristBoard;
             int repcount = 1;
             for (int i = _histCount - 1; i >= 0; i--)
             {
@@ -389,15 +389,15 @@ namespace Sinobyl.Engine
 				_enpassant = value.enpassant;
 				_fiftymove = value.fiftymove;
 				_fullmove = value.fullmove;
-				_zob = ChessZobrist.BoardZob(this);
-				_zobPawn = ChessZobrist.BoardZobPawn(this);
-                _zobMaterial = ChessZobrist.BoardZobMaterial(this);
+				_zob = Zobrist.BoardZob(this);
+				_zobPawn = Zobrist.BoardZobPawn(this);
+                _zobMaterial = Zobrist.BoardZobMaterial(this);
                 _checkers = AttacksTo(_kingpos[(int)_whosturn]) & this[_whosturn.PlayerOther()];
 
 			}
 		}
 
-		public Int64 Zobrist
+		public Int64 ZobristBoard
 		{
             get { return _zob; }
 		}
@@ -538,28 +538,28 @@ namespace Sinobyl.Engine
                     && (piece == ChessPiece.WKing || from == ChessPosition.H1))
                 {
                     _castleFlags &= ~CastleFlags.WhiteShort;
-                    _zob ^= ChessZobrist.CastleWS;
+                    _zob ^= Zobrist.CastleWS;
                 }
 
                 if (((_castleFlags & CastleFlags.WhiteLong) != 0)
                     && (piece == ChessPiece.WKing || from == ChessPosition.A1))
                 {
                     _castleFlags &= ~CastleFlags.WhiteLong;
-                    _zob ^= ChessZobrist.CastleWL;
+                    _zob ^= Zobrist.CastleWL;
                 }
 
                 if (((_castleFlags & CastleFlags.BlackShort) != 0)
                     && (piece == ChessPiece.BKing || from == ChessPosition.H8))
                 {
                     _castleFlags &= ~CastleFlags.BlackShort;
-                    _zob ^= ChessZobrist.CastleBS;
+                    _zob ^= Zobrist.CastleBS;
                 }
 
                 if (((_castleFlags & CastleFlags.BlackLong) != 0)
                     && (piece == ChessPiece.BKing || from == ChessPosition.A8))
                 {
                     _castleFlags &= ~CastleFlags.BlackLong;
-                    _zob ^= ChessZobrist.CastleBL;
+                    _zob ^= Zobrist.CastleBL;
                 }
             }
 
@@ -578,7 +578,7 @@ namespace Sinobyl.Engine
 			//unmark enpassant sq
 			if (_enpassant.IsInBounds())
 			{
-				_zob ^= ChessZobrist.Enpassant(_enpassant);
+				_zob ^= Zobrist.Enpassant(_enpassant);
 				_enpassant = (ChessPosition.OUTOFBOUNDS);
 			}
 
@@ -586,12 +586,12 @@ namespace Sinobyl.Engine
 			if (piece == ChessPiece.WPawn && fromrank == Rank.Rank2 && torank == Rank.Rank4)
 			{
 				_enpassant = fromfile.ToPosition(Rank.Rank3);
-                _zob ^= ChessZobrist.Enpassant(_enpassant);
+                _zob ^= Zobrist.Enpassant(_enpassant);
 			}
 			else if (piece == ChessPiece.BPawn && fromrank == Rank.Rank7 && torank == Rank.Rank5)
 			{
 				_enpassant = fromfile.ToPosition(Rank.Rank6);
-                _zob ^= ChessZobrist.Enpassant(_enpassant);
+                _zob ^= Zobrist.Enpassant(_enpassant);
 			}
 
 			//increment the move count
@@ -610,7 +610,7 @@ namespace Sinobyl.Engine
 
 			//switch whos turn
             _whosturn = _whosturn.PlayerOther();
-			_zob ^= ChessZobrist.PlayerKey;
+			_zob ^= Zobrist.PlayerKey;
             _checkers = AttacksTo(_kingpos[(int)_whosturn]) & this[_whosturn.PlayerOther()];
 
 		}
@@ -722,13 +722,13 @@ namespace Sinobyl.Engine
 			//unmark enpassant sq
 			if (_enpassant.IsInBounds())
 			{
-				_zob ^= ChessZobrist.Enpassant(_enpassant);
+				_zob ^= Zobrist.Enpassant(_enpassant);
 				_enpassant = (ChessPosition.OUTOFBOUNDS);
 			}
 
 			//switch whos turn
             _whosturn = _whosturn.PlayerOther();
-			_zob ^= ChessZobrist.PlayerKey;
+			_zob ^= Zobrist.PlayerKey;
             _checkers = AttacksTo(_kingpos[(int)_whosturn]) & this[_whosturn.PlayerOther()];
 		}
 		public void MoveNullUndo()

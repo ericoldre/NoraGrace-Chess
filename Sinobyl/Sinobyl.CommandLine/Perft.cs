@@ -17,7 +17,7 @@ namespace Sinobyl.CommandLine
             ChessBoard board = new ChessBoard();
             ChessEval eval = new ChessEval();
             ChessMoves movesDone = new ChessMoves();
-            ChessTrans transTable = new ChessTrans();
+            TranspositionTable transTable = new TranspositionTable();
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
             //var timeManager = new TimeManagerBasic() { TimeControl = ChessTimeControl.Blitz(100, 100), ClockEnd = DateTime.Now.AddDays(100) };

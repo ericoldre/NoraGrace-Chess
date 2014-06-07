@@ -73,7 +73,7 @@ namespace Sinobyl.EvalTune
             
             ChessMoves gameMoves = new ChessMoves();
             //setup init position
-            ChessBoard board = new ChessBoard(gameStartPosition);
+            Board board = new Board(gameStartPosition);
             Dictionary<int, string> comments = new Dictionary<int, string>();
             foreach (var move in initalMoves)
             {
@@ -129,7 +129,7 @@ namespace Sinobyl.EvalTune
             return retval;
         }
 
-        private static ChessResult? BoardResult(ChessBoard _board, out ChessResultReason _resultReason)
+        private static ChessResult? BoardResult(Board _board, out ChessResultReason _resultReason)
         {
             ChessResult? _result = null;
             _resultReason = ChessResultReason.Unknown;

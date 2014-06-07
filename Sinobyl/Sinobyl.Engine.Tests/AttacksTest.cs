@@ -53,7 +53,7 @@ namespace Sinobyl.Engine.Tests
                 ChessPGN pgn = ChessPGN.NextGame(reader);
                 if (pgn == null) { break; }
 
-                ChessBoard board = new ChessBoard();
+                Board board = new Board();
 
                 foreach (ChessMove move in pgn.Moves)
                 {

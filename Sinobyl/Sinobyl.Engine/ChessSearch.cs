@@ -213,7 +213,7 @@ namespace Sinobyl.Engine
 		public event EventHandler<SearchProgressEventArgs> ProgressReported;
 
 		public readonly Args SearchArgs;
-		private readonly ChessBoard board;
+		private readonly Board board;
 		private readonly IChessEval eval;
 		private ChessMove[] CurrentVariation = new ChessMove[50];
 		private DateTime _starttime;
@@ -234,7 +234,7 @@ namespace Sinobyl.Engine
             eval = args.Eval;
             _evalInfoStack = new ChessEvalInfoStack(args.Eval as ChessEval);
 
-            board = new ChessBoard(SearchArgs.GameStartPosition);
+            board = new Board(SearchArgs.GameStartPosition);
             
 
 			foreach (ChessMove histmove in SearchArgs.GameMoves)
@@ -465,7 +465,7 @@ namespace Sinobyl.Engine
         private List<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
         {
             List<ChessMove> retval = new List<ChessMove>();
-            ChessBoard board = new ChessBoard(fen);
+            Board board = new Board(fen);
             foreach (var move in moves)
             {
                 //var legalMoves = ChessMoveInfo.GenMovesLegal(board).ToArray();

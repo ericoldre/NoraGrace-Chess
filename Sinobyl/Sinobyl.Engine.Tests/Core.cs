@@ -51,7 +51,7 @@ namespace Sinobyl.Engine.Tests
 		[TestMethod]
 		public void LastTwoNull()
 		{
-			ChessBoard board = new ChessBoard();
+			Board board = new Board();
 			Assert.IsTrue(board.MovesSinceNull > 0);
 			board.MoveNullApply();
 			Assert.IsTrue(board.MovesSinceNull == 0);

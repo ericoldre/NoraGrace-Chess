@@ -154,7 +154,7 @@ namespace Sinobyl.Engine
             }
 			_resultReason = reason;
 		}
-        public ChessPGN(IEnumerable<KeyValuePair<string, string>> headers, ChessBoard board)
+        public ChessPGN(IEnumerable<KeyValuePair<string, string>> headers, Board board)
 		{
             if (_headers != null)
             {
@@ -371,7 +371,7 @@ namespace Sinobyl.Engine
 
 		public void Write(System.IO.TextWriter writer, int MaxLineLen = 90)
 		{
-			ChessBoard board = new ChessBoard(this.StartingPosition);
+			Board board = new Board(this.StartingPosition);
 
 			StringBuilder sbMoves = new StringBuilder();
 			StringBuilder sbHeaders = new StringBuilder();
@@ -500,7 +500,7 @@ namespace Sinobyl.Engine
 			ChessMoves moves = new ChessMoves();
 			ChessResult? result = null;
 			ChessResultReason reason = ChessResultReason.NotDecided;
-			ChessBoard board = new ChessBoard();
+			Board board = new Board();
 
 
 			int headerlevel = 0;
@@ -537,7 +537,7 @@ namespace Sinobyl.Engine
 							headers.Add(header.Key, header.Value);
 							if (header.Key.ToUpper() == "FEN")
 							{
-								board = new ChessBoard(header.Value);
+								board = new Board(header.Value);
 							}
 							token = "";
 						}

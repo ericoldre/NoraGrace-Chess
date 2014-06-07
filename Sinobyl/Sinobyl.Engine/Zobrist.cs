@@ -92,7 +92,7 @@ namespace Sinobyl.Engine
 		{
             get { return _player; }
 		}
-		public static Int64 BoardZobPawn(ChessBoard board)
+		public static Int64 BoardZobPawn(Board board)
 		{
 			Int64 retval = 0;
             foreach (Position pos in PositionInfo.AllPositions)
@@ -105,7 +105,7 @@ namespace Sinobyl.Engine
 			}
 			return retval;
 		}
-        public static Int64 BoardZobMaterial(ChessBoard board)
+        public static Int64 BoardZobMaterial(Board board)
         {
             Int64 retval = 0;
             foreach (Piece piece in PieceInfo.AllPieces)
@@ -118,7 +118,7 @@ namespace Sinobyl.Engine
             return retval;
 
         }
-		public static Int64 BoardZob(ChessBoard board)
+		public static Int64 BoardZob(Board board)
 		{
 			Int64 retval = 0;
             foreach (Position pos in PositionInfo.AllPositions)

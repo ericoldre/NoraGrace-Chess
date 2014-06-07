@@ -44,7 +44,7 @@ namespace Sinobyl.Engine
             this.fiftymove = FiftyMove;
             this.fullmove = FullMove;
         }
-		public ChessFEN(ChessBoard board)
+		public ChessFEN(Board board)
 		{
 			for (int pos = 0; pos < 64; pos++)
 			{

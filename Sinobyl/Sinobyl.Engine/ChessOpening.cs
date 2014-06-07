@@ -59,7 +59,7 @@ namespace Sinobyl.Engine
 
 
 
-					ChessBoard board = new ChessBoard();
+					Board board = new Board();
 					string[] smoves = arr[0].Split(' ');
 
 

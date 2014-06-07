@@ -36,7 +36,7 @@ namespace Sinobyl.Engine.Tests
             string output;
             search.ProgressReported += (s, e) =>
             {
-                ChessBoard boardProgress = new ChessBoard(e.Progress.FEN);
+                Board boardProgress = new Board(e.Progress.FEN);
                 string pvstring = new ChessMoves(e.Progress.PrincipleVariation).ToString(boardProgress, true);
                 output = string.Format("{0} {1} {2} {3} {4}", e.Progress.Depth, e.Progress.Score, Math.Round(e.Progress.Time.TotalMilliseconds / 10), e.Progress.Nodes, pvstring);
                 Console.WriteLine(output);
@@ -56,7 +56,7 @@ namespace Sinobyl.Engine.Tests
         public void StaticExchangeTest()
         {
             ChessFEN fen = new ChessFEN("rnbqkb1r/ppp2ppp/4p3/3p1n2/4P1P1/1B4N1/PPPP1P1P/RNBQK2R w KQkq - 0 1 ");
-            ChessBoard board = new ChessBoard(fen);
+            Board board = new Board(fen);
 
             AssertFirstGreaterSEE(board, "e4f5", "g3f5");
             AssertFirstGreaterSEE(board, "g4f5", "g3f5");
@@ -64,7 +64,7 @@ namespace Sinobyl.Engine.Tests
             AssertFirstGreaterSEE(board, "g3f5", "b3d5");
 
 
-            board = new ChessBoard(fen.Reverse());
+            board = new Board(fen.Reverse());
             AssertFirstGreaterSEE(board, "e5f4", "g6f4");
             AssertFirstGreaterSEE(board, "g5f4", "g6f4");
             AssertFirstGreaterSEE(board, "e5f4", "g6f4");
@@ -84,7 +84,7 @@ namespace Sinobyl.Engine.Tests
             //int i = caps.Length;
         }
 
-        private void AssertFirstGreaterSEE(ChessBoard board, string move1, string move2)
+        private void AssertFirstGreaterSEE(Board board, string move1, string move2)
         {
             ChessMove m1 = ChessMoveInfo.Parse(board, move1);
             ChessMove m2 = ChessMoveInfo.Parse(board, move2);

@@ -21,7 +21,7 @@ namespace Sinobyl.Engine
                 for (int i = 0; i <= _history.GetUpperBound(0); i++) { _history[i] = new int[64]; }
             }
 
-            public void RegisterKiller(ChessBoard board, ChessMove move)
+            public void RegisterKiller(Board board, ChessMove move)
             {
                 //record as killer
                 if (move != move1 && board.PieceAt(move.To()) == Piece.EMPTY)
@@ -41,7 +41,7 @@ namespace Sinobyl.Engine
 
             }
 
-            public void RegisterFailLow(ChessBoard board, ChessMove move)
+            public void RegisterFailLow(Board board, ChessMove move)
             {
                 //decrease value in history table
                 var ptype = (int)board.PieceAt(move.From()).ToPieceType();
@@ -49,7 +49,7 @@ namespace Sinobyl.Engine
                 _history[ptype][to] = _history[ptype][to] / 2;
             }
 
-            public int HistoryScore(ChessBoard board, ChessMove move)
+            public int HistoryScore(Board board, ChessMove move)
             {
                 var ptype = (int)board.PieceAt(move.From()).ToPieceType();
                 var to = (int)move.To();
@@ -96,7 +96,7 @@ namespace Sinobyl.Engine
 
         private readonly ChessMove[] _killers = new ChessMove[3];
         private ChessMove _ttMove;
-        private ChessBoard _board;
+        private Board _board;
         private long _boardZob;
         private bool _capsOnly;
         private steps _currStep;
@@ -116,7 +116,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public void Initialize(ChessBoard board, ChessMove ttMove = ChessMove.EMPTY, bool capsOnly = false)
+        public void Initialize(Board board, ChessMove ttMove = ChessMove.EMPTY, bool capsOnly = false)
         {
             _board = board;
             _boardZob = board.ZobristBoard;
@@ -132,7 +132,7 @@ namespace Sinobyl.Engine
             //_moveCurrent = 0;
         }
 
-        public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
+        public void Sort(Board board, bool useSEE, ChessMove ttMove)
         {
 
         }
@@ -399,12 +399,12 @@ namespace Sinobyl.Engine
             }
         }
 
-        public void RegisterCutoff(ChessBoard board, ChessMove move)
+        public void RegisterCutoff(Board board, ChessMove move)
         {
             _playerKillers[(int)board.WhosTurn].RegisterKiller(board, move);
         }
 
-        public void RegisterFailLow(ChessBoard board, ChessMove move)
+        public void RegisterFailLow(Board board, ChessMove move)
         {
             _playerKillers[(int)board.WhosTurn].RegisterFailLow(board, move);
         }

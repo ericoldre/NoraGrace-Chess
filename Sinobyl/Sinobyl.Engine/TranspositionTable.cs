@@ -168,7 +168,7 @@ namespace Sinobyl.Engine
 			}
 		}
 
-		public void StoreVariation(ChessBoard board, ChessMoves pv)
+		public void StoreVariation(Board board, ChessMoves pv)
 		{
 			Int64 zobInit = board.ZobristBoard;
 			foreach (ChessMove move in pv)

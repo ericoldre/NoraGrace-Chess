@@ -18,7 +18,7 @@ namespace Sinobyl.Engine
 		}
 		public override ChessMove FindMove(ChessFEN fen)
 		{
-			ChessBoard board = new ChessBoard(fen);
+			Board board = new Board(fen);
 			var moves = ChessMoveInfo.GenMoves(board);
 
 			List<moveinfo> infos = new List<moveinfo>();

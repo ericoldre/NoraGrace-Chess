@@ -111,7 +111,7 @@ namespace Sinobyl.Engine.Tests
         public void PerftTest(string fen, int depth, int expectedLeaves, int expectedNodes)
         {
 
-            ChessBoard board = new ChessBoard(fen);
+            Board board = new Board(fen);
 
             string fenStart = board.FEN.ToString();
 
@@ -129,7 +129,7 @@ namespace Sinobyl.Engine.Tests
 
         }
 
-        public void PerftSearch(ChessBoard board, int ply, ChessMoveBuffer moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
+        public void PerftSearch(Board board, int ply, ChessMoveBuffer moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
         {
             nodecount++;
 
@@ -163,7 +163,7 @@ namespace Sinobyl.Engine.Tests
         }
         #endregion
 
-        public void VerifyBoardBitboards(ChessBoard board)
+        public void VerifyBoardBitboards(Board board)
         {
             Bitboard[] expectedPieces = new Bitboard[12];
             var all = Bitboard.Empty;
@@ -203,7 +203,7 @@ namespace Sinobyl.Engine.Tests
                 ChessPGN pgn = ChessPGN.NextGame(reader);
                 if (pgn == null) { break; }
 
-                ChessBoard board = new ChessBoard();
+                Board board = new Board();
 
                 foreach (ChessMove move in pgn.Moves)
                 {

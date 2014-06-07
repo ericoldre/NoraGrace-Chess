@@ -71,7 +71,7 @@ namespace Sinobyl.Engine
 
 
 
-        public PawnInfo PawnEval(ChessBoard board)
+        public PawnInfo PawnEval(Board board)
         {
             long idx = board.ZobristPawn % pawnHash.GetUpperBound(0);
             if (idx < 0) { idx = -idx; }
@@ -273,7 +273,7 @@ namespace Sinobyl.Engine
 
 
 
-        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
+        public PhasedScore EvalPassedPawns(Board board, ChessEvalAttackInfo[] attackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
         {
             
             PhasedScore retval = PhasedScoreInfo.Create(0, 0);
@@ -298,7 +298,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public PhasedScore EvalPassedPawnsSide(Player me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
+        public PhasedScore EvalPassedPawnsSide(Player me, Board board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
         {
             
             int bestEndScore = -1;
@@ -457,7 +457,7 @@ namespace Sinobyl.Engine
         }
 
 
-        public void EvalPassedPawnsOld(ChessBoard board, ChessEvalInfo evalInfo, Bitboard passedPawns)
+        public void EvalPassedPawnsOld(Board board, ChessEvalInfo evalInfo, Bitboard passedPawns)
         {
 
             Position myKing, hisKing;

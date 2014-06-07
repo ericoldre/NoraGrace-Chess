@@ -8,7 +8,7 @@ namespace Sinobyl.Engine
 {
     public static class ChessMoveSEE
     {
-        public static int CompEstScoreSEE(ChessMove move, ChessBoard board)
+        public static int CompEstScoreSEE(ChessMove move, Board board)
         {
             System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
             //System.Diagnostics.Debug.Assert(ChessMove.GenMoves(board).Contains(move));
@@ -40,7 +40,7 @@ namespace Sinobyl.Engine
 
             return retval;
         }
-        static int attackswap(ChessBoard board, Bitboard attacks, Player player, Position positionattacked, int pieceontargetval)
+        static int attackswap(Board board, Bitboard attacks, Player player, Position positionattacked, int pieceontargetval)
         {
             int nextAttackPieceVal = 0;
             Position nextAttackPos = 0;
@@ -60,7 +60,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        static bool attackpop(ChessBoard board, ref Bitboard attacks, Player player, Position positionattacked, out Position OutFrom, out int OutPieceVal)
+        static bool attackpop(Board board, ref Bitboard attacks, Player player, Position positionattacked, out Position OutFrom, out int OutPieceVal)
         {
 
             OutFrom = Position.OUTOFBOUNDS;

@@ -8,7 +8,7 @@ namespace Sinobyl.Engine
 {
     public interface IChessEvalMaterial
     {
-        EvalMaterialResults EvalMaterialHash(ChessBoard board);
+        EvalMaterialResults EvalMaterialHash(Board board);
     }
     public class ChessEvalMaterialBasic: IChessEvalMaterial
     {
@@ -21,7 +21,7 @@ namespace Sinobyl.Engine
             _settings = settings;
         }
 
-        public EvalMaterialResults EvalMaterialHash(ChessBoard board)
+        public EvalMaterialResults EvalMaterialHash(Board board)
         {
             long idx = board.ZobristMaterial % _hash.GetUpperBound(0);
 

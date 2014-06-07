@@ -36,7 +36,7 @@ namespace Sinobyl.Engine
             }
             return sb.ToString();
         }
-		public string ToString(ChessBoard board, bool isVariation)
+		public string ToString(Board board, bool isVariation)
 		{
 			StringBuilder sb = new StringBuilder();
 			long zobInit = board.ZobristBoard;
@@ -110,7 +110,7 @@ namespace Sinobyl.Engine
 
 
 
-		public static ChessMove Parse(ChessBoard board, string movetext)
+		public static ChessMove Parse(Board board, string movetext)
 		{
 			Piece Promote = Piece.EMPTY;//unless changed below
 			Position From = (Position.OUTOFBOUNDS);
@@ -272,7 +272,7 @@ namespace Sinobyl.Engine
             return ChessMoveInfo.Create(From, To);
 		}
 
-		private static Position ParseFilter(ChessBoard board, Position attackto, Piece piece, File file, Rank rank)
+		private static Position ParseFilter(Board board, Position attackto, Piece piece, File file, Rank rank)
 		{
             List<Position> fits = new List<Position>();
             var attacksTo = board.AttacksTo(attackto, board.WhosTurn);
@@ -317,7 +317,7 @@ namespace Sinobyl.Engine
             return fits[0];
 		}
 
-        public static bool IsLegal(this ChessMove move, ChessBoard board)
+        public static bool IsLegal(this ChessMove move, Board board)
         {
             ChessMoves legalmoves = new ChessMoves(ChessMoveInfo.GenMovesLegal(board));
             foreach (ChessMove legalmove in legalmoves)
@@ -342,7 +342,7 @@ namespace Sinobyl.Engine
 		}
 
 		
-		public static string Description(this ChessMove move, ChessBoard board)
+		public static string Description(this ChessMove move, Board board)
 		{
 			string retval = "";
             Piece piece = board.PieceAt(move.From());
@@ -460,7 +460,7 @@ namespace Sinobyl.Engine
 		}
 
 
-        public static bool IsPsuedoLegal(this ChessMove move, ChessBoard board)
+        public static bool IsPsuedoLegal(this ChessMove move, Board board)
         {
             if (move == ChessMove.EMPTY) { return false; }
             

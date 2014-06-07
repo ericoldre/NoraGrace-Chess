@@ -9,9 +9,9 @@ namespace Sinobyl.Engine
 
     public static partial class ChessMoveInfo
     {
-        public static IEnumerable<ChessMove> GenMovesLegal(ChessBoard board)
+        public static IEnumerable<ChessMove> GenMovesLegal(Board board)
         {
-            ChessBoard workingboard = new ChessBoard(board.FEN);
+            Board workingboard = new Board(board.FEN);
 
             Player me = board.WhosTurn;
             foreach (ChessMove move in GenMoves(workingboard))
@@ -24,7 +24,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public static IEnumerable<ChessMove> GenMoves(ChessBoard board)
+        public static IEnumerable<ChessMove> GenMoves(Board board)
         {
             ChessMoveData[] array = new ChessMoveData[210];
             int count = GenMovesArray(array, board, false);
@@ -34,7 +34,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public static int GenMovesArray(ChessMoveData[] array, ChessBoard board, bool capsOnly)
+        public static int GenMovesArray(ChessMoveData[] array, Board board, bool capsOnly)
         {
             Bitboard mypieces = board[board.WhosTurn];
             Bitboard hispieces = board[board.WhosTurn.PlayerOther()];
@@ -80,7 +80,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public static int GenCapsNonCaps(ChessMoveData[] array, ChessBoard board, bool captures, int arrayIndex)
+        public static int GenCapsNonCaps(ChessMoveData[] array, Board board, bool captures, int arrayIndex)
         {
 
             //ChessPiece mypawn = board.WhosTurn == ChessPlayer.White ? ChessPiece.WPawn : ChessPiece.BPawn;
@@ -310,7 +310,7 @@ namespace Sinobyl.Engine
         }
 
 
-        private static int GenMoves(ChessMoveData[] array, ChessBoard board, Bitboard possibleMovers, Bitboard targetLocations, bool castling, Bitboard kingTargets)
+        private static int GenMoves(ChessMoveData[] array, Board board, Bitboard possibleMovers, Bitboard targetLocations, bool castling, Bitboard kingTargets)
         {
             System.Diagnostics.Debug.Assert((possibleMovers & ~board[board.WhosTurn]) == Bitboard.Empty); //possible movers must be subset of my pieces
             System.Diagnostics.Debug.Assert((targetLocations & board[board.WhosTurn]) == Bitboard.Empty); //targets may not include my pieces.
@@ -501,7 +501,7 @@ namespace Sinobyl.Engine
         }
 
 
-        public static ChessMoves GenMovesOld(ChessBoard board, bool CapsOnly)
+        public static ChessMoves GenMovesOld(Board board, bool CapsOnly)
         {
             ChessMoves retval = new ChessMoves();
 
@@ -721,7 +721,7 @@ namespace Sinobyl.Engine
             return retval;
 
         }
-        public static IEnumerable<ChessMove> GenMovesOld2(ChessBoard board, bool CapsOnly)
+        public static IEnumerable<ChessMove> GenMovesOld2(Board board, bool CapsOnly)
         {
 
             Piece mypawn = board.WhosTurn == Player.White ? Piece.WPawn : Piece.BPawn;
@@ -894,7 +894,7 @@ namespace Sinobyl.Engine
         }
 
 
-        private static void AddDirection(ChessMoves retval, ChessBoard board, Position from, Direction dir, Player forwho, int maxdist, bool CapsOnly)
+        private static void AddDirection(ChessMoves retval, Board board, Position from, Direction dir, Player forwho, int maxdist, bool CapsOnly)
         {
             Position to = from.PositionInDirection(dir);
             int i = 1;

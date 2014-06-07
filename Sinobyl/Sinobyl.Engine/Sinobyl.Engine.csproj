@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Attacks.cs" />
     <Compile Include="Bitboard.cs" />
-    <Compile Include="ChessBoard.cs" />
+    <Compile Include="Board.cs" />
     <Compile Include="ChessBook.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="ChessEval.cs" />

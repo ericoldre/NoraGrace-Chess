@@ -36,7 +36,7 @@ namespace Sinobyl.Engine
         }
 
 
-        public void YourTurn(ChessBoard board, TimeControl timeControl, TimeSpan timeLeft)
+        public void YourTurn(Board board, TimeControl timeControl, TimeSpan timeLeft)
         {
             //need to extrapolate previous moves and initial position from board
             ChessMoves moves = board.HistoryMoves;
@@ -183,7 +183,7 @@ namespace Sinobyl.Engine
 
             ChessOpening opening = new ChessOpening();//only here to debug static contructor
 
-            ChessBoard currBoard = new ChessBoard(initalPosition, prevMoves);
+            Board currBoard = new Board(initalPosition, prevMoves);
 
             ChessFEN FenCurrent = currBoard.FEN;
 

@@ -7,7 +7,7 @@ namespace Sinobyl.Engine
 {
     public interface IChessEval
     {
-        int EvalFor(ChessBoard board, Player who);
+        int EvalFor(Board board, Player who);
         int DrawScore { get; set; }
     }
 
@@ -192,7 +192,7 @@ namespace Sinobyl.Engine
             value = value.Subtract(_pcsqPiecePos[(int)piece][(int)pos]);
         }
 
-        public int EvalFor(ChessBoard board, Player who)
+        public int EvalFor(Board board, Player who)
         {
             int retval = Eval(board);
             if (who == Player.Black) { retval = -retval; }
@@ -201,12 +201,12 @@ namespace Sinobyl.Engine
         }
 
         public ChessEvalInfo _evalInfo = new ChessEvalInfo();
-        public virtual int Eval(ChessBoard board)
+        public virtual int Eval(Board board)
         {
             return EvalLazy(board, _evalInfo, null, ChessEval.MinValue, ChessEval.MaxValue);
         }
 
-        public int EvalLazy(ChessBoard board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo, int alpha, int beta)
+        public int EvalLazy(Board board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo, int alpha, int beta)
         {
             System.Diagnostics.Debug.Assert(alpha >= MinValue);
             System.Diagnostics.Debug.Assert(beta <= MaxValue);
@@ -246,7 +246,7 @@ namespace Sinobyl.Engine
             return evalInfo.Score;
         }
 
-        public void EvalAdvanced(ChessBoard board, ChessEvalInfo evalInfo, EvalMaterialResults material, PawnInfo pawns)
+        public void EvalAdvanced(Board board, ChessEvalInfo evalInfo, EvalMaterialResults material, PawnInfo pawns)
         {
             
             TotalEvalCount++;
@@ -307,7 +307,7 @@ namespace Sinobyl.Engine
 
         }
 
-        protected int EvaluateMyKingAttack(ChessBoard board, Player me, ChessEvalInfo info)
+        protected int EvaluateMyKingAttack(Board board, Player me, ChessEvalInfo info)
         {
             //king attack info should have counts and weight of everything but pawns and kings.
 
@@ -383,7 +383,7 @@ namespace Sinobyl.Engine
             return retval;
 
         }
-        protected int EvaluateMyPieces(ChessBoard board, Player me, ChessEvalInfo info)
+        protected int EvaluateMyPieces(Board board, Player me, ChessEvalInfo info)
         {
             int retval = 0;
             PhasedScore mobility = 0;
@@ -509,7 +509,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        protected bool UseEndGamePcSq(ChessBoard board, Player winPlayer, out PhasedScore newPcSq)
+        protected bool UseEndGamePcSq(Board board, Player winPlayer, out PhasedScore newPcSq)
         {
             Player losePlayer = winPlayer.PlayerOther();
             if (

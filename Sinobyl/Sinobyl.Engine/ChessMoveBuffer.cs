@@ -72,7 +72,7 @@ namespace Sinobyl.Engine
             for (int i = 0; i <= _counterMoves.GetUpperBound(0); i++) { _counterMoves[i] = new ChessMove[64]; }
         }
 
-        public void Initialize(ChessBoard board, bool capsOnly = false)
+        public void Initialize(Board board, bool capsOnly = false)
         {
             _moveCount = ChessMoveInfo.GenMovesArray(_array, board, capsOnly);
             _moveCurrent = 0;
@@ -108,7 +108,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public void RegisterCutoff(ChessBoard board, ChessMove move)
+        public void RegisterCutoff(Board board, ChessMove move)
         {
             if (board.PieceAt(move.To()) == Piece.EMPTY)
             {
@@ -126,7 +126,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public void Sort(ChessBoard board, bool useSEE, ChessMove ttMove)
+        public void Sort(Board board, bool useSEE, ChessMove ttMove)
         {
             //useSEE = true;
             var killers = _playerKillers[(int)board.WhosTurn];

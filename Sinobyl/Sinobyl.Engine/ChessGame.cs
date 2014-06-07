@@ -37,7 +37,7 @@ namespace Sinobyl.Engine
         private ChessFEN _startFEN = new ChessFEN(ChessFEN.FENStart);
 
         private bool _started = false;
-        private readonly ChessBoard _board = new ChessBoard();
+        private readonly Board _board = new Board();
         private readonly ChessMoves _moves = new ChessMoves();
         public ChessResult? _result = null;
         public ChessResultReason _resultReason = ChessResultReason.NotDecided;

@@ -51,8 +51,8 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void NeutralTest()
         {
-            var board = new ChessBoard(ChessFEN.FENStart);
-            var boardReverse = new ChessBoard(new ChessFEN(ChessFEN.FENStart).Reverse());
+            var board = new Board(ChessFEN.FENStart);
+            var boardReverse = new Board(new ChessFEN(ChessFEN.FENStart).Reverse());
             var eval = new ChessEval();
 
             int norm = eval.Eval(board);
@@ -73,8 +73,8 @@ namespace Sinobyl.Engine.Tests
         public void TestPositionRange(string sfen, int minOk, int maxOk)
         {
             var fen = new ChessFEN(sfen);
-            var board = new ChessBoard(fen);
-            var breverse = new ChessBoard(fen.Reverse());
+            var board = new Board(fen);
+            var breverse = new Board(fen.Reverse());
             var eval = new ChessEval();
             var res1 = eval.EvalFor(board, board.WhosTurn);
             var res2 = eval.EvalFor(breverse, breverse.WhosTurn);
@@ -87,7 +87,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void PawnTest1()
         {
-            ChessBoard board = new ChessBoard("7k/7p/2p5/2p1Pp2/3pP3/1P4P1/7P/5BK1 w - - 0 1 ");
+            Board board = new Board("7k/7p/2p5/2p1Pp2/3pP3/1P4P1/7P/5BK1 w - - 0 1 ");
             Bitboard passed;
             Bitboard doubled;
             Bitboard isolated;
@@ -124,14 +124,14 @@ namespace Sinobyl.Engine.Tests
                 ChessPGN pgn = ChessPGN.NextGame(reader);
                 if (pgn == null) { break; }
 
-                ChessBoard board = new ChessBoard();
+                Board board = new Board();
 
                 foreach (ChessMove move in pgn.Moves)
                 {
                     board.MoveApply(move);
 
                     var fen = board.FEN;
-                    ChessBoard boardRev = new ChessBoard(fen.Reverse());
+                    Board boardRev = new Board(fen.Reverse());
                     
                     ChessEvalInfo e1 = new ChessEvalInfo();
                     ChessEvalInfo e2 = new ChessEvalInfo();
@@ -187,7 +187,7 @@ namespace Sinobyl.Engine.Tests
                 ChessPGN pgn = ChessPGN.NextGame(reader);
                 if (pgn == null) { break; }
 
-                ChessBoard board = new ChessBoard();
+                Board board = new Board();
 
                 int MovesDone = 0;
                 int TotalMoves = pgn.Moves.Count;

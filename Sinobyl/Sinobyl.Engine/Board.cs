@@ -18,7 +18,7 @@ namespace Sinobyl.Engine
         All = WhiteShort | WhiteLong | BlackShort | BlackLong
     }
 
-	public class ChessMoveHistory
+	public class MoveHistory
 	{
         public ChessMove Move;
         public Piece PieceMoved;
@@ -49,7 +49,7 @@ namespace Sinobyl.Engine
 	}
 
     [System.Diagnostics.DebuggerDisplay(@"{FEN,nq}")]
-	public sealed class ChessBoard
+	public sealed class Board
     {
 
 		private Piece[] _pieceat = new Piece[65];
@@ -84,7 +84,7 @@ namespace Sinobyl.Engine
 		private Int64 _zobPawn;
         private Int64 _zobMaterial;
 
-        private ChessMoveHistory[] _hist = new ChessMoveHistory[25];
+        private MoveHistory[] _hist = new MoveHistory[25];
         private int _histUB;
         private int _histCount = 0;
 
@@ -93,22 +93,22 @@ namespace Sinobyl.Engine
         private readonly ChessEval _pcSqEvaluator;
         private PhasedScore _pcSq;
 
-        public ChessBoard(ChessEval pcSqEvaluator = null)
+        public Board(ChessEval pcSqEvaluator = null)
             : this(new ChessFEN(ChessFEN.FENStart), pcSqEvaluator)
 		{
             
 		}
-        public ChessBoard(string fen, ChessEval pcSqEvaluator = null)
+        public Board(string fen, ChessEval pcSqEvaluator = null)
             : this(new ChessFEN(fen), pcSqEvaluator)
 		{
 
 		}
-		public ChessBoard(ChessFEN fen, ChessEval pcSqEvaluator = null)
+		public Board(ChessFEN fen, ChessEval pcSqEvaluator = null)
 		{
             _histUB = _hist.GetUpperBound(0);
             for (int i = 0; i <= _histUB; i++)
             {
-                _hist[i] = new ChessMoveHistory();
+                _hist[i] = new MoveHistory();
             }
 
             _pcSqEvaluator = pcSqEvaluator ?? ChessEval.Default;
@@ -117,7 +117,7 @@ namespace Sinobyl.Engine
 			this.FEN = fen;
 		}
 
-        public ChessBoard(ChessFEN fen, IEnumerable<ChessMove> prevMoves, ChessEval pcSqEvaluator = null)
+        public Board(ChessFEN fen, IEnumerable<ChessMove> prevMoves, ChessEval pcSqEvaluator = null)
             : this(fen, pcSqEvaluator)
         {
             foreach (ChessMove move in prevMoves)
@@ -299,7 +299,7 @@ namespace Sinobyl.Engine
             int repcount = 1;
             for (int i = _histCount - 1; i >= 0; i--)
             {
-                ChessMoveHistory movehist = _hist[i];
+                MoveHistory movehist = _hist[i];
                 if (movehist.Zobrist == currzob)
                 {
                     repcount++;
@@ -469,7 +469,7 @@ namespace Sinobyl.Engine
                 _histUB = _hist.GetUpperBound(0);
                 for (int i = _histCount; i <= _histUB; i++)
                 {
-                    _hist[i] = new ChessMoveHistory();
+                    _hist[i] = new MoveHistory();
                 }
                 _histUB = _hist.GetUpperBound(0);
             }
@@ -642,7 +642,7 @@ namespace Sinobyl.Engine
 		public void MoveUndo()
 		{
             //undo move history
-            ChessMoveHistory movehist = _hist[_histCount - 1];
+            MoveHistory movehist = _hist[_histCount - 1];
             _histCount--;
 
             ChessMove moveUndoing = movehist.Move;
@@ -733,7 +733,7 @@ namespace Sinobyl.Engine
 		}
 		public void MoveNullUndo()
 		{
-            ChessMoveHistory movehist = _hist[_histCount - 1];
+            MoveHistory movehist = _hist[_histCount - 1];
             _histCount--;
 
             this._castleFlags = movehist.Castle;

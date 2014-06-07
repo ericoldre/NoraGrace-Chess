@@ -48,7 +48,7 @@ namespace Sinobyl.Engine
             LazyAge = -1;
         } 
 
-        public void MaterialPawnsApply(ChessBoard board, EvalMaterialResults material, PawnInfo pawns, int drawScore)
+        public void MaterialPawnsApply(Board board, EvalMaterialResults material, PawnInfo pawns, int drawScore)
         {
             this.Zobrist = board.ZobristBoard;
             this.DrawScore = drawScore;
@@ -62,7 +62,7 @@ namespace Sinobyl.Engine
             this.CandidatePawns = pawns.Candidates;
         }
 
-        public void ApplyPreviousEval(ChessBoard board, ChessEvalInfo prev)
+        public void ApplyPreviousEval(Board board, ChessEvalInfo prev)
         {
             System.Diagnostics.Debug.Assert(prev != null);
 
@@ -190,7 +190,7 @@ namespace Sinobyl.Engine
             get { return _eval; }
         }
 
-        public int EvalFor(int ply, ChessBoard board, Player player, out ChessEvalInfo info, int alpha, int beta)
+        public int EvalFor(int ply, Board board, Player player, out ChessEvalInfo info, int alpha, int beta)
         {
             System.Diagnostics.Debug.Assert(alpha >= ChessEval.MinValue);
             System.Diagnostics.Debug.Assert(beta <= ChessEval.MaxValue);
@@ -205,7 +205,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public int Eval(int ply, ChessBoard board, out ChessEvalInfo info, int alpha, int beta)
+        public int Eval(int ply, Board board, out ChessEvalInfo info, int alpha, int beta)
         {
             System.Diagnostics.Debug.Assert(alpha >= ChessEval.MinValue);
             System.Diagnostics.Debug.Assert(beta <= ChessEval.MaxValue);

@@ -62,7 +62,7 @@ namespace Sinobyl.Engine.Tests
                 ChessPGN pgn = ChessPGN.NextGame(reader);
                 if (pgn == null) { break; }
 
-                ChessBoard board = new ChessBoard();
+                Board board = new Board();
 
                 foreach (ChessMove move in pgn.Moves)
                 {
@@ -72,7 +72,7 @@ namespace Sinobyl.Engine.Tests
                     ChessFEN fenFromBoard = new ChessFEN(board);
                     ChessFEN fenFromString = new ChessFEN(sFenOrig);
 
-                    ChessBoard board2 = new ChessBoard(fenFromString.ToString());
+                    Board board2 = new Board(fenFromString.ToString());
 
                     Assert.AreEqual(sFenOrig, fenFromBoard.ToString());
                     Assert.AreEqual(sFenOrig, fenFromString.ToString());

@@ -10,7 +10,7 @@ namespace Sinobyl.CommandLine
 	{
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Winboard));
 		private readonly ChessGamePlayerMurderhole _player = new ChessGamePlayerMurderhole();
-		private readonly ChessBoard _board = new ChessBoard();
+		private readonly Board _board = new Board();
 		private Player _myplayer = Player.Black;
         private TimeControl _timeControl = TimeControl.Blitz(5, 5);
 		private TimeSpan _timeLeft = TimeSpan.FromMinutes(5);
@@ -60,7 +60,7 @@ namespace Sinobyl.CommandLine
             
             try
             {
-                ChessBoard board = new ChessBoard(e.Progress.FEN);
+                Board board = new Board(e.Progress.FEN);
 
                 string pvstring = new ChessMoves(e.Progress.PrincipleVariation).ToString(board, true);
                 

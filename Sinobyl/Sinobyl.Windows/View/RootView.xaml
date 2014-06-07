@@ -1,0 +1,14 @@
+﻿<UserControl x:Class="Sinobyl.Windows.View.RootView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <TextBlock Text="RootVM"></TextBlock>
+        </Grid>
+        <ContentControl Content="{Binding ActiveContent}"></ContentControl>
+    </DockPanel>
+</UserControl>

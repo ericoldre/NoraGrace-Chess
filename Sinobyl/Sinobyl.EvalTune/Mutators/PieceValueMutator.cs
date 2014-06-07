@@ -10,10 +10,10 @@ namespace Sinobyl.EvalTune.Mutators
     public class PieceValueMutator: IEvalSettingsMutator
     {
         public PieceType PieceType { get; private set; }
-        public ChessGameStage[] Stages { get; private set; }
+        public GameStage[] Stages { get; private set; }
         public int Amount { get; private set; }
 
-        public PieceValueMutator(PieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
+        public PieceValueMutator(PieceType pieceType, IEnumerable<GameStage> stages, int amount)
         {
             this.PieceType = pieceType;
             this.Stages = stages.ToArray();
@@ -27,13 +27,13 @@ namespace Sinobyl.EvalTune.Mutators
             switch (rand.Next(0, 3))
             {
                 case 0:
-                    Stages = new ChessGameStage[] { ChessGameStage.Opening };
+                    Stages = new GameStage[] { GameStage.Opening };
                     break;
                 case 1:
-                    Stages = new ChessGameStage[] { ChessGameStage.Endgame };
+                    Stages = new GameStage[] { GameStage.Endgame };
                     break;
                 default:
-                    Stages = new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame };
+                    Stages = new GameStage[] { GameStage.Opening, GameStage.Endgame };
                     break;
             }
 
@@ -48,7 +48,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         void IEvalSettingsMutator.Mutate(Engine.ChessEvalSettings settings)
         {
-            foreach (ChessGameStage stage in this.Stages)
+            foreach (GameStage stage in this.Stages)
             {
                 settings.MaterialValues[this.PieceType][stage] += Amount;
             }
@@ -56,9 +56,9 @@ namespace Sinobyl.EvalTune.Mutators
 
         IEnumerable<IEvalSettingsMutator> IEvalSettingsMutator.SimilarMutators()
         {
-            yield return new PieceValueMutator(this.PieceType, new ChessGameStage[] { ChessGameStage.Opening }, this.Amount);
-            yield return new PieceValueMutator(this.PieceType, new ChessGameStage[] { ChessGameStage.Endgame }, this.Amount);
-            yield return new PieceValueMutator(this.PieceType, new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame }, this.Amount);
+            yield return new PieceValueMutator(this.PieceType, new GameStage[] { GameStage.Opening }, this.Amount);
+            yield return new PieceValueMutator(this.PieceType, new GameStage[] { GameStage.Endgame }, this.Amount);
+            yield return new PieceValueMutator(this.PieceType, new GameStage[] { GameStage.Opening, GameStage.Endgame }, this.Amount);
 
         }
         #endregion

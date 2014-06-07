@@ -5,25 +5,25 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public enum ChessGameStage
+    public enum GameStage
     {
         Opening = 0, Endgame = 1
     }
 
-    public static class ChessGameStageInfo
+    public static class GameStageInfo
     {
 
-        public static readonly ChessGameStage[] AllGameStages = new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame };
+        public static readonly GameStage[] AllGameStages = new GameStage[] { GameStage.Opening, GameStage.Endgame };
 
-        public static ChessGameStage Other(this ChessGameStage stage)
+        public static GameStage Other(this GameStage stage)
         {
-            if (stage == ChessGameStage.Opening)
+            if (stage == GameStage.Opening)
             {
-                return ChessGameStage.Endgame;
+                return GameStage.Endgame;
             }
             else
             {
-                return ChessGameStage.Opening;
+                return GameStage.Opening;
             }
         }
     }
@@ -33,7 +33,7 @@ namespace Sinobyl.Engine
         [System.Xml.Serialization.XmlIgnore()]
         public T[] _values = new T[2];
 
-        public T this[ChessGameStage stage]
+        public T this[GameStage stage]
         {
             get
             {
@@ -46,7 +46,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public T Opening { get { return this[ChessGameStage.Opening]; } set { this[ChessGameStage.Opening] = value; } }
-        public T Endgame { get { return this[ChessGameStage.Endgame]; } set { this[ChessGameStage.Endgame] = value; } }
+        public T Opening { get { return this[GameStage.Opening]; } set { this[GameStage.Opening] = value; } }
+        public T Endgame { get { return this[GameStage.Endgame]; } set { this[GameStage.Endgame] = value; } }
     }
 }

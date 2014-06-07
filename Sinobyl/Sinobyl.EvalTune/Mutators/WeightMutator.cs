@@ -10,12 +10,12 @@ namespace Sinobyl.EvalTune.Mutators
     {
         public string WeightType { get; set; }
         public int Amount { get; set; }
-        public ChessGameStage Stage { get; set; }
+        public GameStage Stage { get; set; }
 
         public WeightMutator()
         {
             WeightType = "Material";
-            Stage = ChessGameStage.Opening;
+            Stage = GameStage.Opening;
             Amount = 10;
         }
         public WeightMutator(Random rand)
@@ -37,10 +37,10 @@ namespace Sinobyl.EvalTune.Mutators
             switch (rand.Next(0,2))
             {
                 case 0:
-                    Stage = ChessGameStage.Opening;
+                    Stage = GameStage.Opening;
                     break;
                 case 1:
-                    Stage = ChessGameStage.Endgame;
+                    Stage = GameStage.Endgame;
                     break;
             }
 

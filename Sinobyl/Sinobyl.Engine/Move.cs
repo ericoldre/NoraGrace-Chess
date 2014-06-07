@@ -9,7 +9,7 @@ namespace Sinobyl.Engine
 	/// Summary description for ChessMove.
 	/// </summary>
 	/// 
-	public enum ChessNotationType
+	public enum NotationType
 	{
 		Coord,
 		San,

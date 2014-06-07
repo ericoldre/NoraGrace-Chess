@@ -12,10 +12,10 @@ namespace Sinobyl.EvalTune.Mutators
 
         public Bitboard Positions { get; private set; }
         public PieceType PieceType { get; private set; }
-        public ChessGameStage[] Stages { get; private set; }
+        public GameStage[] Stages { get; private set; }
         public int Amount { get; private set; }
 
-        public PcSqMutator(Bitboard positions, PieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
+        public PcSqMutator(Bitboard positions, PieceType pieceType, IEnumerable<GameStage> stages, int amount)
         {
             this.Positions = positions;
             this.PieceType = pieceType;
@@ -30,13 +30,13 @@ namespace Sinobyl.EvalTune.Mutators
             switch (rand.Next(0, 3))
             {
                 case 0:
-                    Stages = new ChessGameStage[] { ChessGameStage.Opening };
+                    Stages = new GameStage[] { GameStage.Opening };
                     break;
                 case 1:
-                    Stages = new ChessGameStage[] { ChessGameStage.Endgame };
+                    Stages = new GameStage[] { GameStage.Endgame };
                     break;
                 default:
-                    Stages = new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame };
+                    Stages = new GameStage[] { GameStage.Opening, GameStage.Endgame };
                     break;
 
             }
@@ -68,7 +68,7 @@ namespace Sinobyl.EvalTune.Mutators
         {
             foreach (Position pos in this.Positions.ToPositions())
             {
-                foreach (ChessGameStage stage in this.Stages)
+                foreach (GameStage stage in this.Stages)
                 {
                     settings.PcSqTables[this.PieceType][stage][pos] += this.Amount;
                 }
@@ -78,9 +78,9 @@ namespace Sinobyl.EvalTune.Mutators
         IEnumerable<IEvalSettingsMutator> IEvalSettingsMutator.SimilarMutators()
         {
             
-            yield return new PcSqMutator(this.Positions, this.PieceType, new ChessGameStage[] { ChessGameStage.Opening }, this.Amount);
-            yield return new PcSqMutator(this.Positions, this.PieceType, new ChessGameStage[] { ChessGameStage.Endgame }, this.Amount);
-            yield return new PcSqMutator(this.Positions, this.PieceType, new ChessGameStage[] { ChessGameStage.Opening, ChessGameStage.Endgame }, this.Amount);
+            yield return new PcSqMutator(this.Positions, this.PieceType, new GameStage[] { GameStage.Opening }, this.Amount);
+            yield return new PcSqMutator(this.Positions, this.PieceType, new GameStage[] { GameStage.Endgame }, this.Amount);
+            yield return new PcSqMutator(this.Positions, this.PieceType, new GameStage[] { GameStage.Opening, GameStage.Endgame }, this.Amount);
 
             yield return new PcSqMutator(bitboardExpand(this.Positions), this.PieceType, this.Stages, this.Amount);
             yield return new PcSqMutator(bitboardExpand(this.Positions) & ~ this.Positions, this.PieceType, this.Stages, this.Amount);

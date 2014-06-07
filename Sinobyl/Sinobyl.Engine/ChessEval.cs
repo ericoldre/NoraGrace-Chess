@@ -105,14 +105,14 @@ namespace Sinobyl.Engine
                     if (piece.PieceToPlayer() == Player.White)
                     {
                         _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreInfo.Create(
-                            settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos],
-                            settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Endgame][pos]);
+                            settings.PcSqTables[piece.ToPieceType()][GameStage.Opening][pos],
+                            settings.PcSqTables[piece.ToPieceType()][GameStage.Endgame][pos]);
                     }
                     else
                     {
                         _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreInfo.Create(
-                            -settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos.Reverse()],
-                            -settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Endgame][pos.Reverse()]);
+                            -settings.PcSqTables[piece.ToPieceType()][GameStage.Opening][pos.Reverse()],
+                            -settings.PcSqTables[piece.ToPieceType()][GameStage.Endgame][pos.Reverse()]);
                     }
                     
                 
@@ -131,8 +131,8 @@ namespace Sinobyl.Engine
                     var mob = settings.Mobility;
                     var opiece = mob[pieceType];
 
-                    int startVal = (attacksCount - opiece[ChessGameStage.Opening].ExpectedAttacksAvailable) * opiece[ChessGameStage.Opening].AmountPerAttackDefault;
-                    int endVal = (attacksCount - opiece[ChessGameStage.Endgame].ExpectedAttacksAvailable) * opiece[ChessGameStage.Endgame].AmountPerAttackDefault;
+                    int startVal = (attacksCount - opiece[GameStage.Opening].ExpectedAttacksAvailable) * opiece[GameStage.Opening].AmountPerAttackDefault;
+                    int endVal = (attacksCount - opiece[GameStage.Endgame].ExpectedAttacksAvailable) * opiece[GameStage.Endgame].AmountPerAttackDefault;
 
                     _mobilityPieceTypeCount[(int)pieceType][attacksCount] = PhasedScoreInfo.Create(startVal, endVal);
                 }

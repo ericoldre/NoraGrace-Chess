@@ -9,10 +9,17 @@ namespace Sinobyl.EvalTune
 {
     public class DeterministicChallenge
     {
-        public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<DeterministicPlayer>> competitors, IEnumerable<PGN> startingPositions, TimeControlNodes timeControl, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
+        public class ChessMatchProgress
+        {
+            public List<PGN> Results { get; set; }
+            public PGN Game { get; set; }
+            public TimeSpan GameTime { get; set; }
+        }
+
+        public static List<PGN> RunParallelRoundRobinMatch(IEnumerable<Func<DeterministicPlayer>> competitors, IEnumerable<PGN> startingPositions, TimeControlNodes timeControl, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
         {
 
-            ChessMatchResults retval = new ChessMatchResults();
+            List<PGN> retval = new List<PGN>();
 
             Func<DeterministicPlayer> gauntletPlayer = null;
             if (isGauntlet)

@@ -365,11 +365,11 @@ namespace Sinobyl.Engine
 
         private double MyMaterial(double totalPct, double pawnPct, double minorPct, int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
         {
-            double pawnVal = CalcWeight(totalPct, _settings.MaterialValues[PieceType.Pawn][ChessGameStage.Opening], _settings.MaterialValues[PieceType.Pawn][ChessGameStage.Endgame]);
-            double knightVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Knight][ChessGameStage.Opening], _settings.MaterialValues[PieceType.Knight][ChessGameStage.Endgame]);
-            double bishopVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Bishop][ChessGameStage.Opening], _settings.MaterialValues[PieceType.Bishop][ChessGameStage.Endgame]);
-            double rookVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Rook][ChessGameStage.Opening], _settings.MaterialValues[PieceType.Rook][ChessGameStage.Endgame]);
-            double queenVal = CalcWeight(minorPct, _settings.MaterialValues[PieceType.Queen][ChessGameStage.Opening], _settings.MaterialValues[PieceType.Queen][ChessGameStage.Endgame]);
+            double pawnVal = CalcWeight(totalPct, _settings.MaterialValues[PieceType.Pawn][GameStage.Opening], _settings.MaterialValues[PieceType.Pawn][GameStage.Endgame]);
+            double knightVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Knight][GameStage.Opening], _settings.MaterialValues[PieceType.Knight][GameStage.Endgame]);
+            double bishopVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Bishop][GameStage.Opening], _settings.MaterialValues[PieceType.Bishop][GameStage.Endgame]);
+            double rookVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Rook][GameStage.Opening], _settings.MaterialValues[PieceType.Rook][GameStage.Endgame]);
+            double queenVal = CalcWeight(minorPct, _settings.MaterialValues[PieceType.Queen][GameStage.Opening], _settings.MaterialValues[PieceType.Queen][GameStage.Endgame]);
             double bishopPairValue = CalcWeight(pawnPct, _settings.MaterialBishopPair.Opening, _settings.MaterialBishopPair.Endgame);
 
             

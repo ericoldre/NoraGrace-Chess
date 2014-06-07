@@ -97,7 +97,7 @@ namespace Sinobyl.CommandLine
             //Console.WriteLine("fen: " + fen);
             int depth;
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            ChessMoveBuffer buffer = new ChessMoveBuffer();
+            MovePicker.Stack buffer = new MovePicker.Stack();
             for (depth = 2; nodesDone < nodeCount; depth++)
             {
                 PerftSearch(board,0,buffer, depth, nodeCount, ref nodesDone, doEval, doMoveSort);
@@ -109,7 +109,7 @@ namespace Sinobyl.CommandLine
             return sw.Elapsed;
         }
 
-        public static void PerftSearch(Board board,int ply, ChessMoveBuffer buffer, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
+        public static void PerftSearch(Board board, int ply, MovePicker.Stack buffer, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
         {
             nodesDone++;
             if (doEval)

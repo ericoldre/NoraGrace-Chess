@@ -222,7 +222,7 @@ namespace Sinobyl.Engine
 		private ChessMoves _bestvariation = new ChessMoves();
 		private int _bestvariationscore = 0;
 
-        private readonly ChessMoveBuffer _moveBuffer = new ChessMoveBuffer();
+        private readonly MovePicker.Stack _moveBuffer = new MovePicker.Stack();
         private readonly ChessEvalInfoStack _evalInfoStack; 
         private ChessMove[] _currentPV = new ChessMove[50];
         private readonly Dictionary<ChessMove, int> _rootMoveNodeCounts = new Dictionary<ChessMove, int>();

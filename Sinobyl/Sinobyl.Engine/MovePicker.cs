@@ -6,8 +6,39 @@ using System.Threading.Tasks;
 
 namespace Sinobyl.Engine
 {
-    public class PlyBuffer2
+
+
+    public class MovePicker
     {
+
+        public class Stack
+        {
+            List<MovePicker> _plyBuffers = new List<MovePicker>();
+
+            public Stack(int plyCapacity = 50)
+            {
+                while (_plyBuffers.Count < plyCapacity)
+                {
+                    _plyBuffers.Add(new MovePicker());
+                }
+            }
+
+            public MovePicker this[int ply]
+            {
+                get
+                {
+                    if (ply > _plyBuffers.Count)
+                    {
+                        for (int i = 0; i < 10; i++)
+                        {
+                            _plyBuffers.Add(new MovePicker());
+                        }
+                    }
+                    return _plyBuffers[ply];
+                }
+            }
+
+        }
 
         private class KillerInfo
         {
@@ -109,7 +140,7 @@ namespace Sinobyl.Engine
         private readonly ChessMove[] _exclude = new ChessMove[20];
         private int _excludeCount = 0;
 
-        public PlyBuffer2()
+        public MovePicker()
         {
             _playerKillers[0] = new KillerInfo();
             _playerKillers[1] = new KillerInfo();
@@ -412,4 +443,43 @@ namespace Sinobyl.Engine
 
     }
 
+
+    [System.Diagnostics.DebuggerDisplay(@"{Move.Description()} SEE:{SEE} PcSq:{PcSq} Flags:{Flags}")]
+    public struct ChessMoveData
+    {
+        public ChessMove Move;
+        public int SEE;
+        public int PcSq;
+        public MoveFlags Flags;
+        public int Score;
+
+        public int ScoreCalc()
+        {
+            return SEE + PcSq
+                + ((Flags & MoveFlags.TransTable) != 0 ? 1000000 : 0)
+                + ((Flags & MoveFlags.Capture) != 0 && SEE >= 0 ? 100000 : 0)
+                + ((Flags & MoveFlags.Killer) != 0 ? 10000 : 0)
+                + ((Flags & MoveFlags.Capture) != 0 ? 1000 : 0);
+        }
+
+
+        //public void SetScores(ChessMove move, int see, int pcSq, MoveFlags flags)
+        //{
+        //    Move = move;
+        //    SEE = see;
+        //    PcSq = pcSq;
+        //    Flags = flags;
+        //}
+
+        //private const MoveFlags _orderFlags = MoveFlags.TransTable | MoveFlags.Promote | MoveFlags.CapturePositive | MoveFlags.CaptureEqual | MoveFlags.Killer;
+    }
+
+    [Flags]
+    public enum MoveFlags
+    {
+        Killer = (1 << 0),
+        Capture = (1 << 1),
+        Promote = (1 << 2),
+        TransTable = (1 << 3),
+    }
 }

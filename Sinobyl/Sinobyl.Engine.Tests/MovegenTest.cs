@@ -117,7 +117,7 @@ namespace Sinobyl.Engine.Tests
 
             int nodecount = -1;//start at -1 to skip root node
             int leafnodecount = 0;
-            ChessMoveBuffer moveBuffer = new ChessMoveBuffer();
+            MovePicker.Stack moveBuffer = new MovePicker.Stack();
 
             PerftSearch(board, 0, moveBuffer, depth, ref nodecount, ref leafnodecount);
 
@@ -129,7 +129,7 @@ namespace Sinobyl.Engine.Tests
 
         }
 
-        public void PerftSearch(Board board, int ply, ChessMoveBuffer moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
+        public void PerftSearch(Board board, int ply, MovePicker.Stack moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
         {
             nodecount++;
 
@@ -291,7 +291,7 @@ namespace Sinobyl.Engine.Tests
             exclude[3] = (ChessMove)49;
             exclude[4] = (ChessMove)3;
 
-            int newCount = PlyBuffer2.ExcludeFrom(array, 0, 10, exclude, 5);
+            int newCount = MovePicker.ExcludeFrom(array, 0, 10, exclude, 5);
 
             Assert.AreEqual<int>(7, newCount);
             Assert.AreEqual<ChessMove>((ChessMove)0, array[0].Move);

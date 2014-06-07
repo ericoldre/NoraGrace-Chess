@@ -13,8 +13,8 @@ namespace Sinobyl.EvalTune
         public IChessEval Eval { get; set; }
         public TimeManagerNodes NodeManager { get; set; }
         public TranspositionTable TransTable { get; set; }
-        public Func<ChessSearch.Progress, string> CommentFormatter { get; set; }
-        public Action<ChessSearch.Args> AlterSearchArgs { get; set; }
+        public Func<Search.Progress, string> CommentFormatter { get; set; }
+        public Action<Search.Args> AlterSearchArgs { get; set; }
 
         private int _resignRepCount = 0;
 
@@ -32,7 +32,7 @@ namespace Sinobyl.EvalTune
             NodeManager.TimeControl = timeControls;
             NodeManager.AmountOnClock = nodesOnClock;
 
-            ChessSearch.Args args = new ChessSearch.Args();
+            Search.Args args = new Search.Args();
             args.GameStartPosition = gameStartPosition;
             args.GameMoves = new List<Move>(movesAlreadyPlayed);
             args.TransTable = TransTable;
@@ -40,8 +40,8 @@ namespace Sinobyl.EvalTune
             args.TimeManager = this.NodeManager;
             args.ContemptForDraw = 50;
             if (AlterSearchArgs != null) { AlterSearchArgs(args); }
-            ChessSearch search = new ChessSearch(args);
-            var searchResult = search.Search();
+            Search search = new Search(args);
+            var searchResult = search.Start();
 
             if (CommentFormatter != null)
             {

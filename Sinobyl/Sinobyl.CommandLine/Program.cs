@@ -151,7 +151,7 @@ namespace Sinobyl.CommandLine
                     Perft.NodesToDepth(int.Parse(split[1]));
                     PrintSearchCutoffStats();
                     ConsoleWriteline(string.Format(" nodes:{0,10}\n evals:{1,10}\n pawns:{2,10}\n mater:{3,10}",
-                        Sinobyl.Engine.ChessSearch.CountTotalAINodes,
+                        Sinobyl.Engine.Search.CountTotalAINodes,
                         Sinobyl.Engine.Evaluation.Evaluator.TotalEvalCount,
                         Sinobyl.Engine.Evaluation.PawnEvaluator.TotalEvalPawnCount,
                         Sinobyl.Engine.Evaluation.MaterialEvaluatorBase.TotalEvalMaterialCount));
@@ -161,7 +161,7 @@ namespace Sinobyl.CommandLine
                     break;
                 case "counts":
                     ConsoleWriteline(string.Format(" nodes:{0,10}\n evals:{1,10}\n pawns:{2,10}\n mater:{3,10}",
-                        Sinobyl.Engine.ChessSearch.CountTotalAINodes,
+                        Sinobyl.Engine.Search.CountTotalAINodes,
                         Sinobyl.Engine.Evaluation.Evaluator.TotalEvalCount,
                         Sinobyl.Engine.Evaluation.PawnEvaluator.TotalEvalPawnCount,
                         Sinobyl.Engine.Evaluation.MaterialEvaluatorBase.TotalEvalMaterialCount));

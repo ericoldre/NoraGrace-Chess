@@ -26,8 +26,8 @@ namespace Sinobyl.Engine
 
     public class SearchProgressEventArgs : EventArgs
     {
-        public ChessSearch.Progress Progress { get; private set; }
-        public SearchProgressEventArgs(ChessSearch.Progress progress)
+        public Search.Progress Progress { get; private set; }
+        public SearchProgressEventArgs(Search.Progress progress)
         {
             if (progress == null) { throw new ArgumentNullException("progress"); }
             Progress = progress;
@@ -36,7 +36,7 @@ namespace Sinobyl.Engine
     public class SearchProgressPlayerEventArgs : SearchProgressEventArgs
     {
         public Player Player { get; private set; }
-        public SearchProgressPlayerEventArgs(ChessSearch.Progress progress, Player player)
+        public SearchProgressPlayerEventArgs(Search.Progress progress, Player player)
             : base(progress)
         {
             if (player != Player.White && player != Player.Black) { throw new ArgumentOutOfRangeException("player"); }

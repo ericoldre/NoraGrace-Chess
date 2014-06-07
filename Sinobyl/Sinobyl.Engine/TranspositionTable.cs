@@ -186,24 +186,24 @@ namespace Sinobyl.Engine
 
 			#region adjust near mate scores
 			//don't store scores close to mate
-			if (value >= ChessSearch.MateIn(200))
+			if (value >= Search.MateIn(200))
 			{
 				if (type == EntryType.Exactly || type == EntryType.AtLeast)
 				{
 					type = EntryType.AtLeast;
-                    value = ChessSearch.MateIn(200);
+                    value = Search.MateIn(200);
 				}
 				else
 				{
 					type = EntryType.Worthless;
 				}
 			}
-            else if (value <= -ChessSearch.MateIn(200))
+            else if (value <= -Search.MateIn(200))
 			{
 				if (type == EntryType.Exactly || type == EntryType.AtMost)
 				{
 					type = EntryType.AtMost;
-                    value = -ChessSearch.MateIn(200);
+                    value = -Search.MateIn(200);
 				}
 				else
 				{

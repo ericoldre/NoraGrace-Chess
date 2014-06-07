@@ -74,8 +74,8 @@
     <Compile Include="Player.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Rank.cs" />
-    <Compile Include="ChessSearch.cs" />
-    <Compile Include="ChessSearchAsync.cs" />
+    <Compile Include="Search.cs" />
+    <Compile Include="SearchAsync.cs" />
     <Compile Include="TimeControl.cs" />
     <Compile Include="TranspositionTable.cs" />
     <Compile Include="Zobrist.cs" />

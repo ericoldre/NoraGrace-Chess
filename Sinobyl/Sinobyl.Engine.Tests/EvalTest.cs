@@ -197,13 +197,13 @@ namespace Sinobyl.Engine.Tests
                 {
                     board.MoveApply(move);
 
-                    ChessSearch.Args args = new ChessSearch.Args();
+                    Search.Args args = new Search.Args();
                     args.GameStartPosition = board.FENCurrent;
                     args.MaxDepth = 4;
 
-                    ChessSearch search = new ChessSearch(args);
+                    Search search = new Search(args);
                     MovesDone++;
-                    search.Search();
+                    search.Start();
 
                     if (MovesDone >= 20) { break; }
 

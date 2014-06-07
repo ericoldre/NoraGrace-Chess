@@ -26,7 +26,7 @@ namespace Sinobyl.Engine.Tests
 
            // Assert.IsTrue(board99.IsDrawBy50MoveRule());
 
-            ChessSearch search = new ChessSearch(new ChessSearch.Args() 
+            Search search = new Search(new Search.Args() 
             { 
                 GameStartPosition = fen ,
                 TransTable = new TranspositionTable(500),
@@ -46,7 +46,7 @@ namespace Sinobyl.Engine.Tests
 
             };
 
-            search.Search();
+            search.Start();
 
 
 

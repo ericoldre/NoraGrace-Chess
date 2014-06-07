@@ -8,14 +8,14 @@ using System.Collections.ObjectModel;
 
 namespace Sinobyl.Engine
 {
-    public class ChessSearchAsync: IDisposable
+    public class SearchAsync: IDisposable
     {
         public event EventHandler<SearchProgressEventArgs> ProgressReported;
         public event EventHandler<SearchProgressEventArgs> Finished;
-        private ChessSearch search;
+        private Search search;
         private readonly BackgroundWorker bw = new BackgroundWorker();
 
-        public ChessSearchAsync()
+        public SearchAsync()
         {
             bw.WorkerReportsProgress = true;
             bw.DoWork += new DoWorkEventHandler(bw_DoWork);
@@ -43,7 +43,7 @@ namespace Sinobyl.Engine
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            ChessSearch.Progress bestAnswer = (ChessSearch.Progress)e.UserState;
+            Search.Progress bestAnswer = (Search.Progress)e.UserState;
             OnProgressReported(new SearchProgressEventArgs(bestAnswer));
         }
 
@@ -57,7 +57,7 @@ namespace Sinobyl.Engine
         {
             if (e.Result != null)
             {
-                ChessSearch.Progress finalAnswer = (ChessSearch.Progress)e.Result;
+                Search.Progress finalAnswer = (Search.Progress)e.Result;
                 OnFinished(new SearchProgressEventArgs(finalAnswer));
             }
             else
@@ -79,13 +79,13 @@ namespace Sinobyl.Engine
                 search.ProgressReported -= search_OnProgress;
                 search = null;
             }
-            search = new ChessSearch((ChessSearch.Args)e.Argument);
+            search = new Search((Search.Args)e.Argument);
             search.ProgressReported += search_OnProgress;
-            ChessSearch.Progress retval = search.Search();
+            Search.Progress retval = search.Start();
             e.Result = retval;
         }
 
-        public void SearchAsync(ChessSearch.Args args)
+        public void Start(Search.Args args)
         {
             bw.RunWorkerAsync(args);
         }
@@ -97,7 +97,7 @@ namespace Sinobyl.Engine
 
         public void Abort(bool raiseOnFinish)
         {
-            ChessSearch o = search;
+            Search o = search;
             if (o != null)
             {
                 o.Abort(raiseOnFinish);

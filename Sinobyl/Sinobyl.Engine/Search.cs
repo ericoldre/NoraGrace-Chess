@@ -85,9 +85,8 @@ namespace Sinobyl.Engine
     }
 
 
-	public class ChessSearch
+	public class Search
 	{
-
 
 		private static readonly int INFINITY = 32000;
 		
@@ -160,7 +159,7 @@ namespace Sinobyl.Engine
 
 			public bool DoBlunder(Int64 Zob, int depth, bool isRecapture, int moveNum, int alpha, int beta)
 			{
-                if (alpha < -ChessSearch.MateIn(5) || beta > ChessSearch.MateIn(5)) { return false; }
+                if (alpha < -Search.MateIn(5) || beta > Search.MateIn(5)) { return false; }
 				if (moveNum < this.BlunderSkipCount) { return false; }
 
 				
@@ -228,7 +227,7 @@ namespace Sinobyl.Engine
         private readonly Dictionary<Move, int> _rootMoveNodeCounts = new Dictionary<Move, int>();
 		private readonly Int64 BlunderKey = Rand64();
 		
-		public ChessSearch(Args args)
+		public Search(Args args)
 		{
 			SearchArgs = args;
             eval = args.Eval;
@@ -270,7 +269,7 @@ namespace Sinobyl.Engine
 			_returnBestResult = returnBestResult;
 		}
 
-		public Progress Search()
+		public Progress Start()
 		{
 
 			_starttime = DateTime.Now;		
@@ -298,7 +297,7 @@ namespace Sinobyl.Engine
                 ValSearchRoot(depth);
 
                 //if we get three consecutive depths with same mate score.. just move.
-                if (_bestvariationscore > ChessSearch.MateIn(10) || _bestvariationscore < -ChessSearch.MateIn(10))
+                if (_bestvariationscore > Search.MateIn(10) || _bestvariationscore < -Search.MateIn(10))
                 {
                     if (MateScoreLast == _bestvariationscore)
                     {
@@ -807,7 +806,7 @@ namespace Sinobyl.Engine
 			{
 				if (in_check_before_move)
 				{
-                    score = -ChessSearch.MateIn(ply); // VALCHECKMATE + ply;
+                    score = -Search.MateIn(ply); // VALCHECKMATE + ply;
 				}
 				else
 				{
@@ -919,7 +918,7 @@ namespace Sinobyl.Engine
 			//trans_table_store(board,0,entrytype,alpha,0);
 			if (playerincheck && tried_move_count == 0)
 			{
-                alpha = -ChessSearch.MateIn(ply);// VALCHECKMATE + ply;
+                alpha = -Search.MateIn(ply);// VALCHECKMATE + ply;
 			}
 			
 			return alpha;

@@ -29,7 +29,7 @@ namespace Sinobyl.Engine
             if (e != null) { e(this, new EventArgs()); }
         }
 
-        protected virtual void OnKibitz(ChessSearch.Progress prog)
+        protected virtual void OnKibitz(Search.Progress prog)
         {
             var eh = this.Kibitz;
             if (eh != null) { eh(this, new SearchProgressEventArgs(prog)); }
@@ -61,14 +61,14 @@ namespace Sinobyl.Engine
         public int MaxDepth { get; set; }
         public int NodesPerSecond { get; set; }
         public String Name { get; set; }
-        public ChessSearch.BlunderChance Blunder { get; set; }
+        public Search.BlunderChance Blunder { get; set; }
 
         public ChessGamePlayerPersonality()
         {
             MaxDepth = int.MaxValue;
             NodesPerSecond = int.MaxValue;
             Name = "Default personality";
-            Blunder = new ChessSearch.BlunderChance();
+            Blunder = new Search.BlunderChance();
         }
 
         public static ChessGamePlayerPersonality FromStrength(float a_strength)
@@ -103,7 +103,7 @@ namespace Sinobyl.Engine
     public class ChessGamePlayerMurderhole : ChessGamePlayer, IDisposable
     {
 
-        private readonly ChessSearchAsync search;
+        private readonly SearchAsync search;
         private ChessGamePlayerPersonality _personality = ChessGamePlayerPersonality.FromStrength(1);
         private readonly TranspositionTable _transTable = new TranspositionTable();
         private BackgroundWorker BookBackgroundWorker;
@@ -114,7 +114,7 @@ namespace Sinobyl.Engine
         public ChessGamePlayerMurderhole()
         {
             DelaySearch = new TimeSpan(0);
-            search = new ChessSearchAsync();
+            search = new SearchAsync();
             search.ProgressReported += search_OnProgress;
             search.Finished += search_OnFinish;
         }
@@ -204,7 +204,7 @@ namespace Sinobyl.Engine
             }
 
 
-            ChessSearch.Args args = new ChessSearch.Args();
+            Search.Args args = new Search.Args();
             args.GameStartPosition = initalPosition;
             args.GameMoves = new List<Move>(prevMoves);
             args.MaxDepth = _personality.MaxDepth;
@@ -218,7 +218,7 @@ namespace Sinobyl.Engine
             args.Eval = _eval;
 
             search.Abort(false);
-            search.SearchAsync(args);
+            search.Start(args);
 
         }
 

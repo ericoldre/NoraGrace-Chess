@@ -25,7 +25,7 @@ namespace Sinobyl.CommandLine
             foreach (Move move in pgn.Moves)
             {
                 
-                ChessSearch.Args args = new ChessSearch.Args();
+                Search.Args args = new Search.Args();
 
                 args.Eval = eval;
                 args.GameStartPosition = new FEN(FEN.FENStart);
@@ -35,13 +35,13 @@ namespace Sinobyl.CommandLine
                 args.TimeManager = timeManager;
                 Program.ConsoleWriteline(board.FENCurrent.ToString());
 
-                ChessSearch search = new ChessSearch(args);
+                Search search = new Search(args);
                 search.ProgressReported += (s, e) => 
                 {
                     Program.ConsoleWriteline(string.Format("\t{1} {0}", e.Progress.PrincipleVariation.Descriptions(board, true), e.Progress.Depth));
                 };
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var searchResults = search.Search();
+                var searchResults = search.Start();
                 stopwatch.Stop();
                 totalTime += stopwatch.Elapsed;
 

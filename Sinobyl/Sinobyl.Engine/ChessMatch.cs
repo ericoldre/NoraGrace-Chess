@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
     public interface IChessGamePlayer
     {
         string Name { get; }
-        ChessMove Move(FEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControl timeControls, TimeSpan timeLeft, out string Comment);
+        Move Move(FEN gameStartPosition, IEnumerable<Move> movesAlreadyPlayed, TimeControl timeControls, TimeSpan timeLeft, out string Comment);
     }
 
     public class ChessMatchResults: List<PGN>
@@ -122,13 +122,13 @@ namespace Sinobyl.Engine
 
         }
 
-        public static PGN Game(IChessGamePlayer white, IChessGamePlayer black, FEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControl timeControl)
+        public static PGN Game(IChessGamePlayer white, IChessGamePlayer black, FEN gameStartPosition, IEnumerable<Move> initalMoves, TimeControl timeControl)
         {
             GameResult? gameResult = null;
             GameResultReason reason = GameResultReason.Unknown;
 
 
-            List<ChessMove> gameMoves = new List<ChessMove>();
+            List<Move> gameMoves = new List<Move>();
             //setup init position
             Board board = new Board(gameStartPosition);
             Dictionary<int, string> comments = new Dictionary<int, string>();
@@ -144,7 +144,7 @@ namespace Sinobyl.Engine
 
                 string moveComment = null;
                 var bestMove = player.Move(gameStartPosition, gameMoves.ToArray(), timeControl, new TimeSpan(1,0,0), out moveComment);
-                if (bestMove == ChessMove.EMPTY)
+                if (bestMove == Move.EMPTY)
                 {
                     gameResult = board.WhosTurn == Player.White ? GameResult.BlackWins : GameResult.WhiteWins;
                     reason = GameResultReason.Resign;

@@ -7,23 +7,23 @@ namespace Sinobyl.Engine
 {
 	public abstract class Book
 	{
-		public abstract ChessMove FindMove(FEN fen);
+		public abstract Move FindMove(FEN fen);
 	}
 	public class BookOpening: Book
 	{
 		private class moveinfo
 		{
-			public ChessMove move { get; set; }
+			public Move move { get; set; }
 			public int pop { get; set; }
 		}
-		public override ChessMove FindMove(FEN fen)
+		public override Move FindMove(FEN fen)
 		{
 			Board board = new Board(fen);
-			var moves = ChessMoveInfo.GenMoves(board);
+			var moves = MoveInfo.GenMoves(board);
 
 			List<moveinfo> infos = new List<moveinfo>();
 			int totalPop = 0;
-			foreach (ChessMove move in moves)
+			foreach (Move move in moves)
 			{
 				board.MoveApply(move);
 				if (board.IsCheck())
@@ -48,7 +48,7 @@ namespace Sinobyl.Engine
 				//undo the move
 				board.MoveUndo();
 			}
-			if (infos.Count == 0) { return ChessMove.EMPTY; }
+			if (infos.Count == 0) { return Move.EMPTY; }
 			Random rand = new Random();
 			int i = rand.Next(1, totalPop);
 			while (infos.Count>0)
@@ -66,7 +66,7 @@ namespace Sinobyl.Engine
 					infos.Remove(info);
 				}
 			}
-			return ChessMove.EMPTY;
+			return Move.EMPTY;
 			
 			
 		}

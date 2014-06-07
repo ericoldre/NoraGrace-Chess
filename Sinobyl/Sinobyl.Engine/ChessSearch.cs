@@ -110,9 +110,9 @@ namespace Sinobyl.Engine
 			public readonly int Nodes;
 			public readonly int Score;
 			public readonly TimeSpan Time;
-			public readonly ReadOnlyCollection<ChessMove> PrincipleVariation;
+			public readonly ReadOnlyCollection<Move> PrincipleVariation;
             public readonly FEN FEN;
-            public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, List<ChessMove> a_pv, FEN a_fen)
+            public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, List<Move> a_pv, FEN a_fen)
 			{
                 if (a_pv == null) { throw new ArgumentNullException("a_pv"); }
                 if (a_fen == null) { throw new ArgumentNullException("a_fen"); }
@@ -120,7 +120,7 @@ namespace Sinobyl.Engine
 				Nodes = a_nodes;
 				Score = a_score;
 				Time = a_time;
-				PrincipleVariation = new ReadOnlyCollection<ChessMove>(a_pv);
+				PrincipleVariation = new ReadOnlyCollection<Move>(a_pv);
                 FEN = a_fen;
 			}
 		}
@@ -179,7 +179,7 @@ namespace Sinobyl.Engine
 		public class Args
 		{
 			public FEN GameStartPosition { get; set; }
-            public List<ChessMove> GameMoves { get; set; }
+            public List<Move> GameMoves { get; set; }
 			public int MaxDepth { get; set; }
 			public int NodesPerSecond { get; set; }
 			public TranspositionTable TransTable { get; set; }
@@ -194,7 +194,7 @@ namespace Sinobyl.Engine
 			public Args()
 			{
                 GameStartPosition = new FEN(FEN.FENStart);
-                GameMoves = new List<ChessMove>();
+                GameMoves = new List<Move>();
 				MaxDepth = int.MaxValue;
 				NodesPerSecond = int.MaxValue;
 				Blunder = new BlunderChance();
@@ -215,17 +215,17 @@ namespace Sinobyl.Engine
 		public readonly Args SearchArgs;
 		private readonly Board board;
 		private readonly IChessEval eval;
-		private ChessMove[] CurrentVariation = new ChessMove[50];
+		private Move[] CurrentVariation = new Move[50];
 		private DateTime _starttime;
 		private bool _aborting = false;
 		private bool _returnBestResult = true; //if false return null
-        private List<ChessMove> _bestvariation = new List<ChessMove>();
+        private List<Move> _bestvariation = new List<Move>();
 		private int _bestvariationscore = 0;
 
         private readonly MovePicker.Stack _moveBuffer = new MovePicker.Stack();
         private readonly ChessEvalInfoStack _evalInfoStack; 
-        private ChessMove[] _currentPV = new ChessMove[50];
-        private readonly Dictionary<ChessMove, int> _rootMoveNodeCounts = new Dictionary<ChessMove, int>();
+        private Move[] _currentPV = new Move[50];
+        private readonly Dictionary<Move, int> _rootMoveNodeCounts = new Dictionary<Move, int>();
 		private readonly Int64 BlunderKey = Rand64();
 		
 		public ChessSearch(Args args)
@@ -237,7 +237,7 @@ namespace Sinobyl.Engine
             board = new Board(SearchArgs.GameStartPosition);
             
 
-			foreach (ChessMove histmove in SearchArgs.GameMoves)
+			foreach (Move histmove in SearchArgs.GameMoves)
 			{
 				board.MoveApply(histmove);
 			}
@@ -365,14 +365,14 @@ namespace Sinobyl.Engine
             
 			//get trans table move
 			int tt_score = 0;
-            ChessMove tt_move = ChessMove.EMPTY;
+            Move tt_move = Move.EMPTY;
             SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, depth, -INFINITY, INFINITY, out tt_move, out tt_score);
 			
 
 			bool in_check_before_move = board.IsCheck();
 
             //get all legal moves ordered first by TT move then by nodes needed to refute.
-            var moves = ChessMoveInfo.GenMovesLegal(board)
+            var moves = MoveInfo.GenMovesLegal(board)
                 .Select(m => new { move = m, nodes = _rootMoveNodeCounts.ContainsKey(m) ? _rootMoveNodeCounts[m] : 0 })
                 .OrderBy(m => m.move == tt_move ? 0 : 1)
                 .ThenByDescending(m => m.nodes)
@@ -382,15 +382,15 @@ namespace Sinobyl.Engine
 			int alpha = -INFINITY;
 			int beta = INFINITY;
 
-            ChessMove bestmove = ChessMove.EMPTY;
+            Move bestmove = Move.EMPTY;
 
-            foreach (ChessMove move in moves)
+            foreach (Move move in moves)
 			{
 				CurrentVariation[0] = move;
 
                 for (int i = _currentPV.GetLowerBound(0); i <= _currentPV.GetUpperBound(0); i++)
                 {
-                    _currentPV[i] = ChessMove.EMPTY;
+                    _currentPV[i] = Move.EMPTY;
                 }
 
                 board.MoveApply(move);
@@ -462,14 +462,14 @@ namespace Sinobyl.Engine
             SearchArgs.TimeManager.EndDepth(depth);
 		}
 
-        private List<ChessMove> GetLegalPV(FEN fen, IEnumerable<ChessMove> moves)
+        private List<Move> GetLegalPV(FEN fen, IEnumerable<Move> moves)
         {
-            List<ChessMove> retval = new List<ChessMove>();
+            List<Move> retval = new List<Move>();
             Board board = new Board(fen);
             foreach (var move in moves)
             {
                 //var legalMoves = ChessMoveInfo.GenMovesLegal(board).ToArray();
-                if (ChessMoveInfo.GenMovesLegal(board).Contains(move))
+                if (MoveInfo.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);
                     board.MoveApply(move);
@@ -482,10 +482,10 @@ namespace Sinobyl.Engine
 
             while (true)
             {
-                ChessMove move;
+                Move move;
                 int score;
                 this.SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, 0, int.MinValue, int.MaxValue, out move, out score);
-                if (ChessMoveInfo.GenMovesLegal(board).Contains(move))
+                if (MoveInfo.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);
                     board.MoveApply(move);
@@ -620,7 +620,7 @@ namespace Sinobyl.Engine
 			}
 
 			//check trans table
-            ChessMove tt_move = ChessMove.EMPTY;
+            Move tt_move = Move.EMPTY;
             if (SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, depth, alpha, beta, out tt_move, out score))
 			{
                 ////if last two moves were null this is a verification search. 
@@ -663,7 +663,7 @@ namespace Sinobyl.Engine
 				{
 					//record in trans table?
 					//(board,depth_remaining,TRANSVALUEATLEAST,beta,0);
-                    SearchArgs.TransTable.Store(board.ZobristBoard, depth, TranspositionTable.EntryType.AtLeast, beta, ChessMove.EMPTY);
+                    SearchArgs.TransTable.Store(board.ZobristBoard, depth, TranspositionTable.EntryType.AtLeast, beta, Move.EMPTY);
 					return beta;
 					//wouldDoNullCutoff = true;
 				}
@@ -681,15 +681,15 @@ namespace Sinobyl.Engine
 			//bool haslegalmove = false;
 			int legalMovesTried = 0;
 			int blunders = 0;
-            ChessMove bestmove = ChessMove.EMPTY;
+            Move bestmove = Move.EMPTY;
 
             ChessEvalInfo init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, ChessEval.MinValue, ChessEval.MaxValue);
             
             ChessMoveData moveData;
-            while ((moveData = plyMoves.NextMoveData()).Move != ChessMove.EMPTY)
+            while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
 			{
-                ChessMove move = moveData.Move;    
+                Move move = moveData.Move;    
 
 				CurrentVariation[ply] = move;
 
@@ -855,8 +855,8 @@ namespace Sinobyl.Engine
 			}
 
             var plyMoves = _moveBuffer[ply];
-            plyMoves.Initialize(board, ChessMove.EMPTY, !playerincheck);
-            plyMoves.Sort(board, false, ChessMove.EMPTY);
+            plyMoves.Initialize(board, Move.EMPTY, !playerincheck);
+            plyMoves.Sort(board, false, Move.EMPTY);
 
 			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,ChessMoveInfo.Create(),false);
 			//moves.Sort(moveOrderer);
@@ -864,9 +864,9 @@ namespace Sinobyl.Engine
 
 			int tried_move_count = 0;
             ChessMoveData moveData;
-            while ((moveData = plyMoves.NextMoveData()).Move != ChessMove.EMPTY)
+            while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
 			{
-                ChessMove move = moveData.Move;
+                Move move = moveData.Move;
 
                 //futility check
                 if (!playerincheck)

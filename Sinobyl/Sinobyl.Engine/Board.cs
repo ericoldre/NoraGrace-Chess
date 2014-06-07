@@ -26,7 +26,7 @@ namespace Sinobyl.Engine
 
         public class MoveHistory
         {
-            public ChessMove Move;
+            public Move Move;
             public Piece PieceMoved;
             public Piece Captured;
             public Position Enpassant;
@@ -38,7 +38,7 @@ namespace Sinobyl.Engine
             public Int64 ZobristMaterial;
             public Bitboard Checkers;
 
-            public void Reset(ChessMove move, Piece piecemoved, Piece captured, Position enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
+            public void Reset(Move move, Piece piecemoved, Piece captured, Position enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
             {
                 this.Move = move;
                 this.PieceMoved = piecemoved;
@@ -119,10 +119,10 @@ namespace Sinobyl.Engine
 			this.FENCurrent = fen;
 		}
 
-        public Board(FEN fen, IEnumerable<ChessMove> prevMoves, ChessEval pcSqEvaluator = null)
+        public Board(FEN fen, IEnumerable<Move> prevMoves, ChessEval pcSqEvaluator = null)
             : this(fen, pcSqEvaluator)
         {
-            foreach (ChessMove move in prevMoves)
+            foreach (Move move in prevMoves)
             {
                 this.MoveApply(move);
             }
@@ -267,7 +267,7 @@ namespace Sinobyl.Engine
 		{
 			if (IsCheck())
 			{
-				if (!ChessMoveInfo.GenMovesLegal(this).Any())
+				if (!MoveInfo.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -279,7 +279,7 @@ namespace Sinobyl.Engine
 		{
 			if (!IsCheck())
 			{
-				if (!ChessMoveInfo.GenMovesLegal(this).Any())
+				if (!MoveInfo.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -479,13 +479,13 @@ namespace Sinobyl.Engine
 
 		public void MoveApply(string movedesc)
 		{
-			ChessMove move = ChessMoveInfo.Parse(this, movedesc);
+			Move move = MoveInfo.Parse(this, movedesc);
 			this.MoveApply(move);
 		}
 
-		public void MoveApply(ChessMove move)
+		public void MoveApply(Move move)
 		{
-            System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
+            System.Diagnostics.Debug.Assert(move != Move.EMPTY);
 			Position from = move.From();
 			Position to = move.To();
 			Piece piece = this.PieceAt(from);
@@ -624,7 +624,7 @@ namespace Sinobyl.Engine
                 return _histCount;
 			}
 		}
-		public IEnumerable<ChessMove> HistoryMoves
+		public IEnumerable<Move> HistoryMoves
 		{
 			get
 			{
@@ -634,7 +634,7 @@ namespace Sinobyl.Engine
                 }
 			}
 		}
-		public ChessMove HistMove(int MovesAgo)
+		public Move HistMove(int MovesAgo)
 		{
             return _hist[_histCount - MovesAgo].Move;
 		}
@@ -645,7 +645,7 @@ namespace Sinobyl.Engine
             MoveHistory movehist = _hist[_histCount - 1];
             _histCount--;
 
-            ChessMove moveUndoing = movehist.Move;
+            Move moveUndoing = movehist.Move;
             //undo promotion
             if (movehist.Move.Promote() != Piece.EMPTY)
             {
@@ -714,7 +714,7 @@ namespace Sinobyl.Engine
 		{
 			//save move history
             if (_histCount > _histUB) { HistResize(); }
-            _hist[_histCount++].Reset(ChessMove.EMPTY, (Piece.EMPTY), (Piece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
+            _hist[_histCount++].Reset(Move.EMPTY, (Piece.EMPTY), (Piece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
 
 			//reset since null count;
 			_movesSinceNull = 0;
@@ -759,7 +759,7 @@ namespace Sinobyl.Engine
 		{
 			return MovesSinceNull == 0
                 && this._histCount >= 2
-                && this._hist[_histCount - 2].Move == ChessMove.EMPTY;
+                && this._hist[_histCount - 2].Move == Move.EMPTY;
 		}
 
 		public Piece PieceInDirection(Position from, Direction dir, ref Position pos)

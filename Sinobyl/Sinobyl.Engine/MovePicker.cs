@@ -42,17 +42,17 @@ namespace Sinobyl.Engine
 
         private class KillerInfo
         {
-            public ChessMove move1 { get; private set; }
-            public ChessMove move2 { get; private set; }
-            private readonly ChessMove[][] _counterMoves = new ChessMove[7][]; //[7][64];
+            public Move move1 { get; private set; }
+            public Move move2 { get; private set; }
+            private readonly Move[][] _counterMoves = new Move[7][]; //[7][64];
             private readonly int[][] _history = new int[7][];
             public KillerInfo()
             {
-                for (int i = 0; i <= _counterMoves.GetUpperBound(0); i++) { _counterMoves[i] = new ChessMove[64]; }
+                for (int i = 0; i <= _counterMoves.GetUpperBound(0); i++) { _counterMoves[i] = new Move[64]; }
                 for (int i = 0; i <= _history.GetUpperBound(0); i++) { _history[i] = new int[64]; }
             }
 
-            public void RegisterKiller(Board board, ChessMove move)
+            public void RegisterKiller(Board board, Move move)
             {
                 //record as killer
                 if (move != move1 && board.PieceAt(move.To()) == Piece.EMPTY)
@@ -72,7 +72,7 @@ namespace Sinobyl.Engine
 
             }
 
-            public void RegisterFailLow(Board board, ChessMove move)
+            public void RegisterFailLow(Board board, Move move)
             {
                 //decrease value in history table
                 var ptype = (int)board.PieceAt(move.From()).ToPieceType();
@@ -80,7 +80,7 @@ namespace Sinobyl.Engine
                 _history[ptype][to] = _history[ptype][to] / 2;
             }
 
-            public int HistoryScore(Board board, ChessMove move)
+            public int HistoryScore(Board board, Move move)
             {
                 var ptype = (int)board.PieceAt(move.From()).ToPieceType();
                 var to = (int)move.To();
@@ -88,12 +88,12 @@ namespace Sinobyl.Engine
                 return score;
             }
 
-            public bool IsKiller(ChessMove move)
+            public bool IsKiller(Move move)
             {
                 return move == move1 || move == move2;
             }
 
-            public ChessMove this[int index]
+            public Move this[int index]
             {
                 get
                 {
@@ -125,8 +125,8 @@ namespace Sinobyl.Engine
 
         private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
 
-        private readonly ChessMove[] _killers = new ChessMove[3];
-        private ChessMove _ttMove;
+        private readonly Move[] _killers = new Move[3];
+        private Move _ttMove;
         private Board _board;
         private long _boardZob;
         private bool _capsOnly;
@@ -137,7 +137,7 @@ namespace Sinobyl.Engine
         private int _currIndex;
         private int _quietCount;
 
-        private readonly ChessMove[] _exclude = new ChessMove[20];
+        private readonly Move[] _exclude = new Move[20];
         private int _excludeCount = 0;
 
         public MovePicker()
@@ -147,7 +147,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public void Initialize(Board board, ChessMove ttMove = ChessMove.EMPTY, bool capsOnly = false)
+        public void Initialize(Board board, Move ttMove = Move.EMPTY, bool capsOnly = false)
         {
             _board = board;
             _boardZob = board.ZobristBoard;
@@ -163,14 +163,14 @@ namespace Sinobyl.Engine
             //_moveCurrent = 0;
         }
 
-        public void Sort(Board board, bool useSEE, ChessMove ttMove)
+        public void Sort(Board board, bool useSEE, Move ttMove)
         {
 
         }
 
         private ChessMoveData StepTTMove()
         {
-            if (_ttMove != ChessMove.EMPTY)
+            if (_ttMove != Move.EMPTY)
             {
                 System.Diagnostics.Debug.Assert(_ttMove.IsPsuedoLegal(_board));
                 _currStep++;
@@ -189,7 +189,7 @@ namespace Sinobyl.Engine
 
         private ChessMoveData StepInitCaps()
         {
-            _capsCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, true, 0);
+            _capsCount = MoveInfo.GenCapsNonCaps(_array, _board, true, 0);
             _capsCount = ExcludeFrom(_array, 0, _capsCount, _exclude, _excludeCount);
             for (int i = 0; i < _capsCount; i++)
             {
@@ -197,7 +197,7 @@ namespace Sinobyl.Engine
                 _array[i].Flags = MoveFlags.Capture;
                 if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
 
-                ChessMove move = _array[i].Move;
+                Move move = _array[i].Move;
                 Piece piece = _board.PieceAt(move.From());
 
                 //calc pcsq value;
@@ -251,7 +251,7 @@ namespace Sinobyl.Engine
             var killerInfo = _playerKillers[(int)_board.WhosTurn];
             if (_currIndex < killerInfo.Count)
             {
-                ChessMove move = killerInfo[_currIndex];
+                Move move = killerInfo[_currIndex];
                 if (move.IsPsuedoLegal(_board))
                 {
                     _tmpData.Move = move;
@@ -299,7 +299,7 @@ namespace Sinobyl.Engine
                 return NextMoveData();
             }
 
-            _quietCount = ChessMoveInfo.GenCapsNonCaps(_array, _board, false, 0);
+            _quietCount = MoveInfo.GenCapsNonCaps(_array, _board, false, 0);
             _quietCount = ExcludeFrom(_array, 0, _quietCount, _exclude, _excludeCount);
             for (int i = 0; i < _quietCount; i++)
             {
@@ -307,7 +307,7 @@ namespace Sinobyl.Engine
                 _array[i].Flags = 0;
                 _array[i].PcSq = 0;
 
-                ChessMove move = _array[i].Move;
+                Move move = _array[i].Move;
                 Piece piece = _board.PieceAt(move.From());
 
                 //calc pcsq value;
@@ -345,7 +345,7 @@ namespace Sinobyl.Engine
         {
             if (_capsOnly)
             {
-                _tmpData.Move = ChessMove.EMPTY;
+                _tmpData.Move = Move.EMPTY;
                 return _tmpData;
             }
 
@@ -359,7 +359,7 @@ namespace Sinobyl.Engine
             }
             else
             {
-                _tmpData.Move = ChessMove.EMPTY;
+                _tmpData.Move = Move.EMPTY;
                 return _tmpData;
             }
 
@@ -395,7 +395,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public static int ExcludeFrom(ChessMoveData[] source, int sourceStart, int sourceEnd, ChessMove[] exclude, int excludeCount)
+        public static int ExcludeFrom(ChessMoveData[] source, int sourceStart, int sourceEnd, Move[] exclude, int excludeCount)
         {
             int foundCount = 0;
             for (int i = sourceStart; i < sourceEnd - foundCount; i++)
@@ -420,22 +420,22 @@ namespace Sinobyl.Engine
             return sourceEnd - foundCount;
         }
 
-        public IEnumerable<ChessMove> SortedMoves()
+        public IEnumerable<Move> SortedMoves()
         {
             ChessMoveData moveData;
 
-            while ((moveData = NextMoveData()).Move != ChessMove.EMPTY)
+            while ((moveData = NextMoveData()).Move != Move.EMPTY)
             {
                 yield return moveData.Move;
             }
         }
 
-        public void RegisterCutoff(Board board, ChessMove move)
+        public void RegisterCutoff(Board board, Move move)
         {
             _playerKillers[(int)board.WhosTurn].RegisterKiller(board, move);
         }
 
-        public void RegisterFailLow(Board board, ChessMove move)
+        public void RegisterFailLow(Board board, Move move)
         {
             _playerKillers[(int)board.WhosTurn].RegisterFailLow(board, move);
         }
@@ -447,7 +447,7 @@ namespace Sinobyl.Engine
     [System.Diagnostics.DebuggerDisplay(@"{Move.Description()} SEE:{SEE} PcSq:{PcSq} Flags:{Flags}")]
     public struct ChessMoveData
     {
-        public ChessMove Move;
+        public Move Move;
         public int SEE;
         public int PcSq;
         public MoveFlags Flags;

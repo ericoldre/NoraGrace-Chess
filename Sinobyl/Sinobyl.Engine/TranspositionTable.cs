@@ -25,7 +25,7 @@ namespace Sinobyl.Engine
 		public class Entry
 		{
 			public Int64 Zobrist;
-			public ChessMove BestMove;
+			public Move BestMove;
 			public int depth;
 			public int value;
 			public EntryType Type;
@@ -33,9 +33,9 @@ namespace Sinobyl.Engine
 
             public Entry()
             {
-                Reset(0, ChessMove.EMPTY, -10, 0, EntryType.Worthless);
+                Reset(0, Move.EMPTY, -10, 0, EntryType.Worthless);
             }
-			public void Reset(Int64 a_zob, ChessMove move, int a_depth, int a_value, EntryType a_type)
+			public void Reset(Int64 a_zob, Move move, int a_depth, int a_value, EntryType a_type)
 			{
 				Zobrist = a_zob;
 				BestMove = move;
@@ -117,9 +117,9 @@ namespace Sinobyl.Engine
             }
         }
 
-		public bool QueryCutoff(long boardZob, int depth, int alpha, int beta, out ChessMove bestmove, out int value)
+		public bool QueryCutoff(long boardZob, int depth, int alpha, int beta, out Move bestmove, out int value)
 		{
-            bestmove = ChessMove.EMPTY;
+            bestmove = Move.EMPTY;
             value = 0;
 
             //EntryPair epair = FindPair(boardZob);
@@ -168,10 +168,10 @@ namespace Sinobyl.Engine
 			}
 		}
 
-        public void StoreVariation(Board board, List<ChessMove> pv)
+        public void StoreVariation(Board board, List<Move> pv)
 		{
 			Int64 zobInit = board.ZobristBoard;
-			foreach (ChessMove move in pv)
+			foreach (Move move in pv)
 			{
 				this.Store(board.ZobristBoard, 0, EntryType.Worthless, 0, move);
 				board.MoveApply(move);
@@ -181,7 +181,7 @@ namespace Sinobyl.Engine
 				board.MoveUndo();
 			}
 		}
-		public void Store(long boardZob, int depth, EntryType type, int value, ChessMove move)
+		public void Store(long boardZob, int depth, EntryType type, int value, Move move)
 		{
 
 			#region adjust near mate scores
@@ -215,7 +215,7 @@ namespace Sinobyl.Engine
             EntryPair epair = this.FindPair(boardZob);
             
             //if we are storing without a move, see if one of existing entries at least has a move to store.
-            if(move == ChessMove.EMPTY)
+            if(move == Move.EMPTY)
             {
                 if (epair.Deepest.Zobrist == boardZob) { move = epair.Deepest.BestMove; }
                 else if (epair.Recent.Zobrist == boardZob) { move = epair.Recent.BestMove; }

@@ -65,13 +65,13 @@ namespace Sinobyl.EvalTune
         }
 
 
-        public static PGN Game(DeterministicPlayer white, DeterministicPlayer black, FEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControlNodes timeControl)
+        public static PGN Game(DeterministicPlayer white, DeterministicPlayer black, FEN gameStartPosition, IEnumerable<Move> initalMoves, TimeControlNodes timeControl)
         {
             GameResult? gameResult = null;
             GameResultReason reason = GameResultReason.Unknown;
 
 
-            List<ChessMove> gameMoves = new List<ChessMove>();
+            List<Move> gameMoves = new List<Move>();
             //setup init position
             Board board = new Board(gameStartPosition);
             Dictionary<int, string> comments = new Dictionary<int, string>();
@@ -97,7 +97,7 @@ namespace Sinobyl.EvalTune
                 int playerClockNew = timeControl.CalcNewTimeLeft(playerClock, nodesUsed, board.FullMoveCount);
                 if (board.WhosTurn == Player.White) { whiteClock = playerClockNew; } else { blackClock = playerClockNew; }
 
-                if (bestMove == ChessMove.EMPTY)
+                if (bestMove == Move.EMPTY)
                 {
                     gameResult = board.WhosTurn == Player.White ? GameResult.BlackWins : GameResult.WhiteWins;
                     reason = GameResultReason.Resign;

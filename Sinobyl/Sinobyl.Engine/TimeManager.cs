@@ -16,10 +16,10 @@ namespace Sinobyl.Engine
         void StartDepth(int depth);
         void EndDepth(int depth);
 
-        void StartMove(ChessMove move);
-        void EndMove(ChessMove move);
+        void StartMove(Move move);
+        void EndMove(Move move);
 
-        void NewPV(ChessMove move);
+        void NewPV(Move move);
 
         void NodeStart(int nodeCount);
 
@@ -84,20 +84,20 @@ namespace Sinobyl.Engine
             if (_log.IsDebugEnabled) { _log.DebugFormat("EndDepth:{0}", depth); }
         }
 
-        public virtual void StartMove(ChessMove move)
+        public virtual void StartMove(Move move)
         {
             if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("StartMove:{0}", move.Description()); }
         }
 
-        public virtual void EndMove(ChessMove move)
+        public virtual void EndMove(Move move)
         {
             IsFailingHigh = false;
             if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("EndMove:{0}", move.Description()); }
         }
 
-        public virtual void NewPV(ChessMove move)
+        public virtual void NewPV(Move move)
         {
             if (CheckStop()) { RaiseStopSearch(); }
             if (_log.IsDebugEnabled) { _log.DebugFormat("NewPV:{0}", move.Description()); }
@@ -172,8 +172,8 @@ namespace Sinobyl.Engine
 
         private int _currDepth;
         private int _startMoveNodes;
-        private Dictionary<ChessMove, int> _moveNodeCounts = new Dictionary<ChessMove, int>();
-        private readonly Dictionary<int, List<ChessMove>> _pvsByDepth = new Dictionary<int, List<ChessMove>>();
+        private Dictionary<Move, int> _moveNodeCounts = new Dictionary<Move, int>();
+        private readonly Dictionary<int, List<Move>> _pvsByDepth = new Dictionary<int, List<Move>>();
 
 
         
@@ -285,13 +285,13 @@ namespace Sinobyl.Engine
             }
         }
 
-        public override void StartMove(ChessMove move)
+        public override void StartMove(Move move)
         {
             base.StartMove(move);
             _startMoveNodes = GetNodeCount();
         }
 
-        public override void EndMove(ChessMove move)
+        public override void EndMove(Move move)
         {
             base.EndMove(move);
             int endMoveNodes = GetNodeCount();
@@ -300,10 +300,10 @@ namespace Sinobyl.Engine
 
         }
 
-        public override void NewPV(ChessMove move)
+        public override void NewPV(Move move)
         {
             base.NewPV(move);
-            if (!_pvsByDepth.ContainsKey(_currDepth)) { _pvsByDepth.Add(_currDepth, new List<ChessMove>()); }
+            if (!_pvsByDepth.ContainsKey(_currDepth)) { _pvsByDepth.Add(_currDepth, new List<Move>()); }
             if (!_pvsByDepth[_currDepth].Contains(move))
             {
                 _pvsByDepth[_currDepth].Add(move);

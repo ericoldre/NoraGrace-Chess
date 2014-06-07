@@ -143,7 +143,7 @@ namespace Sinobyl.Engine.Tests
             plyBuffer.Initialize(board);
 
 
-            foreach (ChessMove move in plyBuffer.SortedMoves())
+            foreach (Move move in plyBuffer.SortedMoves())
             {
                 Assert.IsTrue(move.IsPsuedoLegal(board));
                 board.MoveApply(move);
@@ -205,7 +205,7 @@ namespace Sinobyl.Engine.Tests
 
                 Board board = new Board();
 
-                foreach (ChessMove move in pgn.Moves)
+                foreach (Move move in pgn.Moves)
                 {
                     board.MoveApply(move);
                 }
@@ -281,26 +281,26 @@ namespace Sinobyl.Engine.Tests
         public void MoveBufferExcludeTest()
         {
             ChessMoveData[] array = new ChessMoveData[192];
-            ChessMove[] exclude = new ChessMove[20];
+            Move[] exclude = new Move[20];
 
-            for (int i = 0; i < 10; i++) { array[i].Move = (ChessMove)i; }
+            for (int i = 0; i < 10; i++) { array[i].Move = (Move)i; }
 
-            exclude[0] = (ChessMove)2;
-            exclude[1] = (ChessMove)3;
-            exclude[2] = (ChessMove)4;
-            exclude[3] = (ChessMove)49;
-            exclude[4] = (ChessMove)3;
+            exclude[0] = (Move)2;
+            exclude[1] = (Move)3;
+            exclude[2] = (Move)4;
+            exclude[3] = (Move)49;
+            exclude[4] = (Move)3;
 
             int newCount = MovePicker.ExcludeFrom(array, 0, 10, exclude, 5);
 
             Assert.AreEqual<int>(7, newCount);
-            Assert.AreEqual<ChessMove>((ChessMove)0, array[0].Move);
-            Assert.AreEqual<ChessMove>((ChessMove)1, array[1].Move);
-            Assert.AreEqual<ChessMove>((ChessMove)5, array[2].Move);
-            Assert.AreEqual<ChessMove>((ChessMove)6, array[3].Move);
-            Assert.AreEqual<ChessMove>((ChessMove)7, array[4].Move);
-            Assert.AreEqual<ChessMove>((ChessMove)8, array[5].Move);
-            Assert.AreEqual<ChessMove>((ChessMove)9, array[6].Move);
+            Assert.AreEqual<Move>((Move)0, array[0].Move);
+            Assert.AreEqual<Move>((Move)1, array[1].Move);
+            Assert.AreEqual<Move>((Move)5, array[2].Move);
+            Assert.AreEqual<Move>((Move)6, array[3].Move);
+            Assert.AreEqual<Move>((Move)7, array[4].Move);
+            Assert.AreEqual<Move>((Move)8, array[5].Move);
+            Assert.AreEqual<Move>((Move)9, array[6].Move);
 
         }
 

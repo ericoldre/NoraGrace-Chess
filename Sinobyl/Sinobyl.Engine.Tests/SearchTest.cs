@@ -86,8 +86,8 @@ namespace Sinobyl.Engine.Tests
 
         private void AssertFirstGreaterSEE(Board board, string move1, string move2)
         {
-            ChessMove m1 = ChessMoveInfo.Parse(board, move1);
-            ChessMove m2 = ChessMoveInfo.Parse(board, move2);
+            Move m1 = MoveInfo.Parse(board, move1);
+            Move m2 = MoveInfo.Parse(board, move2);
             int score1 = StaticExchange.CalculateScore(m1, board);
             int score2 = StaticExchange.CalculateScore(m2, board);
             Assert.IsTrue(score1 > score2);

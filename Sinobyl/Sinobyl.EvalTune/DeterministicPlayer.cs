@@ -26,14 +26,14 @@ namespace Sinobyl.EvalTune
         }
 
 
-        public ChessMove Move(FEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControlNodes timeControls, int nodesOnClock, out string comment, out int nodesProcessed)
+        public Move Move(FEN gameStartPosition, IEnumerable<Move> movesAlreadyPlayed, TimeControlNodes timeControls, int nodesOnClock, out string comment, out int nodesProcessed)
         {
             NodeManager.TimeControl = timeControls;
             NodeManager.AmountOnClock = nodesOnClock;
 
             ChessSearch.Args args = new ChessSearch.Args();
             args.GameStartPosition = gameStartPosition;
-            args.GameMoves = new List<ChessMove>(movesAlreadyPlayed);
+            args.GameMoves = new List<Move>(movesAlreadyPlayed);
             args.TransTable = TransTable;
             args.Eval = Eval;
             args.TimeManager = this.NodeManager;
@@ -53,7 +53,7 @@ namespace Sinobyl.EvalTune
 
             TransTable.AgeEntries(4);
 
-            ChessMove bestMove = searchResult.PrincipleVariation[0];
+            Move bestMove = searchResult.PrincipleVariation[0];
             nodesProcessed = search.CountAIValSearch;
 
             return searchResult.PrincipleVariation[0];

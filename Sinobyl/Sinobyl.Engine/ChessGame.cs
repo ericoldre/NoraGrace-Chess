@@ -33,12 +33,12 @@ namespace Sinobyl.Engine
         private ChessGamePlayer _black;
         private TimeControl _timecontrol = TimeControl.Blitz(1, 0);
         private bool _timeControlEnforced = true;
-        private ReadOnlyCollection<ChessMove> _startMoves = new ReadOnlyCollection<ChessMove>(new List<ChessMove>());
+        private ReadOnlyCollection<Move> _startMoves = new ReadOnlyCollection<Move>(new List<Move>());
         private FEN _startFEN = new FEN(FEN.FENStart);
 
         private bool _started = false;
         private readonly Board _board = new Board();
-        private readonly List<ChessMove> _moves = new List<ChessMove>();
+        private readonly List<Move> _moves = new List<Move>();
         public GameResult? _result = null;
         public GameResultReason _resultReason = GameResultReason.NotDecided;
         private TimeSpan[] _timeRemainingForPlayer = new TimeSpan[2];
@@ -74,7 +74,7 @@ namespace Sinobyl.Engine
             {
                 if (_moves.Count > 0)
                 {
-                    ChessMove moveUndoing = _moves[_moves.Count - 1];
+                    Move moveUndoing = _moves[_moves.Count - 1];
                     _board.MoveUndo();
                     _moves.RemoveAt(_moves.Count - 1);
                     OnGameMoveUndo(moveUndoing);
@@ -84,7 +84,7 @@ namespace Sinobyl.Engine
 
         }
 
-        protected virtual void OnGameMoveUndo(ChessMove move)
+        protected virtual void OnGameMoveUndo(Move move)
         {
             var eh = this.GameMoveUndo;
             if (eh != null) { eh(this, new MoveEventArgs(move)); }
@@ -185,7 +185,7 @@ namespace Sinobyl.Engine
                 StartMoves = StartMoves; //reinit board state start moves;
             }
         }
-        public ReadOnlyCollection<ChessMove> StartMoves
+        public ReadOnlyCollection<Move> StartMoves
         {
             get
             {
@@ -196,7 +196,7 @@ namespace Sinobyl.Engine
                 if (_started) { throw new Exception("game already started"); }
                 //apply these moves to the board;
                 _board.FENCurrent = _startFEN;
-                foreach (ChessMove move in value)
+                foreach (Move move in value)
                 {
                     if (move.IsLegal(_board))
                     {
@@ -301,7 +301,7 @@ namespace Sinobyl.Engine
             }
 
             //check legality of call
-            ChessMove move = (ChessMove)moveObj;
+            Move move = (Move)moveObj;
             if (!sender.Equals(_board.WhosTurn == Player.White ? _white : _black))
             {
                 throw new Exception("it is not your turn");
@@ -363,7 +363,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public virtual void OnGameMoveApplied(ChessMove move)
+        public virtual void OnGameMoveApplied(Move move)
         {
             var ehGameMove = this.GameMoveApplied;
             if (ehGameMove != null) { ehGameMove(this, new MoveEventArgs(move)); }
@@ -376,11 +376,11 @@ namespace Sinobyl.Engine
                 return _board.FENCurrent;
             }
         }
-        public ReadOnlyCollection<ChessMove> MoveHistory()
+        public ReadOnlyCollection<Move> MoveHistory()
         {
-            List<ChessMove> retval = new List<ChessMove>(_startMoves);
+            List<Move> retval = new List<Move>(_startMoves);
             retval.AddRange(_moves);
-            return new ReadOnlyCollection<ChessMove>(retval);
+            return new ReadOnlyCollection<Move>(retval);
         }
 
 

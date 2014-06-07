@@ -17,8 +17,8 @@ namespace Sinobyl.Engine
 
     public class MoveEventArgs : EventArgs
     {
-        public ChessMove Move { get; private set; }
-        public MoveEventArgs(ChessMove move)
+        public Move Move { get; private set; }
+        public MoveEventArgs(Move move)
         {
             Move = move;
         }

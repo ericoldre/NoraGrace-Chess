@@ -8,9 +8,9 @@ namespace Sinobyl.Engine
 {
     public static class StaticExchange
     {
-        public static int CalculateScore(ChessMove move, Board board)
+        public static int CalculateScore(Move move, Board board)
         {
-            System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
+            System.Diagnostics.Debug.Assert(move != Move.EMPTY);
             //System.Diagnostics.Debug.Assert(ChessMove.GenMoves(board).Contains(move));
 
             int retval = 0;

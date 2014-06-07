@@ -14,10 +14,10 @@ namespace Sinobyl.Engine
         public event EventHandler Resigned;
 
         public abstract void TurnStop();
-        public abstract void YourTurn(FEN initalPosition, IEnumerable<ChessMove> prevMoves, TimeControl timeControl, TimeSpan timeLeft);
+        public abstract void YourTurn(FEN initalPosition, IEnumerable<Move> prevMoves, TimeControl timeControl, TimeSpan timeLeft);
         public abstract string Name { get; }
 
-        protected virtual void OnMovePlayed(ChessMove move)
+        protected virtual void OnMovePlayed(Move move)
         {
             var e = this.MovePlayed;
             if (e != null) { e(this, new MoveEventArgs(move)); }
@@ -39,14 +39,14 @@ namespace Sinobyl.Engine
         public void YourTurn(Board board, TimeControl timeControl, TimeSpan timeLeft)
         {
             //need to extrapolate previous moves and initial position from board
-            List<ChessMove> moves = board.HistoryMoves.ToList();
+            List<Move> moves = board.HistoryMoves.ToList();
             int moveCount = moves.Count;
             for (int i = 0; i < moveCount; i++)
             {
                 board.MoveUndo();
             }
             FEN initialPosition = board.FENCurrent;
-            foreach (ChessMove move in moves)
+            foreach (Move move in moves)
             {
                 board.MoveApply(move);
             }
@@ -177,7 +177,7 @@ namespace Sinobyl.Engine
             search.Abort(false);
         }
 
-        public override void YourTurn(FEN initalPosition, IEnumerable<ChessMove> prevMoves, TimeControl timeControl, TimeSpan timeLeft)
+        public override void YourTurn(FEN initalPosition, IEnumerable<Move> prevMoves, TimeControl timeControl, TimeSpan timeLeft)
         {
             //ChessSearch a = new ChessSearch(game.FENCurrent);
 
@@ -189,8 +189,8 @@ namespace Sinobyl.Engine
 
             //check opening book
             BookOpening book = new BookOpening();
-            ChessMove bookMove = book.FindMove(FenCurrent);
-            if (bookMove != ChessMove.EMPTY)
+            Move bookMove = book.FindMove(FenCurrent);
+            if (bookMove != Move.EMPTY)
             {
                 if (BookBackgroundWorker == null)
                 {
@@ -206,7 +206,7 @@ namespace Sinobyl.Engine
 
             ChessSearch.Args args = new ChessSearch.Args();
             args.GameStartPosition = initalPosition;
-            args.GameMoves = new List<ChessMove>(prevMoves);
+            args.GameMoves = new List<Move>(prevMoves);
             args.MaxDepth = _personality.MaxDepth;
             args.NodesPerSecond = _personality.NodesPerSecond;
             args.Blunder = _personality.Blunder;
@@ -230,7 +230,7 @@ namespace Sinobyl.Engine
 
         void BookBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            ChessMove move = (ChessMove)e.Result;
+            Move move = (Move)e.Result;
             OnMovePlayed(move);
         }
 
@@ -247,7 +247,7 @@ namespace Sinobyl.Engine
                     return;
                 }
             }
-            ChessMove move = (ChessMove)e.Argument;
+            Move move = (Move)e.Argument;
             e.Result = move;
         }
 
@@ -256,7 +256,7 @@ namespace Sinobyl.Engine
 
         void search_FoundMove(object sender, object move)
         {
-            this.OnMovePlayed((ChessMove)move);
+            this.OnMovePlayed((Move)move);
             //if (this.OnMove != null) { this.OnMove(this, move); }
         }
     }

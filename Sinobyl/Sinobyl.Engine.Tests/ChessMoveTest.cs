@@ -71,7 +71,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod()]
         public void GetHashCodeTest()
         {
-            System.Collections.Generic.Dictionary<int, ChessMove> dic = new System.Collections.Generic.Dictionary<int, ChessMove>();
+            System.Collections.Generic.Dictionary<int, Move> dic = new System.Collections.Generic.Dictionary<int, Move>();
 
             foreach (var to in PositionInfo.AllPositions)
             {
@@ -80,7 +80,7 @@ namespace Sinobyl.Engine.Tests
                     foreach (var prom in PieceInfo.AllPieces)
                     {
                         if (prom.ToPieceType() == PieceType.Pawn || prom.ToPieceType() == PieceType.King) { continue; }
-                        ChessMove move = ChessMoveInfo.Create(from, to, prom);
+                        Move move = MoveInfo.Create(from, to, prom);
                         var hash = move.GetHashCode();
                         if (dic.ContainsKey(hash))
                         {

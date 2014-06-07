@@ -16,13 +16,13 @@ namespace Sinobyl.CommandLine
         {
             Board board = new Board();
             ChessEval eval = new ChessEval();
-            List<ChessMove> movesDone = new List<ChessMove>();
+            List<Move> movesDone = new List<Move>();
             TranspositionTable transTable = new TranspositionTable();
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
             //var timeManager = new TimeManagerBasic() { TimeControl = ChessTimeControl.Blitz(100, 100), ClockEnd = DateTime.Now.AddDays(100) };
             var timeManager = new TimeManagerAdvanced() { TimeControl = TimeControl.Blitz(100, 100), AmountOnClock = TimeSpan.FromDays(100) };
-            foreach (ChessMove move in pgn.Moves)
+            foreach (Move move in pgn.Moves)
             {
                 
                 ChessSearch.Args args = new ChessSearch.Args();
@@ -75,7 +75,7 @@ namespace Sinobyl.CommandLine
             int positionCount = 0;
             TimeSpan totalTime = new TimeSpan(0);
 
-            foreach (ChessMove move in pgn.Moves)
+            foreach (Move move in pgn.Moves)
             {
                 board.MoveApply(move);
                 totalTime += PerftTest(board.FENCurrent.ToString(), nodesPerPosition, doEval, doMoveSort);
@@ -143,10 +143,10 @@ namespace Sinobyl.CommandLine
 
             
             ChessMoveData moveData;
-            while ((moveData = moveBuffer.NextMoveData()).Move != ChessMove.EMPTY)
+            while ((moveData = moveBuffer.NextMoveData()).Move != Move.EMPTY)
             {
 
-                ChessMove move = moveData.Move;
+                Move move = moveData.Move;
                 //System.Diagnostics.Debug.Assert(moves.Contains(move));
 
                 board.MoveApply(move);

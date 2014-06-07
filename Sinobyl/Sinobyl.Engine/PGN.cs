@@ -65,7 +65,7 @@ namespace Sinobyl.Engine
 	{
 
 		
-		private readonly List<ChessMove> _moves = new List<ChessMove>();
+		private readonly List<Move> _moves = new List<Move>();
 		private GameResult? _result;
 		private GameResultReason _resultReason;
         private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -73,7 +73,7 @@ namespace Sinobyl.Engine
 
 
 
-        public PGN(IEnumerable<KeyValuePair<string, string>> headers, IEnumerable<ChessMove> moves, GameResult? result, IEnumerable<KeyValuePair<int, string>> comments, GameResultReason reason)
+        public PGN(IEnumerable<KeyValuePair<string, string>> headers, IEnumerable<Move> moves, GameResult? result, IEnumerable<KeyValuePair<int, string>> comments, GameResultReason reason)
 		{
             if (_headers != null)
             {
@@ -140,7 +140,7 @@ namespace Sinobyl.Engine
             }
         }
 
-		public List<ChessMove> Moves
+		public List<Move> Moves
 		{
 			get
 			{
@@ -351,7 +351,7 @@ namespace Sinobyl.Engine
 			//moves
 			int imove = 1;
 			bool iswhite = true;
-			foreach (ChessMove move in _moves)
+			foreach (Move move in _moves)
 			{
 				if (iswhite)
 				{
@@ -438,7 +438,7 @@ namespace Sinobyl.Engine
 		{
 			ChessPGNHeaders headers = new ChessPGNHeaders();
             Dictionary<int, string> comments = new Dictionary<int, string>();
-            List<ChessMove> moves = new List<ChessMove>();
+            List<Move> moves = new List<Move>();
 			GameResult? result = null;
 			GameResultReason reason = GameResultReason.NotDecided;
 			Board board = new Board();
@@ -583,7 +583,7 @@ namespace Sinobyl.Engine
 						}
 						else
 						{
-							ChessMove move = ChessMoveInfo.Parse(board, token);
+							Move move = MoveInfo.Parse(board, token);
 							board.MoveApply(move);
 							moves.Add(move);
 

@@ -64,7 +64,7 @@ namespace Sinobyl.Engine.Tests
 
                 Board board = new Board();
 
-                foreach (ChessMove move in pgn.Moves)
+                foreach (Move move in pgn.Moves)
                 {
                     board.MoveApply(move);
                     string sFenOrig = board.FENCurrent.ToString();

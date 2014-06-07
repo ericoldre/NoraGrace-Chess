@@ -181,7 +181,7 @@ namespace Sinobyl.CommandLine
                     _timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);
                     break;
                 case "usermove":
-                    ChessMove usermove = ChessMoveInfo.Parse(_board, argument);
+                    Move usermove = MoveInfo.Parse(_board, argument);
                     _board.MoveApply(usermove);
                     bool done = GameDoneAnnounce();
                     if (!done && _board.WhosTurn == _myplayer)
@@ -233,20 +233,20 @@ namespace Sinobyl.CommandLine
 
 		public void SimulateUsermove(string usermoveTxt)
 		{
-			ChessMove usermove = ChessMoveInfo.Parse(_board, usermoveTxt);
+			Move usermove = MoveInfo.Parse(_board, usermoveTxt);
 			_board.MoveApply(usermove);
 			bool done = GameDoneAnnounce();
 
 
 			//need to extrapolate previous moves and initial position from board
-            List<ChessMove> moves = _board.HistoryMoves.ToList();
+            List<Move> moves = _board.HistoryMoves.ToList();
 			int moveCount = moves.Count;
 			for (int i = 0; i < moveCount; i++)
 			{
 				_board.MoveUndo();
 			}
 			FEN initialPosition = _board.FENCurrent;
-			foreach (ChessMove move in moves)
+			foreach (Move move in moves)
 			{
 				_board.MoveApply(move);
 			}

@@ -19,10 +19,10 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void TestEasy()
         {
-            Assert.AreEqual<Bitboard>(Bitboard.B5 | Bitboard.G5, getCandidates(new ChessFEN("4k3/p7/8/PP3ppp/8/5P1P/8/4K3 b KQkq - 0 1")));
+            Assert.AreEqual<Bitboard>(Bitboard.B5 | Bitboard.G5, getCandidates(new FEN("4k3/p7/8/PP3ppp/8/5P1P/8/4K3 b KQkq - 0 1")));
         }
 
-        Bitboard getCandidates(ChessFEN fen)
+        Bitboard getCandidates(FEN fen)
         {
             Board board = new Board(fen);
             var info = getPawnEval.Value.EvalAllPawns(board[Piece.WPawn], board[Piece.BPawn], board.ZobristPawn);

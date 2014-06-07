@@ -18,39 +18,41 @@ namespace Sinobyl.Engine
         All = WhiteShort | WhiteLong | BlackShort | BlackLong
     }
 
-	public class MoveHistory
-	{
-        public ChessMove Move;
-        public Piece PieceMoved;
-		public Piece Captured;
-		public Position Enpassant;
-        public CastleFlags Castle;
-		public int FiftyCount;
-		public int MovesSinceNull;
-		public Int64 Zobrist;
-		public Int64 ZobristPawn;
-        public Int64 ZobristMaterial;
-        public Bitboard Checkers;
 
-        public void Reset(ChessMove move, Piece piecemoved, Piece captured, Position enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
-        {
-            this.Move = move;
-            this.PieceMoved = piecemoved;
-            this.Captured = captured;
-            this.Enpassant = enpassant;
-            this.Castle = castle;
-            this.FiftyCount = fifty;
-            this.MovesSinceNull = sinceNull;
-            this.Zobrist = zob;
-            this.ZobristPawn = zobPawn;
-            this.ZobristMaterial = zobMaterial;
-            this.Checkers = checkers;
-        }
-	}
 
-    [System.Diagnostics.DebuggerDisplay(@"{FEN,nq}")]
+    [System.Diagnostics.DebuggerDisplay(@"{FENCurrent,nq}")]
 	public sealed class Board
     {
+
+        public class MoveHistory
+        {
+            public ChessMove Move;
+            public Piece PieceMoved;
+            public Piece Captured;
+            public Position Enpassant;
+            public CastleFlags Castle;
+            public int FiftyCount;
+            public int MovesSinceNull;
+            public Int64 Zobrist;
+            public Int64 ZobristPawn;
+            public Int64 ZobristMaterial;
+            public Bitboard Checkers;
+
+            public void Reset(ChessMove move, Piece piecemoved, Piece captured, Position enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
+            {
+                this.Move = move;
+                this.PieceMoved = piecemoved;
+                this.Captured = captured;
+                this.Enpassant = enpassant;
+                this.Castle = castle;
+                this.FiftyCount = fifty;
+                this.MovesSinceNull = sinceNull;
+                this.Zobrist = zob;
+                this.ZobristPawn = zobPawn;
+                this.ZobristMaterial = zobMaterial;
+                this.Checkers = checkers;
+            }
+        }
 
 		private Piece[] _pieceat = new Piece[65];
 
@@ -94,16 +96,16 @@ namespace Sinobyl.Engine
         private PhasedScore _pcSq;
 
         public Board(ChessEval pcSqEvaluator = null)
-            : this(new ChessFEN(ChessFEN.FENStart), pcSqEvaluator)
+            : this(new FEN(FEN.FENStart), pcSqEvaluator)
 		{
             
 		}
         public Board(string fen, ChessEval pcSqEvaluator = null)
-            : this(new ChessFEN(fen), pcSqEvaluator)
+            : this(new FEN(fen), pcSqEvaluator)
 		{
 
 		}
-		public Board(ChessFEN fen, ChessEval pcSqEvaluator = null)
+		public Board(FEN fen, ChessEval pcSqEvaluator = null)
 		{
             _histUB = _hist.GetUpperBound(0);
             for (int i = 0; i <= _histUB; i++)
@@ -114,10 +116,10 @@ namespace Sinobyl.Engine
             _pcSqEvaluator = pcSqEvaluator ?? ChessEval.Default;
             initPieceAtArray();
 
-			this.FEN = fen;
+			this.FENCurrent = fen;
 		}
 
-        public Board(ChessFEN fen, IEnumerable<ChessMove> prevMoves, ChessEval pcSqEvaluator = null)
+        public Board(FEN fen, IEnumerable<ChessMove> prevMoves, ChessEval pcSqEvaluator = null)
             : this(fen, pcSqEvaluator)
         {
             foreach (ChessMove move in prevMoves)
@@ -348,11 +350,11 @@ namespace Sinobyl.Engine
 			return retval;
 		}
 
-		public ChessFEN FEN
+		public FEN FENCurrent
 		{
 			get
 			{
-				return new ChessFEN(this);
+				return new FEN(this);
 			}
 			set
 			{

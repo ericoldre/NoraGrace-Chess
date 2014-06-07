@@ -113,7 +113,7 @@ namespace Sinobyl.Engine.Tests
 
             Board board = new Board(fen);
 
-            string fenStart = board.FEN.ToString();
+            string fenStart = board.FENCurrent.ToString();
 
             int nodecount = -1;//start at -1 to skip root node
             int leafnodecount = 0;
@@ -121,7 +121,7 @@ namespace Sinobyl.Engine.Tests
 
             PerftSearch(board, 0, moveBuffer, depth, ref nodecount, ref leafnodecount);
 
-            string fenEnd = board.FEN.ToString();
+            string fenEnd = board.FENCurrent.ToString();
 
             //Assert.AreEqual<string>(fenStart, fenEnd, string.Format("Start and End FEN do not match {0}  {1}", fenStart, fenEnd));
             Assert.AreEqual<int>(expectedLeaves, leafnodecount, string.Format("ExpectedLeaves D:{0} FEN:{1}", depth, fen));
@@ -222,7 +222,7 @@ namespace Sinobyl.Engine.Tests
         public void MoveGenPerft1()
         {
 
-            string fen = ChessFEN.FENStart;
+            string fen = FEN.FENStart;
 
             PerftTest(fen, 1, 20, 20);
             PerftTest(fen, 2, 400, 420);

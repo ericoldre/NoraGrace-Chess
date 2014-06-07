@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
         public event EventHandler Resigned;
 
         public abstract void TurnStop();
-        public abstract void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft);
+        public abstract void YourTurn(FEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft);
         public abstract string Name { get; }
 
         protected virtual void OnMovePlayed(ChessMove move)
@@ -45,7 +45,7 @@ namespace Sinobyl.Engine
             {
                 board.MoveUndo();
             }
-            ChessFEN initialPosition = board.FEN;
+            FEN initialPosition = board.FENCurrent;
             foreach (ChessMove move in moves)
             {
                 board.MoveApply(move);
@@ -177,7 +177,7 @@ namespace Sinobyl.Engine
             search.Abort(false);
         }
 
-        public override void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft)
+        public override void YourTurn(FEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft)
         {
             //ChessSearch a = new ChessSearch(game.FENCurrent);
 
@@ -185,7 +185,7 @@ namespace Sinobyl.Engine
 
             Board currBoard = new Board(initalPosition, prevMoves);
 
-            ChessFEN FenCurrent = currBoard.FEN;
+            FEN FenCurrent = currBoard.FENCurrent;
 
             //check opening book
             ChessBookOpening book = new ChessBookOpening();

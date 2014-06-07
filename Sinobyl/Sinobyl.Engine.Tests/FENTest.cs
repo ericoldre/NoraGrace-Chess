@@ -67,18 +67,18 @@ namespace Sinobyl.Engine.Tests
                 foreach (ChessMove move in pgn.Moves)
                 {
                     board.MoveApply(move);
-                    string sFenOrig = board.FEN.ToString();
+                    string sFenOrig = board.FENCurrent.ToString();
 
-                    ChessFEN fenFromBoard = new ChessFEN(board);
-                    ChessFEN fenFromString = new ChessFEN(sFenOrig);
+                    FEN fenFromBoard = new FEN(board);
+                    FEN fenFromString = new FEN(sFenOrig);
 
                     Board board2 = new Board(fenFromString.ToString());
 
                     Assert.AreEqual(sFenOrig, fenFromBoard.ToString());
                     Assert.AreEqual(sFenOrig, fenFromString.ToString());
-                    Assert.AreEqual(sFenOrig, board2.FEN.ToString());
+                    Assert.AreEqual(sFenOrig, board2.FENCurrent.ToString());
 
-                    ChessFEN fenReverse2 = fenFromBoard.Reverse().Reverse();
+                    FEN fenReverse2 = fenFromBoard.Reverse().Reverse();
 
                     Assert.AreEqual(sFenOrig, fenReverse2.ToString());
 

@@ -11,7 +11,7 @@ namespace Sinobyl.Engine
     {
         public static IEnumerable<ChessMove> GenMovesLegal(Board board)
         {
-            Board workingboard = new Board(board.FEN);
+            Board workingboard = new Board(board.FENCurrent);
 
             Player me = board.WhosTurn;
             foreach (ChessMove move in GenMoves(workingboard))

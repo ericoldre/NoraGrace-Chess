@@ -7,8 +7,8 @@ namespace Sinobyl.Engine
 {
     public class FENEventArgs : EventArgs
     {
-        public ChessFEN FEN { get; private set; }
-        public FENEventArgs(ChessFEN fen)
+        public FEN FEN { get; private set; }
+        public FENEventArgs(FEN fen)
         {
             FEN = fen;
         }

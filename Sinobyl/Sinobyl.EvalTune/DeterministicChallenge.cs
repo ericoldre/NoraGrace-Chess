@@ -42,7 +42,7 @@ namespace Sinobyl.EvalTune
                         DeterministicPlayer playerBlack = fBlackPlayer();
 
                         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                        ChessPGN game = Game(playerWhite, playerBlack, new ChessFEN(startingPGN.StartingPosition), startingPGN.Moves, timeControl);
+                        ChessPGN game = Game(playerWhite, playerBlack, new FEN(startingPGN.StartingPosition), startingPGN.Moves, timeControl);
                         stopwatch.Stop();
 
                         lock (retval)
@@ -65,7 +65,7 @@ namespace Sinobyl.EvalTune
         }
 
 
-        public static ChessPGN Game(DeterministicPlayer white, DeterministicPlayer black, ChessFEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControlNodes timeControl)
+        public static ChessPGN Game(DeterministicPlayer white, DeterministicPlayer black, FEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControlNodes timeControl)
         {
             ChessResult? gameResult = null;
             ChessResultReason reason = ChessResultReason.Unknown;

@@ -245,7 +245,7 @@ namespace Sinobyl.Engine
                 }
                 else
                 {
-                    return ChessFEN.FENStart;
+                    return FEN.FENStart;
                 }
 			}
 		}

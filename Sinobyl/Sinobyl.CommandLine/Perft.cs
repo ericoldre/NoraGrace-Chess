@@ -28,12 +28,12 @@ namespace Sinobyl.CommandLine
                 ChessSearch.Args args = new ChessSearch.Args();
 
                 args.Eval = eval;
-                args.GameStartPosition = new ChessFEN(ChessFEN.FENStart);
+                args.GameStartPosition = new FEN(FEN.FENStart);
                 args.GameMoves = movesDone;
                 args.MaxDepth = depth;
                 args.TransTable = transTable;
                 args.TimeManager = timeManager;
-                Program.ConsoleWriteline(board.FEN.ToString());
+                Program.ConsoleWriteline(board.FENCurrent.ToString());
 
                 ChessSearch search = new ChessSearch(args);
                 search.ProgressReported += (s, e) => 
@@ -78,7 +78,7 @@ namespace Sinobyl.CommandLine
             foreach (ChessMove move in pgn.Moves)
             {
                 board.MoveApply(move);
-                totalTime += PerftTest(board.FEN.ToString(), nodesPerPosition, doEval, doMoveSort);
+                totalTime += PerftTest(board.FENCurrent.ToString(), nodesPerPosition, doEval, doMoveSort);
                 totalNodes += nodesPerPosition;
                 positionCount++;
                 double nodesPerSecond = ((double)totalNodes / (double)totalTime.TotalMilliseconds) * 1000;

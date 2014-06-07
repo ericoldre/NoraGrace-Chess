@@ -111,8 +111,8 @@ namespace Sinobyl.Engine
 			public readonly int Score;
 			public readonly TimeSpan Time;
 			public readonly ReadOnlyCollection<ChessMove> PrincipleVariation;
-            public readonly ChessFEN FEN;
-			public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, ChessMoves a_pv, ChessFEN a_fen)
+            public readonly FEN FEN;
+			public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, ChessMoves a_pv, FEN a_fen)
 			{
                 if (a_pv == null) { throw new ArgumentNullException("a_pv"); }
                 if (a_fen == null) { throw new ArgumentNullException("a_fen"); }
@@ -178,7 +178,7 @@ namespace Sinobyl.Engine
 
 		public class Args
 		{
-			public ChessFEN GameStartPosition { get; set; }
+			public FEN GameStartPosition { get; set; }
 			public ChessMoves GameMoves { get; set; }
 			public int MaxDepth { get; set; }
 			public int NodesPerSecond { get; set; }
@@ -193,7 +193,7 @@ namespace Sinobyl.Engine
             public bool UseLMR { get; set; }
 			public Args()
 			{
-                GameStartPosition = new ChessFEN(ChessFEN.FENStart);
+                GameStartPosition = new FEN(FEN.FENStart);
 				GameMoves = new ChessMoves();
 				MaxDepth = int.MaxValue;
 				NodesPerSecond = int.MaxValue;
@@ -335,7 +335,7 @@ namespace Sinobyl.Engine
 			//return progress
 			if (_returnBestResult)
 			{
-				Progress progress = new Progress(depth, CountAIValSearch, _bestvariationscore, DateTime.Now - _starttime, _bestvariation, this.board.FEN);
+				Progress progress = new Progress(depth, CountAIValSearch, _bestvariationscore, DateTime.Now - _starttime, _bestvariation, this.board.FENCurrent);
 				return progress;
 			}
 			else
@@ -443,14 +443,14 @@ namespace Sinobyl.Engine
                     _currentPV[0] = move;
 
 					//save instance best info
-					_bestvariation = new ChessMoves(GetLegalPV(this.board.FEN, _currentPV));
+					_bestvariation = new ChessMoves(GetLegalPV(this.board.FENCurrent, _currentPV));
 					_bestvariationscore = alpha;
 
 					//store to trans table
                     SearchArgs.TransTable.Store(board.ZobristBoard, depth, TranspositionTable.EntryType.Exactly, alpha, move);
 
 					//announce new best line if not trivial
-                    Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), _bestvariation, this.board.FEN);
+                    Progress prog = new Progress(depth, this.CountAIValSearch, alpha, (DateTime.Now - _starttime), _bestvariation, this.board.FENCurrent);
                     if (depth > 1 && this.ProgressReported != null)
                     {
                         OnProgressReported(new SearchProgressEventArgs(prog));
@@ -462,7 +462,7 @@ namespace Sinobyl.Engine
             SearchArgs.TimeManager.EndDepth(depth);
 		}
 
-        private List<ChessMove> GetLegalPV(ChessFEN fen, IEnumerable<ChessMove> moves)
+        private List<ChessMove> GetLegalPV(FEN fen, IEnumerable<ChessMove> moves)
         {
             List<ChessMove> retval = new List<ChessMove>();
             Board board = new Board(fen);

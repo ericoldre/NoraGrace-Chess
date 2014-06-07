@@ -15,7 +15,7 @@ namespace Sinobyl.Engine.Tests
         public void TestAbortOnDraw()
         {
 
-            ChessFEN fen = new ChessFEN("7k/4r3/8/2R5/5K2/8/8/8 w - - 97 100");
+            FEN fen = new FEN("7k/4r3/8/2R5/5K2/8/8/8 w - - 97 100");
 
             //ChessBoard board99 = new ChessBoard(fen);
 
@@ -55,7 +55,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void StaticExchangeTest()
         {
-            ChessFEN fen = new ChessFEN("rnbqkb1r/ppp2ppp/4p3/3p1n2/4P1P1/1B4N1/PPPP1P1P/RNBQK2R w KQkq - 0 1 ");
+            FEN fen = new FEN("rnbqkb1r/ppp2ppp/4p3/3p1n2/4P1P1/1B4N1/PPPP1P1P/RNBQK2R w KQkq - 0 1 ");
             Board board = new Board(fen);
 
             AssertFirstGreaterSEE(board, "e4f5", "g3f5");

@@ -122,7 +122,7 @@ namespace Sinobyl.CommandLine
 		{
             if (_log.IsInfoEnabled)
             {
-                _log.InfoFormat("THINKING:{0}", _board.FEN);
+                _log.InfoFormat("THINKING:{0}", _board.FENCurrent);
             }
 			_player.YourTurn(_board, _timeControl, _timeLeft);
 		}
@@ -167,7 +167,7 @@ namespace Sinobyl.CommandLine
                     Program.ConsoleWriteline("feature done=1");
                     break;
                 case "new":
-                    _board.FEN = new ChessFEN(ChessFEN.FENStart);
+                    _board.FENCurrent = new FEN(FEN.FENStart);
                     _myplayer = Player.Black;
                     break;
                 case "force":
@@ -199,7 +199,7 @@ namespace Sinobyl.CommandLine
                     //If you're playing on ICS, it's possible for the draw offer to have been withdrawn by the time you accept it, so don't assume the game is over because you accept a draw offer. Continue playing until xboard tells you the game is over. See also "offer draw" below.
                     break;
                 case "setboard":
-                    _board.FEN = new ChessFEN(argument);
+                    _board.FENCurrent = new FEN(argument);
                     break;
                 case "undo":
                     _board.MoveUndo();
@@ -221,7 +221,7 @@ namespace Sinobyl.CommandLine
                     break;
                 //custom stuff for debugging
                 case "setpos1":
-                    _board.FEN = new ChessFEN("8/4r3/R4n2/2pPk3/p1P1B1p1/3K2P1/5P2/8 w - - 4 54 ");
+                    _board.FENCurrent = new FEN("8/4r3/R4n2/2pPk3/p1P1B1p1/3K2P1/5P2/8 w - - 4 54 ");
                     break;
                 case "eval":
                     ChessEval eval = new ChessEval();
@@ -245,7 +245,7 @@ namespace Sinobyl.CommandLine
 			{
 				_board.MoveUndo();
 			}
-			ChessFEN initialPosition = _board.FEN;
+			FEN initialPosition = _board.FENCurrent;
 			foreach (ChessMove move in moves)
 			{
 				_board.MoveApply(move);

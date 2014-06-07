@@ -51,8 +51,8 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void NeutralTest()
         {
-            var board = new Board(ChessFEN.FENStart);
-            var boardReverse = new Board(new ChessFEN(ChessFEN.FENStart).Reverse());
+            var board = new Board(FEN.FENStart);
+            var boardReverse = new Board(new FEN(FEN.FENStart).Reverse());
             var eval = new ChessEval();
 
             int norm = eval.Eval(board);
@@ -72,7 +72,7 @@ namespace Sinobyl.Engine.Tests
         }
         public void TestPositionRange(string sfen, int minOk, int maxOk)
         {
-            var fen = new ChessFEN(sfen);
+            var fen = new FEN(sfen);
             var board = new Board(fen);
             var breverse = new Board(fen.Reverse());
             var eval = new ChessEval();
@@ -130,7 +130,7 @@ namespace Sinobyl.Engine.Tests
                 {
                     board.MoveApply(move);
 
-                    var fen = board.FEN;
+                    var fen = board.FENCurrent;
                     Board boardRev = new Board(fen.Reverse());
                     
                     ChessEvalInfo e1 = new ChessEvalInfo();
@@ -197,7 +197,7 @@ namespace Sinobyl.Engine.Tests
                     board.MoveApply(move);
 
                     ChessSearch.Args args = new ChessSearch.Args();
-                    args.GameStartPosition = board.FEN;
+                    args.GameStartPosition = board.FENCurrent;
                     args.MaxDepth = 4;
 
                     ChessSearch search = new ChessSearch(args);

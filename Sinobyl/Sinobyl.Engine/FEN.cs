@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Sinobyl.Engine
 {
-	public class ChessFEN
+	public class FEN
 	{
         public static readonly string FENStart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -20,7 +20,7 @@ namespace Sinobyl.Engine
 		public readonly int fiftymove = 0;
 		public readonly int fullmove = 0;
 
-        public ChessFEN(
+        public FEN(
             ChessPositionDictionary<Piece> Pieces,
             Player WhosTurn = Player.White,
             bool CastleWS = false,
@@ -44,7 +44,7 @@ namespace Sinobyl.Engine
             this.fiftymove = FiftyMove;
             this.fullmove = FullMove;
         }
-		public ChessFEN(Board board)
+		public FEN(Board board)
 		{
 			for (int pos = 0; pos < 64; pos++)
 			{
@@ -60,7 +60,7 @@ namespace Sinobyl.Engine
 			fullmove = board.FullMoveCount;
 		}
 		
-		public ChessFEN(string sFEN)
+		public FEN(string sFEN)
 		{
 
 			//build the fen string regex
@@ -189,7 +189,7 @@ namespace Sinobyl.Engine
 
 
 		}
-		public ChessFEN Reverse()
+		public FEN Reverse()
 		{
             ChessPositionDictionary<Piece> pieces = new ChessPositionDictionary<Piece>();
             foreach (Position pos in PositionInfo.AllPositions)
@@ -198,7 +198,7 @@ namespace Sinobyl.Engine
                 pieces[pos] = this.pieceat[(int)pos.Reverse()].ToOppositePlayer();
             }
 
-            return new ChessFEN(pieces,this.whosturn.PlayerOther(), this.castleBS, this.castleBL, this.castleWS, this.castleWL, this.enpassant.IsInBounds()?this.enpassant.Reverse():Position.OUTOFBOUNDS, this.fiftymove, this.fullmove);
+            return new FEN(pieces,this.whosturn.PlayerOther(), this.castleBS, this.castleBL, this.castleWS, this.castleWL, this.enpassant.IsInBounds()?this.enpassant.Reverse():Position.OUTOFBOUNDS, this.fiftymove, this.fullmove);
 
 		}
 
@@ -282,7 +282,7 @@ namespace Sinobyl.Engine
 		
 		public override bool Equals(object obj)
 		{
-			ChessFEN o = obj as ChessFEN;
+			FEN o = obj as FEN;
 			if (o == null) { return false; }
 			if (o.castleWS != this.castleWS) { return false; }
 			if (o.castleWL != this.castleWL) { return false; }

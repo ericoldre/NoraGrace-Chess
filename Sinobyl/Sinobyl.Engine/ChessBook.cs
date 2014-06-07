@@ -7,7 +7,7 @@ namespace Sinobyl.Engine
 {
 	public abstract class ChessBook
 	{
-		public abstract ChessMove FindMove(ChessFEN fen);
+		public abstract ChessMove FindMove(FEN fen);
 	}
 	public class ChessBookOpening: ChessBook
 	{
@@ -16,7 +16,7 @@ namespace Sinobyl.Engine
 			public ChessMove move { get; set; }
 			public int pop { get; set; }
 		}
-		public override ChessMove FindMove(ChessFEN fen)
+		public override ChessMove FindMove(FEN fen)
 		{
 			Board board = new Board(fen);
 			var moves = ChessMoveInfo.GenMoves(board);

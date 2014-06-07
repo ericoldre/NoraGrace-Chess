@@ -26,7 +26,7 @@ namespace Sinobyl.EvalTune
         }
 
 
-        public ChessMove Move(ChessFEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControlNodes timeControls, int nodesOnClock, out string comment, out int nodesProcessed)
+        public ChessMove Move(FEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControlNodes timeControls, int nodesOnClock, out string comment, out int nodesProcessed)
         {
             NodeManager.TimeControl = timeControls;
             NodeManager.AmountOnClock = nodesOnClock;

@@ -34,7 +34,7 @@ namespace Sinobyl.Engine
         private TimeControl _timecontrol = TimeControl.Blitz(1, 0);
         private bool _timeControlEnforced = true;
         private ReadOnlyCollection<ChessMove> _startMoves = new ReadOnlyCollection<ChessMove>(new ChessMoves());
-        private ChessFEN _startFEN = new ChessFEN(ChessFEN.FENStart);
+        private FEN _startFEN = new FEN(FEN.FENStart);
 
         private bool _started = false;
         private readonly Board _board = new Board();
@@ -172,7 +172,7 @@ namespace Sinobyl.Engine
                 _timeControlEnforced = value;
             }
         }
-        public ChessFEN StartFEN
+        public FEN StartFEN
         {
             get
             {
@@ -195,7 +195,7 @@ namespace Sinobyl.Engine
             {
                 if (_started) { throw new Exception("game already started"); }
                 //apply these moves to the board;
-                _board.FEN = _startFEN;
+                _board.FENCurrent = _startFEN;
                 foreach (ChessMove move in value)
                 {
                     if (move.IsLegal(_board))
@@ -204,7 +204,7 @@ namespace Sinobyl.Engine
                     }
                     else
                     {
-                        throw new Exception(string.Format("error initializing game start moves {0} is not a valid position from {1}", move.Description(_board), _board.FEN.ToString()));
+                        throw new Exception(string.Format("error initializing game start moves {0} is not a valid position from {1}", move.Description(_board), _board.FENCurrent.ToString()));
                     }
                 }
                 _startMoves = value;
@@ -369,11 +369,11 @@ namespace Sinobyl.Engine
             if (ehGameMove != null) { ehGameMove(this, new MoveEventArgs(move)); }
         }
 
-        public ChessFEN FENCurrent
+        public FEN FENCurrent
         {
             get
             {
-                return _board.FEN;
+                return _board.FENCurrent;
             }
         }
         public ReadOnlyCollection<ChessMove> MoveHistory()

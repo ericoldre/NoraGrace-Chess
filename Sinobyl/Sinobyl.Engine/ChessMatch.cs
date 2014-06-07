@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
     public interface IChessGamePlayer
     {
         string Name { get; }
-        ChessMove Move(ChessFEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControl timeControls, TimeSpan timeLeft, out string Comment);
+        ChessMove Move(FEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControl timeControls, TimeSpan timeLeft, out string Comment);
     }
 
     public class ChessMatchResults: List<ChessPGN>
@@ -56,7 +56,7 @@ namespace Sinobyl.Engine
                         IChessGamePlayer playerBlack = fBlackPlayer();
 
                         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                        ChessPGN game = Game(playerWhite, playerBlack, new ChessFEN(startingPGN.StartingPosition), startingPGN.Moves, null);
+                        ChessPGN game = Game(playerWhite, playerBlack, new FEN(startingPGN.StartingPosition), startingPGN.Moves, null);
                         stopwatch.Stop();
 
                         lock (retval)
@@ -100,7 +100,7 @@ namespace Sinobyl.Engine
                     IChessGamePlayer playerBlack = player1IsWhite?player2:player1;
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    ChessPGN game = Game(playerWhite, playerBlack, new ChessFEN(startingPGN.StartingPosition), startingPGN.Moves, null);
+                    ChessPGN game = Game(playerWhite, playerBlack, new FEN(startingPGN.StartingPosition), startingPGN.Moves, null);
                     stopwatch.Stop();
 
                     lock (retval)
@@ -122,7 +122,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public static ChessPGN Game(IChessGamePlayer white, IChessGamePlayer black, ChessFEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControl timeControl)
+        public static ChessPGN Game(IChessGamePlayer white, IChessGamePlayer black, FEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControl timeControl)
         {
             ChessResult? gameResult = null;
             ChessResultReason reason = ChessResultReason.Unknown;

@@ -16,7 +16,7 @@ namespace Sinobyl.Engine
 		Detailed
 	}
 
-    [System.Diagnostics.DebuggerDisplay(@"{Sinobyl.Engine.ChessMoveInfo.Description(this),nq}")]
+    [System.Diagnostics.DebuggerDisplay(@"{Sinobyl.Engine.MoveInfo.Description(this),nq}")]
     public enum Move 
     {
         EMPTY = 0

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sinobyl.Engine.Evaluation
 {
-    public class ChessEvalInfo
+    public class EvalResults
     {
 
         public int[] Workspace = new int[64];
@@ -48,7 +48,7 @@ namespace Sinobyl.Engine.Evaluation
             LazyAge = -1;
         } 
 
-        public void MaterialPawnsApply(Board board, EvalMaterialResults material, PawnInfo pawns, int drawScore)
+        public void MaterialPawnsApply(Board board, MaterialResults material, PawnResults pawns, int drawScore)
         {
             this.Zobrist = board.ZobristBoard;
             this.DrawScore = drawScore;
@@ -62,7 +62,7 @@ namespace Sinobyl.Engine.Evaluation
             this.CandidatePawns = pawns.Candidates;
         }
 
-        public void ApplyPreviousEval(Board board, ChessEvalInfo prev)
+        public void ApplyPreviousEval(Board board, EvalResults prev)
         {
             System.Diagnostics.Debug.Assert(prev != null);
 
@@ -174,14 +174,14 @@ namespace Sinobyl.Engine.Evaluation
 
         public readonly Evaluator _eval;
 
-        List<ChessEvalInfo> _plyInfoList = new List<ChessEvalInfo>();
+        List<EvalResults> _plyInfoList = new List<EvalResults>();
 
         public ChessEvalInfoStack(Evaluator eval, int plyCapacity = 50)
         {
             _eval = eval;
             while (_plyInfoList.Count < plyCapacity)
             {
-                _plyInfoList.Add(new ChessEvalInfo());
+                _plyInfoList.Add(new EvalResults());
             }
         }
 
@@ -190,7 +190,7 @@ namespace Sinobyl.Engine.Evaluation
             get { return _eval; }
         }
 
-        public int EvalFor(int ply, Board board, Player player, out ChessEvalInfo info, int alpha, int beta)
+        public int EvalFor(int ply, Board board, Player player, out EvalResults info, int alpha, int beta)
         {
             System.Diagnostics.Debug.Assert(alpha >= Evaluator.MinValue);
             System.Diagnostics.Debug.Assert(beta <= Evaluator.MaxValue);
@@ -205,7 +205,7 @@ namespace Sinobyl.Engine.Evaluation
             }
         }
 
-        public int Eval(int ply, Board board, out ChessEvalInfo info, int alpha, int beta)
+        public int Eval(int ply, Board board, out EvalResults info, int alpha, int beta)
         {
             System.Diagnostics.Debug.Assert(alpha >= Evaluator.MinValue);
             System.Diagnostics.Debug.Assert(beta <= Evaluator.MaxValue);
@@ -228,7 +228,7 @@ namespace Sinobyl.Engine.Evaluation
             }
 
             
-            ChessEvalInfo prev = null;
+            EvalResults prev = null;
             if (ply > 0)
             {
                 prev = _plyInfoList[ply - 1];

@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 namespace Sinobyl.Engine.Evaluation
 {
 
-    public class ChessEvalSettings
+    public class Settings
     {
 
         #region helperclasses
@@ -30,9 +30,9 @@ namespace Sinobyl.Engine.Evaluation
 
         #region DefaultEvalSettings
 
-        public static ChessEvalSettings Default()
+        public static Settings Default()
         {
-            ChessEvalSettings retval = new ChessEvalSettings()
+            Settings retval = new Settings()
             {
                 Weight = new ChessEvalSettingsWeight()
                 {
@@ -297,18 +297,18 @@ namespace Sinobyl.Engine.Evaluation
         public double KingAttackFactorQueenTropismBonus = 0;
 
 
-        public ChessEvalSettings CloneDeep()
+        public Settings CloneDeep()
         {
-            return DeserializeObject<ChessEvalSettings>(SerializeObject<ChessEvalSettings>(this));
+            return DeserializeObject<Settings>(SerializeObject<Settings>(this));
         }
 
         public override bool Equals(object obj)
         {
-            ChessEvalSettings other = obj as ChessEvalSettings;
+            Settings other = obj as Settings;
             if (other == null) { return false; }
 
-            var v1 = SerializeObject<ChessEvalSettings>(this);
-            var v2 = SerializeObject<ChessEvalSettings>(other);
+            var v1 = SerializeObject<Settings>(this);
+            var v2 = SerializeObject<Settings>(other);
             return v1 == v2;
         }
 
@@ -318,7 +318,7 @@ namespace Sinobyl.Engine.Evaluation
         }
 
 
-        public static ChessEvalSettings Load(System.IO.Stream stream, bool applyDefaultSettings = true)
+        public static Settings Load(System.IO.Stream stream, bool applyDefaultSettings = true)
         {
             XmlDocument loadDoc = new XmlDocument();
             loadDoc.Load(stream);
@@ -328,17 +328,17 @@ namespace Sinobyl.Engine.Evaluation
                 ApplyDefaultValuesToXml(loadDoc.SelectSingleNode("ChessEvalSettings") as XmlElement, getDefaultDoc().SelectSingleNode("ChessEvalSettings") as XmlElement);
             }
 
-            System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(ChessEvalSettings));
+            System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(Settings));
 
             using (var memory = new System.IO.MemoryStream())
             {
                 loadDoc.Save(memory);
                 memory.Position = 0;
-                return (ChessEvalSettings)xs.Deserialize(memory);
+                return (Settings)xs.Deserialize(memory);
             }
         }
 
-        public static ChessEvalSettings Load(System.IO.FileInfo file, bool applyDefaultSettings = true)
+        public static Settings Load(System.IO.FileInfo file, bool applyDefaultSettings = true)
         {
             using (var stream = file.OpenRead())
             {
@@ -350,7 +350,7 @@ namespace Sinobyl.Engine.Evaluation
         {
             using (var writer = new System.IO.StreamWriter(stream))
             {
-                writer.Write(SerializeObject<ChessEvalSettings>(this));
+                writer.Write(SerializeObject<Settings>(this));
             }
         }
         public void Save(System.IO.FileInfo file)
@@ -406,7 +406,7 @@ namespace Sinobyl.Engine.Evaluation
             if (_defaultDoc == null)
             {
                 _defaultDoc = new XmlDocument();
-                _defaultDoc.LoadXml(SerializeObject<ChessEvalSettings>(ChessEvalSettings.Default()));
+                _defaultDoc.LoadXml(SerializeObject<Settings>(Settings.Default()));
             }
             return _defaultDoc;
         }

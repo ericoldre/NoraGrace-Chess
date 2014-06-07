@@ -205,7 +205,7 @@ namespace Sinobyl.CommandLine
                 foreach (var move in pgn.Moves)
                 {
                     board.MoveApply(move);
-                    ChessEvalInfo eval = new ChessEvalInfo();
+                    EvalResults eval = new EvalResults();
                     var evalScore = _annotateEval.EvalLazy(board, eval, null, int.MinValue, int.MaxValue);
 
                     //string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 

@@ -9,7 +9,7 @@ namespace Sinobyl.EvalTune
 {
     public interface IEvalSettingsMutator
     {
-        void Mutate(ChessEvalSettings settings);
+        void Mutate(Settings settings);
         IEnumerable<IEvalSettingsMutator> SimilarMutators();
     }
 }

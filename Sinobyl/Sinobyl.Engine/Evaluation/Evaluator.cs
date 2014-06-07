@@ -17,8 +17,8 @@ namespace Sinobyl.Engine.Evaluation
         public const int MaxValue = int.MaxValue - 100;
         public const int MinValue = -MaxValue;
 
-        protected readonly ChessEvalPawns _evalPawns;
-        public readonly IChessEvalMaterial _evalMaterial;
+        protected readonly PawnEvaluator _evalPawns;
+        public readonly IMaterialEvaluator _evalMaterial;
 
         public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceInfo.LookupArrayLength][];
         public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeInfo.LookupArrayLength][];
@@ -27,7 +27,7 @@ namespace Sinobyl.Engine.Evaluation
         public readonly int[] _endgameMateKingPcSq;
 
 
-        protected readonly ChessEvalSettings _settings;
+        protected readonly Settings _settings;
 
         protected readonly PhasedScore RookFileOpen;
         protected readonly PhasedScore RookFileHalfOpen;
@@ -78,18 +78,18 @@ namespace Sinobyl.Engine.Evaluation
         }
 
         public Evaluator()
-            : this(ChessEvalSettings.Default())
+            : this(Settings.Default())
         {
 
         }
 
-        public Evaluator(ChessEvalSettings settings, IChessEvalMaterial evalMaterial = null)
+        public Evaluator(Settings settings, IMaterialEvaluator evalMaterial = null)
         {
             _settings = settings.CloneDeep();
 
             //setup pawn evaluation
-            _evalPawns = new ChessEvalPawns(_settings, 10000);
-            _evalMaterial = evalMaterial ?? new ChessEvalMaterial2(_settings);
+            _evalPawns = new PawnEvaluator(_settings, 10000);
+            _evalMaterial = evalMaterial ?? new MaterialEvaluator(_settings);
             
             //bishop pairs
             _matBishopPair = PhasedScoreInfo.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);
@@ -200,13 +200,13 @@ namespace Sinobyl.Engine.Evaluation
 
         }
 
-        public ChessEvalInfo _evalInfo = new ChessEvalInfo();
+        public EvalResults _evalInfo = new EvalResults();
         public virtual int Eval(Board board)
         {
             return EvalLazy(board, _evalInfo, null, Evaluator.MinValue, Evaluator.MaxValue);
         }
 
-        public int EvalLazy(Board board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo, int alpha, int beta)
+        public int EvalLazy(Board board, EvalResults evalInfo, EvalResults prevEvalInfo, int alpha, int beta)
         {
             System.Diagnostics.Debug.Assert(alpha >= MinValue);
             System.Diagnostics.Debug.Assert(beta <= MaxValue);
@@ -215,10 +215,10 @@ namespace Sinobyl.Engine.Evaluation
 
 
             //material
-            EvalMaterialResults material = _evalMaterial.EvalMaterialHash(board);
+            MaterialResults material = _evalMaterial.EvalMaterialHash(board);
 
             //pawns
-            PawnInfo pawns = this._evalPawns.PawnEval(board);
+            PawnResults pawns = this._evalPawns.PawnEval(board);
             System.Diagnostics.Debug.Assert(pawns.WhitePawns == board[Piece.WPawn]);
             System.Diagnostics.Debug.Assert(pawns.BlackPawns == board[Piece.BPawn]);
 
@@ -246,7 +246,7 @@ namespace Sinobyl.Engine.Evaluation
             return evalInfo.Score;
         }
 
-        public void EvalAdvanced(Board board, ChessEvalInfo evalInfo, EvalMaterialResults material, PawnInfo pawns)
+        public void EvalAdvanced(Board board, EvalResults evalInfo, MaterialResults material, PawnResults pawns)
         {
             
             TotalEvalCount++;
@@ -307,7 +307,7 @@ namespace Sinobyl.Engine.Evaluation
 
         }
 
-        protected int EvaluateMyKingAttack(Board board, Player me, ChessEvalInfo info)
+        protected int EvaluateMyKingAttack(Board board, Player me, EvalResults info)
         {
             //king attack info should have counts and weight of everything but pawns and kings.
 
@@ -383,7 +383,7 @@ namespace Sinobyl.Engine.Evaluation
             return retval;
 
         }
-        protected int EvaluateMyPieces(Board board, Player me, ChessEvalInfo info)
+        protected int EvaluateMyPieces(Board board, Player me, EvalResults info)
         {
             int retval = 0;
             PhasedScore mobility = 0;

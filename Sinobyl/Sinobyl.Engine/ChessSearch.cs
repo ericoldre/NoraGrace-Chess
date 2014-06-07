@@ -683,7 +683,7 @@ namespace Sinobyl.Engine
 			int blunders = 0;
             Move bestmove = Move.EMPTY;
 
-            Evaluation.ChessEvalInfo init_info;
+            Evaluation.EvalResults init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, Evaluation.Evaluator.MinValue, Evaluation.Evaluator.MaxValue);
             
             ChessMoveData moveData;
@@ -839,7 +839,7 @@ namespace Sinobyl.Engine
 
 			//int oldScore = eval.EvalFor(board, board.WhosTurn);
 
-            Evaluation.ChessEvalInfo init_info;
+            Evaluation.EvalResults init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, alpha, beta);
             
 			bool playerincheck = board.IsCheck();

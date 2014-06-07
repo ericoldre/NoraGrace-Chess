@@ -32,13 +32,13 @@ namespace Sinobyl.EvalTune
             string paramName = "PawnPassed8thRankScore";
 
             //ALTER THIS
-            double parameterValue = ChessEvalSettings.Default().PawnPassed8thRankScore;
+            double parameterValue = Settings.Default().PawnPassed8thRankScore;
 
             //ALTER THIS TO CHANGE THE PARAMETER TO TUNE THE SETTING YOU WANT.
             Func<double, double, string, DeterministicPlayer> fnCreatePlayer = (pval, otherval,pname) =>
             {
                 string name = string.Format("{0}{1:f4}", pname, pval);
-                ChessEvalSettings evalsettings = ChessEvalSettings.Default();
+                Settings evalsettings = Settings.Default();
 
                 //evalsettings.KingAttackFactor = pval;
                // evalsettings.KingAttackFactorQueenTropismBonus = pval / 2;
@@ -58,7 +58,7 @@ namespace Sinobyl.EvalTune
                 
                 
                 
-                Evaluator eval = new Evaluator(evalsettings, new ChessEvalMaterial2(evalsettings));
+                Evaluator eval = new Evaluator(evalsettings, new MaterialEvaluator(evalsettings));
 
                 TimeManagerNodes manager = new TimeManagerNodes();
                 
@@ -242,7 +242,7 @@ namespace Sinobyl.EvalTune
 
         private static object _lock = new object();
 
-        public static ChessEvalSettings ChampionSettings
+        public static Settings ChampionSettings
         {
             get
             {
@@ -250,17 +250,17 @@ namespace Sinobyl.EvalTune
                 {
                     if (System.IO.File.Exists("ChampionSettings.xml"))
                     {
-                        return ChessEvalSettings.Load(System.IO.File.OpenRead("ChampionSettings.xml"));
+                        return Settings.Load(System.IO.File.OpenRead("ChampionSettings.xml"));
                     }
                     else
                     {
-                        return ChessEvalSettings.Default();
+                        return Settings.Default();
                     }
                 }
             }
             set
             {
-                string xml = ChessEvalSettings.SerializeObject<ChessEvalSettings>(value);
+                string xml = Settings.SerializeObject<Settings>(value);
                 lock (_lock)
                 {
                     value.Save("ChampionSettings.xml");

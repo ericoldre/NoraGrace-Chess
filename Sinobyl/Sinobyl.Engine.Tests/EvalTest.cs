@@ -98,7 +98,7 @@ namespace Sinobyl.Engine.Tests
             int EndVal = 0;
 
 
-            var pawnEval = new ChessEvalPawns(ChessEvalSettings.Default());
+            var pawnEval = new PawnEvaluator(Settings.Default());
 
             var result = pawnEval.EvalAllPawns(board[Piece.WPawn], board[Piece.BPawn], board.ZobristPawn);
 
@@ -134,8 +134,8 @@ namespace Sinobyl.Engine.Tests
                     var fen = board.FENCurrent;
                     Board boardRev = new Board(fen.Reverse());
                     
-                    ChessEvalInfo e1 = new ChessEvalInfo();
-                    ChessEvalInfo e2 = new ChessEvalInfo();
+                    EvalResults e1 = new EvalResults();
+                    EvalResults e2 = new EvalResults();
                     eval.EvalLazy(board, e1, null, int.MinValue, int.MaxValue);
                     eval.EvalLazy(boardRev, e2, null, int.MinValue, int.MaxValue);
 

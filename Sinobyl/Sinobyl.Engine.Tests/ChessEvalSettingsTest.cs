@@ -73,7 +73,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod()]
         public void CloneDeepTest()
         {
-            ChessEvalSettings settings = ChessEvalSettings.Default(); // TODO: Initialize to an appropriate value
+            Settings settings = Settings.Default(); // TODO: Initialize to an appropriate value
 
             var cloned = settings.CloneDeep();
 

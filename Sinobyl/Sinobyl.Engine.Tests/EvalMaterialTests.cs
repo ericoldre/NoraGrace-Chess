@@ -106,7 +106,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void Within150OfBasic()
         {
-            ChessEvalMaterial2 eval = new ChessEvalMaterial2(ChessEvalSettings.Default());
+            MaterialEvaluator eval = new MaterialEvaluator(Settings.Default());
 
             foreach (var s in Samples())
             {

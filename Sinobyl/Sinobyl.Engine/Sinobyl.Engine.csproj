@@ -54,10 +54,10 @@
     <Compile Include="Book.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="Evaluation\Evaluator.cs" />
-    <Compile Include="Evaluation\ChessEvalInfo.cs" />
-    <Compile Include="Evaluation\ChessEvalMaterial.cs" />
-    <Compile Include="Evaluation\ChessEvalPawns.cs" />
-    <Compile Include="Evaluation\ChessEvalSettings.cs" />
+    <Compile Include="Evaluation\EvalResults.cs" />
+    <Compile Include="Evaluation\MaterialEvaluator.cs" />
+    <Compile Include="Evaluation\PawnEvaluator.cs" />
+    <Compile Include="Evaluation\Settings.cs" />
     <Compile Include="FEN.cs" />
     <Compile Include="File.cs" />
     <Compile Include="ChessGame.cs" />

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sinobyl.Engine.Evaluation
 {
-    public class ChessEvalPawns
+    public class PawnEvaluator
     {
 
         public readonly int DoubledPawnValueStart;
@@ -19,12 +19,12 @@ namespace Sinobyl.Engine.Evaluation
 
         //public readonly int[,] PcSqValuePosStage;
         //public readonly int[,] PawnPassedValuePosStage;
-        public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
+        public readonly PawnResults[] pawnHash = new PawnResults[1000];
         public static int TotalEvalPawnCount = 0;
 
         private static Bitboard[][] _attackMask = new Bitboard[2][];
         private static Bitboard[] _telestop = new Bitboard[64];
-        static ChessEvalPawns()
+        static PawnEvaluator()
         {
             _attackMask[0] = new Bitboard[64];
             _attackMask[1] = new Bitboard[64];
@@ -39,9 +39,9 @@ namespace Sinobyl.Engine.Evaluation
             }
         }
 
-        public ChessEvalPawns(ChessEvalSettings settings, uint hashSize = 1000)
+        public PawnEvaluator(Settings settings, uint hashSize = 1000)
         {
-            pawnHash = new PawnInfo[hashSize];
+            pawnHash = new PawnResults[hashSize];
 
             this.DoubledPawnValueStart = settings.PawnDoubled.Opening;
             this.DoubledPawnValueEnd = settings.PawnDoubled.Endgame;
@@ -71,11 +71,11 @@ namespace Sinobyl.Engine.Evaluation
 
 
 
-        public PawnInfo PawnEval(Board board)
+        public PawnResults PawnEval(Board board)
         {
             long idx = board.ZobristPawn % pawnHash.GetUpperBound(0);
             if (idx < 0) { idx = -idx; }
-            PawnInfo retval = pawnHash[idx];
+            PawnResults retval = pawnHash[idx];
             if (retval != null && retval.PawnZobrist == board.ZobristPawn)
             {
                 return retval;
@@ -86,7 +86,7 @@ namespace Sinobyl.Engine.Evaluation
             return retval;
         }
 
-        public PawnInfo EvalAllPawns(Bitboard whitePawns, Bitboard blackPawns, long pawnZobrist)
+        public PawnResults EvalAllPawns(Bitboard whitePawns, Bitboard blackPawns, long pawnZobrist)
         {
             TotalEvalPawnCount++;
 
@@ -128,7 +128,7 @@ namespace Sinobyl.Engine.Evaluation
             int StartVal = WStartVal - BStartVal;
             int EndVal = WEndVal - BEndVal;
 
-            return new PawnInfo(pawnZobrist, whitePawns, blackPawns, StartVal, EndVal, passed, doubled, isolated, unconnected, candidates);
+            return new PawnResults(pawnZobrist, whitePawns, blackPawns, StartVal, EndVal, passed, doubled, isolated, unconnected, candidates);
 
         }
         private void EvalWhitePawns(Bitboard whitePawns, Bitboard blackPawns, ref int StartVal, ref int EndVal, out Bitboard passed, out Bitboard doubled, out Bitboard isolated, out Bitboard unconnected, out Bitboard candidates)
@@ -258,7 +258,7 @@ namespace Sinobyl.Engine.Evaluation
         int[] factors = new int[8];
         int[] startScore = new int[8];
 
-        private void PassedInitialization(ChessEvalSettings settings)
+        private void PassedInitialization(Settings settings)
         {
             PASSED_PAWN_MIN_SCORE = settings.PawnPassedMinScore;
             for(int i = 0; i < 8; i++)
@@ -457,7 +457,7 @@ namespace Sinobyl.Engine.Evaluation
         }
 
 
-        public void EvalPassedPawnsOld(Board board, ChessEvalInfo evalInfo, Bitboard passedPawns)
+        public void EvalPassedPawnsOld(Board board, EvalResults evalInfo, Bitboard passedPawns)
         {
 
             Position myKing, hisKing;
@@ -647,7 +647,7 @@ namespace Sinobyl.Engine.Evaluation
 
     }
 
-    public class PawnInfo
+    public class PawnResults
     {
 
         public readonly Int64 PawnZobrist;
@@ -662,7 +662,7 @@ namespace Sinobyl.Engine.Evaluation
 
 
 
-        public PawnInfo(Int64 pawnZobrist, Bitboard whitePawns, Bitboard blackPawns, int startVal, int endVal, Bitboard passedPawns, Bitboard doubled, Bitboard isolated, Bitboard unconnected, Bitboard candidates)
+        public PawnResults(Int64 pawnZobrist, Bitboard whitePawns, Bitboard blackPawns, int startVal, int endVal, Bitboard passedPawns, Bitboard doubled, Bitboard isolated, Bitboard unconnected, Bitboard candidates)
         {
             PawnZobrist = pawnZobrist;
             WhitePawns = whitePawns;

@@ -65,7 +65,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         #region IEvalSettingsMutator Members
 
-        void IEvalSettingsMutator.Mutate(ChessEvalSettings settings)
+        void IEvalSettingsMutator.Mutate(Settings settings)
         {
             foreach (Position pos in this.Positions.ToPositions())
             {

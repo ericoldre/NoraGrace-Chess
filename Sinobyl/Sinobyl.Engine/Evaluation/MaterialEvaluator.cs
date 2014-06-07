@@ -6,28 +6,29 @@ using System.Threading.Tasks;
 
 namespace Sinobyl.Engine.Evaluation
 {
-    public interface IChessEvalMaterial
+    public interface IMaterialEvaluator
     {
-        EvalMaterialResults EvalMaterialHash(Board board);
+        MaterialResults EvalMaterialHash(Board board);
     }
-    public class ChessEvalMaterialBasic: IChessEvalMaterial
+
+    public class MaterialEvaluatorBase: IMaterialEvaluator
     {
-        protected readonly ChessEvalSettings _settings;
-        private readonly EvalMaterialResults[] _hash = new EvalMaterialResults[500];
+        protected readonly Settings _settings;
+        private readonly MaterialResults[] _hash = new MaterialResults[500];
         public static int TotalEvalMaterialCount = 0;
 
-        public ChessEvalMaterialBasic(ChessEvalSettings settings)
+        public MaterialEvaluatorBase(Settings settings)
         {
             _settings = settings;
         }
 
-        public EvalMaterialResults EvalMaterialHash(Board board)
+        public MaterialResults EvalMaterialHash(Board board)
         {
             long idx = board.ZobristMaterial % _hash.GetUpperBound(0);
 
             if (idx < 0) { idx = -idx; }
 
-            EvalMaterialResults retval = _hash[idx];
+            MaterialResults retval = _hash[idx];
             if (retval != null && retval.ZobristMaterial == board.ZobristMaterial)
             {
                 return retval;
@@ -50,7 +51,7 @@ namespace Sinobyl.Engine.Evaluation
             return retval;
         }
 
-        public virtual EvalMaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        public virtual MaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
             TotalEvalMaterialCount++;
 
@@ -89,7 +90,7 @@ namespace Sinobyl.Engine.Evaluation
             int startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
             //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
             int score = PhasedScoreInfo.Create(startScore, endScore).ApplyWeights(startWeight);
-            return new EvalMaterialResults(zob, startWeight, score, 100, 100);
+            return new MaterialResults(zob, startWeight, score, 100, 100);
             //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
         }
 
@@ -123,7 +124,7 @@ namespace Sinobyl.Engine.Evaluation
 
     }
 
-    public class EvalMaterialResults
+    public class MaterialResults
     {
         public readonly Int64 ZobristMaterial;
         public readonly int StartWeight;
@@ -142,7 +143,7 @@ namespace Sinobyl.Engine.Evaluation
         //public readonly int Br;
         //public readonly int Bq;
 
-        public EvalMaterialResults(Int64 zobristMaterial, int startWeight, int score, int scaleWhite, int scaleBlack /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
+        public MaterialResults(Int64 zobristMaterial, int startWeight, int score, int scaleWhite, int scaleBlack /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
         {
             ZobristMaterial = zobristMaterial;
             StartWeight = startWeight;
@@ -169,16 +170,16 @@ namespace Sinobyl.Engine.Evaluation
 
     }
 
-    public class ChessEvalMaterial2 : ChessEvalMaterialBasic
+    public class MaterialEvaluator : MaterialEvaluatorBase
     {
         
-        public ChessEvalMaterial2(ChessEvalSettings settings)
+        public MaterialEvaluator(Settings settings)
             : base(settings)
         {
         }
 
 
-        public override EvalMaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        public override MaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
             TotalEvalMaterialCount++;
 
@@ -201,7 +202,7 @@ namespace Sinobyl.Engine.Evaluation
 
             double scaleWhite = ScaleFactor(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
             double scaleBlack = ScaleFactor(bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
-            return new EvalMaterialResults(zob, startWeight, (int)score, (int)(scaleWhite * 100), (int)(scaleBlack * 100));
+            return new MaterialResults(zob, startWeight, (int)score, (int)(scaleWhite * 100), (int)(scaleBlack * 100));
 
         }
 

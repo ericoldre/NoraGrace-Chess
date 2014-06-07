@@ -46,7 +46,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         #region IEvalSettingsMutator Members
 
-        void IEvalSettingsMutator.Mutate(Engine.Evaluation.ChessEvalSettings settings)
+        void IEvalSettingsMutator.Mutate(Engine.Evaluation.Settings settings)
         {
             foreach (GameStage stage in this.Stages)
             {

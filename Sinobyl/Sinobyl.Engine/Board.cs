@@ -24,7 +24,7 @@ namespace Sinobyl.Engine
 	public sealed class Board
     {
 
-        public class MoveHistory
+        private class MoveHistory
         {
             public Move Move;
             public Piece PieceMoved;
@@ -56,27 +56,13 @@ namespace Sinobyl.Engine
 
 		private Piece[] _pieceat = new Piece[65];
 
-        //private ChessPieceDictionary<int> _pieceCount = new ChessPieceDictionary<int>();
 		private int[] _pieceCount = new int[PieceInfo.LookupArrayLength];
-
-        //private ChessPlayerDictionary<ChessPosition> _kingpos = new ChessPlayerDictionary<ChessPosition>();
         private Position[] _kingpos = new Position[2];
-
-        //private ChessPieceDictionary<ChessBitboard> _pieces = new ChessPieceDictionary<ChessBitboard>();
         private Bitboard[] _pieces = new Bitboard[PieceInfo.LookupArrayLength];
-
-        //private ChessPieceTypeDictionary<ChessBitboard> _pieceTypes = new ChessPieceTypeDictionary<ChessBitboard>();
         private Bitboard[] _pieceTypes = new Bitboard[PieceTypeInfo.LookupArrayLength];
-
-        //private ChessPlayerDictionary<ChessBitboard> _playerBoards = new ChessPlayerDictionary<ChessBitboard>();
         private Bitboard[] _playerBoards = new Bitboard[2];
-        
         private Bitboard _allPieces = 0;
         private Bitboard _checkers = 0;
-        //private Attacks.ChessBitboardRotatedVert _allPiecesVert = 0;
-        //private Attacks.ChessBitboardRotatedA1H8 _allPiecesA1H8 = 0;
-        //private Attacks.ChessBitboardRotatedH1A8 _allPiecesH1A8 = 0;
-
 		private Player _whosturn;
         private CastleFlags _castleFlags;
 		private Position _enpassant;

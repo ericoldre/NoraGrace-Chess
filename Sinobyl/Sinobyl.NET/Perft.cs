@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Sinobyl.Engine;
 using Sinobyl.Engine.Evaluation;
-namespace Sinobyl.CommandLine
+namespace Sinobyl.NET
 {
     public static class Perft
     {

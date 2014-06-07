@@ -490,11 +490,11 @@ namespace Sinobyl.Engine
                 case ChessPieceType.Knight:
                     return (Attacks.KnightAttacks(from) & targets).Contains(to);
                 case ChessPieceType.Bishop:
-                    return (MagicBitboards.BishopAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
+                    return (Attacks.BishopAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
                 case ChessPieceType.Rook:
-                    return (MagicBitboards.RookAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
+                    return (Attacks.RookAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
                 case ChessPieceType.Queen:
-                    return (MagicBitboards.QueenAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
+                    return (Attacks.QueenAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
                 case ChessPieceType.King:
                     if ((Attacks.KingAttacks(from) & targets).Contains(to))
                     {

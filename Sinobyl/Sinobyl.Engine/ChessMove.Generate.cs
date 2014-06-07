@@ -143,13 +143,13 @@ namespace Sinobyl.Engine
                         attacks = Attacks.KnightAttacks(piecepos) & targetLocations;
                         break;
                     case ChessPieceType.Bishop:
-                        attacks = MagicBitboards.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.Rook:
-                        attacks = MagicBitboards.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.Queen:
-                        attacks = MagicBitboards.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.King:
                         attacks = Attacks.KingAttacks(piecepos) & targetLocations; ;
@@ -348,13 +348,13 @@ namespace Sinobyl.Engine
                         attacks = Attacks.KnightAttacks(piecepos) & targetLocations;
                         break;
                     case ChessPieceType.Bishop:
-                        attacks = MagicBitboards.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.Rook:
-                        attacks = MagicBitboards.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.Queen:
-                        attacks = MagicBitboards.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.King:
                         attacks = kingTargets;
@@ -783,13 +783,13 @@ namespace Sinobyl.Engine
                         attacks = Attacks.KnightAttacks(piecepos) & targetLocations;
                         break;
                     case ChessPieceType.Bishop:
-                        attacks = MagicBitboards.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.BishopAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.Rook:
-                        attacks = MagicBitboards.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.RookAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.Queen:
-                        attacks = MagicBitboards.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
+                        attacks = Attacks.QueenAttacks(piecepos, board.PieceLocationsAll) & targetLocations;
                         break;
                     case ChessPieceType.King:
                         attacks = Attacks.KingAttacks(piecepos) & targetLocations;

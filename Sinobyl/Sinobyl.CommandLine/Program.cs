@@ -167,11 +167,7 @@ namespace Sinobyl.CommandLine
                         Sinobyl.Engine.ChessEvalMaterialBasic.TotalEvalMaterialCount));
                     break;
                 case "genmagic":
-                    Sinobyl.Engine.MagicBitboards.Generation.FindMagics();
-                    ConsoleWriteline("done");
-                    break;
-                case "testmagic":
-                    Sinobyl.Engine.MagicBitboards.Test();
+                    Sinobyl.Engine.Attacks.Generation.FindMagics();
                     ConsoleWriteline("done");
                     break;
                 default:

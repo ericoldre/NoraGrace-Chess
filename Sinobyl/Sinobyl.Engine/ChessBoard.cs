@@ -798,8 +798,8 @@ namespace Sinobyl.Engine
 		{
             ChessBitboard retval = 0;
             retval |= Attacks.KnightAttacks(to) & this[ChessPieceType.Knight];
-            retval |= MagicBitboards.RookAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Rook]);
-            retval |= MagicBitboards.BishopAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Bishop]);
+            retval |= Attacks.RookAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Rook]);
+            retval |= Attacks.BishopAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Bishop]);
             retval |= Attacks.KingAttacks(to) & (this[ChessPieceType.King]);
             retval |= Attacks.PawnAttacks(to, ChessPlayer.Black) & this[ChessPiece.WPawn];
             retval |= Attacks.PawnAttacks(to, ChessPlayer.White) & this[ChessPiece.BPawn];

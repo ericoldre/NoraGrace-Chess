@@ -433,11 +433,11 @@ namespace Sinobyl.Engine
                         }
                         break;
                     case ChessPieceType.Bishop:
-                        slidingAttacks = MagicBitboards.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
+                        slidingAttacks = Attacks.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
                         myAttacks.Bishop |= slidingAttacks;
                         break;
                     case ChessPieceType.Rook:
-                        slidingAttacks = MagicBitboards.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
+                        slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
                         if (myAttacks.Rook != ChessBitboard.Empty)
                         {
                             myAttacks.Rook2 |= slidingAttacks;
@@ -459,7 +459,7 @@ namespace Sinobyl.Engine
                         }
                         break;
                     case ChessPieceType.Queen:
-                        slidingAttacks = MagicBitboards.QueenAttacks(pos, pieceLocationsAll & ~(myDiagSliders | myHorizSliders));
+                        slidingAttacks = Attacks.QueenAttacks(pos, pieceLocationsAll & ~(myDiagSliders | myHorizSliders));
                         myAttacks.Queen |= slidingAttacks;
 
                         myAttacks.KingQueenTropism = hisKing.DistanceTo(pos) + hisKing.DistanceToNoDiag(pos);

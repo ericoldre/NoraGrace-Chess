@@ -35,9 +35,9 @@ namespace Sinobyl.Engine
             return (int)file >= 0 && (int)file <= 7;
         }
 
-        public static ChessPosition ToPosition(this File file, Rank rank)
+        public static Position ToPosition(this File file, Rank rank)
         {
-            return (ChessPosition)((int)rank * 8) + (int)file;
+            return (Position)((int)rank * 8) + (int)file;
         }
         public static Bitboard ToBitboard(this File file)
         {

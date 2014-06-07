@@ -28,7 +28,7 @@ namespace Sinobyl.Engine
         {
             _attackMask[0] = new Bitboard[64];
             _attackMask[1] = new Bitboard[64];
-            foreach (var position in ChessPositionInfo.AllPositions)
+            foreach (var position in PositionInfo.AllPositions)
             {
                 Bitboard north = position.ToBitboard().Flood(Direction.DirN) & ~position.ToBitboard();
                 Bitboard south = position.ToBitboard().Flood(Direction.DirS) & ~position.ToBitboard();
@@ -143,7 +143,7 @@ namespace Sinobyl.Engine
 
             while(positions != Bitboard.Empty)
             {
-                ChessPosition pos = BitboardInfo.PopFirst(ref positions);
+                Position pos = BitboardInfo.PopFirst(ref positions);
                 File f = pos.ToFile();
                 Rank r = pos.ToRank();
                 Bitboard bbFile = pos.ToFile().ToBitboard();
@@ -201,7 +201,7 @@ namespace Sinobyl.Engine
 
         }
 
-        private static bool IsCandidate(ChessPosition pos, Bitboard white, Bitboard black)
+        private static bool IsCandidate(Position pos, Bitboard white, Bitboard black)
         {
             System.Diagnostics.Debug.Assert(white.Contains(pos));
 
@@ -226,7 +226,7 @@ namespace Sinobyl.Engine
         }
         
 
-        public static ChessResult? EndgameKPK(ChessPosition whiteKing, ChessPosition blackKing, ChessPosition whitePawn, bool whiteToMove)
+        public static ChessResult? EndgameKPK(Position whiteKing, Position blackKing, Position whitePawn, bool whiteToMove)
         {
             if (!whiteToMove
                 && ((Attacks.KingAttacks(blackKing) & whitePawn.ToBitboard()) != Bitboard.Empty)
@@ -236,7 +236,7 @@ namespace Sinobyl.Engine
                 return ChessResult.Draw;
             }
 
-            ChessPosition prom = Rank.Rank8.ToPosition(whitePawn.ToFile());
+            Position prom = Rank.Rank8.ToPosition(whitePawn.ToFile());
             int pdist = prom.DistanceTo(whitePawn);
             if (whitePawn.ToRank() == Rank.Rank2) { pdist--; }
             if (!whiteToMove) { pdist++; }
@@ -306,8 +306,8 @@ namespace Sinobyl.Engine
             int totalStartScore = 0;
             Player him = me.PlayerOther();
 
-            ChessPosition myKing = board.KingPosition(me);
-            ChessPosition hisKing = board.KingPosition(him);
+            Position myKing = board.KingPosition(me);
+            Position hisKing = board.KingPosition(him);
             Bitboard allPieces = board.PieceLocationsAll;
             Bitboard myPawnAttacks = myAttackInfo.PawnEast | myAttackInfo.PawnWest;
             Bitboard myAttacks = myAttackInfo.All();
@@ -320,8 +320,8 @@ namespace Sinobyl.Engine
 
             while (positions != Bitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
             {
-                ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
-                ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
+                Position passedPos = BitboardInfo.PopFirst(ref positions);
+                Position trailerPos = Position.OUTOFBOUNDS;
 
                 Piece trailerPiece = board.PieceInDirection(passedPos, mySouth, ref trailerPos);
 
@@ -389,7 +389,7 @@ namespace Sinobyl.Engine
             return PhasedScoreInfo.Create(totalStartScore, totalEndScore);
         }
 
-        private void EvalPassedPawn(Player me, ChessPosition p, ChessPosition myKing, ChessPosition hisKing,
+        private void EvalPassedPawn(Player me, Position p, Position myKing, Position hisKing,
             Bitboard allPieces, Bitboard myPawnAttacks, Bitboard myAttacks, Bitboard hisAttacks,
             bool attackingTrailer, bool supportingTrailer, out int mbonus, out int ebonus)
         {
@@ -405,7 +405,7 @@ namespace Sinobyl.Engine
             ebonus = endScore[(int)rank];
             int dangerFactor = factors[(int)rank];
 
-            ChessPosition blockSq = p.PositionInDirection(me == Player.White ? Direction.DirN: Direction.DirS);
+            Position blockSq = p.PositionInDirection(me == Player.White ? Direction.DirN: Direction.DirS);
 
             int k = 0;
 
@@ -460,7 +460,7 @@ namespace Sinobyl.Engine
         public void EvalPassedPawnsOld(ChessBoard board, ChessEvalInfo evalInfo, Bitboard passedPawns)
         {
 
-            ChessPosition myKing, hisKing;
+            Position myKing, hisKing;
             Bitboard allPieces, myPawnAttacks, myAttacks, hisAttacks;
             bool attackingTrailer, supportingTrailer;
 
@@ -480,8 +480,8 @@ namespace Sinobyl.Engine
 
                 while (positions != Bitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
                 {
-                    ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
-                    ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
+                    Position passedPos = BitboardInfo.PopFirst(ref positions);
+                    Position trailerPos = Position.OUTOFBOUNDS;
                     Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirS, ref trailerPos);
 
                     attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.Black;
@@ -534,9 +534,9 @@ namespace Sinobyl.Engine
 
                 while (positions != Bitboard.Empty) // (ChessPosition passedPos in black.ToPositions())
                 {
-                    ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
-                    ChessPosition passesPos2 = passedPos.Reverse();
-                    ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
+                    Position passedPos = BitboardInfo.PopFirst(ref positions);
+                    Position passesPos2 = passedPos.Reverse();
+                    Position trailerPos = Position.OUTOFBOUNDS;
                     Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirN, ref trailerPos);
 
                     attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.White;
@@ -578,7 +578,7 @@ namespace Sinobyl.Engine
         }
 
 
-        private void EvalPassedPawnBoth(ChessPosition p, ChessPosition myKing, ChessPosition hisKing,
+        private void EvalPassedPawnBoth(Position p, Position myKing, Position hisKing,
             Bitboard allPieces, Bitboard myPawnAttacks, Bitboard myAttacks, Bitboard hisAttacks,
             bool attackingTrailer, bool supportingTrailer, out int mbonus, out int ebonus)
         {
@@ -592,7 +592,7 @@ namespace Sinobyl.Engine
             ebonus = endScore[(int)rank];
             int dangerFactor = factors[(int)rank];
 
-            ChessPosition blockSq = p.PositionInDirection(Direction.DirN);
+            Position blockSq = p.PositionInDirection(Direction.DirN);
 
             int k = 0;
 

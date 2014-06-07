@@ -72,7 +72,7 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void PositionInDirectionUnsafeTest()
         {
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (Position pos in PositionInfo.AllPositions)
             {
                 foreach (Direction dir in DirectionInfo.AllDirections)
                 {
@@ -80,7 +80,7 @@ namespace Sinobyl.Engine.Tests
                     if (correctResult.IsInBounds())
                     {
                         var result = pos.PositionInDirectionUnsafe(dir);
-                        Assert.AreEqual<ChessPosition>(correctResult, result);
+                        Assert.AreEqual<Position>(correctResult, result);
                     }
                 }
             }
@@ -90,10 +90,10 @@ namespace Sinobyl.Engine.Tests
 		public void DirectionFromToTest()
 		{
 			
-			ChessPosition posCurr;
-            foreach (ChessPosition posFrom in ChessPositionInfo.AllPositions)
+			Position posCurr;
+            foreach (Position posFrom in PositionInfo.AllPositions)
 			{
-                foreach (ChessPosition posTo in ChessPositionInfo.AllPositions)
+                foreach (Position posTo in PositionInfo.AllPositions)
 				{
 					if(posFrom==posTo){continue;}
                     Direction dirFromTo = posFrom.DirectionTo(posTo);
@@ -116,7 +116,7 @@ namespace Sinobyl.Engine.Tests
 					}
                     else if (dirFromTo.IsDirectionKnight())
                     {
-                        Assert.AreEqual<ChessPosition>(posTo, posFrom.PositionInDirection(dirFromTo));
+                        Assert.AreEqual<Position>(posTo, posFrom.PositionInDirection(dirFromTo));
                     }
                     else
                     {
@@ -177,35 +177,35 @@ namespace Sinobyl.Engine.Tests
 		[TestMethod]
 		public void DirectionTests()
 		{
-			Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A1, Direction.DirW).IsInBounds());
-            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A1, Direction.DirS).IsInBounds());
-            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A8, Direction.DirW).IsInBounds());
-            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.A8, Direction.DirN).IsInBounds());
-            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H1, Direction.DirE).IsInBounds());
-            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H1, Direction.DirS).IsInBounds());
-            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H8, Direction.DirE).IsInBounds());
-            Assert.IsFalse(ChessPositionInfo.PositionInDirection(ChessPosition.H8, Direction.DirN).IsInBounds());
+			Assert.IsFalse(PositionInfo.PositionInDirection(Position.A1, Direction.DirW).IsInBounds());
+            Assert.IsFalse(PositionInfo.PositionInDirection(Position.A1, Direction.DirS).IsInBounds());
+            Assert.IsFalse(PositionInfo.PositionInDirection(Position.A8, Direction.DirW).IsInBounds());
+            Assert.IsFalse(PositionInfo.PositionInDirection(Position.A8, Direction.DirN).IsInBounds());
+            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H1, Direction.DirE).IsInBounds());
+            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H1, Direction.DirS).IsInBounds());
+            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H8, Direction.DirE).IsInBounds());
+            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H8, Direction.DirN).IsInBounds());
 
             
 
-            Assert.AreEqual<ChessPosition>(ChessPosition.D5, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirN));
-            Assert.AreEqual<ChessPosition>(ChessPosition.D3, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirS));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C4, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirW));
-            Assert.AreEqual<ChessPosition>(ChessPosition.E4, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirE));
+            Assert.AreEqual<Position>(Position.D5, PositionInfo.PositionInDirection(Position.D4, Direction.DirN));
+            Assert.AreEqual<Position>(Position.D3, PositionInfo.PositionInDirection(Position.D4, Direction.DirS));
+            Assert.AreEqual<Position>(Position.C4, PositionInfo.PositionInDirection(Position.D4, Direction.DirW));
+            Assert.AreEqual<Position>(Position.E4, PositionInfo.PositionInDirection(Position.D4, Direction.DirE));
 
-            Assert.AreEqual<ChessPosition>(ChessPosition.E5, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirNE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.E3, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirSE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C3, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirSW));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C5, ChessPositionInfo.PositionInDirection(ChessPosition.D4, Direction.DirNW));
+            Assert.AreEqual<Position>(Position.E5, PositionInfo.PositionInDirection(Position.D4, Direction.DirNE));
+            Assert.AreEqual<Position>(Position.E3, PositionInfo.PositionInDirection(Position.D4, Direction.DirSE));
+            Assert.AreEqual<Position>(Position.C3, PositionInfo.PositionInDirection(Position.D4, Direction.DirSW));
+            Assert.AreEqual<Position>(Position.C5, PositionInfo.PositionInDirection(Position.D4, Direction.DirNW));
 
-            Assert.AreEqual<ChessPosition>(ChessPosition.F7, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirNNE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.G6, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirEEN));
-            Assert.AreEqual<ChessPosition>(ChessPosition.G4, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirEES));
-            Assert.AreEqual<ChessPosition>(ChessPosition.F3, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirSSE));
-            Assert.AreEqual<ChessPosition>(ChessPosition.D3, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirSSW));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C4, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirWWS));
-            Assert.AreEqual<ChessPosition>(ChessPosition.C6, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirWWN));
-            Assert.AreEqual<ChessPosition>(ChessPosition.D7, ChessPositionInfo.PositionInDirection(ChessPosition.E5, Direction.DirNNW));
+            Assert.AreEqual<Position>(Position.F7, PositionInfo.PositionInDirection(Position.E5, Direction.DirNNE));
+            Assert.AreEqual<Position>(Position.G6, PositionInfo.PositionInDirection(Position.E5, Direction.DirEEN));
+            Assert.AreEqual<Position>(Position.G4, PositionInfo.PositionInDirection(Position.E5, Direction.DirEES));
+            Assert.AreEqual<Position>(Position.F3, PositionInfo.PositionInDirection(Position.E5, Direction.DirSSE));
+            Assert.AreEqual<Position>(Position.D3, PositionInfo.PositionInDirection(Position.E5, Direction.DirSSW));
+            Assert.AreEqual<Position>(Position.C4, PositionInfo.PositionInDirection(Position.E5, Direction.DirWWS));
+            Assert.AreEqual<Position>(Position.C6, PositionInfo.PositionInDirection(Position.E5, Direction.DirWWN));
+            Assert.AreEqual<Position>(Position.D7, PositionInfo.PositionInDirection(Position.E5, Direction.DirNNW));
 
 		}
 
@@ -213,7 +213,7 @@ namespace Sinobyl.Engine.Tests
         public void BitboardBitCount()
         {
 
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (Position pos in PositionInfo.AllPositions)
             {
                 Assert.AreEqual<int>(1, pos.ToBitboard().BitCount());
             }
@@ -268,11 +268,11 @@ namespace Sinobyl.Engine.Tests
             Assert.AreEqual<Bitboard>(~Bitboard.Rank8 & ~Bitboard.FileH, Bitboard.Full.ShiftDirSW());
             Assert.AreEqual<Bitboard>(~Bitboard.Rank1 & ~Bitboard.FileH, Bitboard.Full.ShiftDirNW());
 
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (Position pos in PositionInfo.AllPositions)
             {
                 foreach (Direction dir in DirectionInfo.AllDirections)
                 {
-                    ChessPosition posEnd = ChessPositionInfo.PositionInDirection(pos, dir);
+                    Position posEnd = PositionInfo.PositionInDirection(pos, dir);
                     Bitboard shifted = pos.ToBitboard().Shift(dir);
                     Assert.AreEqual<bool>(posEnd.IsInBounds(), shifted.ToPositions().Count() == 1);
                     Assert.AreEqual<Bitboard>(posEnd.ToBitboard(), shifted);
@@ -284,14 +284,14 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void BitboardLSBMSB()
         {
-            foreach (var pos in ChessPositionInfo.AllPositions)
+            foreach (var pos in PositionInfo.AllPositions)
             {
                 var bb = pos.ToBitboard();
                 var northMost = bb.NorthMostPosition();
                 var southMost = bb.SouthMostPosition();
 
-                Assert.AreEqual<ChessPosition>(pos, northMost);
-                Assert.AreEqual<ChessPosition>(pos, southMost);
+                Assert.AreEqual<Position>(pos, northMost);
+                Assert.AreEqual<Position>(pos, southMost);
 
                 var north = pos.PositionInDirection(Direction.DirN);
                 if (north.IsInBounds())
@@ -300,8 +300,8 @@ namespace Sinobyl.Engine.Tests
                     northMost = bb.NorthMostPosition();
                     southMost = bb.SouthMostPosition();
 
-                    Assert.AreEqual<ChessPosition>(north, northMost);
-                    Assert.AreEqual<ChessPosition>(pos, southMost);
+                    Assert.AreEqual<Position>(north, northMost);
+                    Assert.AreEqual<Position>(pos, southMost);
 
                 }
 
@@ -312,8 +312,8 @@ namespace Sinobyl.Engine.Tests
                     northMost = bb.NorthMostPosition();
                     southMost = bb.SouthMostPosition();
 
-                    Assert.AreEqual<ChessPosition>(south, southMost);
-                    Assert.AreEqual<ChessPosition>(pos, northMost);
+                    Assert.AreEqual<Position>(south, southMost);
+                    Assert.AreEqual<Position>(pos, northMost);
                 }
 
             }
@@ -322,11 +322,11 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void BitboardTests()
         {
-            foreach (var pos in ChessPositionInfo.AllPositions)
+            foreach (var pos in PositionInfo.AllPositions)
             {
                 foreach (var dir in DirectionInfo.AllDirections)
                 {
-                    var posnew = ChessPositionInfo.PositionInDirection(pos, dir);
+                    var posnew = PositionInfo.PositionInDirection(pos, dir);
                     if (!posnew.IsInBounds())
                     {
                         Assert.IsTrue(posnew.ToBitboard().Empty());
@@ -337,9 +337,9 @@ namespace Sinobyl.Engine.Tests
                     }
                 }
             }
-            foreach (var pos1 in ChessPositionInfo.AllPositions)
+            foreach (var pos1 in PositionInfo.AllPositions)
             {
-                foreach (var pos2 in ChessPositionInfo.AllPositions)
+                foreach (var pos2 in PositionInfo.AllPositions)
                 {
 
                     //if we have 3 unique positions
@@ -350,7 +350,7 @@ namespace Sinobyl.Engine.Tests
 
                         Assert.AreNotEqual<Bitboard>(bb1, bb2);
 
-                        var posArray = new ChessPosition[] { pos1, pos2 };
+                        var posArray = new Position[] { pos1, pos2 };
                         var bbAll = posArray.ToBitboard();
 
                         //verifiy created bitboard contains all three positions.
@@ -358,7 +358,7 @@ namespace Sinobyl.Engine.Tests
                         Assert.IsTrue(!(bbAll & bb2).Empty());
 
                         //verify bitboard does not contain any other positions
-                        foreach (var posOther in ChessPositionInfo.AllPositions.Where(posO => !posArray.Any(posE => posO == posE)))
+                        foreach (var posOther in PositionInfo.AllPositions.Where(posO => !posArray.Any(posE => posO == posE)))
                         {
                             var bbOther = posOther.ToBitboard();
                             Assert.IsTrue((bbOther & bbAll).Empty());    
@@ -378,53 +378,53 @@ namespace Sinobyl.Engine.Tests
 		{
 
 
-			Assert.AreEqual<Rank>(Rank.Rank1, ChessPosition.A1.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank2, ChessPosition.A2.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank3, ChessPosition.A3.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank4, ChessPosition.A4.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank5, ChessPosition.A5.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank6, ChessPosition.A6.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank7, ChessPosition.A7.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank8, ChessPosition.A8.ToRank());
+			Assert.AreEqual<Rank>(Rank.Rank1, Position.A1.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank2, Position.A2.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank3, Position.A3.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank4, Position.A4.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank5, Position.A5.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank6, Position.A6.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank7, Position.A7.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank8, Position.A8.ToRank());
 
-            Assert.AreEqual<Rank>(Rank.Rank1, ChessPosition.H1.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank2, ChessPosition.H2.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank3, ChessPosition.H3.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank4, ChessPosition.H4.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank5, ChessPosition.H5.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank6, ChessPosition.H6.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank7, ChessPosition.H7.ToRank());
-            Assert.AreEqual<Rank>(Rank.Rank8, ChessPosition.H8.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank1, Position.H1.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank2, Position.H2.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank3, Position.H3.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank4, Position.H4.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank5, Position.H5.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank6, Position.H6.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank7, Position.H7.ToRank());
+            Assert.AreEqual<Rank>(Rank.Rank8, Position.H8.ToRank());
 
 
-			Assert.AreEqual<File>(File.FileA, ChessPosition.A1.ToFile());
-            Assert.AreEqual<File>(File.FileB, ChessPosition.B1.ToFile());
-            Assert.AreEqual<File>(File.FileC, ChessPosition.C1.ToFile());
-            Assert.AreEqual<File>(File.FileD, ChessPosition.D1.ToFile());
-            Assert.AreEqual<File>(File.FileE, ChessPosition.E1.ToFile());
-            Assert.AreEqual<File>(File.FileF, ChessPosition.F1.ToFile());
-            Assert.AreEqual<File>(File.FileG, ChessPosition.G1.ToFile());
-            Assert.AreEqual<File>(File.FileH, ChessPosition.H1.ToFile());
+			Assert.AreEqual<File>(File.FileA, Position.A1.ToFile());
+            Assert.AreEqual<File>(File.FileB, Position.B1.ToFile());
+            Assert.AreEqual<File>(File.FileC, Position.C1.ToFile());
+            Assert.AreEqual<File>(File.FileD, Position.D1.ToFile());
+            Assert.AreEqual<File>(File.FileE, Position.E1.ToFile());
+            Assert.AreEqual<File>(File.FileF, Position.F1.ToFile());
+            Assert.AreEqual<File>(File.FileG, Position.G1.ToFile());
+            Assert.AreEqual<File>(File.FileH, Position.H1.ToFile());
 
-            Assert.AreEqual<File>(File.FileA, ChessPosition.A8.ToFile());
-            Assert.AreEqual<File>(File.FileB, ChessPosition.B8.ToFile());
-            Assert.AreEqual<File>(File.FileC, ChessPosition.C8.ToFile());
-            Assert.AreEqual<File>(File.FileD, ChessPosition.D8.ToFile());
-            Assert.AreEqual<File>(File.FileE, ChessPosition.E8.ToFile());
-            Assert.AreEqual<File>(File.FileF, ChessPosition.F8.ToFile());
-            Assert.AreEqual<File>(File.FileG, ChessPosition.G8.ToFile());
-            Assert.AreEqual<File>(File.FileH, ChessPosition.H8.ToFile());
+            Assert.AreEqual<File>(File.FileA, Position.A8.ToFile());
+            Assert.AreEqual<File>(File.FileB, Position.B8.ToFile());
+            Assert.AreEqual<File>(File.FileC, Position.C8.ToFile());
+            Assert.AreEqual<File>(File.FileD, Position.D8.ToFile());
+            Assert.AreEqual<File>(File.FileE, Position.E8.ToFile());
+            Assert.AreEqual<File>(File.FileF, Position.F8.ToFile());
+            Assert.AreEqual<File>(File.FileG, Position.G8.ToFile());
+            Assert.AreEqual<File>(File.FileH, Position.H8.ToFile());
 
 			//FileRankToPos
 
-			Assert.AreEqual<ChessPosition>(ChessPosition.A8, File.FileA.ToPosition(Rank.Rank8));
-			Assert.AreEqual<ChessPosition>(ChessPosition.B7, File.FileB.ToPosition(Rank.Rank7));
-			Assert.AreEqual<ChessPosition>(ChessPosition.C6, File.FileC.ToPosition(Rank.Rank6));
-			Assert.AreEqual<ChessPosition>(ChessPosition.D5, File.FileD.ToPosition(Rank.Rank5));
-			Assert.AreEqual<ChessPosition>(ChessPosition.E4, File.FileE.ToPosition(Rank.Rank4));
-			Assert.AreEqual<ChessPosition>(ChessPosition.F3, File.FileF.ToPosition(Rank.Rank3));
-			Assert.AreEqual<ChessPosition>(ChessPosition.G2, File.FileG.ToPosition(Rank.Rank2));
-			Assert.AreEqual<ChessPosition>(ChessPosition.H1, File.FileH.ToPosition(Rank.Rank1));
+			Assert.AreEqual<Position>(Position.A8, File.FileA.ToPosition(Rank.Rank8));
+			Assert.AreEqual<Position>(Position.B7, File.FileB.ToPosition(Rank.Rank7));
+			Assert.AreEqual<Position>(Position.C6, File.FileC.ToPosition(Rank.Rank6));
+			Assert.AreEqual<Position>(Position.D5, File.FileD.ToPosition(Rank.Rank5));
+			Assert.AreEqual<Position>(Position.E4, File.FileE.ToPosition(Rank.Rank4));
+			Assert.AreEqual<Position>(Position.F3, File.FileF.ToPosition(Rank.Rank3));
+			Assert.AreEqual<Position>(Position.G2, File.FileG.ToPosition(Rank.Rank2));
+			Assert.AreEqual<Position>(Position.H1, File.FileH.ToPosition(Rank.Rank1));
 
 		}
 	}

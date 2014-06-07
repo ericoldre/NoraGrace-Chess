@@ -48,11 +48,11 @@ namespace Sinobyl.Engine
             return (int)rank >= 0 && (int)rank <= 7;
         }
 
-        public static ChessPosition ToPosition(this Rank rank, File file)
+        public static Position ToPosition(this Rank rank, File file)
         {
             //if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
             //if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
-            return (ChessPosition)((int)rank * 8) + (int)file;
+            return (Position)((int)rank * 8) + (int)file;
         }
 
         public static Bitboard ToBitboard(this Rank rank)

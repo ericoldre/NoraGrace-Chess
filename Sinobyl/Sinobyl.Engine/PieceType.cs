@@ -5,29 +5,29 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public enum ChessPieceType
+    public enum PieceType
     {
         Pawn = 1, Knight = 2, Bishop = 3, Rook = 4, Queen = 5, King = 6
     }
 
-    public static class ChessPieceTypeInfo
+    public static class PieceTypeInfo
     {
         public const int LookupArrayLength = 7;
 
-        public static readonly ChessPieceType[] AllPieceTypes = new ChessPieceType[]{
-            ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};
+        public static readonly PieceType[] AllPieceTypes = new PieceType[]{
+            PieceType.Pawn, PieceType.Knight, PieceType.Bishop, PieceType.Rook, PieceType.Queen, PieceType.King};
 
 
-        public static Piece ForPlayer(this ChessPieceType type, Player player)
+        public static Piece ForPlayer(this PieceType type, Player player)
         {
             System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);
             System.Diagnostics.Debug.Assert(
-                type == ChessPieceType.Pawn
-                || type == ChessPieceType.Knight
-                || type == ChessPieceType.Bishop
-                || type == ChessPieceType.Rook
-                || type == ChessPieceType.Queen
-                || type == ChessPieceType.King);
+                type == PieceType.Pawn
+                || type == PieceType.Knight
+                || type == PieceType.Bishop
+                || type == PieceType.Rook
+                || type == PieceType.Queen
+                || type == PieceType.King);
 
             return (Piece)((int)type | ((int)player << 3));
             //if (player == ChessPlayer.White)
@@ -75,7 +75,7 @@ namespace Sinobyl.Engine
         public T[] _values = new T[7];
 
         [System.Xml.Serialization.XmlIgnore()]
-        public T this[ChessPieceType piecetype]
+        public T this[PieceType piecetype]
         {
             get
             {
@@ -88,12 +88,12 @@ namespace Sinobyl.Engine
             }
         }
 
-        public T Pawn { get { return this[ChessPieceType.Pawn]; } set { this[ChessPieceType.Pawn] = value; } }
-        public T Knight { get { return this[ChessPieceType.Knight]; } set { this[ChessPieceType.Knight] = value; } }
-        public T Bishop { get { return this[ChessPieceType.Bishop]; } set { this[ChessPieceType.Bishop] = value; } }
-        public T Rook { get { return this[ChessPieceType.Rook]; } set { this[ChessPieceType.Rook] = value; } }
-        public T Queen { get { return this[ChessPieceType.Queen]; } set { this[ChessPieceType.Queen] = value; } }
-        public T King { get { return this[ChessPieceType.King]; } set { this[ChessPieceType.King] = value; } }
+        public T Pawn { get { return this[PieceType.Pawn]; } set { this[PieceType.Pawn] = value; } }
+        public T Knight { get { return this[PieceType.Knight]; } set { this[PieceType.Knight] = value; } }
+        public T Bishop { get { return this[PieceType.Bishop]; } set { this[PieceType.Bishop] = value; } }
+        public T Rook { get { return this[PieceType.Rook]; } set { this[PieceType.Rook] = value; } }
+        public T Queen { get { return this[PieceType.Queen]; } set { this[PieceType.Queen] = value; } }
+        public T King { get { return this[PieceType.King]; } set { this[PieceType.King] = value; } }
 
 
         public IEnumerable<KeyValuePair<Piece, T>> PieceValues()
@@ -123,7 +123,7 @@ namespace Sinobyl.Engine
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;//randomly choosen prime
-                foreach (var index in ChessPieceTypeInfo.AllPieceTypes)
+                foreach (var index in PieceTypeInfo.AllPieceTypes)
                 {
                     T field = this[index];
                     int fieldHash = 6823; //randomly choosen prime

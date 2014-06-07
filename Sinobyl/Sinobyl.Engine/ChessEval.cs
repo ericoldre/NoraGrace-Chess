@@ -21,7 +21,7 @@ namespace Sinobyl.Engine
         public readonly IChessEvalMaterial _evalMaterial;
 
         public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceInfo.LookupArrayLength][];
-        public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[ChessPieceTypeInfo.LookupArrayLength][];
+        public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeInfo.LookupArrayLength][];
         public readonly PhasedScore _matBishopPair;
 
         public readonly int[] _endgameMateKingPcSq;
@@ -51,7 +51,7 @@ namespace Sinobyl.Engine
         static ChessEval()
         {
             _kingSafetyRegion = new Bitboard[64];
-            foreach (var kingPos in ChessPositionInfo.AllPositions)
+            foreach (var kingPos in PositionInfo.AllPositions)
             {
                 var rank = kingPos.ToRank();
                 if (rank == Rank.Rank1) { rank = Rank.Rank2; }
@@ -67,12 +67,12 @@ namespace Sinobyl.Engine
             }
 
             _kingAttackerWeight = new int[7];
-            _kingAttackerWeight[(int)ChessPieceType.Pawn] = 1;
-            _kingAttackerWeight[(int)ChessPieceType.Knight] = 2;
-            _kingAttackerWeight[(int)ChessPieceType.Bishop] = 2;
-            _kingAttackerWeight[(int)ChessPieceType.Rook] = 3;
-            _kingAttackerWeight[(int)ChessPieceType.Queen] = 4;
-            _kingAttackerWeight[(int)ChessPieceType.King] = 1;
+            _kingAttackerWeight[(int)PieceType.Pawn] = 1;
+            _kingAttackerWeight[(int)PieceType.Knight] = 2;
+            _kingAttackerWeight[(int)PieceType.Bishop] = 2;
+            _kingAttackerWeight[(int)PieceType.Rook] = 3;
+            _kingAttackerWeight[(int)PieceType.Queen] = 4;
+            _kingAttackerWeight[(int)PieceType.King] = 1;
             
 
         }
@@ -99,7 +99,7 @@ namespace Sinobyl.Engine
             foreach (Piece piece in PieceInfo.AllPieces)
             {
                 _pcsqPiecePos[(int)piece] = new PhasedScore[64];
-                foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+                foreach (Position pos in PositionInfo.AllPositions)
                 {
                 
                     if (piece.PieceToPlayer() == Player.White)
@@ -123,7 +123,7 @@ namespace Sinobyl.Engine
 
             //setup mobility arrays
 
-            foreach (ChessPieceType pieceType in ChessPieceTypeInfo.AllPieceTypes)
+            foreach (PieceType pieceType in PieceTypeInfo.AllPieceTypes)
             {
                 _mobilityPieceTypeCount[(int)pieceType] = new PhasedScore[28];
                 for (int attacksCount = 0; attacksCount < 28; attacksCount++)
@@ -140,13 +140,13 @@ namespace Sinobyl.Engine
 
             //initialize pcsq for trying to mate king in endgame, try to push it to edge of board.
             _endgameMateKingPcSq = new int[64];
-            foreach (var pos in ChessPositionInfo.AllPositions)
+            foreach (var pos in PositionInfo.AllPositions)
             {
                 List<int> distToMid = new List<int>();
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.D4));
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.D5));
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.E4));
-                distToMid.Add(pos.DistanceToNoDiag(ChessPosition.E5));
+                distToMid.Add(pos.DistanceToNoDiag(Position.D4));
+                distToMid.Add(pos.DistanceToNoDiag(Position.D5));
+                distToMid.Add(pos.DistanceToNoDiag(Position.E4));
+                distToMid.Add(pos.DistanceToNoDiag(Position.E5));
                 var minDist = distToMid.Min();
                 _endgameMateKingPcSq[(int)pos] = minDist * 50;
             }
@@ -183,11 +183,11 @@ namespace Sinobyl.Engine
 
         }
 
-        public void PcSqValuesAdd(Piece piece, ChessPosition pos, ref PhasedScore value)
+        public void PcSqValuesAdd(Piece piece, Position pos, ref PhasedScore value)
         {
             value = value.Add(_pcsqPiecePos[(int)piece][(int)pos]);
         }
-        public void PcSqValuesRemove(Piece piece, ChessPosition pos, ref PhasedScore value)
+        public void PcSqValuesRemove(Piece piece, Position pos, ref PhasedScore value)
         {
             value = value.Subtract(_pcsqPiecePos[(int)piece][(int)pos]);
         }
@@ -325,7 +325,7 @@ namespace Sinobyl.Engine
 
                 //add in pawns to king attack.
                 Bitboard myInvolvedPawns = Bitboard.Empty;
-                Bitboard myPawns = board[me] & board[ChessPieceType.Pawn];
+                Bitboard myPawns = board[me] & board[PieceType.Pawn];
 
                 if (me == Player.White)
                 {
@@ -342,14 +342,14 @@ namespace Sinobyl.Engine
                 {
                     c = myInvolvedPawns.BitCount();
                     myAttacks.KingAttackerCount += c;
-                    myAttacks.KingAttackerWeight += c * _kingAttackerWeight[(int)ChessPieceType.Pawn];
+                    myAttacks.KingAttackerWeight += c * _kingAttackerWeight[(int)PieceType.Pawn];
                 }
 
                 //add in my king to the attack.
                 if ((Attacks.KingAttacks(board.KingPosition(me)) & hisKingZone) != Bitboard.Empty)
                 {
                     myAttacks.KingAttackerCount++;
-                    myAttacks.KingAttackerWeight += _kingAttackerWeight[(int)ChessPieceType.King];
+                    myAttacks.KingAttackerWeight += _kingAttackerWeight[(int)PieceType.King];
                 }
 
                 //add bonus for piece involvement over threshold;
@@ -359,7 +359,7 @@ namespace Sinobyl.Engine
                 Bitboard kingAdjecent = Attacks.KingAttacks(board.KingPosition(him));
                 while (kingAdjecent != Bitboard.Empty)
                 {
-                    ChessPosition pos = BitboardInfo.PopFirst(ref kingAdjecent);
+                    Position pos = BitboardInfo.PopFirst(ref kingAdjecent);
                     Bitboard posBB = pos.ToBitboard();
                     if ((posBB & myAttacks.All()) != Bitboard.Empty)
                     {
@@ -397,31 +397,31 @@ namespace Sinobyl.Engine
 
             Bitboard myPieces = board[me];
             Bitboard pieceLocationsAll = board.PieceLocationsAll;
-            Bitboard pawns = board[ChessPieceType.Pawn];
+            Bitboard pawns = board[PieceType.Pawn];
 
             Bitboard slidersAndKnights = myPieces &
-               (board[ChessPieceType.Knight]
-               | board[ChessPieceType.Bishop]
-               | board[ChessPieceType.Rook]
-               | board[ChessPieceType.Queen]);
+               (board[PieceType.Knight]
+               | board[PieceType.Bishop]
+               | board[PieceType.Rook]
+               | board[PieceType.Queen]);
 
             Bitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
 
-            Bitboard myDiagSliders = myPieces & (board[ChessPieceType.Bishop] | board[ChessPieceType.Queen]);
-            Bitboard myHorizSliders = myPieces & (board[ChessPieceType.Rook] | board[ChessPieceType.Queen]);
+            Bitboard myDiagSliders = myPieces & (board[PieceType.Bishop] | board[PieceType.Queen]);
+            Bitboard myHorizSliders = myPieces & (board[PieceType.Rook] | board[PieceType.Queen]);
 
             while (slidersAndKnights != Bitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
-                ChessPosition pos = BitboardInfo.PopFirst(ref slidersAndKnights);
+                Position pos = BitboardInfo.PopFirst(ref slidersAndKnights);
 
-                ChessPieceType pieceType = board.PieceAt(pos).ToPieceType();
+                PieceType pieceType = board.PieceAt(pos).ToPieceType();
 
                 //generate attacks
                 Bitboard slidingAttacks = Bitboard.Empty;
 
                 switch (pieceType)
                 {
-                    case ChessPieceType.Knight:
+                    case PieceType.Knight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
                         if (myAttacks.Knight != Bitboard.Empty)
                         {
@@ -432,11 +432,11 @@ namespace Sinobyl.Engine
                             myAttacks.Knight |= slidingAttacks;
                         }
                         break;
-                    case ChessPieceType.Bishop:
+                    case PieceType.Bishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
                         myAttacks.Bishop |= slidingAttacks;
                         break;
-                    case ChessPieceType.Rook:
+                    case PieceType.Rook:
                         slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
                         if (myAttacks.Rook != Bitboard.Empty)
                         {
@@ -458,7 +458,7 @@ namespace Sinobyl.Engine
                             }
                         }
                         break;
-                    case ChessPieceType.Queen:
+                    case PieceType.Queen:
                         slidingAttacks = Attacks.QueenAttacks(pos, pieceLocationsAll & ~(myDiagSliders | myHorizSliders));
                         myAttacks.Queen |= slidingAttacks;
 
@@ -513,17 +513,17 @@ namespace Sinobyl.Engine
         {
             Player losePlayer = winPlayer.PlayerOther();
             if (
-                board.PieceCount(losePlayer, ChessPieceType.Pawn) == 0
-                && board.PieceCount(losePlayer, ChessPieceType.Queen) == 0
-                && board.PieceCount(losePlayer, ChessPieceType.Rook) == 0
-                && (board.PieceCount(losePlayer, ChessPieceType.Bishop) + board.PieceCount(losePlayer, ChessPieceType.Knight) <= 1))
+                board.PieceCount(losePlayer, PieceType.Pawn) == 0
+                && board.PieceCount(losePlayer, PieceType.Queen) == 0
+                && board.PieceCount(losePlayer, PieceType.Rook) == 0
+                && (board.PieceCount(losePlayer, PieceType.Bishop) + board.PieceCount(losePlayer, PieceType.Knight) <= 1))
             {
-                if(board.PieceCount(winPlayer, ChessPieceType.Queen) > 0
-                    || board.PieceCount(winPlayer, ChessPieceType.Rook) > 0
-                    || board.PieceCount(winPlayer, ChessPieceType.Bishop) + board.PieceCount(winPlayer, ChessPieceType.Bishop) >= 2)
+                if(board.PieceCount(winPlayer, PieceType.Queen) > 0
+                    || board.PieceCount(winPlayer, PieceType.Rook) > 0
+                    || board.PieceCount(winPlayer, PieceType.Bishop) + board.PieceCount(winPlayer, PieceType.Bishop) >= 2)
                 {
-                    ChessPosition loseKing = board.KingPosition(losePlayer);
-                    ChessPosition winKing = board.KingPosition(winPlayer);
+                    Position loseKing = board.KingPosition(losePlayer);
+                    Position winKing = board.KingPosition(winPlayer);
                     newPcSq = PhasedScoreInfo.Create(0, _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25));
                     return true;
                 }
@@ -580,7 +580,7 @@ namespace Sinobyl.Engine
             return PawnEast | PawnWest | Knight | Knight2 | Bishop | Rook | Rook2 | Queen | King;
         }
 
-        public int AttackCountTo(ChessPosition pos)
+        public int AttackCountTo(Position pos)
         {
             return 0
                 + (int)(((ulong)PawnEast >> (int)pos) & 1)

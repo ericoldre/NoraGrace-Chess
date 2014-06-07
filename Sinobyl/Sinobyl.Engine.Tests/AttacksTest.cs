@@ -11,7 +11,7 @@ namespace Sinobyl.Engine.Tests
     {
         static Random rand = new Random(0);
 
-        private static Bitboard bitboard_to_attacks_calc(Bitboard piecelocations, Direction dir, ChessPosition position)
+        private static Bitboard bitboard_to_attacks_calc(Bitboard piecelocations, Direction dir, Position position)
         {
             Bitboard retval = 0;
             for (; ; )
@@ -27,7 +27,7 @@ namespace Sinobyl.Engine.Tests
         private static Bitboard RandomBitboard(int pctFill)
         {
             Bitboard retval = 0;
-            foreach (var pos in ChessPositionInfo.AllPositions)
+            foreach (var pos in PositionInfo.AllPositions)
             {
                 if (rand.Next(0, 99) < pctFill)
                 {

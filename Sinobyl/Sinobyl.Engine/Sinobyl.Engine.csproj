@@ -72,9 +72,9 @@
     <Compile Include="ChessOpening.cs" />
     <Compile Include="ChessPGN.cs" />
     <Compile Include="Piece.cs" />
-    <Compile Include="ChessPieceType.cs" />
+    <Compile Include="PieceType.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="ChessPosition.cs" />
+    <Compile Include="Position.cs" />
     <Compile Include="Rank.cs" />
     <Compile Include="ChessSearch.cs" />
     <Compile Include="ChessSearchAsync.cs" />

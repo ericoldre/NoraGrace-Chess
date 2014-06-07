@@ -147,8 +147,8 @@ namespace Sinobyl.Engine.Tests
         public Random random = new Random(6);
         public ChessMove RandomMove()
         {
-            ChessPosition f = ChessPositionInfo.AllPositions[random.Next(ChessPositionInfo.AllPositions.Length)];
-            ChessPosition t = ChessPositionInfo.AllPositions[random.Next(ChessPositionInfo.AllPositions.Length)];
+            Position f = PositionInfo.AllPositions[random.Next(PositionInfo.AllPositions.Length)];
+            Position t = PositionInfo.AllPositions[random.Next(PositionInfo.AllPositions.Length)];
             return ChessMoveInfo.Create(f, t);
         }
 

@@ -167,7 +167,7 @@ namespace Sinobyl.Engine
         static Attacks()
         {
             //bishop attacks (magic bitboard based)
-            foreach (ChessPosition position in ChessPositionInfo.AllPositions)
+            foreach (Position position in PositionInfo.AllPositions)
             {
                 var mask = BishopMask(position);
                 var possibleCombinations = 1 << mask.BitCount();
@@ -189,7 +189,7 @@ namespace Sinobyl.Engine
             }
 
             //rook attacks (magic bitboard based)
-            foreach (ChessPosition position in ChessPositionInfo.AllPositions)
+            foreach (Position position in PositionInfo.AllPositions)
             {
                 var mask = RookMask(position);
                 var possibleCombinations = 1 << mask.BitCount();
@@ -211,7 +211,7 @@ namespace Sinobyl.Engine
             }
 
             //knight attacks
-            foreach (var sq in ChessPositionInfo.AllPositions)
+            foreach (var sq in PositionInfo.AllPositions)
             {
                 Bitboard board = 0;
                 foreach (var dir in DirectionInfo.AllDirectionsKnight)
@@ -222,7 +222,7 @@ namespace Sinobyl.Engine
             }
             
             //king attacks
-            foreach (var sq in ChessPositionInfo.AllPositions)
+            foreach (var sq in PositionInfo.AllPositions)
             {
                 Bitboard board = 0;
                 foreach (var dir in DirectionInfo.AllDirectionsQueen)
@@ -237,7 +237,7 @@ namespace Sinobyl.Engine
             {
                 _attacks_from_pawn_lu[(int)player] = new Bitboard[65];
                 _attacks_from_pawn_flood_lu[(int)player] = new Bitboard[65];
-                foreach (var sq in ChessPositionInfo.AllPositions)
+                foreach (var sq in PositionInfo.AllPositions)
                 {
                     Bitboard board = 0;
                     board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(Direction.DirE).ToBitboard();
@@ -250,7 +250,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public static Bitboard BishopAttacks(ChessPosition pos, Bitboard allPieces)
+        public static Bitboard BishopAttacks(Position pos, Bitboard allPieces)
         {
             //mask all pieces to relevant squares
             //multiply by magic number (index now stored in high order bits)
@@ -259,7 +259,7 @@ namespace Sinobyl.Engine
             return _bishopLookup[(int)pos][((ulong)(allPieces & _bishopMask[(int)pos]) * _bishopMagics[(int)pos]) >> _bishopShift[(int)pos]];
         }
 
-        public static Bitboard RookAttacks(ChessPosition pos, Bitboard allPieces)
+        public static Bitboard RookAttacks(Position pos, Bitboard allPieces)
         {
             //mask all pieces to relevant squares
             //multiply by magic number (index now stored in high order bits)
@@ -268,27 +268,27 @@ namespace Sinobyl.Engine
             return _rookLookup[(int)pos][((ulong)(allPieces & _rookMask[(int)pos]) * _rookMagics[(int)pos]) >> _rookShift[(int)pos]];
         }
 
-        public static Bitboard QueenAttacks(ChessPosition pos, Bitboard allPieces)
+        public static Bitboard QueenAttacks(Position pos, Bitboard allPieces)
         {
             return RookAttacks(pos, allPieces) | BishopAttacks(pos, allPieces);
         }
 
-        public static Bitboard KnightAttacks(ChessPosition from)
+        public static Bitboard KnightAttacks(Position from)
         {
             return _attacks_from_knight_lu[from.GetIndex64()];
         }
 
-        public static Bitboard KingAttacks(ChessPosition from)
+        public static Bitboard KingAttacks(Position from)
         {
             return _attacks_from_king_lu[from.GetIndex64()];
         }
 
-        public static Bitboard PawnAttacks(ChessPosition from, Player player)
+        public static Bitboard PawnAttacks(Position from, Player player)
         {
             return _attacks_from_pawn_lu[(int)player][(int)from];
         }
 
-        public static Bitboard PawnAttacksFlood(ChessPosition from, Player player)
+        public static Bitboard PawnAttacksFlood(Position from, Player player)
         {
             return _attacks_from_pawn_flood_lu[(int)player][(int)from];
         }
@@ -318,14 +318,14 @@ namespace Sinobyl.Engine
         }
 
 
-        private static Bitboard RookMask(ChessPosition position)
+        private static Bitboard RookMask(Position position)
         {
             Bitboard retval = Bitboard.Empty;
             foreach (Direction dir in DirectionInfo.AllDirectionsRook)
             {
-                ChessPosition p = position.PositionInDirection(dir);
-                ChessPosition next = p.PositionInDirection(dir);
-                while (p.PositionInDirection(dir) != ChessPosition.OUTOFBOUNDS)
+                Position p = position.PositionInDirection(dir);
+                Position next = p.PositionInDirection(dir);
+                while (p.PositionInDirection(dir) != Position.OUTOFBOUNDS)
                 {
                     retval |= p.ToBitboard();
                     p = p.PositionInDirection(dir);
@@ -335,13 +335,13 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        private static Bitboard BishopMask(ChessPosition position)
+        private static Bitboard BishopMask(Position position)
         {
             Bitboard retval = Bitboard.Empty;
             foreach (Direction dir in DirectionInfo.AllDirectionsBishop)
             {
-                ChessPosition p = position.PositionInDirection(dir);
-                while (p.PositionInDirection(dir) != ChessPosition.OUTOFBOUNDS)
+                Position p = position.PositionInDirection(dir);
+                while (p.PositionInDirection(dir) != Position.OUTOFBOUNDS)
                 {
                     retval |= p.ToBitboard();
                     p = p.PositionInDirection(dir);
@@ -350,13 +350,13 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        private static Bitboard RookAttacksCalc(ChessPosition position, Bitboard blockers)
+        private static Bitboard RookAttacksCalc(Position position, Bitboard blockers)
         {
             Bitboard retval = Bitboard.Empty;
             foreach (Direction dir in DirectionInfo.AllDirectionsRook)
             {
-                ChessPosition p = position.PositionInDirection(dir);
-                while (p != ChessPosition.OUTOFBOUNDS)
+                Position p = position.PositionInDirection(dir);
+                while (p != Position.OUTOFBOUNDS)
                 {
                     retval |= p.ToBitboard();
                     if (blockers.Contains(p)) { break; }
@@ -366,13 +366,13 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        private static Bitboard BishopAttacksCalc(ChessPosition position, Bitboard blockers)
+        private static Bitboard BishopAttacksCalc(Position position, Bitboard blockers)
         {
             Bitboard retval = Bitboard.Empty;
             foreach (Direction dir in DirectionInfo.AllDirectionsBishop)
             {
-                ChessPosition p = position.PositionInDirection(dir);
-                while (p != ChessPosition.OUTOFBOUNDS)
+                Position p = position.PositionInDirection(dir);
+                while (p != Position.OUTOFBOUNDS)
                 {
                     retval |= p.ToBitboard();
                     if (blockers.Contains(p)) { break; }
@@ -448,7 +448,7 @@ namespace Sinobyl.Engine
             }
             public static int totalCalcs = 0;
 
-            private static ulong find_magic(ChessPosition sq, bool bishop)
+            private static ulong find_magic(Position sq, bool bishop)
             {
                 Bitboard[] b = new Bitboard[4096];
                 Bitboard[] a = new Bitboard[4096];
@@ -467,7 +467,7 @@ namespace Sinobyl.Engine
 
                 if (possibleCombinations > 4096)
                 {
-                    var tmp = RookMask(ChessPosition.A8);
+                    var tmp = RookMask(Position.A8);
                 }
                 for (int i = 0; i < possibleCombinations; i++)
                 {
@@ -515,12 +515,12 @@ namespace Sinobyl.Engine
             public static void FindMagics()
             {
 
-                var magicH8 = find_magic(ChessPosition.H8, false);
-                Console.WriteLine(string.Format("\t{0}UL, // rook {1}", magicH8, ChessPosition.H8));
+                var magicH8 = find_magic(Position.H8, false);
+                Console.WriteLine(string.Format("\t{0}UL, // rook {1}", magicH8, Position.H8));
 
                 //find bishops
                 Console.WriteLine("private static readonly ulong[] _bishopMagics = new ulong[]{");
-                foreach (ChessPosition p in ChessPositionInfo.AllPositions)
+                foreach (Position p in PositionInfo.AllPositions)
                 {
                     //var mask = BishopMask(p);
                     //var maskCount = mask.BitCount();
@@ -532,7 +532,7 @@ namespace Sinobyl.Engine
 
                 //find rooks
                 Console.WriteLine("\n\nprivate static readonly ulong[] _rookMagics = new ulong[]{");
-                foreach (ChessPosition p in ChessPositionInfo.AllPositions)
+                foreach (Position p in PositionInfo.AllPositions)
                 {
                     //var mask = RookMask(p);
                     //var maskCount = mask.BitCount();

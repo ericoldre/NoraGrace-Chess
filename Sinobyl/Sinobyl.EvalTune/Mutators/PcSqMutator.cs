@@ -11,11 +11,11 @@ namespace Sinobyl.EvalTune.Mutators
     {
 
         public Bitboard Positions { get; private set; }
-        public ChessPieceType PieceType { get; private set; }
+        public PieceType PieceType { get; private set; }
         public ChessGameStage[] Stages { get; private set; }
         public int Amount { get; private set; }
 
-        public PcSqMutator(Bitboard positions, ChessPieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
+        public PcSqMutator(Bitboard positions, PieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
         {
             this.Positions = positions;
             this.PieceType = pieceType;
@@ -48,10 +48,10 @@ namespace Sinobyl.EvalTune.Mutators
             
 
             List<Bitboard> boards = new List<Bitboard>();
-            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => p.ToBitboard()));
+            boards.AddRange(PositionInfo.AllPositions.Select(p => p.ToBitboard()));
             boards.AddRange(RankInfo.AllRanks.Select(r => r.ToBitboard()));
             boards.AddRange(FileInfo.AllFiles.Select(f => f.ToBitboard()));
-            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => bitboardExpand(p.ToBitboard())));
+            boards.AddRange(PositionInfo.AllPositions.Select(p => bitboardExpand(p.ToBitboard())));
 
             this.Positions = boards[rand.Next(0, boards.Count())];
             
@@ -66,7 +66,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         void IEvalSettingsMutator.Mutate(ChessEvalSettings settings)
         {
-            foreach (ChessPosition pos in this.Positions.ToPositions())
+            foreach (Position pos in this.Positions.ToPositions())
             {
                 foreach (ChessGameStage stage in this.Stages)
                 {

@@ -40,10 +40,10 @@ namespace Sinobyl.Engine
 
             return retval;
         }
-        static int attackswap(ChessBoard board, Bitboard attacks, Player player, ChessPosition positionattacked, int pieceontargetval)
+        static int attackswap(ChessBoard board, Bitboard attacks, Player player, Position positionattacked, int pieceontargetval)
         {
             int nextAttackPieceVal = 0;
-            ChessPosition nextAttackPos = 0;
+            Position nextAttackPos = 0;
 
             bool HasAttack = attackpop(board, ref attacks, player, positionattacked, out nextAttackPos, out nextAttackPieceVal);
             if (!HasAttack) { return 0; }
@@ -60,45 +60,45 @@ namespace Sinobyl.Engine
             }
         }
 
-        static bool attackpop(ChessBoard board, ref Bitboard attacks, Player player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
+        static bool attackpop(ChessBoard board, ref Bitboard attacks, Player player, Position positionattacked, out Position OutFrom, out int OutPieceVal)
         {
 
-            OutFrom = ChessPosition.OUTOFBOUNDS;
+            OutFrom = Position.OUTOFBOUNDS;
             OutPieceVal = 0;
 
             Bitboard myAttacks = attacks & board[player];
-            if ((myAttacks & board[ChessPieceType.Pawn]) != 0)
+            if ((myAttacks & board[PieceType.Pawn]) != 0)
             {
-                OutFrom = (myAttacks & board[ChessPieceType.Pawn]).NorthMostPosition();
+                OutFrom = (myAttacks & board[PieceType.Pawn]).NorthMostPosition();
                 OutPieceVal = 100;
             }
-            else if ((myAttacks & board[ChessPieceType.Knight]) != 0)
+            else if ((myAttacks & board[PieceType.Knight]) != 0)
             {
-                OutFrom = (myAttacks & board[ChessPieceType.Knight]).NorthMostPosition();
+                OutFrom = (myAttacks & board[PieceType.Knight]).NorthMostPosition();
                 OutPieceVal = 300;
             }
-            else if ((myAttacks & board[ChessPieceType.Bishop]) != 0)
+            else if ((myAttacks & board[PieceType.Bishop]) != 0)
             {
-                OutFrom = (myAttacks & board[ChessPieceType.Bishop]).NorthMostPosition();
+                OutFrom = (myAttacks & board[PieceType.Bishop]).NorthMostPosition();
                 OutPieceVal = 300;
             }
-            else if ((myAttacks & board[ChessPieceType.Rook]) != 0)
+            else if ((myAttacks & board[PieceType.Rook]) != 0)
             {
-                OutFrom = (myAttacks & board[ChessPieceType.Rook]).NorthMostPosition();
+                OutFrom = (myAttacks & board[PieceType.Rook]).NorthMostPosition();
                 OutPieceVal = 500;
             }
-            else if ((myAttacks & board[ChessPieceType.Queen]) != 0)
+            else if ((myAttacks & board[PieceType.Queen]) != 0)
             {
-                OutFrom = (myAttacks & board[ChessPieceType.Queen]).NorthMostPosition();
+                OutFrom = (myAttacks & board[PieceType.Queen]).NorthMostPosition();
                 OutPieceVal = 900;
             }
-            else if ((myAttacks & board[ChessPieceType.King]) != 0)
+            else if ((myAttacks & board[PieceType.King]) != 0)
             {
-                OutFrom = (myAttacks & board[ChessPieceType.King]).NorthMostPosition();
+                OutFrom = (myAttacks & board[PieceType.King]).NorthMostPosition();
                 OutPieceVal = 100000;
             }
 
-            if (OutFrom == ChessPosition.OUTOFBOUNDS)
+            if (OutFrom == Position.OUTOFBOUNDS)
             {
                 //i'm out of attacks to this position;
                 return false;
@@ -107,7 +107,7 @@ namespace Sinobyl.Engine
             Direction addAttackFrom = positionattacked.DirectionTo(OutFrom);
             if (!addAttackFrom.IsDirectionKnight())
             {
-                ChessPosition AddPosition = 0;
+                Position AddPosition = 0;
                 Piece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
                 if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
                 {

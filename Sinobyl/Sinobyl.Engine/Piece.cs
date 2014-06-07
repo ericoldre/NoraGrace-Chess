@@ -202,9 +202,9 @@ namespace Sinobyl.Engine
             }
         }
 
-        public static ChessPieceType ToPieceType(this Piece piece)
+        public static PieceType ToPieceType(this Piece piece)
         {
-            return (ChessPieceType)((int)piece & 7);
+            return (PieceType)((int)piece & 7);
         }
 
         public static Piece ToOppositePlayer(this Piece piece)

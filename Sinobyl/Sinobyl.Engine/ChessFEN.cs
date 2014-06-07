@@ -16,7 +16,7 @@ namespace Sinobyl.Engine
 		public readonly bool castleWL;
 		public readonly bool castleBS;
 		public readonly bool castleBL;
-		public readonly ChessPosition enpassant;
+		public readonly Position enpassant;
 		public readonly int fiftymove = 0;
 		public readonly int fullmove = 0;
 
@@ -27,11 +27,11 @@ namespace Sinobyl.Engine
             bool CastleWL = false,
             bool CastleBS = false,
             bool CastleBL = false,
-            ChessPosition Enpassant = ChessPosition.OUTOFBOUNDS,
+            Position Enpassant = Position.OUTOFBOUNDS,
             int FiftyMove = 0,
             int FullMove = 0)
         {
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (Position pos in PositionInfo.AllPositions)
             {
                 pieceat[(int)pos] = Pieces[pos];
             }
@@ -48,7 +48,7 @@ namespace Sinobyl.Engine
 		{
 			for (int pos = 0; pos < 64; pos++)
 			{
-				pieceat[pos] = board.PieceAt((ChessPosition)pos);
+				pieceat[pos] = board.PieceAt((Position)pos);
 			}
 			whosturn = board.WhosTurn;
 			castleWS = (board.CastleRights & CastleFlags.WhiteShort) != 0;
@@ -104,7 +104,7 @@ namespace Sinobyl.Engine
 
 			//parse the string values into usable formats
 
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (Position pos in PositionInfo.AllPositions)
 			{
 				pieceat[(int)pos] = Piece.EMPTY;
 			}
@@ -167,10 +167,10 @@ namespace Sinobyl.Engine
 			}
 
 			//set enpassent location
-			this.enpassant = (ChessPosition.OUTOFBOUNDS);
+			this.enpassant = (Position.OUTOFBOUNDS);
 			if (sEnpassant != "-")
 			{
-				enpassant = ChessPositionInfo.Parse(sEnpassant);
+				enpassant = PositionInfo.Parse(sEnpassant);
 			}
 
 			//set fifty move count
@@ -192,13 +192,13 @@ namespace Sinobyl.Engine
 		public ChessFEN Reverse()
 		{
             ChessPositionDictionary<Piece> pieces = new ChessPositionDictionary<Piece>();
-            foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
+            foreach (Position pos in PositionInfo.AllPositions)
             {
                 var piece = 
                 pieces[pos] = this.pieceat[(int)pos.Reverse()].ToOppositePlayer();
             }
 
-            return new ChessFEN(pieces,this.whosturn.PlayerOther(), this.castleBS, this.castleBL, this.castleWS, this.castleWL, this.enpassant.IsInBounds()?this.enpassant.Reverse():ChessPosition.OUTOFBOUNDS, this.fiftymove, this.fullmove);
+            return new ChessFEN(pieces,this.whosturn.PlayerOther(), this.castleBS, this.castleBL, this.castleWS, this.castleWL, this.enpassant.IsInBounds()?this.enpassant.Reverse():Position.OUTOFBOUNDS, this.fiftymove, this.fullmove);
 
 		}
 
@@ -262,7 +262,7 @@ namespace Sinobyl.Engine
 			//enpassant
 			if (enpassant.IsInBounds())
 			{
-				sb.Append(" " + enpassant.PositionToString());
+				sb.Append(" " + enpassant.Name());
 			}
 			else
 			{

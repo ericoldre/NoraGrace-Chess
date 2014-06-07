@@ -65,7 +65,7 @@ namespace Sinobyl.Engine
 
         
 
-        public static ChessPosition NorthMostPosition(this Bitboard bitboard)
+        public static Position NorthMostPosition(this Bitboard bitboard)
         {
             System.Diagnostics.Debug.Assert(bitboard != Bitboard.Empty);
             int lsb;
@@ -79,11 +79,11 @@ namespace Sinobyl.Engine
                 ulong x = (ulong)bitboard >> 32;
                 lsb = (debrujinLSB((int)x) + 32);
             }
-            return (ChessPosition)lsb;
+            return (Position)lsb;
         }
 
         //http://aggregate.org/MAGIC/
-        public static ChessPosition SouthMostPosition(this Bitboard bitboard)
+        public static Position SouthMostPosition(this Bitboard bitboard)
         {
             ulong x = (ulong)bitboard;
 
@@ -196,7 +196,7 @@ namespace Sinobyl.Engine
             return (Bitboard)((ulong)(bits & ~Bitboard.Rank8 & ~Bitboard.FileA) >> 9);
         }
 
-        public static bool Contains(this Bitboard bits, ChessPosition position)
+        public static bool Contains(this Bitboard bits, Position position)
         {
             System.Diagnostics.Debug.Assert(position.IsInBounds());
             return (bits & position.ToBitboard()) != Bitboard.Empty;
@@ -212,11 +212,11 @@ namespace Sinobyl.Engine
             return bitboard == 0;
         }
 
-        public static IEnumerable<ChessPosition> ToPositions(this Bitboard bitboard)
+        public static IEnumerable<Position> ToPositions(this Bitboard bitboard)
         {
             while (bitboard != 0)
             {
-                ChessPosition first = bitboard.NorthMostPosition();
+                Position first = bitboard.NorthMostPosition();
                 yield return first;
                 bitboard = bitboard & ~first.ToBitboard();
             }
@@ -233,21 +233,21 @@ namespace Sinobyl.Engine
             return debrujinPositions[unchecked((uint)(number & -number) * 0x077CB531U) >> 27];
         }
 
-        public static ChessPosition PopFirst(ref Bitboard bitboard)
+        public static Position PopFirst(ref Bitboard bitboard)
         {
             System.Diagnostics.Debug.Assert(bitboard != Bitboard.Empty);
 
             //self in-line the LSB function.
-            ChessPosition first;
+            Position first;
             if (((ulong)bitboard & 0xFFFFFFFF) != 0)
             {
                 int number = (int)((ulong)bitboard & 0xFFFFFFFF);
-                first = (ChessPosition)debrujinPositions[unchecked((uint)(number & -number) * 0x077CB531U) >> 27];
+                first = (Position)debrujinPositions[unchecked((uint)(number & -number) * 0x077CB531U) >> 27];
             }
             else
             {
                 int number = (int)((ulong)bitboard >> 32);
-                first = (ChessPosition)(debrujinPositions[unchecked((uint)(number & -number) * 0x077CB531U) >> 27] + 32);
+                first = (Position)(debrujinPositions[unchecked((uint)(number & -number) * 0x077CB531U) >> 27] + 32);
             }
 
             bitboard = bitboard & ~first.ToBitboard();

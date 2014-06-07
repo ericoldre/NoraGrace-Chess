@@ -9,11 +9,11 @@ namespace Sinobyl.EvalTune.Mutators
 
     public class PieceValueMutator: IEvalSettingsMutator
     {
-        public ChessPieceType PieceType { get; private set; }
+        public PieceType PieceType { get; private set; }
         public ChessGameStage[] Stages { get; private set; }
         public int Amount { get; private set; }
 
-        public PieceValueMutator(ChessPieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
+        public PieceValueMutator(PieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
         {
             this.PieceType = pieceType;
             this.Stages = stages.ToArray();

@@ -53,7 +53,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         #region IEvalSettingsMutator Members
 
-        void IEvalSettingsMutator.Mutate(Engine.ChessEvalSettings settings)
+        void IEvalSettingsMutator.Mutate(Engine.Evaluation.ChessEvalSettings settings)
         {
             switch (this.WeightType)
             {

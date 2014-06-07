@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sinobyl.Engine;
+using Sinobyl.Engine.Evaluation;
 using System.IO;
 
 namespace Sinobyl.Engine.Tests
@@ -53,7 +54,7 @@ namespace Sinobyl.Engine.Tests
         {
             var board = new Board(FEN.FENStart);
             var boardReverse = new Board(new FEN(FEN.FENStart).Reverse());
-            var eval = new ChessEval();
+            var eval = new Evaluator();
 
             int norm = eval.Eval(board);
             int rev = eval.Eval(boardReverse);
@@ -75,7 +76,7 @@ namespace Sinobyl.Engine.Tests
             var fen = new FEN(sfen);
             var board = new Board(fen);
             var breverse = new Board(fen.Reverse());
-            var eval = new ChessEval();
+            var eval = new Evaluator();
             var res1 = eval.EvalFor(board, board.WhosTurn);
             var res2 = eval.EvalFor(breverse, breverse.WhosTurn);
 
@@ -116,7 +117,7 @@ namespace Sinobyl.Engine.Tests
             int iCount = 0;
             var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Sinobyl.Engine.Tests.pgnFiles.gm2600.pgn");
             StreamReader reader = new StreamReader(stream);
-            ChessEval eval = new ChessEval();
+            Evaluator eval = new Evaluator();
 
             while (!reader.EndOfStream)
             {
@@ -179,7 +180,7 @@ namespace Sinobyl.Engine.Tests
             int iCount = 0;
             var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Sinobyl.Engine.Tests.pgnFiles.gm2600.pgn");
             StreamReader reader = new StreamReader(stream);
-            ChessEval eval = new ChessEval();
+            Evaluator eval = new Evaluator();
 
             while (!reader.EndOfStream)
             {

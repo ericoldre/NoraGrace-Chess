@@ -152,9 +152,9 @@ namespace Sinobyl.CommandLine
                     PrintSearchCutoffStats();
                     ConsoleWriteline(string.Format(" nodes:{0,10}\n evals:{1,10}\n pawns:{2,10}\n mater:{3,10}",
                         Sinobyl.Engine.ChessSearch.CountTotalAINodes,
-                        Sinobyl.Engine.ChessEval.TotalEvalCount,
-                        Sinobyl.Engine.ChessEvalPawns.TotalEvalPawnCount,
-                        Sinobyl.Engine.ChessEvalMaterialBasic.TotalEvalMaterialCount));
+                        Sinobyl.Engine.Evaluation.Evaluator.TotalEvalCount,
+                        Sinobyl.Engine.Evaluation.ChessEvalPawns.TotalEvalPawnCount,
+                        Sinobyl.Engine.Evaluation.ChessEvalMaterialBasic.TotalEvalMaterialCount));
                     break;
                 case "annotateeval":
                     Perft.AnnotatePGNEval(split[1], split[2]);
@@ -162,9 +162,9 @@ namespace Sinobyl.CommandLine
                 case "counts":
                     ConsoleWriteline(string.Format(" nodes:{0,10}\n evals:{1,10}\n pawns:{2,10}\n mater:{3,10}",
                         Sinobyl.Engine.ChessSearch.CountTotalAINodes,
-                        Sinobyl.Engine.ChessEval.TotalEvalCount, 
-                        Sinobyl.Engine.ChessEvalPawns.TotalEvalPawnCount,
-                        Sinobyl.Engine.ChessEvalMaterialBasic.TotalEvalMaterialCount));
+                        Sinobyl.Engine.Evaluation.Evaluator.TotalEvalCount,
+                        Sinobyl.Engine.Evaluation.ChessEvalPawns.TotalEvalPawnCount,
+                        Sinobyl.Engine.Evaluation.ChessEvalMaterialBasic.TotalEvalMaterialCount));
                     break;
                 case "genmagic":
                     Sinobyl.Engine.Attacks.Generation.FindMagics();

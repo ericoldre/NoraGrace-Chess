@@ -45,7 +45,7 @@ namespace Sinobyl.Engine.Tests
             int iCount = 0;
             var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Sinobyl.Engine.Tests.pgnFiles.gm2600.pgn");
             System.IO.StreamReader reader = new System.IO.StreamReader(stream);
-            ChessEval eval = new ChessEval();
+            Evaluation.Evaluator eval = new Evaluation.Evaluator();
 
             while (!reader.EndOfStream)
             {

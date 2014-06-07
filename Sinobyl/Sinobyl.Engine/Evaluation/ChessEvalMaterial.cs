@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sinobyl.Engine
+namespace Sinobyl.Engine.Evaluation
 {
     public interface IChessEvalMaterial
     {

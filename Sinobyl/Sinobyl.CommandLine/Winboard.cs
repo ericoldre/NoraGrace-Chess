@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sinobyl.Engine;
+using Sinobyl.Engine.Evaluation;
 
 namespace Sinobyl.CommandLine
 {
@@ -14,7 +15,7 @@ namespace Sinobyl.CommandLine
 		private Player _myplayer = Player.Black;
         private TimeControl _timeControl = TimeControl.Blitz(5, 5);
 		private TimeSpan _timeLeft = TimeSpan.FromMinutes(5);
-        private readonly ChessEval _staticEval = new ChessEval();
+        private readonly Evaluator _staticEval = new Evaluator();
 		public Winboard()
 		{
 			_player.MovePlayed += player_OnMove;
@@ -224,7 +225,7 @@ namespace Sinobyl.CommandLine
                     _board.FENCurrent = new FEN("8/4r3/R4n2/2pPk3/p1P1B1p1/3K2P1/5P2/8 w - - 4 54 ");
                     break;
                 case "eval":
-                    ChessEval eval = new ChessEval();
+                    Evaluator eval = new Evaluator();
                     int e = eval.EvalFor(_board, _board.WhosTurn);
                     break;
             }

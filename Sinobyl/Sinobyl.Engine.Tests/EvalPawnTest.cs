@@ -29,6 +29,6 @@ namespace Sinobyl.Engine.Tests
             return info.Candidates;
         }
 
-        Lazy<ChessEvalPawns> getPawnEval = new Lazy<ChessEvalPawns>(() => new ChessEvalPawns(ChessEvalSettings.Default()));
+        Lazy<Evaluation.ChessEvalPawns> getPawnEval = new Lazy<Evaluation.ChessEvalPawns>(() => new Evaluation.ChessEvalPawns(Evaluation.ChessEvalSettings.Default()));
     }
 }

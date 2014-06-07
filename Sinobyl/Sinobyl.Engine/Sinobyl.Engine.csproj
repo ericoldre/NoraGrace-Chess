@@ -53,11 +53,11 @@
     <Compile Include="Board.cs" />
     <Compile Include="Book.cs" />
     <Compile Include="Direction.cs" />
-    <Compile Include="ChessEval.cs" />
-    <Compile Include="ChessEvalInfo.cs" />
-    <Compile Include="ChessEvalMaterial.cs" />
-    <Compile Include="ChessEvalPawns.cs" />
-    <Compile Include="ChessEvalSettings.cs" />
+    <Compile Include="Evaluation\Evaluator.cs" />
+    <Compile Include="Evaluation\ChessEvalInfo.cs" />
+    <Compile Include="Evaluation\ChessEvalMaterial.cs" />
+    <Compile Include="Evaluation\ChessEvalPawns.cs" />
+    <Compile Include="Evaluation\ChessEvalSettings.cs" />
     <Compile Include="FEN.cs" />
     <Compile Include="File.cs" />
     <Compile Include="ChessGame.cs" />

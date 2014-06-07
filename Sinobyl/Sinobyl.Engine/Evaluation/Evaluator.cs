@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Sinobyl.Engine
+namespace Sinobyl.Engine.Evaluation
 {
     public interface IChessEval
     {
@@ -11,7 +11,7 @@ namespace Sinobyl.Engine
         int DrawScore { get; set; }
     }
 
-    public class ChessEval: IChessEval
+    public class Evaluator: IChessEval
     {
 
         public const int MaxValue = int.MaxValue - 100;
@@ -39,7 +39,7 @@ namespace Sinobyl.Engine
         public readonly int KingRingAttackControlBonus = 0;
         public readonly int[] KingQueenTropismFactor;
 
-        public static readonly ChessEval Default = new ChessEval();
+        public static readonly Evaluator Default = new Evaluator();
 
         public static int TotalEvalCount = 0;
 
@@ -48,7 +48,7 @@ namespace Sinobyl.Engine
         private static Bitboard[] _kingSafetyRegion;
         private static int[] _kingAttackerWeight;
 
-        static ChessEval()
+        static Evaluator()
         {
             _kingSafetyRegion = new Bitboard[64];
             foreach (var kingPos in PositionInfo.AllPositions)
@@ -77,13 +77,13 @@ namespace Sinobyl.Engine
 
         }
 
-        public ChessEval()
+        public Evaluator()
             : this(ChessEvalSettings.Default())
         {
 
         }
 
-        public ChessEval(ChessEvalSettings settings, IChessEvalMaterial evalMaterial = null)
+        public Evaluator(ChessEvalSettings settings, IChessEvalMaterial evalMaterial = null)
         {
             _settings = settings.CloneDeep();
 
@@ -203,7 +203,7 @@ namespace Sinobyl.Engine
         public ChessEvalInfo _evalInfo = new ChessEvalInfo();
         public virtual int Eval(Board board)
         {
-            return EvalLazy(board, _evalInfo, null, ChessEval.MinValue, ChessEval.MaxValue);
+            return EvalLazy(board, _evalInfo, null, Evaluator.MinValue, Evaluator.MaxValue);
         }
 
         public int EvalLazy(Board board, ChessEvalInfo evalInfo, ChessEvalInfo prevEvalInfo, int alpha, int beta)

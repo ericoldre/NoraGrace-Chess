@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sinobyl.Engine
+namespace Sinobyl.Engine.Evaluation
 {
     public class ChessEvalInfo
     {
@@ -172,11 +172,11 @@ namespace Sinobyl.Engine
     public class ChessEvalInfoStack
     {
 
-        public readonly ChessEval _eval;
+        public readonly Evaluator _eval;
 
         List<ChessEvalInfo> _plyInfoList = new List<ChessEvalInfo>();
 
-        public ChessEvalInfoStack(ChessEval eval, int plyCapacity = 50)
+        public ChessEvalInfoStack(Evaluator eval, int plyCapacity = 50)
         {
             _eval = eval;
             while (_plyInfoList.Count < plyCapacity)
@@ -185,15 +185,15 @@ namespace Sinobyl.Engine
             }
         }
 
-        public ChessEval Evaluator
+        public Evaluator Evaluator
         {
             get { return _eval; }
         }
 
         public int EvalFor(int ply, Board board, Player player, out ChessEvalInfo info, int alpha, int beta)
         {
-            System.Diagnostics.Debug.Assert(alpha >= ChessEval.MinValue);
-            System.Diagnostics.Debug.Assert(beta <= ChessEval.MaxValue);
+            System.Diagnostics.Debug.Assert(alpha >= Evaluator.MinValue);
+            System.Diagnostics.Debug.Assert(beta <= Evaluator.MaxValue);
 
             if (player == Player.White)
             {
@@ -207,8 +207,8 @@ namespace Sinobyl.Engine
 
         public int Eval(int ply, Board board, out ChessEvalInfo info, int alpha, int beta)
         {
-            System.Diagnostics.Debug.Assert(alpha >= ChessEval.MinValue);
-            System.Diagnostics.Debug.Assert(beta <= ChessEval.MaxValue);
+            System.Diagnostics.Debug.Assert(alpha >= Evaluator.MinValue);
+            System.Diagnostics.Debug.Assert(beta <= Evaluator.MaxValue);
 
             info = _plyInfoList[ply];
 

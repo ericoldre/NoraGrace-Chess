@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Sinobyl.Engine
+namespace Sinobyl.Engine.Evaluation
 {
     public class ChessEvalPawns
     {

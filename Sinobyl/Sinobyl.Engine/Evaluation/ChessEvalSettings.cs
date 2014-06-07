@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Sinobyl.Engine
+namespace Sinobyl.Engine.Evaluation
 {
 
     public class ChessEvalSettings

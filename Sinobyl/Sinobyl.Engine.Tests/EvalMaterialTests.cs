@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sinobyl.Engine;
+using Sinobyl.Engine.Evaluation;
 
 namespace Sinobyl.Engine.Tests
 {

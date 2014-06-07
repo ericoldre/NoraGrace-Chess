@@ -1,6 +1,7 @@
 ﻿using Sinobyl.Engine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Sinobyl.Engine.Evaluation;
 
 namespace Sinobyl.Engine.Tests
 {

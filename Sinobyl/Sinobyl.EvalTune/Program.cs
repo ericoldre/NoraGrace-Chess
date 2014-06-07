@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sinobyl.Engine;
+using Sinobyl.Engine.Evaluation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -57,7 +58,7 @@ namespace Sinobyl.EvalTune
                 
                 
                 
-                ChessEval eval = new ChessEval(evalsettings, new ChessEvalMaterial2(evalsettings));
+                Evaluator eval = new Evaluator(evalsettings, new ChessEvalMaterial2(evalsettings));
 
                 TimeManagerNodes manager = new TimeManagerNodes();
                 

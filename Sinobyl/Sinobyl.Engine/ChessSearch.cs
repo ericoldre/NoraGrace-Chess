@@ -185,7 +185,7 @@ namespace Sinobyl.Engine
 			public TranspositionTable TransTable { get; set; }
 			public BlunderChance Blunder { get; set; }
 			public TimeSpan Delay { get; set; }
-            public IChessEval Eval { get; set; }
+            public Evaluation.IChessEval Eval { get; set; }
             public int MaxNodes { get; set; }
             public int ContemptForDraw { get; set; }
             public ITimeManager TimeManager { get; set; }
@@ -199,7 +199,7 @@ namespace Sinobyl.Engine
 				NodesPerSecond = int.MaxValue;
 				Blunder = new BlunderChance();
 				Delay = new TimeSpan(0);
-                Eval = ChessEval.Default;
+                Eval = Evaluation.Evaluator.Default;
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
@@ -214,7 +214,7 @@ namespace Sinobyl.Engine
 
 		public readonly Args SearchArgs;
 		private readonly Board board;
-		private readonly IChessEval eval;
+        private readonly Evaluation.IChessEval eval;
 		private Move[] CurrentVariation = new Move[50];
 		private DateTime _starttime;
 		private bool _aborting = false;
@@ -223,7 +223,7 @@ namespace Sinobyl.Engine
 		private int _bestvariationscore = 0;
 
         private readonly MovePicker.Stack _moveBuffer = new MovePicker.Stack();
-        private readonly ChessEvalInfoStack _evalInfoStack; 
+        private readonly Evaluation.ChessEvalInfoStack _evalInfoStack; 
         private Move[] _currentPV = new Move[50];
         private readonly Dictionary<Move, int> _rootMoveNodeCounts = new Dictionary<Move, int>();
 		private readonly Int64 BlunderKey = Rand64();
@@ -232,7 +232,7 @@ namespace Sinobyl.Engine
 		{
 			SearchArgs = args;
             eval = args.Eval;
-            _evalInfoStack = new ChessEvalInfoStack(args.Eval as ChessEval);
+            _evalInfoStack = new Evaluation.ChessEvalInfoStack(args.Eval as Evaluation.Evaluator);
 
             board = new Board(SearchArgs.GameStartPosition);
             
@@ -683,8 +683,8 @@ namespace Sinobyl.Engine
 			int blunders = 0;
             Move bestmove = Move.EMPTY;
 
-            ChessEvalInfo init_info;
-            int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, ChessEval.MinValue, ChessEval.MaxValue);
+            Evaluation.ChessEvalInfo init_info;
+            int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, Evaluation.Evaluator.MinValue, Evaluation.Evaluator.MaxValue);
             
             ChessMoveData moveData;
             while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
@@ -838,8 +838,8 @@ namespace Sinobyl.Engine
 
 
 			//int oldScore = eval.EvalFor(board, board.WhosTurn);
-            
-            ChessEvalInfo init_info;
+
+            Evaluation.ChessEvalInfo init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, alpha, beta);
             
 			bool playerincheck = board.IsCheck();

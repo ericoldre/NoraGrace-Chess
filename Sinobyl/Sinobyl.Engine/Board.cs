@@ -92,20 +92,20 @@ namespace Sinobyl.Engine
 
 		private int _movesSinceNull = 100;
 
-        private readonly ChessEval _pcSqEvaluator;
+        private readonly Evaluation.Evaluator _pcSqEvaluator;
         private PhasedScore _pcSq;
 
-        public Board(ChessEval pcSqEvaluator = null)
+        public Board(Evaluation.Evaluator pcSqEvaluator = null)
             : this(new FEN(FEN.FENStart), pcSqEvaluator)
 		{
             
 		}
-        public Board(string fen, ChessEval pcSqEvaluator = null)
+        public Board(string fen, Evaluation.Evaluator pcSqEvaluator = null)
             : this(new FEN(fen), pcSqEvaluator)
 		{
 
 		}
-		public Board(FEN fen, ChessEval pcSqEvaluator = null)
+        public Board(FEN fen, Evaluation.Evaluator pcSqEvaluator = null)
 		{
             _histUB = _hist.GetUpperBound(0);
             for (int i = 0; i <= _histUB; i++)
@@ -113,13 +113,13 @@ namespace Sinobyl.Engine
                 _hist[i] = new MoveHistory();
             }
 
-            _pcSqEvaluator = pcSqEvaluator ?? ChessEval.Default;
+            _pcSqEvaluator = pcSqEvaluator ?? Evaluation.Evaluator.Default;
             initPieceAtArray();
 
 			this.FENCurrent = fen;
 		}
 
-        public Board(FEN fen, IEnumerable<Move> prevMoves, ChessEval pcSqEvaluator = null)
+        public Board(FEN fen, IEnumerable<Move> prevMoves, Evaluation.Evaluator pcSqEvaluator = null)
             : this(fen, pcSqEvaluator)
         {
             foreach (Move move in prevMoves)
@@ -258,7 +258,7 @@ namespace Sinobyl.Engine
             get { return _pcSq; }
         }
 
-        public ChessEval PcSqEvaluator
+        public Evaluation.Evaluator PcSqEvaluator
         {
             get { return _pcSqEvaluator; }
         }

@@ -12,7 +12,7 @@ namespace Sinobyl.CommandLine
 		private readonly ChessGamePlayerMurderhole _player = new ChessGamePlayerMurderhole();
 		private readonly ChessBoard _board = new ChessBoard();
 		private Player _myplayer = Player.Black;
-        private ChessTimeControl _timeControl = ChessTimeControl.Blitz(5, 5);
+        private TimeControl _timeControl = TimeControl.Blitz(5, 5);
 		private TimeSpan _timeLeft = TimeSpan.FromMinutes(5);
         private readonly ChessEval _staticEval = new ChessEval();
 		public Winboard()
@@ -210,14 +210,14 @@ namespace Sinobyl.CommandLine
                     break;
                 case "level":
                     string[] args = argument.Split(' ');
-                    _timeControl = new ChessTimeControl();
+                    _timeControl = new TimeControl();
                     _timeControl.BonusEveryXMoves = int.Parse(args[0]);
                     _timeControl.InitialAmount = TimeSpan.FromMinutes(int.Parse(args[1]));
                     _timeControl.BonusAmount = TimeSpan.FromSeconds(int.Parse(args[2]));
                     if (_timeControl.BonusAmount.TotalSeconds > 0) { _timeControl.BonusEveryXMoves = 1; }
                     break;
                 case "analyze":
-                    _player.YourTurn(_board, new ChessTimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));
+                    _player.YourTurn(_board, new TimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));
                     break;
                 //custom stuff for debugging
                 case "setpos1":

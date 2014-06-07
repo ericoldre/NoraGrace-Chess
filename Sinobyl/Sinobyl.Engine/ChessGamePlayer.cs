@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
         public event EventHandler Resigned;
 
         public abstract void TurnStop();
-        public abstract void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, ChessTimeControl timeControl, TimeSpan timeLeft);
+        public abstract void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft);
         public abstract string Name { get; }
 
         protected virtual void OnMovePlayed(ChessMove move)
@@ -36,7 +36,7 @@ namespace Sinobyl.Engine
         }
 
 
-        public void YourTurn(ChessBoard board, ChessTimeControl timeControl, TimeSpan timeLeft)
+        public void YourTurn(ChessBoard board, TimeControl timeControl, TimeSpan timeLeft)
         {
             //need to extrapolate previous moves and initial position from board
             ChessMoves moves = board.HistoryMoves;
@@ -177,7 +177,7 @@ namespace Sinobyl.Engine
             search.Abort(false);
         }
 
-        public override void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, ChessTimeControl timeControl, TimeSpan timeLeft)
+        public override void YourTurn(ChessFEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft)
         {
             //ChessSearch a = new ChessSearch(game.FENCurrent);
 

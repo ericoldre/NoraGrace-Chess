@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public abstract class ChessTimeControlGeneric<T>
+    public abstract class TimeControlGeneric<T>
     {
         public T InitialAmount { get; set; }
         public T BonusAmount { get; set; }
@@ -26,11 +26,11 @@ namespace Sinobyl.Engine
         public abstract T Multiply(T x, double y);
     }
 
-    public class ChessTimeControl: ChessTimeControlGeneric<TimeSpan>
+    public class TimeControl: TimeControlGeneric<TimeSpan>
     {
 
 
-        public ChessTimeControl()
+        public TimeControl()
         {
             InitialAmount = TimeSpan.FromMinutes(1);
             BonusAmount = TimeSpan.FromSeconds(1);
@@ -39,23 +39,23 @@ namespace Sinobyl.Engine
         }
 
 
-        public ChessTimeControl(TimeSpan a_InitialTime, TimeSpan a_BonusAmount, int a_BonusEveryXMoves)
+        public TimeControl(TimeSpan a_InitialTime, TimeSpan a_BonusAmount, int a_BonusEveryXMoves)
         {
             InitialAmount = a_InitialTime;
             BonusEveryXMoves = a_BonusEveryXMoves;
             BonusAmount = a_BonusAmount;
         }
-        public static ChessTimeControl Blitz(int a_Minutes, int a_Seconds)
+        public static TimeControl Blitz(int a_Minutes, int a_Seconds)
         {
-            return new ChessTimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromSeconds(a_Seconds), 1);
+            return new TimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromSeconds(a_Seconds), 1);
         }
-        public static ChessTimeControl TotalGame(int a_Minutes)
+        public static TimeControl TotalGame(int a_Minutes)
         {
-            return new ChessTimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromSeconds(0), 0);
+            return new TimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromSeconds(0), 0);
         }
-        public static ChessTimeControl MovesInMinutes(int a_Minutes, int a_Moves)
+        public static TimeControl MovesInMinutes(int a_Minutes, int a_Moves)
         {
-            return new ChessTimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromMinutes(a_Minutes), a_Moves);
+            return new TimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromMinutes(a_Minutes), a_Moves);
         }
 
         public override TimeSpan Add(TimeSpan x, TimeSpan y)
@@ -98,7 +98,7 @@ namespace Sinobyl.Engine
 
     }
 
-    public class ChessTimeControlNodes : ChessTimeControlGeneric<int>
+    public class TimeControlNodes : TimeControlGeneric<int>
     {
         public override int Add(int x, int y)
         {

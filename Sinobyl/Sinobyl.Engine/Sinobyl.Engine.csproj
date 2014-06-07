@@ -78,7 +78,7 @@
     <Compile Include="Rank.cs" />
     <Compile Include="ChessSearch.cs" />
     <Compile Include="ChessSearchAsync.cs" />
-    <Compile Include="ChessTimeControl.cs" />
+    <Compile Include="TimeControl.cs" />
     <Compile Include="TranspositionTable.cs" />
     <Compile Include="Zobrist.cs" />
     <Compile Include="EventArgs.cs" />

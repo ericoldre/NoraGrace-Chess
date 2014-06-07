@@ -9,7 +9,7 @@ namespace Sinobyl.EvalTune
 {
     public class DeterministicChallenge
     {
-        public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<DeterministicPlayer>> competitors, IEnumerable<ChessPGN> startingPositions, ChessTimeControlNodes timeControl, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
+        public static ChessMatchResults RunParallelRoundRobinMatch(IEnumerable<Func<DeterministicPlayer>> competitors, IEnumerable<ChessPGN> startingPositions, TimeControlNodes timeControl, Action<ChessMatchProgress> onGameCompleted = null, bool isGauntlet = false)
         {
 
             ChessMatchResults retval = new ChessMatchResults();
@@ -65,7 +65,7 @@ namespace Sinobyl.EvalTune
         }
 
 
-        public static ChessPGN Game(DeterministicPlayer white, DeterministicPlayer black, ChessFEN gameStartPosition, IEnumerable<ChessMove> initalMoves, ChessTimeControlNodes timeControl)
+        public static ChessPGN Game(DeterministicPlayer white, DeterministicPlayer black, ChessFEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControlNodes timeControl)
         {
             ChessResult? gameResult = null;
             ChessResultReason reason = ChessResultReason.Unknown;

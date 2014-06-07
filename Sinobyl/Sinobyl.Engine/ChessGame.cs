@@ -11,7 +11,7 @@ namespace Sinobyl.Engine
     
     public class ChessGameOptions
     {
-        public ChessTimeControl TimeControl;
+        public TimeControl TimeControl;
         public bool TimeControlEnforced = true;
         public ChessGamePlayerPersonality WhiteAI;
         public ChessGamePlayerPersonality BlackAI;
@@ -31,7 +31,7 @@ namespace Sinobyl.Engine
         //properties that are locked once the game starts
         private ChessGamePlayer _white;
         private ChessGamePlayer _black;
-        private ChessTimeControl _timecontrol = ChessTimeControl.Blitz(1, 0);
+        private TimeControl _timecontrol = TimeControl.Blitz(1, 0);
         private bool _timeControlEnforced = true;
         private ReadOnlyCollection<ChessMove> _startMoves = new ReadOnlyCollection<ChessMove>(new ChessMoves());
         private ChessFEN _startFEN = new ChessFEN(ChessFEN.FENStart);
@@ -148,7 +148,7 @@ namespace Sinobyl.Engine
                 PlayerHandlersAdd(_black);
             }
         }
-        public ChessTimeControl TimeControl
+        public TimeControl TimeControl
         {
             get
             {

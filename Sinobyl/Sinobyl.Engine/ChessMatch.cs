@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
     public interface IChessGamePlayer
     {
         string Name { get; }
-        ChessMove Move(ChessFEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, ChessTimeControl timeControls, TimeSpan timeLeft, out string Comment);
+        ChessMove Move(ChessFEN gameStartPosition, IEnumerable<ChessMove> movesAlreadyPlayed, TimeControl timeControls, TimeSpan timeLeft, out string Comment);
     }
 
     public class ChessMatchResults: List<ChessPGN>
@@ -122,7 +122,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public static ChessPGN Game(IChessGamePlayer white, IChessGamePlayer black, ChessFEN gameStartPosition, IEnumerable<ChessMove> initalMoves, ChessTimeControl timeControl)
+        public static ChessPGN Game(IChessGamePlayer white, IChessGamePlayer black, ChessFEN gameStartPosition, IEnumerable<ChessMove> initalMoves, TimeControl timeControl)
         {
             ChessResult? gameResult = null;
             ChessResultReason reason = ChessResultReason.Unknown;

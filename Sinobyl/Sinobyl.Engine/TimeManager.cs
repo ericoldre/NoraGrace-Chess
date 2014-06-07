@@ -126,7 +126,7 @@ namespace Sinobyl.Engine
     public class TimeManagerBasic : TimeManagerBase
     {
 
-        public ChessTimeControl TimeControl { get; set; }
+        public TimeControl TimeControl { get; set; }
         public DateTime ClockEnd { get; set; }
         public DateTime StopAtTime { get; private set; }
         
@@ -342,7 +342,7 @@ namespace Sinobyl.Engine
     public abstract class TimeManagerGeneric<TUnit> : TimeManagerComplexity
     {
         //used as inputs
-        public ChessTimeControlGeneric<TUnit> TimeControl { get; set; }
+        public TimeControlGeneric<TUnit> TimeControl { get; set; }
         public TUnit AmountOnClock { get; set; }
 
         //

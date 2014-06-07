@@ -624,16 +624,14 @@ namespace Sinobyl.Engine
                 return _histCount;
 			}
 		}
-		public ChessMoves HistoryMoves
+		public IEnumerable<ChessMove> HistoryMoves
 		{
 			get
 			{
-				ChessMoves retval = new ChessMoves();
                 for (int i = 0; i < _histCount; i++)
                 {
-                    retval.Add(_hist[i].Move);
+                    yield return _hist[i].Move;
                 }
-				return retval;
 			}
 		}
 		public ChessMove HistMove(int MovesAgo)

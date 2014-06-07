@@ -112,7 +112,7 @@ namespace Sinobyl.Engine
 			public readonly TimeSpan Time;
 			public readonly ReadOnlyCollection<ChessMove> PrincipleVariation;
             public readonly FEN FEN;
-			public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, ChessMoves a_pv, FEN a_fen)
+            public Progress(int a_depth, int a_nodes, int a_score, TimeSpan a_time, List<ChessMove> a_pv, FEN a_fen)
 			{
                 if (a_pv == null) { throw new ArgumentNullException("a_pv"); }
                 if (a_fen == null) { throw new ArgumentNullException("a_fen"); }
@@ -179,7 +179,7 @@ namespace Sinobyl.Engine
 		public class Args
 		{
 			public FEN GameStartPosition { get; set; }
-			public ChessMoves GameMoves { get; set; }
+            public List<ChessMove> GameMoves { get; set; }
 			public int MaxDepth { get; set; }
 			public int NodesPerSecond { get; set; }
 			public TranspositionTable TransTable { get; set; }
@@ -194,7 +194,7 @@ namespace Sinobyl.Engine
 			public Args()
 			{
                 GameStartPosition = new FEN(FEN.FENStart);
-				GameMoves = new ChessMoves();
+                GameMoves = new List<ChessMove>();
 				MaxDepth = int.MaxValue;
 				NodesPerSecond = int.MaxValue;
 				Blunder = new BlunderChance();
@@ -219,7 +219,7 @@ namespace Sinobyl.Engine
 		private DateTime _starttime;
 		private bool _aborting = false;
 		private bool _returnBestResult = true; //if false return null
-		private ChessMoves _bestvariation = new ChessMoves();
+        private List<ChessMove> _bestvariation = new List<ChessMove>();
 		private int _bestvariationscore = 0;
 
         private readonly MovePicker.Stack _moveBuffer = new MovePicker.Stack();
@@ -443,7 +443,7 @@ namespace Sinobyl.Engine
                     _currentPV[0] = move;
 
 					//save instance best info
-					_bestvariation = new ChessMoves(GetLegalPV(this.board.FENCurrent, _currentPV));
+					_bestvariation = GetLegalPV(this.board.FENCurrent, _currentPV);
 					_bestvariationscore = alpha;
 
 					//store to trans table

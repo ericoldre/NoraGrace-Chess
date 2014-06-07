@@ -438,7 +438,7 @@ namespace Sinobyl.Engine
 		{
 			ChessPGNHeaders headers = new ChessPGNHeaders();
             Dictionary<int, string> comments = new Dictionary<int, string>();
-			ChessMoves moves = new ChessMoves();
+            List<ChessMove> moves = new List<ChessMove>();
 			GameResult? result = null;
 			GameResultReason reason = GameResultReason.NotDecided;
 			Board board = new Board();

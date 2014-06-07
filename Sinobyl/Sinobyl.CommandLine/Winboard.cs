@@ -62,7 +62,7 @@ namespace Sinobyl.CommandLine
             {
                 Board board = new Board(e.Progress.FEN);
 
-                string pvstring = new ChessMoves(e.Progress.PrincipleVariation).ToString(board, true);
+                string pvstring = e.Progress.PrincipleVariation.Descriptions(board, true);
                 
                 string output = string.Format("{0} {1} {2} {3} {4}", e.Progress.Depth, e.Progress.Score, Math.Round(e.Progress.Time.TotalMilliseconds / 10), e.Progress.Nodes, pvstring);
                 Program.ConsoleWriteline(output);
@@ -239,7 +239,7 @@ namespace Sinobyl.CommandLine
 
 
 			//need to extrapolate previous moves and initial position from board
-			ChessMoves moves = _board.HistoryMoves;
+            List<ChessMove> moves = _board.HistoryMoves.ToList();
 			int moveCount = moves.Count;
 			for (int i = 0; i < moveCount; i++)
 			{

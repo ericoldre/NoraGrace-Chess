@@ -674,7 +674,7 @@ namespace Sinobyl.Engine
         }
 
 
-        private static void AddDirection(ChessMoves retval, Board board, Position from, Direction dir, Player forwho, int maxdist, bool CapsOnly)
+        private static void AddDirection(List<ChessMove> retval, Board board, Position from, Direction dir, Player forwho, int maxdist, bool CapsOnly)
         {
             Position to = from.PositionInDirection(dir);
             int i = 1;

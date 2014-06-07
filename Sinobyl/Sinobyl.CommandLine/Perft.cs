@@ -16,7 +16,7 @@ namespace Sinobyl.CommandLine
         {
             Board board = new Board();
             ChessEval eval = new ChessEval();
-            ChessMoves movesDone = new ChessMoves();
+            List<ChessMove> movesDone = new List<ChessMove>();
             TranspositionTable transTable = new TranspositionTable();
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
@@ -38,7 +38,7 @@ namespace Sinobyl.CommandLine
                 ChessSearch search = new ChessSearch(args);
                 search.ProgressReported += (s, e) => 
                 {
-                    Program.ConsoleWriteline(string.Format("\t{1} {0}", new ChessMoves(e.Progress.PrincipleVariation).ToString(board, true), e.Progress.Depth));
+                    Program.ConsoleWriteline(string.Format("\t{1} {0}", e.Progress.PrincipleVariation.Descriptions(board, true), e.Progress.Depth));
                 };
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var searchResults = search.Search();
@@ -222,12 +222,12 @@ namespace Sinobyl.CommandLine
                         eval.PassedPawns,
                         eval.CandidatePawns);
 
-                    if (pgn.Comments.ContainsKey(board.HistoryMoves.Count - 1))
+                    if (pgn.Comments.ContainsKey(board.HistoryCount - 1))
                     {
-                        evalComment = pgn.Comments[board.HistoryMoves.Count - 1] + " " + evalComment;
-                        pgn.Comments.Remove(board.HistoryMoves.Count - 1);
+                        evalComment = pgn.Comments[board.HistoryCount - 1] + " " + evalComment;
+                        pgn.Comments.Remove(board.HistoryCount - 1);
                     }
-                    pgn.Comments.Add(board.HistoryMoves.Count - 1, evalComment);
+                    pgn.Comments.Add(board.HistoryCount - 1, evalComment);
 
                 }
             }

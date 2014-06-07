@@ -16,54 +16,6 @@ namespace Sinobyl.Engine
 		Detailed
 	}
 
-	public class ChessMoves : List<ChessMove>
-	{
-		public ChessMoves()
-		{
-
-		}
-		public ChessMoves(IEnumerable<ChessMove> moves)
-			: base(moves)
-		{
-
-		}
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (ChessMove move in this)
-            {
-                sb.Append(move.Description()+ " ");
-            }
-            return sb.ToString();
-        }
-		public string ToString(Board board, bool isVariation)
-		{
-			StringBuilder sb = new StringBuilder();
-			long zobInit = board.ZobristBoard;
-			foreach (ChessMove move in this)
-			{
-				if (isVariation && board.WhosTurn==Player.White)
-				{
-					sb.Append(board.FullMoveCount.ToString() + ". ");
-				}
-				sb.Append(move.Description(board) + " ");
-				if (isVariation)
-				{
-					board.MoveApply(move);
-				}
-			}
-			if (isVariation)
-			{
-				foreach (ChessMove move in this)
-				{
-					board.MoveUndo();
-				}
-			}
-			return sb.ToString();
-		}
-
-	}
-
     [System.Diagnostics.DebuggerDisplay(@"{Sinobyl.Engine.ChessMoveInfo.Description(this),nq}")]
     public enum ChessMove 
     {
@@ -296,7 +248,7 @@ namespace Sinobyl.Engine
             if (fits.Count > 1)
 			{
 				//ambigous moves, one is probably illegal, check against legal move list
-                ChessMoves allLegal = new ChessMoves(ChessMoveInfo.GenMovesLegal(board));
+                List<ChessMove> allLegal = new List<ChessMove>(ChessMoveInfo.GenMovesLegal(board));
                 fits.Clear();
 				foreach (ChessMove move in allLegal)
 				{
@@ -319,7 +271,7 @@ namespace Sinobyl.Engine
 
         public static bool IsLegal(this ChessMove move, Board board)
         {
-            ChessMoves legalmoves = new ChessMoves(ChessMoveInfo.GenMovesLegal(board));
+            List<ChessMove> legalmoves = new List<ChessMove>(ChessMoveInfo.GenMovesLegal(board));
             foreach (ChessMove legalmove in legalmoves)
             {
                 if (legalmove == move) { return true; }
@@ -581,7 +533,31 @@ namespace Sinobyl.Engine
 
         }
 
-
+        public static string Descriptions(this IEnumerable<ChessMove> moves, Board board, bool isVariation)
+        {
+            StringBuilder sb = new StringBuilder();
+            long zobInit = board.ZobristBoard;
+            foreach (ChessMove move in moves)
+            {
+                if (isVariation && board.WhosTurn == Player.White)
+                {
+                    sb.Append(board.FullMoveCount.ToString() + ". ");
+                }
+                sb.Append(move.Description(board) + " ");
+                if (isVariation)
+                {
+                    board.MoveApply(move);
+                }
+            }
+            if (isVariation)
+            {
+                foreach (ChessMove move in moves)
+                {
+                    board.MoveUndo();
+                }
+            }
+            return sb.ToString();
+        }
 	}
 
 

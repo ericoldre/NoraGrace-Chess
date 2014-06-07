@@ -33,12 +33,12 @@ namespace Sinobyl.Engine
         private ChessGamePlayer _black;
         private TimeControl _timecontrol = TimeControl.Blitz(1, 0);
         private bool _timeControlEnforced = true;
-        private ReadOnlyCollection<ChessMove> _startMoves = new ReadOnlyCollection<ChessMove>(new ChessMoves());
+        private ReadOnlyCollection<ChessMove> _startMoves = new ReadOnlyCollection<ChessMove>(new List<ChessMove>());
         private FEN _startFEN = new FEN(FEN.FENStart);
 
         private bool _started = false;
         private readonly Board _board = new Board();
-        private readonly ChessMoves _moves = new ChessMoves();
+        private readonly List<ChessMove> _moves = new List<ChessMove>();
         public GameResult? _result = null;
         public GameResultReason _resultReason = GameResultReason.NotDecided;
         private TimeSpan[] _timeRemainingForPlayer = new TimeSpan[2];
@@ -80,7 +80,7 @@ namespace Sinobyl.Engine
                     OnGameMoveUndo(moveUndoing);
                 }
             }
-            PlayerWhosTurn.YourTurn(this._startFEN, new ChessMoves(this.MoveHistory()), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
+            PlayerWhosTurn.YourTurn(this._startFEN, this.MoveHistory(), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
 
         }
 
@@ -240,7 +240,7 @@ namespace Sinobyl.Engine
 
             OnGameStarted();
 
-            PlayerWhosTurn.YourTurn(this._startFEN, new ChessMoves(this.MoveHistory()), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
+            PlayerWhosTurn.YourTurn(this._startFEN, this.MoveHistory(), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
         }
 
         protected virtual void OnGameStarted()
@@ -353,7 +353,7 @@ namespace Sinobyl.Engine
             if (_result == null)
             {
                 //game still going
-                PlayerWhosTurn.YourTurn(this._startFEN, new ChessMoves(this.MoveHistory()), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
+                PlayerWhosTurn.YourTurn(this._startFEN, this.MoveHistory(), this.TimeControl, this.ClockTime(FENCurrent.whosturn));
             }
             else
             {
@@ -378,7 +378,7 @@ namespace Sinobyl.Engine
         }
         public ReadOnlyCollection<ChessMove> MoveHistory()
         {
-            ChessMoves retval = new ChessMoves(_startMoves);
+            List<ChessMove> retval = new List<ChessMove>(_startMoves);
             retval.AddRange(_moves);
             return new ReadOnlyCollection<ChessMove>(retval);
         }

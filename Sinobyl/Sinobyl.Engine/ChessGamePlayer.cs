@@ -14,7 +14,7 @@ namespace Sinobyl.Engine
         public event EventHandler Resigned;
 
         public abstract void TurnStop();
-        public abstract void YourTurn(FEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft);
+        public abstract void YourTurn(FEN initalPosition, IEnumerable<ChessMove> prevMoves, TimeControl timeControl, TimeSpan timeLeft);
         public abstract string Name { get; }
 
         protected virtual void OnMovePlayed(ChessMove move)
@@ -39,7 +39,7 @@ namespace Sinobyl.Engine
         public void YourTurn(Board board, TimeControl timeControl, TimeSpan timeLeft)
         {
             //need to extrapolate previous moves and initial position from board
-            ChessMoves moves = board.HistoryMoves;
+            List<ChessMove> moves = board.HistoryMoves.ToList();
             int moveCount = moves.Count;
             for (int i = 0; i < moveCount; i++)
             {
@@ -177,7 +177,7 @@ namespace Sinobyl.Engine
             search.Abort(false);
         }
 
-        public override void YourTurn(FEN initalPosition, ChessMoves prevMoves, TimeControl timeControl, TimeSpan timeLeft)
+        public override void YourTurn(FEN initalPosition, IEnumerable<ChessMove> prevMoves, TimeControl timeControl, TimeSpan timeLeft)
         {
             //ChessSearch a = new ChessSearch(game.FENCurrent);
 
@@ -206,7 +206,7 @@ namespace Sinobyl.Engine
 
             ChessSearch.Args args = new ChessSearch.Args();
             args.GameStartPosition = initalPosition;
-            args.GameMoves = new ChessMoves(prevMoves);
+            args.GameMoves = new List<ChessMove>(prevMoves);
             args.MaxDepth = _personality.MaxDepth;
             args.NodesPerSecond = _personality.NodesPerSecond;
             args.Blunder = _personality.Blunder;

@@ -33,7 +33,7 @@ namespace Sinobyl.EvalTune
 
             ChessSearch.Args args = new ChessSearch.Args();
             args.GameStartPosition = gameStartPosition;
-            args.GameMoves = new ChessMoves(movesAlreadyPlayed.ToArray());
+            args.GameMoves = new List<ChessMove>(movesAlreadyPlayed);
             args.TransTable = TransTable;
             args.Eval = Eval;
             args.TimeManager = this.NodeManager;

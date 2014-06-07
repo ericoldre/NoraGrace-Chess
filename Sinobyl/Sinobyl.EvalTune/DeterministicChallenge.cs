@@ -70,8 +70,8 @@ namespace Sinobyl.EvalTune
             GameResult? gameResult = null;
             GameResultReason reason = GameResultReason.Unknown;
 
-            
-            ChessMoves gameMoves = new ChessMoves();
+
+            List<ChessMove> gameMoves = new List<ChessMove>();
             //setup init position
             Board board = new Board(gameStartPosition);
             Dictionary<int, string> comments = new Dictionary<int, string>();

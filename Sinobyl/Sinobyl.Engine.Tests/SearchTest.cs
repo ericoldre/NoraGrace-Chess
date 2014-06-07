@@ -37,7 +37,7 @@ namespace Sinobyl.Engine.Tests
             search.ProgressReported += (s, e) =>
             {
                 Board boardProgress = new Board(e.Progress.FEN);
-                string pvstring = new ChessMoves(e.Progress.PrincipleVariation).ToString(boardProgress, true);
+                string pvstring = e.Progress.PrincipleVariation.Descriptions(boardProgress, true);
                 output = string.Format("{0} {1} {2} {3} {4}", e.Progress.Depth, e.Progress.Score, Math.Round(e.Progress.Time.TotalMilliseconds / 10), e.Progress.Nodes, pvstring);
                 Console.WriteLine(output);
 

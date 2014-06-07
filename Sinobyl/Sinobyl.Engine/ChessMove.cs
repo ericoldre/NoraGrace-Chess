@@ -42,7 +42,7 @@ namespace Sinobyl.Engine
 			long zobInit = board.Zobrist;
 			foreach (ChessMove move in this)
 			{
-				if (isVariation && board.WhosTurn==ChessPlayer.White)
+				if (isVariation && board.WhosTurn==Player.White)
 				{
 					sb.Append(board.FullMoveCount.ToString() + ". ");
 				}
@@ -122,17 +122,17 @@ namespace Sinobyl.Engine
 			movetext = movetext.Replace("#", "");
 			movetext = movetext.Replace("=", "");
 
-			ChessPlayer me = board.WhosTurn;
-			ChessPiece mypawn = board.WhosTurn == ChessPlayer.White ? ChessPiece.WPawn : ChessPiece.BPawn;
-			ChessPiece myknight = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKnight : ChessPiece.BKnight;
-			ChessPiece mybishop = board.WhosTurn == ChessPlayer.White ? ChessPiece.WBishop : ChessPiece.BBishop;
-			ChessPiece myrook = board.WhosTurn == ChessPlayer.White ? ChessPiece.WRook : ChessPiece.BRook;
-			ChessPiece myqueen = board.WhosTurn == ChessPlayer.White ? ChessPiece.WQueen : ChessPiece.BQueen;
-			ChessPiece myking = board.WhosTurn == ChessPlayer.White ? ChessPiece.WKing : ChessPiece.BKing;
+			Player me = board.WhosTurn;
+			ChessPiece mypawn = board.WhosTurn == Player.White ? ChessPiece.WPawn : ChessPiece.BPawn;
+			ChessPiece myknight = board.WhosTurn == Player.White ? ChessPiece.WKnight : ChessPiece.BKnight;
+			ChessPiece mybishop = board.WhosTurn == Player.White ? ChessPiece.WBishop : ChessPiece.BBishop;
+			ChessPiece myrook = board.WhosTurn == Player.White ? ChessPiece.WRook : ChessPiece.BRook;
+			ChessPiece myqueen = board.WhosTurn == Player.White ? ChessPiece.WQueen : ChessPiece.BQueen;
+			ChessPiece myking = board.WhosTurn == Player.White ? ChessPiece.WKing : ChessPiece.BKing;
 
-			ChessDirection mynorth = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirN : ChessDirection.DirS;
-			ChessDirection mysouth = board.WhosTurn == ChessPlayer.White ? ChessDirection.DirS : ChessDirection.DirN;
-			Rank myrank4 = board.WhosTurn == ChessPlayer.White ? Rank.Rank4 : Rank.Rank5;
+			Direction mynorth = board.WhosTurn == Player.White ? Direction.DirN : Direction.DirS;
+			Direction mysouth = board.WhosTurn == Player.White ? Direction.DirS : Direction.DirN;
+			Rank myrank4 = board.WhosTurn == Player.White ? Rank.Rank4 : Rank.Rank5;
 
 
 			ChessPosition tmppos;
@@ -156,7 +156,7 @@ namespace Sinobyl.Engine
 			}
 			else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
 			{
-				if (me == ChessPlayer.White)
+				if (me == Player.White)
 				{
 					From = ChessPosition.E1;
 					To = ChessPosition.G1;
@@ -169,7 +169,7 @@ namespace Sinobyl.Engine
 			}
 			else if (movetext == "0-0-0" || movetext == "O-O-O" || movetext == "o-o-o")
 			{
-				if (me == ChessPlayer.White)
+				if (me == Player.White)
 				{
 					From = ChessPosition.E1;
 					To = ChessPosition.C1;
@@ -500,7 +500,7 @@ namespace Sinobyl.Engine
                     {
                         return true;
                     }
-                    else if(me== ChessPlayer.White
+                    else if(me== Player.White
                         && from == ChessPosition.E1
                         && to == ChessPosition.G1
                         && board.PieceAt(ChessPosition.F1) == ChessPiece.EMPTY
@@ -512,7 +512,7 @@ namespace Sinobyl.Engine
                     {
                         return true;
                     }
-                    else if (me == ChessPlayer.White
+                    else if (me == Player.White
                         && from == ChessPosition.E1
                         && to == ChessPosition.C1
                         && board.PieceAt(ChessPosition.B1) == ChessPiece.EMPTY
@@ -525,7 +525,7 @@ namespace Sinobyl.Engine
                     {
                         return true;
                     }
-                    else if (me == ChessPlayer.Black
+                    else if (me == Player.Black
                         && from == ChessPosition.E8
                         && to == ChessPosition.G8
                         && board.PieceAt(ChessPosition.F8) == ChessPiece.EMPTY
@@ -537,7 +537,7 @@ namespace Sinobyl.Engine
                     {
                         return true;
                     }
-                    else if (me == ChessPlayer.Black
+                    else if (me == Player.Black
                         && from == ChessPosition.E8
                         && to == ChessPosition.C8
                         && board.PieceAt(ChessPosition.B8) == ChessPiece.EMPTY

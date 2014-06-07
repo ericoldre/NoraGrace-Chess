@@ -88,7 +88,7 @@ namespace Sinobyl.Engine
             get { return _castleBL; }
 			
 		}
-		public static Int64 Player
+		public static Int64 PlayerKey
 		{
             get { return _player; }
 		}
@@ -129,9 +129,9 @@ namespace Sinobyl.Engine
 					retval ^= PiecePosition(piece, pos);
 				}
 			}
-			if (board.WhosTurn == ChessPlayer.Black)
+			if (board.WhosTurn == Player.Black)
 			{
-				retval ^= ChessZobrist.Player;
+				retval ^= ChessZobrist.PlayerKey;
 			}
             if ((board.CastleRights & CastleFlags.WhiteShort) != 0)
 			{

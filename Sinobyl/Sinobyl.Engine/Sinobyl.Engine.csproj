@@ -49,17 +49,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attacks.cs" />
-    <Compile Include="ChessBitboard.cs" />
+    <Compile Include="Bitboard.cs" />
     <Compile Include="ChessBoard.cs" />
     <Compile Include="ChessBook.cs" />
-    <Compile Include="ChessDirection.cs" />
+    <Compile Include="Direction.cs" />
     <Compile Include="ChessEval.cs" />
     <Compile Include="ChessEvalInfo.cs" />
     <Compile Include="ChessEvalMaterial.cs" />
     <Compile Include="ChessEvalPawns.cs" />
     <Compile Include="ChessEvalSettings.cs" />
     <Compile Include="ChessFEN.cs" />
-    <Compile Include="ChessFile.cs" />
+    <Compile Include="File.cs" />
     <Compile Include="ChessGame.cs" />
     <Compile Include="ChessGamePlayer.cs" />
     <Compile Include="ChessGameStage.cs" />
@@ -73,7 +73,7 @@
     <Compile Include="ChessPGN.cs" />
     <Compile Include="ChessPiece.cs" />
     <Compile Include="ChessPieceType.cs" />
-    <Compile Include="ChessPlayer.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="ChessPosition.cs" />
     <Compile Include="ChessRank.cs" />
     <Compile Include="ChessSearch.cs" />

@@ -18,7 +18,7 @@ namespace Sinobyl.Engine
 
             ChessPiece mover = board.PieceAt(move.From());
             ChessPiece taken = board.PieceAt(move.To());
-            ChessPlayer me = mover.PieceToPlayer();
+            Player me = mover.PieceToPlayer();
 
 
 
@@ -40,7 +40,7 @@ namespace Sinobyl.Engine
 
             return retval;
         }
-        static int attackswap(ChessBoard board, Bitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
+        static int attackswap(ChessBoard board, Bitboard attacks, Player player, ChessPosition positionattacked, int pieceontargetval)
         {
             int nextAttackPieceVal = 0;
             ChessPosition nextAttackPos = 0;
@@ -60,7 +60,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        static bool attackpop(ChessBoard board, ref Bitboard attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
+        static bool attackpop(ChessBoard board, ref Bitboard attacks, Player player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
         {
 
             OutFrom = ChessPosition.OUTOFBOUNDS;
@@ -104,7 +104,7 @@ namespace Sinobyl.Engine
                 return false;
             }
 
-            ChessDirection addAttackFrom = positionattacked.DirectionTo(OutFrom);
+            Direction addAttackFrom = positionattacked.DirectionTo(OutFrom);
             if (!addAttackFrom.IsDirectionKnight())
             {
                 ChessPosition AddPosition = 0;

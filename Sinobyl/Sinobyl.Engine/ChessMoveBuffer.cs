@@ -158,7 +158,7 @@ namespace Sinobyl.Engine
                 PhasedScore pcSq = 0;
                 board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
                 board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
-                if (board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
+                if (board.WhosTurn == Player.Black) { pcSq = pcSq.Negate(); }
 
                 int see = 0;
 

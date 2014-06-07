@@ -11,7 +11,7 @@ namespace Sinobyl.Engine.Tests
     {
         static Random rand = new Random(0);
 
-        private static Bitboard bitboard_to_attacks_calc(Bitboard piecelocations, ChessDirection dir, ChessPosition position)
+        private static Bitboard bitboard_to_attacks_calc(Bitboard piecelocations, Direction dir, ChessPosition position)
         {
             Bitboard retval = 0;
             for (; ; )

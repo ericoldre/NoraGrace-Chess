@@ -86,8 +86,8 @@ namespace Sinobyl.EvalTune
             
             while (gameResult == null)
             {
-                DeterministicPlayer player = board.WhosTurn == ChessPlayer.White ? white : black;
-                int playerClock = board.WhosTurn == ChessPlayer.White ? whiteClock : blackClock;
+                DeterministicPlayer player = board.WhosTurn == Player.White ? white : black;
+                int playerClock = board.WhosTurn == Player.White ? whiteClock : blackClock;
 
                 string moveComment = null;
                 int nodesUsed = 0;
@@ -95,11 +95,11 @@ namespace Sinobyl.EvalTune
                 var bestMove = player.Move(gameStartPosition, gameMoves.ToArray(), timeControl, playerClock, out moveComment, out nodesUsed);
 
                 int playerClockNew = timeControl.CalcNewTimeLeft(playerClock, nodesUsed, board.FullMoveCount);
-                if (board.WhosTurn == ChessPlayer.White) { whiteClock = playerClockNew; } else { blackClock = playerClockNew; }
+                if (board.WhosTurn == Player.White) { whiteClock = playerClockNew; } else { blackClock = playerClockNew; }
 
                 if (bestMove == ChessMove.EMPTY)
                 {
-                    gameResult = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                    gameResult = board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
                     reason = ChessResultReason.Resign;
                     break;
                 }
@@ -118,7 +118,7 @@ namespace Sinobyl.EvalTune
                 else
                 {
                     reason = ChessResultReason.IllegalMove;
-                    gameResult = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                    gameResult = board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
                 }
 
             }
@@ -135,7 +135,7 @@ namespace Sinobyl.EvalTune
             _resultReason = ChessResultReason.Unknown;
             if (_board.IsMate())
             {
-                _result = _board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                _result = _board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
                 _resultReason = ChessResultReason.Checkmate;
             }
             else if (_board.IsDrawBy50MoveRule())

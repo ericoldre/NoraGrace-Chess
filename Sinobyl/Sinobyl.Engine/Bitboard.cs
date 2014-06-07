@@ -110,7 +110,7 @@ namespace Sinobyl.Engine
                 | ((ulong)(bits & Bitboard.Rank8) << 56));
         }
 
-        public static Bitboard Flood(this Bitboard bits, ChessDirection dir)
+        public static Bitboard Flood(this Bitboard bits, Direction dir)
         {
             while (true)
             {
@@ -121,41 +121,41 @@ namespace Sinobyl.Engine
             return bits;
         }
 
-        public static Bitboard Shift(this Bitboard bits, ChessDirection dir)
+        public static Bitboard Shift(this Bitboard bits, Direction dir)
         {
             switch (dir)
             {
-                case ChessDirection.DirN:
+                case Direction.DirN:
                     return bits.ShiftDirN();
-                case ChessDirection.DirE:
+                case Direction.DirE:
                     return bits.ShiftDirE();
-                case ChessDirection.DirS:
+                case Direction.DirS:
                     return bits.ShiftDirS();
-                case ChessDirection.DirW:
+                case Direction.DirW:
                     return bits.ShiftDirW();
-                case ChessDirection.DirNE:
+                case Direction.DirNE:
                     return bits.ShiftDirNE();
-                case ChessDirection.DirSE:
+                case Direction.DirSE:
                     return bits.ShiftDirSE();
-                case ChessDirection.DirSW:
+                case Direction.DirSW:
                     return bits.ShiftDirSW();
-                case ChessDirection.DirNW:
+                case Direction.DirNW:
                     return bits.ShiftDirNW();
-                case ChessDirection.DirNNE:
+                case Direction.DirNNE:
                     return bits.ShiftDirNE().ShiftDirN();
-                case ChessDirection.DirEEN:
+                case Direction.DirEEN:
                     return bits.ShiftDirNE().ShiftDirE();
-                case ChessDirection.DirEES:
+                case Direction.DirEES:
                     return bits.ShiftDirSE().ShiftDirE();
-                case ChessDirection.DirSSE:
+                case Direction.DirSSE:
                     return bits.ShiftDirSE().ShiftDirS();
-                case ChessDirection.DirSSW:
+                case Direction.DirSSW:
                     return bits.ShiftDirSW().ShiftDirS();
-                case ChessDirection.DirWWS:
+                case Direction.DirWWS:
                     return bits.ShiftDirSW().ShiftDirW();
-                case ChessDirection.DirWWN:
+                case Direction.DirWWN:
                     return bits.ShiftDirNW().ShiftDirW();
-                case ChessDirection.DirNNW:
+                case Direction.DirNNW:
                     return bits.ShiftDirNW().ShiftDirN();
                 default:
                     throw new ArgumentOutOfRangeException("dir");

@@ -136,7 +136,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public static ChessPiece ParseAsPiece(this char c, ChessPlayer player)
+        public static ChessPiece ParseAsPiece(this char c, Player player)
         {
             return Parse(c).ToPieceType().ForPlayer(player);
         }
@@ -272,10 +272,10 @@ namespace Sinobyl.Engine
             //        return ChessPiece.EMPTY;
             //}
         }
-        public static ChessPlayer PieceToPlayer(this ChessPiece piece)
+        public static Player PieceToPlayer(this ChessPiece piece)
         {
             System.Diagnostics.Debug.Assert(piece != ChessPiece.EMPTY);
-            return (ChessPlayer)((int)piece >> 3);
+            return (Player)((int)piece >> 3);
 
             //switch (piece)
             //{

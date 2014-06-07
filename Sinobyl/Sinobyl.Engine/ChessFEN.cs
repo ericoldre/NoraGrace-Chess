@@ -11,7 +11,7 @@ namespace Sinobyl.Engine
         public static readonly string FENStart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 		public readonly ChessPiece[] pieceat = new ChessPiece[64];
-		public readonly ChessPlayer whosturn;
+		public readonly Player whosturn;
 		public readonly bool castleWS;
 		public readonly bool castleWL;
 		public readonly bool castleBS;
@@ -22,7 +22,7 @@ namespace Sinobyl.Engine
 
         public ChessFEN(
             ChessPositionDictionary<ChessPiece> Pieces,
-            ChessPlayer WhosTurn = ChessPlayer.White,
+            Player WhosTurn = Player.White,
             bool CastleWS = false,
             bool CastleWL = false,
             bool CastleBS = false,
@@ -133,11 +133,11 @@ namespace Sinobyl.Engine
 			//find the player
 			if (sPlayer == "w")
 			{
-				whosturn = ChessPlayer.White;
+				whosturn = Player.White;
 			}
 			else if (sPlayer == "b")
 			{
-				whosturn = ChessPlayer.Black;
+				whosturn = Player.Black;
 			}
 			else
 			{
@@ -237,7 +237,7 @@ namespace Sinobyl.Engine
 			}
 
 			//player
-			if (whosturn == ChessPlayer.White)
+			if (whosturn == Player.White)
 			{
 				sb.Append(" w ");
 			}

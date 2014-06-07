@@ -1,0 +1,91 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Sinobyl.Engine
+{
+    public enum Player
+    {
+        None = -1,
+        White = 0, Black = 1
+    }
+
+    public sealed class PlayerDictionary<T>
+    {
+        private T[] _values = new T[2];
+
+        [System.Xml.Serialization.XmlIgnore()]
+        public T this[Player player]
+        {
+            get
+            {
+                return _values[(int)player];
+            }
+            set
+            {
+                _values[(int)player] = value;
+            }
+        }
+
+        public T White { get { return this[Player.White]; } set { this[Player.White] = value; } }
+        public T Black { get { return this[Player.Black]; } set { this[Player.Black] = value; } }
+
+        public override bool Equals(object obj)
+        {
+            PlayerDictionary<T> other = obj as PlayerDictionary<T>;
+            if (other == null) { return false; }
+            if (!this.White.Equals(other.White)) { return false; }
+            if (!this.Black.Equals(other.Black)) { return false; }
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;//randomly choosen prime
+                foreach (var index in PlayerInfo.AllPlayers)
+                {
+                    T field = this[index];
+                    int fieldHash = 6823; //randomly choosen prime
+                    if (field != null)
+                    {
+                        fieldHash = field.GetHashCode();
+                    }
+                    hash = (hash * 23) + fieldHash;
+                }
+                return hash;
+            }
+        }
+    }
+    
+    public static class PlayerInfo
+    {
+        public static readonly Player[] AllPlayers = new Player[] { Player.White, Player.Black };
+
+        public static Player PlayerOther(this Player player)
+        {
+            System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);
+            return (Player)((int)player ^ 1);
+        }
+
+        public static Direction MyNorth(this Player player)
+        {
+            System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);
+            return player == Player.White ? Direction.DirN : Direction.DirS;
+        }
+
+        public static Rank MyRank2(this Player player)
+        {
+            System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);
+            return player == Player.White ? Rank.Rank2 : Rank.Rank7;
+        }
+
+        public static Rank MyRank8(this Player player)
+        {
+            System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);
+            return player == Player.White ? Rank.Rank8 : Rank.Rank1;
+        }
+    }
+}

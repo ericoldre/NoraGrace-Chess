@@ -649,7 +649,7 @@ namespace Sinobyl.Engine
 							//check for mate.
 							if (board.IsMate())
 							{
-								if (board.WhosTurn == ChessPlayer.White)
+								if (board.WhosTurn == Player.White)
 								{
 									result = ChessResult.BlackWins;
 									reason = ChessResultReason.Checkmate;

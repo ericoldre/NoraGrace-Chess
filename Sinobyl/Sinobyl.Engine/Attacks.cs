@@ -214,7 +214,7 @@ namespace Sinobyl.Engine
             foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 Bitboard board = 0;
-                foreach (var dir in ChessDirectionInfo.AllDirectionsKnight)
+                foreach (var dir in DirectionInfo.AllDirectionsKnight)
                 {
                     board |= sq.PositionInDirection(dir).ToBitboard();
                 }
@@ -225,7 +225,7 @@ namespace Sinobyl.Engine
             foreach (var sq in ChessPositionInfo.AllPositions)
             {
                 Bitboard board = 0;
-                foreach (var dir in ChessDirectionInfo.AllDirectionsQueen)
+                foreach (var dir in DirectionInfo.AllDirectionsQueen)
                 {
                     board |= sq.PositionInDirection(dir).ToBitboard();
                 }
@@ -233,15 +233,15 @@ namespace Sinobyl.Engine
             }
 
             //pawn attacks
-            foreach(ChessPlayer player in ChessPlayerInfo.AllPlayers)
+            foreach(Player player in PlayerInfo.AllPlayers)
             {
                 _attacks_from_pawn_lu[(int)player] = new Bitboard[65];
                 _attacks_from_pawn_flood_lu[(int)player] = new Bitboard[65];
                 foreach (var sq in ChessPositionInfo.AllPositions)
                 {
                     Bitboard board = 0;
-                    board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(ChessDirection.DirE).ToBitboard();
-                    board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(ChessDirection.DirW).ToBitboard();
+                    board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(Direction.DirE).ToBitboard();
+                    board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(Direction.DirW).ToBitboard();
 
                     _attacks_from_pawn_lu[(int)player][sq.GetIndex64()] = board;
                     board = board.Flood(player.MyNorth());
@@ -283,12 +283,12 @@ namespace Sinobyl.Engine
             return _attacks_from_king_lu[from.GetIndex64()];
         }
 
-        public static Bitboard PawnAttacks(ChessPosition from, ChessPlayer player)
+        public static Bitboard PawnAttacks(ChessPosition from, Player player)
         {
             return _attacks_from_pawn_lu[(int)player][(int)from];
         }
 
-        public static Bitboard PawnAttacksFlood(ChessPosition from, ChessPlayer player)
+        public static Bitboard PawnAttacksFlood(ChessPosition from, Player player)
         {
             return _attacks_from_pawn_flood_lu[(int)player][(int)from];
         }
@@ -321,7 +321,7 @@ namespace Sinobyl.Engine
         private static Bitboard RookMask(ChessPosition position)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsRook)
+            foreach (Direction dir in DirectionInfo.AllDirectionsRook)
             {
                 ChessPosition p = position.PositionInDirection(dir);
                 ChessPosition next = p.PositionInDirection(dir);
@@ -338,7 +338,7 @@ namespace Sinobyl.Engine
         private static Bitboard BishopMask(ChessPosition position)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsBishop)
+            foreach (Direction dir in DirectionInfo.AllDirectionsBishop)
             {
                 ChessPosition p = position.PositionInDirection(dir);
                 while (p.PositionInDirection(dir) != ChessPosition.OUTOFBOUNDS)
@@ -353,7 +353,7 @@ namespace Sinobyl.Engine
         private static Bitboard RookAttacksCalc(ChessPosition position, Bitboard blockers)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsRook)
+            foreach (Direction dir in DirectionInfo.AllDirectionsRook)
             {
                 ChessPosition p = position.PositionInDirection(dir);
                 while (p != ChessPosition.OUTOFBOUNDS)
@@ -369,7 +369,7 @@ namespace Sinobyl.Engine
         private static Bitboard BishopAttacksCalc(ChessPosition position, Bitboard blockers)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (ChessDirection dir in ChessDirectionInfo.AllDirectionsBishop)
+            foreach (Direction dir in DirectionInfo.AllDirectionsBishop)
             {
                 ChessPosition p = position.PositionInDirection(dir);
                 while (p != ChessPosition.OUTOFBOUNDS)

@@ -190,12 +190,12 @@ namespace Sinobyl.Engine
             get { return _eval; }
         }
 
-        public int EvalFor(int ply, ChessBoard board, ChessPlayer player, out ChessEvalInfo info, int alpha, int beta)
+        public int EvalFor(int ply, ChessBoard board, Player player, out ChessEvalInfo info, int alpha, int beta)
         {
             System.Diagnostics.Debug.Assert(alpha >= ChessEval.MinValue);
             System.Diagnostics.Debug.Assert(beta <= ChessEval.MaxValue);
 
-            if (player == ChessPlayer.White)
+            if (player == Player.White)
             {
                 return Eval(ply, board, out info, alpha, beta);
             }

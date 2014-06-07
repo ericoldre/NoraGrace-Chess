@@ -173,7 +173,7 @@ namespace Sinobyl.Engine
                 PhasedScore pcSq = 0;
                 _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
                 _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
-                if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
+                if (_board.WhosTurn == Player.Black) { pcSq = pcSq.Negate(); }
                 _array[i].PcSq = pcSq.Opening();
 
                 for (int ii = i; ii > 0; ii--)
@@ -283,7 +283,7 @@ namespace Sinobyl.Engine
                 PhasedScore pcSq = 0;
                 _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
                 _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
-                if (_board.WhosTurn == ChessPlayer.Black) { pcSq = pcSq.Negate(); }
+                if (_board.WhosTurn == Player.Black) { pcSq = pcSq.Negate(); }
 
                 _array[i].PcSq = pcSq.Opening();
 

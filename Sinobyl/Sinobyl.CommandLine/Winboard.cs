@@ -11,7 +11,7 @@ namespace Sinobyl.CommandLine
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Winboard));
 		private readonly ChessGamePlayerMurderhole _player = new ChessGamePlayerMurderhole();
 		private readonly ChessBoard _board = new ChessBoard();
-		private ChessPlayer _myplayer = ChessPlayer.Black;
+		private Player _myplayer = Player.Black;
         private ChessTimeControl _timeControl = ChessTimeControl.Blitz(5, 5);
 		private TimeSpan _timeLeft = TimeSpan.FromMinutes(5);
         private readonly ChessEval _staticEval = new ChessEval();
@@ -97,7 +97,7 @@ namespace Sinobyl.CommandLine
 		{
 			if (_board.IsMate())
 			{
-				Program.ConsoleWriteline(_board.WhosTurn == ChessPlayer.White ? "0-1 {Black Mates}" : "1-0 {White Mates}");
+				Program.ConsoleWriteline(_board.WhosTurn == Player.White ? "0-1 {Black Mates}" : "1-0 {White Mates}");
 				return true;
 			}
 			else if (_board.IsDrawBy50MoveRule())
@@ -168,10 +168,10 @@ namespace Sinobyl.CommandLine
                     break;
                 case "new":
                     _board.FEN = new ChessFEN(ChessFEN.FENStart);
-                    _myplayer = ChessPlayer.Black;
+                    _myplayer = Player.Black;
                     break;
                 case "force":
-                    _myplayer = ChessPlayer.None;
+                    _myplayer = Player.None;
                     break;
                 case "go":
                     _myplayer = _board.WhosTurn;

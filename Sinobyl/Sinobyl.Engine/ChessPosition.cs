@@ -120,7 +120,7 @@ namespace Sinobyl.Engine
 
         public static Bitboard Between(this ChessPosition from, ChessPosition to)
         {
-            ChessDirection dir = from.DirectionTo(to);
+            Direction dir = from.DirectionTo(to);
             Bitboard retval = Bitboard.Empty;
             if (dir != 0)
             {
@@ -133,7 +133,7 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        public static ChessDirection DirectionTo(this ChessPosition from, ChessPosition to)
+        public static Direction DirectionTo(this ChessPosition from, ChessPosition to)
         {
 
             Rank rankfrom = from.ToRank();
@@ -143,13 +143,13 @@ namespace Sinobyl.Engine
 
             if (fileto == filefrom)
             {
-                if (rankfrom < rankto) { return ChessDirection.DirS; }
-                return ChessDirection.DirN;
+                if (rankfrom < rankto) { return Direction.DirS; }
+                return Direction.DirN;
             }
             else if (rankfrom == rankto)
             {
-                if (filefrom > fileto) { return ChessDirection.DirW; }
-                return ChessDirection.DirE;
+                if (filefrom > fileto) { return Direction.DirW; }
+                return Direction.DirE;
             }
             int rankchange = rankto - rankfrom;
             int filechange = fileto - filefrom;
@@ -158,7 +158,7 @@ namespace Sinobyl.Engine
             if ((rankchangeabs == 1 && filechangeabs == 2) || (rankchangeabs == 2 && filechangeabs == 1))
             {
                 //knight direction
-                return (ChessDirection)((int)rankchange * 8) + (int)filechange;
+                return (Direction)((int)rankchange * 8) + (int)filechange;
             }
             else if (rankchangeabs != filechangeabs)
             {
@@ -166,76 +166,76 @@ namespace Sinobyl.Engine
             }
             if (rankchange < 0)
             {
-                if (filechange > 0) { return ChessDirection.DirNE; }
-                return ChessDirection.DirNW;
+                if (filechange > 0) { return Direction.DirNE; }
+                return Direction.DirNW;
             }
             else
             {
-                if (filechange > 0) { return ChessDirection.DirSE; }
-                return ChessDirection.DirSW;
+                if (filechange > 0) { return Direction.DirSE; }
+                return Direction.DirSW;
             }
 
         }
 
-        public static ChessPosition PositionInDirectionUnsafe(this ChessPosition pos, ChessDirection dir)
+        public static ChessPosition PositionInDirectionUnsafe(this ChessPosition pos, Direction dir)
         {
             return (ChessPosition)((int)pos + (int)dir);
         }
-        public static ChessPosition PositionInDirection(this ChessPosition pos, ChessDirection dir)
+        public static ChessPosition PositionInDirection(this ChessPosition pos, Direction dir)
         {
             if (!pos.IsInBounds()) { return ChessPosition.OUTOFBOUNDS; }
             File file = pos.ToFile();
             Rank rank = pos.ToRank();
             switch (dir)
             {
-                case ChessDirection.DirN:
+                case Direction.DirN:
                     rank -= 1;
                     break;
-                case ChessDirection.DirE:
+                case Direction.DirE:
                     file += 1;
                     break;
-                case ChessDirection.DirS:
+                case Direction.DirS:
                     rank += 1;
                     break;
-                case ChessDirection.DirW:
+                case Direction.DirW:
                     file -= 1;
                     break;
-                case ChessDirection.DirNE:
+                case Direction.DirNE:
                     rank -= 1; file += 1;
                     break;
-                case ChessDirection.DirSE:
+                case Direction.DirSE:
                     rank += 1; file += 1;
                     break;
-                case ChessDirection.DirSW:
+                case Direction.DirSW:
                     rank += 1; file -= 1;
                     break;
-                case ChessDirection.DirNW:
+                case Direction.DirNW:
                     rank -= 1; file -= 1;
                     break;
 
-                case ChessDirection.DirNNE:
+                case Direction.DirNNE:
                     rank -= 2; file += 1;
                     break;
-                case ChessDirection.DirEEN:
+                case Direction.DirEEN:
                     rank -= 1; file += 2;
                     break;
-                case ChessDirection.DirEES:
+                case Direction.DirEES:
                     rank += 1; file += 2;
                     break;
-                case ChessDirection.DirSSE:
+                case Direction.DirSSE:
                     rank += 2; file += 1;
                     break;
 
-                case ChessDirection.DirSSW:
+                case Direction.DirSSW:
                     rank += 2; file -= 1;
                     break;
-                case ChessDirection.DirWWS:
+                case Direction.DirWWS:
                     rank += 1; file -= 2;
                     break;
-                case ChessDirection.DirWWN:
+                case Direction.DirWWN:
                     rank -= 1; file -= 2;
                     break;
-                case ChessDirection.DirNNW:
+                case Direction.DirNNW:
                     rank -= 2; file -= 1;
                     break;
                 default:

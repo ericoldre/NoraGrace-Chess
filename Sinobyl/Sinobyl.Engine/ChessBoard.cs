@@ -75,7 +75,7 @@ namespace Sinobyl.Engine
         //private Attacks.ChessBitboardRotatedA1H8 _allPiecesA1H8 = 0;
         //private Attacks.ChessBitboardRotatedH1A8 _allPiecesH1A8 = 0;
 
-		private ChessPlayer _whosturn;
+		private Player _whosturn;
         private CastleFlags _castleFlags;
 		private ChessPosition _enpassant;
 		private int _fiftymove = 0;
@@ -143,8 +143,8 @@ namespace Sinobyl.Engine
             {
                 _pieceTypes[(int)piecetype] = Bitboard.Empty;
             }
-            _playerBoards[(int)ChessPlayer.White] = 0;
-            _playerBoards[(int)ChessPlayer.Black] = 0;
+            _playerBoards[(int)Player.White] = 0;
+            _playerBoards[(int)Player.Black] = 0;
             _allPieces = 0;
 
             _pcSq = 0;
@@ -159,7 +159,7 @@ namespace Sinobyl.Engine
 			}
 		}
 
-		public ChessPosition KingPosition(ChessPlayer kingplayer)
+		public ChessPosition KingPosition(Player kingplayer)
 		{
             return _kingpos[(int)kingplayer];
 		}
@@ -175,7 +175,7 @@ namespace Sinobyl.Engine
             return _checkers != Bitboard.Empty;
 			//return IsCheck(_whosturn);
 		}
-		public bool IsCheck(ChessPlayer kingplayer)
+		public bool IsCheck(Player kingplayer)
 		{
 			ChessPosition kingpos = KingPosition(kingplayer);
             return PositionAttacked(kingpos, kingplayer.PlayerOther());
@@ -214,11 +214,11 @@ namespace Sinobyl.Engine
 			}
 			else if (piece == ChessPiece.WKing)
 			{
-                _kingpos[(int)ChessPlayer.White] = pos;
+                _kingpos[(int)Player.White] = pos;
 			}
 			else if (piece == ChessPiece.BKing)
 			{
-                _kingpos[(int)ChessPlayer.Black] = pos;
+                _kingpos[(int)Player.Black] = pos;
 			}
 		}
         private void PieceRemove(ChessPosition pos)
@@ -246,7 +246,7 @@ namespace Sinobyl.Engine
 		{
             return _pieceCount[(int)piece];
 		}
-        public int PieceCount(ChessPlayer player, ChessPieceType pieceType)
+        public int PieceCount(Player player, ChessPieceType pieceType)
         {
             return _pieceCount[(int)pieceType.ForPlayer(player)];
         }
@@ -427,7 +427,7 @@ namespace Sinobyl.Engine
             get { return _pieceTypes[(int)pieceType]; }
         }
 
-        public Bitboard this[ChessPlayer player]
+        public Bitboard this[Player player]
         {
             get
             {
@@ -453,7 +453,7 @@ namespace Sinobyl.Engine
             get { return _castleFlags; }
         }
 		
-		public ChessPlayer WhosTurn
+		public Player WhosTurn
 		{
 			get
 			{
@@ -595,7 +595,7 @@ namespace Sinobyl.Engine
 			}
 
 			//increment the move count
-			if (_whosturn == ChessPlayer.Black)
+			if (_whosturn == Player.Black)
 			{
 				_fullmove++;
 			}
@@ -610,7 +610,7 @@ namespace Sinobyl.Engine
 
 			//switch whos turn
             _whosturn = _whosturn.PlayerOther();
-			_zob ^= ChessZobrist.Player;
+			_zob ^= ChessZobrist.PlayerKey;
             _checkers = AttacksTo(_kingpos[(int)_whosturn]) & this[_whosturn.PlayerOther()];
 
 		}
@@ -698,7 +698,7 @@ namespace Sinobyl.Engine
 			this._fiftymove = movehist.FiftyCount;
 			this._movesSinceNull = movehist.MovesSinceNull;
 
-			if (_whosturn == ChessPlayer.White)
+			if (_whosturn == Player.White)
 			{
 				_fullmove--;
 			}
@@ -728,7 +728,7 @@ namespace Sinobyl.Engine
 
 			//switch whos turn
             _whosturn = _whosturn.PlayerOther();
-			_zob ^= ChessZobrist.Player;
+			_zob ^= ChessZobrist.PlayerKey;
             _checkers = AttacksTo(_kingpos[(int)_whosturn]) & this[_whosturn.PlayerOther()];
 		}
 		public void MoveNullUndo()
@@ -762,12 +762,12 @@ namespace Sinobyl.Engine
                 && this._hist[_histCount - 2].Move == ChessMove.EMPTY;
 		}
 
-		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, ref ChessPosition pos)
+		public ChessPiece PieceInDirection(ChessPosition from, Direction dir, ref ChessPosition pos)
 		{
 			int i = 0;
 			return PieceInDirection(from, dir, ref pos, ref i);
 		}
-		public ChessPiece PieceInDirection(ChessPosition from, ChessDirection dir, ref ChessPosition pos, ref int dist)
+		public ChessPiece PieceInDirection(ChessPosition from, Direction dir, ref ChessPosition pos, ref int dist)
 		{
 
 			ChessPiece piece;
@@ -790,7 +790,7 @@ namespace Sinobyl.Engine
 			}
 			return ChessPiece.EMPTY;
 		}
-        public Bitboard AttacksTo(ChessPosition to, ChessPlayer by)
+        public Bitboard AttacksTo(ChessPosition to, Player by)
 		{
             return AttacksTo(to) & this[by];
 		}
@@ -801,12 +801,12 @@ namespace Sinobyl.Engine
             retval |= Attacks.RookAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Rook]);
             retval |= Attacks.BishopAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Bishop]);
             retval |= Attacks.KingAttacks(to) & (this[ChessPieceType.King]);
-            retval |= Attacks.PawnAttacks(to, ChessPlayer.Black) & this[ChessPiece.WPawn];
-            retval |= Attacks.PawnAttacks(to, ChessPlayer.White) & this[ChessPiece.BPawn];
+            retval |= Attacks.PawnAttacks(to, Player.Black) & this[ChessPiece.WPawn];
+            retval |= Attacks.PawnAttacks(to, Player.White) & this[ChessPiece.BPawn];
             return retval;
 		}
 
-		public bool PositionAttacked(ChessPosition to, ChessPlayer byPlayer)
+		public bool PositionAttacked(ChessPosition to, Player byPlayer)
 		{
             return !AttacksTo(to, byPlayer).Empty();
 		}

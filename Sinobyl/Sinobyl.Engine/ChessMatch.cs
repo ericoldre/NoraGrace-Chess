@@ -140,13 +140,13 @@ namespace Sinobyl.Engine
 
             while (gameResult == null)
             {
-                IChessGamePlayer player = board.WhosTurn == ChessPlayer.White ? white : black;
+                IChessGamePlayer player = board.WhosTurn == Player.White ? white : black;
 
                 string moveComment = null;
                 var bestMove = player.Move(gameStartPosition, gameMoves.ToArray(), timeControl, new TimeSpan(1,0,0), out moveComment);
                 if (bestMove == ChessMove.EMPTY)
                 {
-                    gameResult = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                    gameResult = board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
                     reason = ChessResultReason.Resign;
                     break;
                 }
@@ -165,7 +165,7 @@ namespace Sinobyl.Engine
                 else
                 {
                     reason = ChessResultReason.IllegalMove;
-                    gameResult = board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                    gameResult = board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
                 }
 
             }
@@ -182,7 +182,7 @@ namespace Sinobyl.Engine
             _resultReason = ChessResultReason.Unknown;
             if (_board.IsMate())
             {
-                _result = _board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                _result = _board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
                 _resultReason = ChessResultReason.Checkmate;
             }
             else if (_board.IsDrawBy50MoveRule())

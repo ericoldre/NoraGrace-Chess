@@ -278,7 +278,7 @@ namespace Sinobyl.Engine
 			Thread.Sleep(this.SearchArgs.Delay);
 
             //setup evaluation score for draw.
-            eval.DrawScore = board.WhosTurn == ChessPlayer.White ? -SearchArgs.ContemptForDraw : SearchArgs.ContemptForDraw;
+            eval.DrawScore = board.WhosTurn == Player.White ? -SearchArgs.ContemptForDraw : SearchArgs.ContemptForDraw;
 			SearchArgs.TransTable.AgeEntries(2);
              
             SearchArgs.TimeManager.StopSearch += TimeManager_StopSearch;
@@ -610,7 +610,7 @@ namespace Sinobyl.Engine
 			//check for draw
             if (board.PositionRepetitionCount() > 1 || board.IsDrawBy50MoveRule())
 			{
-                return board.WhosTurn == ChessPlayer.White ? eval.DrawScore : -eval.DrawScore;
+                return board.WhosTurn == Player.White ? eval.DrawScore : -eval.DrawScore;
 			}
 
 			if (depth <= 0) 

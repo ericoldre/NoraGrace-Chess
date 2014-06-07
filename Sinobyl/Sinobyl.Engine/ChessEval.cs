@@ -7,7 +7,7 @@ namespace Sinobyl.Engine
 {
     public interface IChessEval
     {
-        int EvalFor(ChessBoard board, ChessPlayer who);
+        int EvalFor(ChessBoard board, Player who);
         int DrawScore { get; set; }
     }
 
@@ -102,7 +102,7 @@ namespace Sinobyl.Engine
                 foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
                 {
                 
-                    if (piece.PieceToPlayer() == ChessPlayer.White)
+                    if (piece.PieceToPlayer() == Player.White)
                     {
                         _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreInfo.Create(
                             settings.PcSqTables[piece.ToPieceType()][ChessGameStage.Opening][pos],
@@ -192,10 +192,10 @@ namespace Sinobyl.Engine
             value = value.Subtract(_pcsqPiecePos[(int)piece][(int)pos]);
         }
 
-        public int EvalFor(ChessBoard board, ChessPlayer who)
+        public int EvalFor(ChessBoard board, Player who)
         {
             int retval = Eval(board);
-            if (who == ChessPlayer.Black) { retval = -retval; }
+            if (who == Player.Black) { retval = -retval; }
             return retval;
 
         }
@@ -255,22 +255,22 @@ namespace Sinobyl.Engine
             evalInfo.LazyAge = 0;
 
             //set up 
-            var attacksWhite = evalInfo.Attacks[(int)ChessPlayer.White];
-            var attacksBlack = evalInfo.Attacks[(int)ChessPlayer.Black];
+            var attacksWhite = evalInfo.Attacks[(int)Player.White];
+            var attacksBlack = evalInfo.Attacks[(int)Player.Black];
 
             attacksWhite.PawnEast = board[ChessPiece.WPawn].ShiftDirNE();
             attacksWhite.PawnWest = board[ChessPiece.WPawn].ShiftDirNW();
             attacksBlack.PawnEast = board[ChessPiece.BPawn].ShiftDirSE();
             attacksBlack.PawnWest = board[ChessPiece.BPawn].ShiftDirSW();
 
-            attacksWhite.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.White));
-            attacksBlack.King = Attacks.KingAttacks(board.KingPosition(ChessPlayer.Black));
+            attacksWhite.King = Attacks.KingAttacks(board.KingPosition(Player.White));
+            attacksBlack.King = Attacks.KingAttacks(board.KingPosition(Player.Black));
 
-            EvaluateMyPieces(board, ChessPlayer.White, evalInfo);
-            EvaluateMyPieces(board, ChessPlayer.Black, evalInfo);
+            EvaluateMyPieces(board, Player.White, evalInfo);
+            EvaluateMyPieces(board, Player.Black, evalInfo);
 
-            EvaluateMyKingAttack(board, ChessPlayer.White, evalInfo);
-            EvaluateMyKingAttack(board, ChessPlayer.Black, evalInfo);
+            EvaluateMyKingAttack(board, Player.White, evalInfo);
+            EvaluateMyKingAttack(board, Player.Black, evalInfo);
 
 
             evalInfo.PawnsPassed = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
@@ -280,8 +280,8 @@ namespace Sinobyl.Engine
             if (material.DoShelter)
             {
                 evalInfo.ShelterStorm = PhasedScoreInfo.Create(_settings.PawnShelterFactor * pawns.EvalShelter(
-                    whiteKingFile: board.KingPosition(ChessPlayer.White).ToFile(),
-                    blackKingFile: board.KingPosition(ChessPlayer.Black).ToFile(),
+                    whiteKingFile: board.KingPosition(Player.White).ToFile(),
+                    blackKingFile: board.KingPosition(Player.Black).ToFile(),
                     castleFlags: board.CastleRights), 0);
             }
             else
@@ -291,13 +291,13 @@ namespace Sinobyl.Engine
             
             //test to see if we are just trying to force the king to the corner for mate.
             PhasedScore endGamePcSq = 0;
-            if (UseEndGamePcSq(board, ChessPlayer.White, out endGamePcSq))
+            if (UseEndGamePcSq(board, Player.White, out endGamePcSq))
             {
                 evalInfo.PcSq = endGamePcSq;
                 evalInfo.Attacks[0].Mobility = 0;
                 evalInfo.Attacks[1].Mobility = 0;
             }
-            else if (UseEndGamePcSq(board, ChessPlayer.Black, out endGamePcSq))
+            else if (UseEndGamePcSq(board, Player.Black, out endGamePcSq))
             {
                 evalInfo.PcSq = endGamePcSq.Negate();
                 evalInfo.Attacks[0].Mobility = 0;
@@ -307,7 +307,7 @@ namespace Sinobyl.Engine
 
         }
 
-        protected int EvaluateMyKingAttack(ChessBoard board, ChessPlayer me, ChessEvalInfo info)
+        protected int EvaluateMyKingAttack(ChessBoard board, Player me, ChessEvalInfo info)
         {
             //king attack info should have counts and weight of everything but pawns and kings.
 
@@ -327,7 +327,7 @@ namespace Sinobyl.Engine
                 Bitboard myInvolvedPawns = Bitboard.Empty;
                 Bitboard myPawns = board[me] & board[ChessPieceType.Pawn];
 
-                if (me == ChessPlayer.White)
+                if (me == Player.White)
                 {
                     myInvolvedPawns |= hisKingZone.ShiftDirSE() & myPawns;
                     myInvolvedPawns |= hisKingZone.ShiftDirSW() & myPawns;
@@ -383,7 +383,7 @@ namespace Sinobyl.Engine
             return retval;
 
         }
-        protected int EvaluateMyPieces(ChessBoard board, ChessPlayer me, ChessEvalInfo info)
+        protected int EvaluateMyPieces(ChessBoard board, Player me, ChessEvalInfo info)
         {
             int retval = 0;
             PhasedScore mobility = 0;
@@ -509,9 +509,9 @@ namespace Sinobyl.Engine
             }
         }
 
-        protected bool UseEndGamePcSq(ChessBoard board, ChessPlayer winPlayer, out PhasedScore newPcSq)
+        protected bool UseEndGamePcSq(ChessBoard board, Player winPlayer, out PhasedScore newPcSq)
         {
-            ChessPlayer losePlayer = winPlayer.PlayerOther();
+            Player losePlayer = winPlayer.PlayerOther();
             if (
                 board.PieceCount(losePlayer, ChessPieceType.Pawn) == 0
                 && board.PieceCount(losePlayer, ChessPieceType.Queen) == 0

@@ -18,9 +18,9 @@ namespace Sinobyl.Engine
             ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};
 
 
-        public static ChessPiece ForPlayer(this ChessPieceType type, ChessPlayer player)
+        public static ChessPiece ForPlayer(this ChessPieceType type, Player player)
         {
-            System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
+            System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);
             System.Diagnostics.Debug.Assert(
                 type == ChessPieceType.Pawn
                 || type == ChessPieceType.Knight

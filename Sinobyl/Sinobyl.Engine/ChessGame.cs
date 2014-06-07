@@ -116,7 +116,7 @@ namespace Sinobyl.Engine
 
             if (eh != null)
             {
-                ChessPlayer color = sender == _white ? ChessPlayer.White : ChessPlayer.Black;
+                Player color = sender == _white ? Player.White : Player.Black;
                 eh(this, new SearchProgressPlayerEventArgs(e.Progress, color));
             }
         }
@@ -220,8 +220,8 @@ namespace Sinobyl.Engine
             {
                 _timeRemainingForPlayer[(int)_board.WhosTurn] = this.ClockTime(_board.WhosTurn);
 
-                if (_board.WhosTurn == ChessPlayer.White) { _result = ChessResult.BlackWins; }
-                if (_board.WhosTurn == ChessPlayer.Black) { _result = ChessResult.WhiteWins; }
+                if (_board.WhosTurn == Player.White) { _result = ChessResult.BlackWins; }
+                if (_board.WhosTurn == Player.Black) { _result = ChessResult.WhiteWins; }
                 _resultReason = ChessResultReason.OutOfTime;
 
                 OnGameFinished();
@@ -234,8 +234,8 @@ namespace Sinobyl.Engine
             if (_started) { throw new Exception("game already started"); }
             _started = true;
 
-            _timeRemainingForPlayer[(int)ChessPlayer.White] = _timecontrol.InitialAmount;
-            _timeRemainingForPlayer[(int)ChessPlayer.Black] = _timecontrol.InitialAmount;
+            _timeRemainingForPlayer[(int)Player.White] = _timecontrol.InitialAmount;
+            _timeRemainingForPlayer[(int)Player.Black] = _timecontrol.InitialAmount;
             _timeMoveStarted = DateTime.Now;
 
             OnGameStarted();
@@ -252,7 +252,7 @@ namespace Sinobyl.Engine
         {
             get
             {
-                return _board.WhosTurn == ChessPlayer.White ? _white : _black;
+                return _board.WhosTurn == Player.White ? _white : _black;
             }
         }
 
@@ -276,7 +276,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public TimeSpan ClockTime(ChessPlayer a_player)
+        public TimeSpan ClockTime(Player a_player)
         {
             if (this._moves.Count == 0 || _result != null)
             {
@@ -302,7 +302,7 @@ namespace Sinobyl.Engine
 
             //check legality of call
             ChessMove move = (ChessMove)moveObj;
-            if (!sender.Equals(_board.WhosTurn == ChessPlayer.White ? _white : _black))
+            if (!sender.Equals(_board.WhosTurn == Player.White ? _white : _black))
             {
                 throw new Exception("it is not your turn");
             }
@@ -329,7 +329,7 @@ namespace Sinobyl.Engine
 
             if (_board.IsMate())
             {
-                _result = _board.WhosTurn == ChessPlayer.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
+                _result = _board.WhosTurn == Player.White ? ChessResult.BlackWins : ChessResult.WhiteWins;
                 _resultReason = ChessResultReason.Checkmate;
             }
             else if (_board.IsDrawBy50MoveRule())

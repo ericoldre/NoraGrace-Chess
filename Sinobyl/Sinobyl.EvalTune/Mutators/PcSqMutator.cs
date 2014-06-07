@@ -10,12 +10,12 @@ namespace Sinobyl.EvalTune.Mutators
     public class PcSqMutator: IEvalSettingsMutator
     {
 
-        public ChessBitboard Positions { get; private set; }
+        public Bitboard Positions { get; private set; }
         public ChessPieceType PieceType { get; private set; }
         public ChessGameStage[] Stages { get; private set; }
         public int Amount { get; private set; }
 
-        public PcSqMutator(ChessBitboard positions, ChessPieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
+        public PcSqMutator(Bitboard positions, ChessPieceType pieceType, IEnumerable<ChessGameStage> stages, int amount)
         {
             this.Positions = positions;
             this.PieceType = pieceType;
@@ -47,17 +47,17 @@ namespace Sinobyl.EvalTune.Mutators
             }
             
 
-            List<ChessBitboard> boards = new List<ChessBitboard>();
-            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => p.Bitboard()));
-            boards.AddRange(ChessRankInfo.AllRanks.Select(r => r.Bitboard()));
-            boards.AddRange(ChessFileInfo.AllFiles.Select(f => f.Bitboard()));
-            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => bitboardExpand(p.Bitboard())));
+            List<Bitboard> boards = new List<Bitboard>();
+            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => p.ToBitboard()));
+            boards.AddRange(RankInfo.AllRanks.Select(r => r.ToBitboard()));
+            boards.AddRange(FileInfo.AllFiles.Select(f => f.ToBitboard()));
+            boards.AddRange(ChessPositionInfo.AllPositions.Select(p => bitboardExpand(p.ToBitboard())));
 
             this.Positions = boards[rand.Next(0, boards.Count())];
             
         }
 
-        private static ChessBitboard bitboardExpand(ChessBitboard board)
+        private static Bitboard bitboardExpand(Bitboard board)
         {
             return board.ShiftDirE() | board.ShiftDirN() | board.ShiftDirS() | board.ShiftDirW() | board.ShiftDirNE() | board.ShiftDirNW() | board.ShiftDirSE() | board.ShiftDirSW();
         }

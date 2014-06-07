@@ -5,60 +5,60 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public enum ChessFile
+    public enum File
     {
         
         FileA = 0, FileB = 1, FileC = 2, FileD = 3, FileE = 4, FileF = 5, FileG = 6, FileH = 7,
         EMPTY = 8,
     }
 
-    public static class ChessFileInfo
+    public static class FileInfo
     {
         private static readonly string _filedesclookup = "abcdefgh";
-        public static readonly ChessFile[] AllFiles = new ChessFile[] { ChessFile.FileA, ChessFile.FileB, ChessFile.FileC, ChessFile.FileD, ChessFile.FileE, ChessFile.FileF, ChessFile.FileG, ChessFile.FileH };
+        public static readonly File[] AllFiles = new File[] { File.FileA, File.FileB, File.FileC, File.FileD, File.FileE, File.FileF, File.FileG, File.FileH };
 
-        public static ChessFile Parse(char c)
+        public static File Parse(char c)
         {
             int idx = _filedesclookup.IndexOf(c.ToString().ToLower());
             if (idx < 0) { throw new ArgumentException(c.ToString() + " is not a valid file"); }
-            return (ChessFile)idx;
+            return (File)idx;
         }
 
-        public static string FileToString(this ChessFile file)
+        public static string FileToString(this File file)
         {
             //AssertFile(file);
             return _filedesclookup.Substring((int)file, 1);
         }
 
-        public static bool IsInBounds(this ChessFile file)
+        public static bool IsInBounds(this File file)
         {
             return (int)file >= 0 && (int)file <= 7;
         }
 
-        public static ChessPosition ToPosition(this ChessFile file, ChessRank rank)
+        public static ChessPosition ToPosition(this File file, Rank rank)
         {
             return (ChessPosition)((int)rank * 8) + (int)file;
         }
-        public static ChessBitboard Bitboard(this ChessFile file)
+        public static Bitboard ToBitboard(this File file)
         {
             switch (file)
             {
-                case ChessFile.FileA:
-                    return ChessBitboard.FileA;
-                case ChessFile.FileB:
-                    return ChessBitboard.FileB;
-                case ChessFile.FileC:
-                    return ChessBitboard.FileC;
-                case ChessFile.FileD:
-                    return ChessBitboard.FileD;
-                case ChessFile.FileE:
-                    return ChessBitboard.FileE;
-                case ChessFile.FileF:
-                    return ChessBitboard.FileF;
-                case ChessFile.FileG:
-                    return ChessBitboard.FileG;
-                case ChessFile.FileH:
-                    return ChessBitboard.FileH;
+                case File.FileA:
+                    return Bitboard.FileA;
+                case File.FileB:
+                    return Bitboard.FileB;
+                case File.FileC:
+                    return Bitboard.FileC;
+                case File.FileD:
+                    return Bitboard.FileD;
+                case File.FileE:
+                    return Bitboard.FileE;
+                case File.FileF:
+                    return Bitboard.FileF;
+                case File.FileG:
+                    return Bitboard.FileG;
+                case File.FileH:
+                    return Bitboard.FileH;
                 default:
                     throw new ArgumentOutOfRangeException("file");
             }

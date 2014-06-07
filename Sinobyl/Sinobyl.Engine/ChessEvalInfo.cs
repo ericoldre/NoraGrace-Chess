@@ -21,8 +21,8 @@ namespace Sinobyl.Engine
         public int StageStartWeight { get; private set; }
         public int ScaleWhite { get; private set; }
         public int ScaleBlack { get; private set; }
-        public ChessBitboard PassedPawns { get; private set; }   //not a score but information
-        public ChessBitboard CandidatePawns { get; private set; }  //not a score but information
+        public Bitboard PassedPawns { get; private set; }   //not a score but information
+        public Bitboard CandidatePawns { get; private set; }  //not a score but information
 
         //advanced eval terms.
         public int LazyAge { get; set; }
@@ -43,8 +43,8 @@ namespace Sinobyl.Engine
             ScaleWhite = 100;
             ScaleBlack = 100;
             DrawScore = 0;
-            PassedPawns = ChessBitboard.Empty;
-            CandidatePawns = ChessBitboard.Empty;
+            PassedPawns = Bitboard.Empty;
+            CandidatePawns = Bitboard.Empty;
             LazyAge = -1;
         } 
 

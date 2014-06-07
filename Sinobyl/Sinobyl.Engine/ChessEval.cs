@@ -45,22 +45,22 @@ namespace Sinobyl.Engine
 
         public int DrawScore { get; set; }
         
-        private static ChessBitboard[] _kingSafetyRegion;
+        private static Bitboard[] _kingSafetyRegion;
         private static int[] _kingAttackerWeight;
 
         static ChessEval()
         {
-            _kingSafetyRegion = new ChessBitboard[64];
+            _kingSafetyRegion = new Bitboard[64];
             foreach (var kingPos in ChessPositionInfo.AllPositions)
             {
-                var rank = kingPos.GetRank();
-                if (rank == ChessRank.Rank1) { rank = ChessRank.Rank2; }
-                if (rank == ChessRank.Rank8) { rank = ChessRank.Rank7; }
-                var file = kingPos.GetFile();
-                if (file == ChessFile.FileA) { file = ChessFile.FileB; }
-                if (file == ChessFile.FileH) { file = ChessFile.FileG; }
+                var rank = kingPos.ToRank();
+                if (rank == Rank.Rank1) { rank = Rank.Rank2; }
+                if (rank == Rank.Rank8) { rank = Rank.Rank7; }
+                var file = kingPos.ToFile();
+                if (file == File.FileA) { file = File.FileB; }
+                if (file == File.FileH) { file = File.FileG; }
                 var adjusted = rank.ToPosition(file);
-                _kingSafetyRegion[(int)kingPos] = Attacks.KingAttacks(adjusted) | adjusted.Bitboard();
+                _kingSafetyRegion[(int)kingPos] = Attacks.KingAttacks(adjusted) | adjusted.ToBitboard();
 
                 System.Diagnostics.Debug.Assert(_kingSafetyRegion[(int)kingPos].BitCount() == 9);
 
@@ -280,8 +280,8 @@ namespace Sinobyl.Engine
             if (material.DoShelter)
             {
                 evalInfo.ShelterStorm = PhasedScoreInfo.Create(_settings.PawnShelterFactor * pawns.EvalShelter(
-                    whiteKingFile: board.KingPosition(ChessPlayer.White).GetFile(),
-                    blackKingFile: board.KingPosition(ChessPlayer.Black).GetFile(),
+                    whiteKingFile: board.KingPosition(ChessPlayer.White).ToFile(),
+                    blackKingFile: board.KingPosition(ChessPlayer.Black).ToFile(),
                     castleFlags: board.CastleRights), 0);
             }
             else
@@ -324,8 +324,8 @@ namespace Sinobyl.Engine
                 //if we don't at least have a decent attack, just give credit for building count of attackers and move on.
 
                 //add in pawns to king attack.
-                ChessBitboard myInvolvedPawns = ChessBitboard.Empty;
-                ChessBitboard myPawns = board[me] & board[ChessPieceType.Pawn];
+                Bitboard myInvolvedPawns = Bitboard.Empty;
+                Bitboard myPawns = board[me] & board[ChessPieceType.Pawn];
 
                 if (me == ChessPlayer.White)
                 {
@@ -338,7 +338,7 @@ namespace Sinobyl.Engine
                     myInvolvedPawns |= hisKingZone.ShiftDirNW() & myPawns;
                 }
 
-                if (myInvolvedPawns != ChessBitboard.Empty)
+                if (myInvolvedPawns != Bitboard.Empty)
                 {
                     c = myInvolvedPawns.BitCount();
                     myAttacks.KingAttackerCount += c;
@@ -346,7 +346,7 @@ namespace Sinobyl.Engine
                 }
 
                 //add in my king to the attack.
-                if ((Attacks.KingAttacks(board.KingPosition(me)) & hisKingZone) != ChessBitboard.Empty)
+                if ((Attacks.KingAttacks(board.KingPosition(me)) & hisKingZone) != Bitboard.Empty)
                 {
                     myAttacks.KingAttackerCount++;
                     myAttacks.KingAttackerWeight += _kingAttackerWeight[(int)ChessPieceType.King];
@@ -356,12 +356,12 @@ namespace Sinobyl.Engine
                 retval += (myAttacks.KingAttackerWeight - KingAttackWeightCutoff) * KingAttackWeightValue;
 
                 //now calculate bonus for attacking squares directly surrounding king;
-                ChessBitboard kingAdjecent = Attacks.KingAttacks(board.KingPosition(him));
-                while (kingAdjecent != ChessBitboard.Empty)
+                Bitboard kingAdjecent = Attacks.KingAttacks(board.KingPosition(him));
+                while (kingAdjecent != Bitboard.Empty)
                 {
-                    ChessPosition pos = ChessBitboardInfo.PopFirst(ref kingAdjecent);
-                    ChessBitboard posBB = pos.Bitboard();
-                    if ((posBB & myAttacks.All()) != ChessBitboard.Empty)
+                    ChessPosition pos = BitboardInfo.PopFirst(ref kingAdjecent);
+                    Bitboard posBB = pos.ToBitboard();
+                    if ((posBB & myAttacks.All()) != Bitboard.Empty)
                     {
                         retval += KingRingAttack; //attacking surrounding square in some aspect.
 
@@ -395,35 +395,35 @@ namespace Sinobyl.Engine
             var hisKingZone = _kingSafetyRegion[(int)hisKing];
 
 
-            ChessBitboard myPieces = board[me];
-            ChessBitboard pieceLocationsAll = board.PieceLocationsAll;
-            ChessBitboard pawns = board[ChessPieceType.Pawn];
+            Bitboard myPieces = board[me];
+            Bitboard pieceLocationsAll = board.PieceLocationsAll;
+            Bitboard pawns = board[ChessPieceType.Pawn];
 
-            ChessBitboard slidersAndKnights = myPieces &
+            Bitboard slidersAndKnights = myPieces &
                (board[ChessPieceType.Knight]
                | board[ChessPieceType.Bishop]
                | board[ChessPieceType.Rook]
                | board[ChessPieceType.Queen]);
 
-            ChessBitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
+            Bitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
 
-            ChessBitboard myDiagSliders = myPieces & (board[ChessPieceType.Bishop] | board[ChessPieceType.Queen]);
-            ChessBitboard myHorizSliders = myPieces & (board[ChessPieceType.Rook] | board[ChessPieceType.Queen]);
+            Bitboard myDiagSliders = myPieces & (board[ChessPieceType.Bishop] | board[ChessPieceType.Queen]);
+            Bitboard myHorizSliders = myPieces & (board[ChessPieceType.Rook] | board[ChessPieceType.Queen]);
 
-            while (slidersAndKnights != ChessBitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
+            while (slidersAndKnights != Bitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
-                ChessPosition pos = ChessBitboardInfo.PopFirst(ref slidersAndKnights);
+                ChessPosition pos = BitboardInfo.PopFirst(ref slidersAndKnights);
 
                 ChessPieceType pieceType = board.PieceAt(pos).ToPieceType();
 
                 //generate attacks
-                ChessBitboard slidingAttacks = ChessBitboard.Empty;
+                Bitboard slidingAttacks = Bitboard.Empty;
 
                 switch (pieceType)
                 {
                     case ChessPieceType.Knight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
-                        if (myAttacks.Knight != ChessBitboard.Empty)
+                        if (myAttacks.Knight != Bitboard.Empty)
                         {
                             myAttacks.Knight2 |= slidingAttacks;
                         }
@@ -438,7 +438,7 @@ namespace Sinobyl.Engine
                         break;
                     case ChessPieceType.Rook:
                         slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
-                        if (myAttacks.Rook != ChessBitboard.Empty)
+                        if (myAttacks.Rook != Bitboard.Empty)
                         {
                             myAttacks.Rook2 |= slidingAttacks;
                         }
@@ -446,9 +446,9 @@ namespace Sinobyl.Engine
                         {
                             myAttacks.Rook |= slidingAttacks;
                         }
-                        if ((pos.GetFile().Bitboard() & pawns & myPieces) == ChessBitboard.Empty)
+                        if ((pos.ToFile().ToBitboard() & pawns & myPieces) == Bitboard.Empty)
                         {
-                            if ((pos.GetFile().Bitboard() & pawns) == ChessBitboard.Empty)
+                            if ((pos.ToFile().ToBitboard() & pawns) == Bitboard.Empty)
                             {
                                 mobility = mobility.Add(RookFileOpen);
                             }
@@ -471,7 +471,7 @@ namespace Sinobyl.Engine
                 mobility = mobility.Add(_mobilityPieceTypeCount[(int)pieceType][mobilityCount]);
 
                 //see if involved in a king attack
-                if((hisKingZone & slidingAttacks) != ChessBitboard.Empty)
+                if((hisKingZone & slidingAttacks) != Bitboard.Empty)
                 {
                     myAttacks.KingAttackerCount++;
                     myAttacks.KingAttackerWeight += _kingAttackerWeight[(int)pieceType];
@@ -538,17 +538,17 @@ namespace Sinobyl.Engine
     
     public class ChessEvalAttackInfo
     {
-        public ChessBitboard PawnEast;
-        public ChessBitboard PawnWest;
+        public Bitboard PawnEast;
+        public Bitboard PawnWest;
 
-        public ChessBitboard Knight;
-        public ChessBitboard Knight2;
-        public ChessBitboard Bishop;
+        public Bitboard Knight;
+        public Bitboard Knight2;
+        public Bitboard Bishop;
 
-        public ChessBitboard Rook;
-        public ChessBitboard Rook2;
-        public ChessBitboard Queen;
-        public ChessBitboard King;
+        public Bitboard Rook;
+        public Bitboard Rook2;
+        public Bitboard Queen;
+        public Bitboard King;
 
         public PhasedScore Mobility;
 
@@ -559,15 +559,15 @@ namespace Sinobyl.Engine
 
         public void Reset()
         {
-            PawnEast = ChessBitboard.Empty;
-            PawnWest = ChessBitboard.Empty;
-            Knight = ChessBitboard.Empty;
-            Knight2 = ChessBitboard.Empty;
-            Bishop = ChessBitboard.Empty;
-            Rook = ChessBitboard.Empty;
-            Rook2 = ChessBitboard.Empty;
-            Queen = ChessBitboard.Empty;
-            King = ChessBitboard.Empty;
+            PawnEast = Bitboard.Empty;
+            PawnWest = Bitboard.Empty;
+            Knight = Bitboard.Empty;
+            Knight2 = Bitboard.Empty;
+            Bishop = Bitboard.Empty;
+            Rook = Bitboard.Empty;
+            Rook2 = Bitboard.Empty;
+            Queen = Bitboard.Empty;
+            King = Bitboard.Empty;
             Mobility = 0;
             KingQueenTropism = 24; //init to far away.
             KingAttackerWeight = 0;
@@ -575,7 +575,7 @@ namespace Sinobyl.Engine
             KingAttackerScore = 0;
         }
 
-        public ChessBitboard All()
+        public Bitboard All()
         {
             return PawnEast | PawnWest | Knight | Knight2 | Bishop | Rook | Rook2 | Queen | King;
         }

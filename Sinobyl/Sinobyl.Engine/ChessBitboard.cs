@@ -6,7 +6,7 @@ using System.Text;
 namespace Sinobyl.Engine
 {
     [Flags]
-    public enum ChessBitboard : ulong
+    public enum Bitboard : ulong
     {
         A8 = (ulong)1 << 0, B8 = (ulong)1 << 1, C8 = (ulong)1 << 2, D8 = (ulong)1 << 3, E8 = (ulong)1 << 4, F8 = (ulong)1 << 5, G8 = (ulong)1 << 6, H8 = (ulong)1 << 7,
         A7 = (ulong)1 << 8, B7 = (ulong)1 << 9, C7 = (ulong)1 << 10, D7 = (ulong)1 << 11, E7 = (ulong)1 << 12, F7 = (ulong)1 << 13, G7 = (ulong)1 << 14, H7 = (ulong)1 << 15,
@@ -37,13 +37,13 @@ namespace Sinobyl.Engine
     }
 
 
-    public static class ChessBitboardInfo
+    public static class BitboardInfo
     {
 
 
         private static readonly int[] _byteBitcount = new int[256] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 };
 
-        public static int BitCount(this ChessBitboard bitboard)
+        public static int BitCount(this Bitboard bitboard)
         {
             ulong val = (ulong)bitboard;
             int retval = 0;
@@ -65,9 +65,9 @@ namespace Sinobyl.Engine
 
         
 
-        public static ChessPosition NorthMostPosition(this ChessBitboard bitboard)
+        public static ChessPosition NorthMostPosition(this Bitboard bitboard)
         {
-            System.Diagnostics.Debug.Assert(bitboard != ChessBitboard.Empty);
+            System.Diagnostics.Debug.Assert(bitboard != Bitboard.Empty);
             int lsb;
             if (((ulong)bitboard & 0xFFFFFFFF) != 0)
             {
@@ -83,7 +83,7 @@ namespace Sinobyl.Engine
         }
 
         //http://aggregate.org/MAGIC/
-        public static ChessPosition SouthMostPosition(this ChessBitboard bitboard)
+        public static ChessPosition SouthMostPosition(this Bitboard bitboard)
         {
             ulong x = (ulong)bitboard;
 
@@ -93,24 +93,24 @@ namespace Sinobyl.Engine
             x |= (x >> 8);
             x |= (x >> 16);
             x |= (x >> 32);
-            return NorthMostPosition((ChessBitboard)(x & ~(x >> 1)));
+            return NorthMostPosition((Bitboard)(x & ~(x >> 1)));
         }
 
 
 
-        public static ChessBitboard Reverse(this ChessBitboard bits)
+        public static Bitboard Reverse(this Bitboard bits)
         {
-            return (ChessBitboard)(((ulong)(bits & ChessBitboard.Rank1) >> 56)
-                | ((ulong)(bits & ChessBitboard.Rank2) >> 40)
-                | ((ulong)(bits & ChessBitboard.Rank3) >> 24)
-                | ((ulong)(bits & ChessBitboard.Rank4) >> 8)
-                | ((ulong)(bits & ChessBitboard.Rank5) << 8)
-                | ((ulong)(bits & ChessBitboard.Rank6) << 24)
-                | ((ulong)(bits & ChessBitboard.Rank7) << 40)
-                | ((ulong)(bits & ChessBitboard.Rank8) << 56));
+            return (Bitboard)(((ulong)(bits & Bitboard.Rank1) >> 56)
+                | ((ulong)(bits & Bitboard.Rank2) >> 40)
+                | ((ulong)(bits & Bitboard.Rank3) >> 24)
+                | ((ulong)(bits & Bitboard.Rank4) >> 8)
+                | ((ulong)(bits & Bitboard.Rank5) << 8)
+                | ((ulong)(bits & Bitboard.Rank6) << 24)
+                | ((ulong)(bits & Bitboard.Rank7) << 40)
+                | ((ulong)(bits & Bitboard.Rank8) << 56));
         }
 
-        public static ChessBitboard Flood(this ChessBitboard bits, ChessDirection dir)
+        public static Bitboard Flood(this Bitboard bits, ChessDirection dir)
         {
             while (true)
             {
@@ -121,7 +121,7 @@ namespace Sinobyl.Engine
             return bits;
         }
 
-        public static ChessBitboard Shift(this ChessBitboard bits, ChessDirection dir)
+        public static Bitboard Shift(this Bitboard bits, ChessDirection dir)
         {
             switch (dir)
             {
@@ -163,62 +163,62 @@ namespace Sinobyl.Engine
 
         }
 
-        public static ChessBitboard ShiftDirN(this ChessBitboard bits)
+        public static Bitboard ShiftDirN(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8) >> 8);
+            return (Bitboard)((ulong)(bits & ~Bitboard.Rank8) >> 8);
         }
-        public static ChessBitboard ShiftDirE(this ChessBitboard bits)
+        public static Bitboard ShiftDirE(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.FileH) << 1);
+            return (Bitboard)((ulong)(bits & ~Bitboard.FileH) << 1);
         }
-        public static ChessBitboard ShiftDirS(this ChessBitboard bits)
+        public static Bitboard ShiftDirS(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1) << 8);
+            return (Bitboard)((ulong)(bits & ~Bitboard.Rank1) << 8);
         }
-        public static ChessBitboard ShiftDirW(this ChessBitboard bits)
+        public static Bitboard ShiftDirW(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.FileA) >> 1);
+            return (Bitboard)((ulong)(bits & ~Bitboard.FileA) >> 1);
         }
-        public static ChessBitboard ShiftDirNE(this ChessBitboard bits)
+        public static Bitboard ShiftDirNE(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileH) >> 7);
+            return (Bitboard)((ulong)(bits & ~Bitboard.Rank8 & ~Bitboard.FileH) >> 7);
         }
-        public static ChessBitboard ShiftDirSE(this ChessBitboard bits)
+        public static Bitboard ShiftDirSE(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileH) << 9);
+            return (Bitboard)((ulong)(bits & ~Bitboard.Rank1 & ~Bitboard.FileH) << 9);
         }
-        public static ChessBitboard ShiftDirSW(this ChessBitboard bits)
+        public static Bitboard ShiftDirSW(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank1 & ~ChessBitboard.FileA) << 7);
+            return (Bitboard)((ulong)(bits & ~Bitboard.Rank1 & ~Bitboard.FileA) << 7);
         }
-        public static ChessBitboard ShiftDirNW(this ChessBitboard bits)
+        public static Bitboard ShiftDirNW(this Bitboard bits)
         {
-            return (ChessBitboard)((ulong)(bits & ~ChessBitboard.Rank8 & ~ChessBitboard.FileA) >> 9);
+            return (Bitboard)((ulong)(bits & ~Bitboard.Rank8 & ~Bitboard.FileA) >> 9);
         }
 
-        public static bool Contains(this ChessBitboard bits, ChessPosition position)
+        public static bool Contains(this Bitboard bits, ChessPosition position)
         {
             System.Diagnostics.Debug.Assert(position.IsInBounds());
-            return (bits & position.Bitboard()) != ChessBitboard.Empty;
+            return (bits & position.ToBitboard()) != Bitboard.Empty;
         }
 
-        public static bool Contains(this ChessBitboard bits, ChessBitboard other)
+        public static bool Contains(this Bitboard bits, Bitboard other)
         {
-            return (bits & other) != ChessBitboard.Empty;
+            return (bits & other) != Bitboard.Empty;
         }
 
-        public static bool Empty(this ChessBitboard bitboard)
+        public static bool Empty(this Bitboard bitboard)
         {
             return bitboard == 0;
         }
 
-        public static IEnumerable<ChessPosition> ToPositions(this ChessBitboard bitboard)
+        public static IEnumerable<ChessPosition> ToPositions(this Bitboard bitboard)
         {
             while (bitboard != 0)
             {
                 ChessPosition first = bitboard.NorthMostPosition();
                 yield return first;
-                bitboard = bitboard & ~first.Bitboard();
+                bitboard = bitboard & ~first.ToBitboard();
             }
         }
 
@@ -233,9 +233,9 @@ namespace Sinobyl.Engine
             return debrujinPositions[unchecked((uint)(number & -number) * 0x077CB531U) >> 27];
         }
 
-        public static ChessPosition PopFirst(ref ChessBitboard bitboard)
+        public static ChessPosition PopFirst(ref Bitboard bitboard)
         {
-            System.Diagnostics.Debug.Assert(bitboard != ChessBitboard.Empty);
+            System.Diagnostics.Debug.Assert(bitboard != Bitboard.Empty);
 
             //self in-line the LSB function.
             ChessPosition first;
@@ -250,7 +250,7 @@ namespace Sinobyl.Engine
                 first = (ChessPosition)(debrujinPositions[unchecked((uint)(number & -number) * 0x077CB531U) >> 27] + 32);
             }
 
-            bitboard = bitboard & ~first.Bitboard();
+            bitboard = bitboard & ~first.ToBitboard();
             return first;
         }
 

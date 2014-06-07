@@ -88,10 +88,10 @@ namespace Sinobyl.Engine.Tests
         public void PawnTest1()
         {
             ChessBoard board = new ChessBoard("7k/7p/2p5/2p1Pp2/3pP3/1P4P1/7P/5BK1 w - - 0 1 ");
-            ChessBitboard passed;
-            ChessBitboard doubled;
-            ChessBitboard isolated;
-            ChessBitboard unconnected;
+            Bitboard passed;
+            Bitboard doubled;
+            Bitboard isolated;
+            Bitboard unconnected;
 
             int StartVal = 0;
             int EndVal = 0;

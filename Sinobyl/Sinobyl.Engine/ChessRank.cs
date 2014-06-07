@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sinobyl.Engine
 {
-    public enum ChessRank
+    public enum Rank
     {
         Rank8 = 0, 
         Rank7 = 1, 
@@ -18,113 +18,113 @@ namespace Sinobyl.Engine
         EMPTY = 8
     }
 
-    public static class ChessRankInfo
+    public static class RankInfo
     {
         private static readonly string _rankdesclookup = "87654321";
 
-        private static readonly ChessRank[] _allRanks = new ChessRank[] { ChessRank.Rank8, ChessRank.Rank7, ChessRank.Rank6, ChessRank.Rank5, ChessRank.Rank4, ChessRank.Rank3, ChessRank.Rank2, ChessRank.Rank1 };
-        public static ChessRank[] AllRanks
+        private static readonly Rank[] _allRanks = new Rank[] { Rank.Rank8, Rank.Rank7, Rank.Rank6, Rank.Rank5, Rank.Rank4, Rank.Rank3, Rank.Rank2, Rank.Rank1 };
+        public static Rank[] AllRanks
         {
             get
             {
                 return _allRanks;
             }
         }
-        public static ChessRank Parse(char c)
+        public static Rank Parse(char c)
         {
             int idx = _rankdesclookup.IndexOf(c);
             if (idx < 0) { throw new ArgumentException(c.ToString() + " is not a valid rank"); }
-            return (ChessRank)idx;
+            return (Rank)idx;
         }
         
-        public static string RankToString(this ChessRank rank)
+        public static string RankToString(this Rank rank)
         {
             //AssertRank(rank);
             return _rankdesclookup.Substring((int)rank, 1);
         }
 
-        public static bool IsInBounds(this ChessRank rank)
+        public static bool IsInBounds(this Rank rank)
         {
             return (int)rank >= 0 && (int)rank <= 7;
         }
 
-        public static ChessPosition ToPosition(this ChessRank rank, ChessFile file)
+        public static ChessPosition ToPosition(this Rank rank, File file)
         {
             //if (!IsValidFile(file)) { return ChessPosition.OUTOFBOUNDS; }
             //if (!IsValidRank(rank)) { return ChessPosition.OUTOFBOUNDS; }
             return (ChessPosition)((int)rank * 8) + (int)file;
         }
 
-        public static ChessBitboard Bitboard(this ChessRank rank)
+        public static Bitboard ToBitboard(this Rank rank)
         {
             switch (rank)
             {
-                case ChessRank.Rank1:
-                    return ChessBitboard.Rank1;
-                case ChessRank.Rank2:
-                    return ChessBitboard.Rank2;
-                case ChessRank.Rank3:
-                    return ChessBitboard.Rank3;
-                case ChessRank.Rank4:
-                    return ChessBitboard.Rank4;
-                case ChessRank.Rank5:
-                    return ChessBitboard.Rank5;
-                case ChessRank.Rank6:
-                    return ChessBitboard.Rank6;
-                case ChessRank.Rank7:
-                    return ChessBitboard.Rank7;
-                case ChessRank.Rank8:
-                    return ChessBitboard.Rank8;
+                case Rank.Rank1:
+                    return Bitboard.Rank1;
+                case Rank.Rank2:
+                    return Bitboard.Rank2;
+                case Rank.Rank3:
+                    return Bitboard.Rank3;
+                case Rank.Rank4:
+                    return Bitboard.Rank4;
+                case Rank.Rank5:
+                    return Bitboard.Rank5;
+                case Rank.Rank6:
+                    return Bitboard.Rank6;
+                case Rank.Rank7:
+                    return Bitboard.Rank7;
+                case Rank.Rank8:
+                    return Bitboard.Rank8;
                 default:
                     return 0;
             }
         }
 
-        public static ChessBitboard BitboardAllNorth(this ChessRank rank)
+        public static Bitboard BitboardAllNorth(this Rank rank)
         {
             switch (rank)
             {
-                case ChessRank.Rank1:
-                    return ChessBitboard.Full;
-                case ChessRank.Rank2:
-                    return ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
-                case ChessRank.Rank3:
-                    return ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
-                case ChessRank.Rank4:
-                    return ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
-                case ChessRank.Rank5:
-                    return ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
-                case ChessRank.Rank6:
-                    return ChessBitboard.Rank6 | ChessBitboard.Rank7 | ChessBitboard.Rank8;
-                case ChessRank.Rank7:
-                    return ChessBitboard.Rank7 | ChessBitboard.Rank8;
-                case ChessRank.Rank8:
-                    return ChessBitboard.Rank8;
+                case Rank.Rank1:
+                    return Bitboard.Full;
+                case Rank.Rank2:
+                    return Bitboard.Rank2 | Bitboard.Rank3 | Bitboard.Rank4 | Bitboard.Rank5 | Bitboard.Rank6 | Bitboard.Rank7 | Bitboard.Rank8;
+                case Rank.Rank3:
+                    return Bitboard.Rank3 | Bitboard.Rank4 | Bitboard.Rank5 | Bitboard.Rank6 | Bitboard.Rank7 | Bitboard.Rank8;
+                case Rank.Rank4:
+                    return Bitboard.Rank4 | Bitboard.Rank5 | Bitboard.Rank6 | Bitboard.Rank7 | Bitboard.Rank8;
+                case Rank.Rank5:
+                    return Bitboard.Rank5 | Bitboard.Rank6 | Bitboard.Rank7 | Bitboard.Rank8;
+                case Rank.Rank6:
+                    return Bitboard.Rank6 | Bitboard.Rank7 | Bitboard.Rank8;
+                case Rank.Rank7:
+                    return Bitboard.Rank7 | Bitboard.Rank8;
+                case Rank.Rank8:
+                    return Bitboard.Rank8;
                 default:
                     return 0;
             }
         }
 
-        public static ChessBitboard BitboardAllSouth(this ChessRank rank)
+        public static Bitboard BitboardAllSouth(this Rank rank)
         {
             switch (rank)
             {
-                case ChessRank.Rank1:
-                    return ChessBitboard.Rank1;
-                case ChessRank.Rank2:
-                    return ChessBitboard.Rank1 | ChessBitboard.Rank2;
-                case ChessRank.Rank3:
-                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3;
-                case ChessRank.Rank4:
-                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4;
-                case ChessRank.Rank5:
-                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5;
-                case ChessRank.Rank6:
-                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6;
-                case ChessRank.Rank7:
-                    return ChessBitboard.Rank1 | ChessBitboard.Rank2 | ChessBitboard.Rank3 | ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6  | ChessBitboard.Rank7;
-                case ChessRank.Rank8:
-                    return ChessBitboard.Full;
+                case Rank.Rank1:
+                    return Bitboard.Rank1;
+                case Rank.Rank2:
+                    return Bitboard.Rank1 | Bitboard.Rank2;
+                case Rank.Rank3:
+                    return Bitboard.Rank1 | Bitboard.Rank2 | Bitboard.Rank3;
+                case Rank.Rank4:
+                    return Bitboard.Rank1 | Bitboard.Rank2 | Bitboard.Rank3 | Bitboard.Rank4;
+                case Rank.Rank5:
+                    return Bitboard.Rank1 | Bitboard.Rank2 | Bitboard.Rank3 | Bitboard.Rank4 | Bitboard.Rank5;
+                case Rank.Rank6:
+                    return Bitboard.Rank1 | Bitboard.Rank2 | Bitboard.Rank3 | Bitboard.Rank4 | Bitboard.Rank5 | Bitboard.Rank6;
+                case Rank.Rank7:
+                    return Bitboard.Rank1 | Bitboard.Rank2 | Bitboard.Rank3 | Bitboard.Rank4 | Bitboard.Rank5 | Bitboard.Rank6  | Bitboard.Rank7;
+                case Rank.Rank8:
+                    return Bitboard.Full;
                 default:
                     return 0;
             }

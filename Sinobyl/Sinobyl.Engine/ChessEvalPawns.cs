@@ -22,16 +22,16 @@ namespace Sinobyl.Engine
         public readonly PawnInfo[] pawnHash = new PawnInfo[1000];
         public static int TotalEvalPawnCount = 0;
 
-        private static ChessBitboard[][] _attackMask = new ChessBitboard[2][];
-        private static ChessBitboard[] _telestop = new ChessBitboard[64];
+        private static Bitboard[][] _attackMask = new Bitboard[2][];
+        private static Bitboard[] _telestop = new Bitboard[64];
         static ChessEvalPawns()
         {
-            _attackMask[0] = new ChessBitboard[64];
-            _attackMask[1] = new ChessBitboard[64];
+            _attackMask[0] = new Bitboard[64];
+            _attackMask[1] = new Bitboard[64];
             foreach (var position in ChessPositionInfo.AllPositions)
             {
-                ChessBitboard north = position.Bitboard().Flood(ChessDirection.DirN) & ~position.Bitboard();
-                ChessBitboard south = position.Bitboard().Flood(ChessDirection.DirS) & ~position.Bitboard();
+                Bitboard north = position.ToBitboard().Flood(ChessDirection.DirN) & ~position.ToBitboard();
+                Bitboard south = position.ToBitboard().Flood(ChessDirection.DirS) & ~position.ToBitboard();
                 
                 _attackMask[(int)ChessPlayer.White][(int)position] = north.ShiftDirW() | north.ShiftDirE();
                 _attackMask[(int)ChessPlayer.Black][(int)position] = south.ShiftDirW() | south.ShiftDirE();
@@ -86,16 +86,16 @@ namespace Sinobyl.Engine
             return retval;
         }
 
-        public PawnInfo EvalAllPawns(ChessBitboard whitePawns, ChessBitboard blackPawns, long pawnZobrist)
+        public PawnInfo EvalAllPawns(Bitboard whitePawns, Bitboard blackPawns, long pawnZobrist)
         {
             TotalEvalPawnCount++;
 
             //eval for white
-            ChessBitboard doubled = ChessBitboard.Empty;
-            ChessBitboard passed = ChessBitboard.Empty;
-            ChessBitboard isolated = ChessBitboard.Empty;
-            ChessBitboard unconnected = ChessBitboard.Empty;
-            ChessBitboard candidates = ChessBitboard.Empty;
+            Bitboard doubled = Bitboard.Empty;
+            Bitboard passed = Bitboard.Empty;
+            Bitboard isolated = Bitboard.Empty;
+            Bitboard unconnected = Bitboard.Empty;
+            Bitboard candidates = Bitboard.Empty;
             
             int WStartVal = 0;
             int WEndVal = 0;
@@ -103,14 +103,14 @@ namespace Sinobyl.Engine
             EvalWhitePawns(whitePawns, blackPawns, ref WStartVal, ref WEndVal,out passed, out doubled, out isolated, out unconnected, out candidates);
 
             //create inverse situation
-            ChessBitboard bpassed = ChessBitboard.Empty;
-            ChessBitboard bdoubled = ChessBitboard.Empty;
-            ChessBitboard bisolated = ChessBitboard.Empty;
-            ChessBitboard bunconnected = ChessBitboard.Empty;
-            ChessBitboard bcandidates = ChessBitboard.Empty;
+            Bitboard bpassed = Bitboard.Empty;
+            Bitboard bdoubled = Bitboard.Empty;
+            Bitboard bisolated = Bitboard.Empty;
+            Bitboard bunconnected = Bitboard.Empty;
+            Bitboard bcandidates = Bitboard.Empty;
 
-            ChessBitboard blackRev = blackPawns.Reverse();
-            ChessBitboard whiteRev = whitePawns.Reverse();
+            Bitboard blackRev = blackPawns.Reverse();
+            Bitboard whiteRev = whitePawns.Reverse();
 
             int BStartVal = 0;
             int BEndVal = 0;
@@ -131,32 +131,32 @@ namespace Sinobyl.Engine
             return new PawnInfo(pawnZobrist, whitePawns, blackPawns, StartVal, EndVal, passed, doubled, isolated, unconnected, candidates);
 
         }
-        private void EvalWhitePawns(ChessBitboard whitePawns, ChessBitboard blackPawns, ref int StartVal, ref int EndVal, out ChessBitboard passed, out ChessBitboard doubled, out ChessBitboard isolated, out ChessBitboard unconnected, out ChessBitboard candidates)
+        private void EvalWhitePawns(Bitboard whitePawns, Bitboard blackPawns, ref int StartVal, ref int EndVal, out Bitboard passed, out Bitboard doubled, out Bitboard isolated, out Bitboard unconnected, out Bitboard candidates)
         {
-            passed = ChessBitboard.Empty;
-            doubled = ChessBitboard.Empty;
-            isolated = ChessBitboard.Empty;
-            unconnected = ChessBitboard.Empty;
-            candidates = ChessBitboard.Empty;
+            passed = Bitboard.Empty;
+            doubled = Bitboard.Empty;
+            isolated = Bitboard.Empty;
+            unconnected = Bitboard.Empty;
+            candidates = Bitboard.Empty;
 
-            ChessBitboard positions = whitePawns;
+            Bitboard positions = whitePawns;
 
-            while(positions != ChessBitboard.Empty)
+            while(positions != Bitboard.Empty)
             {
-                ChessPosition pos = ChessBitboardInfo.PopFirst(ref positions);
-                ChessFile f = pos.GetFile();
-                ChessRank r = pos.GetRank();
-                ChessBitboard bbFile = pos.GetFile().Bitboard();
-                ChessBitboard bbFile2E = bbFile.ShiftDirE();
-                ChessBitboard bbFile2W = bbFile.ShiftDirW();
-                ChessBitboard telestop = _telestop[(int)pos];
+                ChessPosition pos = BitboardInfo.PopFirst(ref positions);
+                File f = pos.ToFile();
+                Rank r = pos.ToRank();
+                Bitboard bbFile = pos.ToFile().ToBitboard();
+                Bitboard bbFile2E = bbFile.ShiftDirE();
+                Bitboard bbFile2W = bbFile.ShiftDirW();
+                Bitboard telestop = _telestop[(int)pos];
 
                 //substract doubled score
                 if (!(telestop & whitePawns).Empty())
                 {
                     StartVal -= this.DoubledPawnValueStart;
                     EndVal -= this.DoubledPawnValueEnd;
-                    doubled |= pos.Bitboard();
+                    doubled |= pos.ToBitboard();
                 }
 
                 
@@ -166,34 +166,34 @@ namespace Sinobyl.Engine
                 {
                     StartVal -= this.IsolatedPawnValueStart;
                     EndVal -= this.IsolatedPawnValueEnd;
-                    isolated |= pos.Bitboard();
+                    isolated |= pos.ToBitboard();
                 }
                 else
                 {
                     //substract unconnected penalty, isolated is not also unconnected
-                    ChessBitboard bbRank = r.Bitboard();
-                    ChessBitboard connectedRanks = bbRank | bbRank.ShiftDirN() | bbRank.ShiftDirS();
-                    ChessBitboard connectedPos = connectedRanks & (bbFile2E | bbFile2W);
+                    Bitboard bbRank = r.ToBitboard();
+                    Bitboard connectedRanks = bbRank | bbRank.ShiftDirN() | bbRank.ShiftDirS();
+                    Bitboard connectedPos = connectedRanks & (bbFile2E | bbFile2W);
                     if ((whitePawns & connectedPos).Empty())
                     {
                         StartVal -= this.UnconnectedPawnStart;
                         EndVal -= this.UnconnectedPawnEnd;
-                        unconnected |= pos.Bitboard();
+                        unconnected |= pos.ToBitboard();
                     }
                 }
 
                 if ((telestop & whitePawns).Empty())
                 {
-                    ChessBitboard blockPositions = _attackMask[0][(int)pos] | _telestop[(int)pos];
+                    Bitboard blockPositions = _attackMask[0][(int)pos] | _telestop[(int)pos];
                     if ((blockPositions & blackPawns).Empty())
                     {
                         //StartVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Opening];
                         //EndVal += this.PawnPassedValuePosStage[(int)pos, (int)ChessGameStage.Endgame];
-                        passed |= pos.Bitboard();
+                        passed |= pos.ToBitboard();
                     }
                     else if (IsCandidate(pos, whitePawns, blackPawns))
                     {
-                        candidates |= pos.Bitboard();
+                        candidates |= pos.ToBitboard();
                     }
                 }
                 
@@ -201,26 +201,26 @@ namespace Sinobyl.Engine
 
         }
 
-        private static bool IsCandidate(ChessPosition pos, ChessBitboard white, ChessBitboard black)
+        private static bool IsCandidate(ChessPosition pos, Bitboard white, Bitboard black)
         {
             System.Diagnostics.Debug.Assert(white.Contains(pos));
 
-            if ((_telestop[(int)pos] & black) != ChessBitboard.Empty)
+            if ((_telestop[(int)pos] & black) != Bitboard.Empty)
             {
                 return false;
             }
 
-            if (!(ChessBitboard.Rank4 | ChessBitboard.Rank5 | ChessBitboard.Rank6 | ChessBitboard.Rank7).Contains(pos))
+            if (!(Bitboard.Rank4 | Bitboard.Rank5 | Bitboard.Rank6 | Bitboard.Rank7).Contains(pos))
             {
                 return false;
             }
 
-            ChessBitboard blockers = _attackMask[0][(int)pos] & black;
-            ChessBitboard helpers = _attackMask[1][(int)pos.PositionInDirectionUnsafe(ChessDirection.DirN)] & white;
+            Bitboard blockers = _attackMask[0][(int)pos] & black;
+            Bitboard helpers = _attackMask[1][(int)pos.PositionInDirectionUnsafe(ChessDirection.DirN)] & white;
 
-            System.Diagnostics.Debug.Assert(blockers != ChessBitboard.Empty); //otherwise it's a passed pawn.
+            System.Diagnostics.Debug.Assert(blockers != Bitboard.Empty); //otherwise it's a passed pawn.
 
-            if (helpers == ChessBitboard.Empty) { return false; }
+            if (helpers == Bitboard.Empty) { return false; }
 
             return helpers.BitCount() >= blockers.BitCount();
         }
@@ -229,16 +229,16 @@ namespace Sinobyl.Engine
         public static ChessResult? EndgameKPK(ChessPosition whiteKing, ChessPosition blackKing, ChessPosition whitePawn, bool whiteToMove)
         {
             if (!whiteToMove
-                && ((Attacks.KingAttacks(blackKing) & whitePawn.Bitboard()) != ChessBitboard.Empty)
-                && (Attacks.KingAttacks(whiteKing) & whitePawn.Bitboard()) == ChessBitboard.Empty)
+                && ((Attacks.KingAttacks(blackKing) & whitePawn.ToBitboard()) != Bitboard.Empty)
+                && (Attacks.KingAttacks(whiteKing) & whitePawn.ToBitboard()) == Bitboard.Empty)
             {
                 //black can just take white.
                 return ChessResult.Draw;
             }
 
-            ChessPosition prom = ChessRank.Rank8.ToPosition(whitePawn.GetFile());
+            ChessPosition prom = Rank.Rank8.ToPosition(whitePawn.ToFile());
             int pdist = prom.DistanceTo(whitePawn);
-            if (whitePawn.GetRank() == ChessRank.Rank2) { pdist--; }
+            if (whitePawn.ToRank() == Rank.Rank2) { pdist--; }
             if (!whiteToMove) { pdist++; }
             if (prom.DistanceTo(blackKing) > pdist)
             {
@@ -273,13 +273,13 @@ namespace Sinobyl.Engine
 
 
 
-        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, ChessBitboard passedPawns, ChessBitboard candidatePawns, int[] workspace)
+        public PhasedScore EvalPassedPawns(ChessBoard board, ChessEvalAttackInfo[] attackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
         {
             
             PhasedScore retval = PhasedScoreInfo.Create(0, 0);
 
             var positions = (passedPawns | candidatePawns) & board[ChessPlayer.White];
-            if (positions != ChessBitboard.Empty)
+            if (positions != Bitboard.Empty)
             {
                 var white = EvalPassedPawnsSide(ChessPlayer.White, board, attackInfo[0], attackInfo[1], passedPawns & board[ChessPlayer.White], candidatePawns & board[ChessPlayer.White], workspace);
                 retval = retval.Add(white);
@@ -287,7 +287,7 @@ namespace Sinobyl.Engine
             }
 
             positions = (passedPawns | candidatePawns) & board[ChessPlayer.Black];
-            if (positions != ChessBitboard.Empty)
+            if (positions != Bitboard.Empty)
             {
                 var black = EvalPassedPawnsSide(ChessPlayer.Black, board, attackInfo[1], attackInfo[0], passedPawns & board[ChessPlayer.Black], candidatePawns & board[ChessPlayer.Black], workspace);
                 retval = retval.Subtract(black);
@@ -298,7 +298,7 @@ namespace Sinobyl.Engine
 
         }
 
-        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, ChessBitboard passedPawns, ChessBitboard candidatePawns, int[] workspace)
+        public PhasedScore EvalPassedPawnsSide(ChessPlayer me, ChessBoard board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
         {
             
             int bestEndScore = -1;
@@ -308,19 +308,19 @@ namespace Sinobyl.Engine
 
             ChessPosition myKing = board.KingPosition(me);
             ChessPosition hisKing = board.KingPosition(him);
-            ChessBitboard allPieces = board.PieceLocationsAll;
-            ChessBitboard myPawnAttacks = myAttackInfo.PawnEast | myAttackInfo.PawnWest;
-            ChessBitboard myAttacks = myAttackInfo.All();
-            ChessBitboard hisAttacks = hisAttackInfo.All();
-            ChessBitboard positions = passedPawns | candidatePawns;
+            Bitboard allPieces = board.PieceLocationsAll;
+            Bitboard myPawnAttacks = myAttackInfo.PawnEast | myAttackInfo.PawnWest;
+            Bitboard myAttacks = myAttackInfo.All();
+            Bitboard hisAttacks = hisAttackInfo.All();
+            Bitboard positions = passedPawns | candidatePawns;
 
             ChessDirection mySouth = me == ChessPlayer.White ? ChessDirection.DirS : ChessDirection.DirN;
 
             Array.Clear(workspace, 0, 8);
 
-            while (positions != ChessBitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
+            while (positions != Bitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
             {
-                ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
+                ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
                 ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
 
                 ChessPiece trailerPiece = board.PieceInDirection(passedPos, mySouth, ref trailerPos);
@@ -347,7 +347,7 @@ namespace Sinobyl.Engine
                     mbonus: out startScore,
                     ebonus: out endScore);
                  
-                int iFile = (int)passedPos.GetFile();
+                int iFile = (int)passedPos.ToFile();
 
                 //adjust scores down for candidates.
                 if (isCandidate)
@@ -390,10 +390,10 @@ namespace Sinobyl.Engine
         }
 
         private void EvalPassedPawn(ChessPlayer me, ChessPosition p, ChessPosition myKing, ChessPosition hisKing,
-            ChessBitboard allPieces, ChessBitboard myPawnAttacks, ChessBitboard myAttacks, ChessBitboard hisAttacks,
+            Bitboard allPieces, Bitboard myPawnAttacks, Bitboard myAttacks, Bitboard hisAttacks,
             bool attackingTrailer, bool supportingTrailer, out int mbonus, out int ebonus)
         {
-            ChessRank rank = p.GetRank();
+            Rank rank = p.ToRank();
 
             if (me == ChessPlayer.Black) { rank = 7 - rank; }
 
@@ -409,7 +409,7 @@ namespace Sinobyl.Engine
 
             int k = 0;
 
-            if (rank <= ChessRank.Rank5)
+            if (rank <= Rank.Rank5)
             {
 
                 k += hisKing.DistanceTo(blockSq);
@@ -457,17 +457,17 @@ namespace Sinobyl.Engine
         }
 
 
-        public void EvalPassedPawnsOld(ChessBoard board, ChessEvalInfo evalInfo, ChessBitboard passedPawns)
+        public void EvalPassedPawnsOld(ChessBoard board, ChessEvalInfo evalInfo, Bitboard passedPawns)
         {
 
             ChessPosition myKing, hisKing;
-            ChessBitboard allPieces, myPawnAttacks, myAttacks, hisAttacks;
+            Bitboard allPieces, myPawnAttacks, myAttacks, hisAttacks;
             bool attackingTrailer, supportingTrailer;
 
             int startScore, endScore, bestEndScore;
 
             var positions = passedPawns & board[ChessPlayer.White];
-            if (positions != ChessBitboard.Empty)
+            if (positions != Bitboard.Empty)
             {
                 bestEndScore = 0;
 
@@ -478,9 +478,9 @@ namespace Sinobyl.Engine
                 myAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All();
                 hisAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All();
 
-                while (positions != ChessBitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
+                while (positions != Bitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
                 {
-                    ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
+                    ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
                     ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirS, ref trailerPos);
 
@@ -522,7 +522,7 @@ namespace Sinobyl.Engine
             }
 
             positions = passedPawns & board[ChessPlayer.Black];
-            if (positions != ChessBitboard.Empty)
+            if (positions != Bitboard.Empty)
             {
                 bestEndScore = 0;
                 myKing = board.KingPosition(ChessPlayer.Black).Reverse();
@@ -532,9 +532,9 @@ namespace Sinobyl.Engine
                 myAttacks = evalInfo.Attacks[(int)ChessPlayer.Black].All().Reverse();
                 hisAttacks = evalInfo.Attacks[(int)ChessPlayer.White].All().Reverse();
 
-                while (positions != ChessBitboard.Empty) // (ChessPosition passedPos in black.ToPositions())
+                while (positions != Bitboard.Empty) // (ChessPosition passedPos in black.ToPositions())
                 {
-                    ChessPosition passedPos = ChessBitboardInfo.PopFirst(ref positions);
+                    ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
                     ChessPosition passesPos2 = passedPos.Reverse();
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
                     ChessPiece trailerPiece = board.PieceInDirection(passedPos, ChessDirection.DirN, ref trailerPos);
@@ -579,10 +579,10 @@ namespace Sinobyl.Engine
 
 
         private void EvalPassedPawnBoth(ChessPosition p, ChessPosition myKing, ChessPosition hisKing,
-            ChessBitboard allPieces, ChessBitboard myPawnAttacks, ChessBitboard myAttacks, ChessBitboard hisAttacks,
+            Bitboard allPieces, Bitboard myPawnAttacks, Bitboard myAttacks, Bitboard hisAttacks,
             bool attackingTrailer, bool supportingTrailer, out int mbonus, out int ebonus)
         {
-            ChessRank rank = p.GetRank();
+            Rank rank = p.ToRank();
 
             //int r = Math.Abs(rank - ChessRank.Rank2);
             //int rr = r * (r - 1);
@@ -596,7 +596,7 @@ namespace Sinobyl.Engine
 
             int k = 0;
 
-            if (rank <= ChessRank.Rank5)
+            if (rank <= Rank.Rank5)
             {
 
                 k += hisKing.DistanceTo(blockSq);
@@ -651,18 +651,18 @@ namespace Sinobyl.Engine
     {
 
         public readonly Int64 PawnZobrist;
-        public readonly ChessBitboard WhitePawns;
-        public readonly ChessBitboard BlackPawns;
+        public readonly Bitboard WhitePawns;
+        public readonly Bitboard BlackPawns;
         public readonly PhasedScore Value;
-        public readonly ChessBitboard PassedPawns;
-        public readonly ChessBitboard Doubled;
-        public readonly ChessBitboard Isolated;
-        public readonly ChessBitboard Unconnected;
-        public readonly ChessBitboard Candidates;
+        public readonly Bitboard PassedPawns;
+        public readonly Bitboard Doubled;
+        public readonly Bitboard Isolated;
+        public readonly Bitboard Unconnected;
+        public readonly Bitboard Candidates;
 
 
 
-        public PawnInfo(Int64 pawnZobrist, ChessBitboard whitePawns, ChessBitboard blackPawns, int startVal, int endVal, ChessBitboard passedPawns, ChessBitboard doubled, ChessBitboard isolated, ChessBitboard unconnected, ChessBitboard candidates)
+        public PawnInfo(Int64 pawnZobrist, Bitboard whitePawns, Bitboard blackPawns, int startVal, int endVal, Bitboard passedPawns, Bitboard doubled, Bitboard isolated, Bitboard unconnected, Bitboard candidates)
         {
             PawnZobrist = pawnZobrist;
             WhitePawns = whitePawns;
@@ -683,7 +683,7 @@ namespace Sinobyl.Engine
 
         private static readonly int[] _shelterFactor = new int[] { 7, 0, 2, 5, 6, 7, 7, 7 };
 
-        public int EvalShelter(ChessFile whiteKingFile, ChessFile blackKingFile, CastleFlags castleFlags)
+        public int EvalShelter(File whiteKingFile, File blackKingFile, CastleFlags castleFlags)
         {
             int key = ((int)whiteKingFile
                 | ((int)blackKingFile << 8)
@@ -704,35 +704,35 @@ namespace Sinobyl.Engine
 
 
         }
-        private int EvalShelterCalc(ChessFile whiteKingFile, ChessFile blackKingFile, CastleFlags castleFlags)
+        private int EvalShelterCalc(File whiteKingFile, File blackKingFile, CastleFlags castleFlags)
         {
             
             int retval = 0;
 
             int castlePenalty;
 
-            ChessBitboard wpRev = WhitePawns.Reverse();
+            Bitboard wpRev = WhitePawns.Reverse();
             int lowestWhitePenalty = CalcKingShelterPenaltyFactorBlackPerspective(whiteKingFile, wpRev);
             if ((castleFlags & CastleFlags.WhiteShort) != 0)
             {
-                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileG, wpRev) + 2;
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(File.FileG, wpRev) + 2;
                 if (castlePenalty < lowestWhitePenalty) { lowestWhitePenalty = castlePenalty; }
             }
             if ((castleFlags & CastleFlags.WhiteLong) != 0)
             {
-                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileC, wpRev) + 2;
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(File.FileC, wpRev) + 2;
                 if (castlePenalty < lowestWhitePenalty) { lowestWhitePenalty = castlePenalty; }
             }
 
             int lowestBlackPenalty = CalcKingShelterPenaltyFactorBlackPerspective(blackKingFile, BlackPawns);
             if ((castleFlags & CastleFlags.BlackShort) != 0)
             {
-                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileG, BlackPawns) + 2;
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(File.FileG, BlackPawns) + 2;
                 if (castlePenalty < lowestBlackPenalty) { lowestBlackPenalty = castlePenalty; }
             }
             if ((castleFlags & CastleFlags.BlackLong) != 0)
             {
-                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(ChessFile.FileC, BlackPawns) + 2;
+                castlePenalty = CalcKingShelterPenaltyFactorBlackPerspective(File.FileC, BlackPawns) + 2;
                 if (castlePenalty < lowestBlackPenalty) { lowestBlackPenalty = castlePenalty; }
             }
 
@@ -749,28 +749,28 @@ namespace Sinobyl.Engine
         /// <param name="myPawns"></param>
         /// <param name="blackPawns"></param>
         /// <returns></returns>
-        private static int CalcKingShelterPenaltyFactorBlackPerspective(ChessFile kingFile, ChessBitboard myPawns)
+        private static int CalcKingShelterPenaltyFactorBlackPerspective(File kingFile, Bitboard myPawns)
         {
-            if (kingFile == ChessFile.FileA) { kingFile = ChessFile.FileB; }
-            if (kingFile == ChessFile.FileH) { kingFile = ChessFile.FileG; }
+            if (kingFile == File.FileA) { kingFile = File.FileB; }
+            if (kingFile == File.FileH) { kingFile = File.FileG; }
 
             int retval = 0;
             int count7th = 0;
-            for (ChessFile f = kingFile - 1; f <= kingFile + 1; f++)
+            for (File f = kingFile - 1; f <= kingFile + 1; f++)
             {
-                ChessBitboard bbFile = f.Bitboard();
-                ChessBitboard bbPawnFile = bbFile & myPawns;
-                ChessRank pawnRank;
-                if (bbPawnFile == ChessBitboard.Empty)
+                Bitboard bbFile = f.ToBitboard();
+                Bitboard bbPawnFile = bbFile & myPawns;
+                Rank pawnRank;
+                if (bbPawnFile == Bitboard.Empty)
                 {
-                    pawnRank = ChessRank.Rank1;
+                    pawnRank = Rank.Rank1;
                 }
                 else
                 {
-                    pawnRank = bbPawnFile.NorthMostPosition().GetRank();
+                    pawnRank = bbPawnFile.NorthMostPosition().ToRank();
                 }
                 retval += _shelterFactor[(int)pawnRank];
-                if (pawnRank == ChessRank.Rank7)
+                if (pawnRank == Rank.Rank7)
                 {
                     count7th++;
                 }

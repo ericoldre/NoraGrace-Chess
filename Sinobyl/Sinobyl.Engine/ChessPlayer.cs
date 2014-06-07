@@ -76,16 +76,16 @@ namespace Sinobyl.Engine
             return player == ChessPlayer.White ? ChessDirection.DirN : ChessDirection.DirS;
         }
 
-        public static ChessRank MyRank2(this ChessPlayer player)
+        public static Rank MyRank2(this ChessPlayer player)
         {
             System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
-            return player == ChessPlayer.White ? ChessRank.Rank2 : ChessRank.Rank7;
+            return player == ChessPlayer.White ? Rank.Rank2 : Rank.Rank7;
         }
 
-        public static ChessRank MyRank8(this ChessPlayer player)
+        public static Rank MyRank8(this ChessPlayer player)
         {
             System.Diagnostics.Debug.Assert(player == ChessPlayer.White || player == ChessPlayer.Black);
-            return player == ChessPlayer.White ? ChessRank.Rank8 : ChessRank.Rank1;
+            return player == ChessPlayer.White ? Rank.Rank8 : Rank.Rank1;
         }
     }
 }

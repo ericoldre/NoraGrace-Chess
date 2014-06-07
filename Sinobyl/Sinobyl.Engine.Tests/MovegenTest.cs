@@ -165,22 +165,22 @@ namespace Sinobyl.Engine.Tests
 
         public void VerifyBoardBitboards(ChessBoard board)
         {
-            ChessBitboard[] expectedPieces = new ChessBitboard[12];
-            var all = ChessBitboard.Empty;
+            Bitboard[] expectedPieces = new Bitboard[12];
+            var all = Bitboard.Empty;
             foreach (var pos in ChessPositionInfo.AllPositions)
             {
                 if (board.PieceAt(pos) != ChessPiece.EMPTY)
                 {
-                    all |= pos.Bitboard();
-                    expectedPieces[(int)board.PieceAt(pos)] |= pos.Bitboard();
+                    all |= pos.ToBitboard();
+                    expectedPieces[(int)board.PieceAt(pos)] |= pos.ToBitboard();
                 }
             }
 
             foreach (var piece in ChessPieceInfo.AllPieces)
             {
-                Assert.AreEqual<ChessBitboard>(expectedPieces[(int)piece], board[piece]);
+                Assert.AreEqual<Bitboard>(expectedPieces[(int)piece], board[piece]);
             }
-            Assert.AreEqual<ChessBitboard>(all, board.PieceLocationsAll);
+            Assert.AreEqual<Bitboard>(all, board.PieceLocationsAll);
             //Assert.AreEqual(Attacks.RotateVert(all), board.PieceLocationsAllVert);
             //Assert.AreEqual(Attacks.RotateDiagA1H8(all), board.PieceLocationsAllA1H8);
             //Assert.AreEqual(Attacks.RotateDiagH1A8(all), board.PieceLocationsAllH1A8);

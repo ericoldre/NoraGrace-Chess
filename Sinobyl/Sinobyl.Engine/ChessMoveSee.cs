@@ -27,7 +27,7 @@ namespace Sinobyl.Engine
                 retval += taken.PieceValBasic();
                 //do see
                 var attacks = board.AttacksTo(move.To());
-                attacks &= ~(move.From().Bitboard());
+                attacks &= ~(move.From().ToBitboard());
                 retval -= attackswap(board, attacks, me.PlayerOther(), move.To(), mover.PieceValBasic());
             }
 
@@ -40,7 +40,7 @@ namespace Sinobyl.Engine
 
             return retval;
         }
-        static int attackswap(ChessBoard board, ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
+        static int attackswap(ChessBoard board, Bitboard attacks, ChessPlayer player, ChessPosition positionattacked, int pieceontargetval)
         {
             int nextAttackPieceVal = 0;
             ChessPosition nextAttackPos = 0;
@@ -60,13 +60,13 @@ namespace Sinobyl.Engine
             }
         }
 
-        static bool attackpop(ChessBoard board, ref ChessBitboard attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
+        static bool attackpop(ChessBoard board, ref Bitboard attacks, ChessPlayer player, ChessPosition positionattacked, out ChessPosition OutFrom, out int OutPieceVal)
         {
 
             OutFrom = ChessPosition.OUTOFBOUNDS;
             OutPieceVal = 0;
 
-            ChessBitboard myAttacks = attacks & board[player];
+            Bitboard myAttacks = attacks & board[player];
             if ((myAttacks & board[ChessPieceType.Pawn]) != 0)
             {
                 OutFrom = (myAttacks & board[ChessPieceType.Pawn]).NorthMostPosition();
@@ -111,14 +111,14 @@ namespace Sinobyl.Engine
                 ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
                 if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
                 {
-                    attacks |= AddPosition.Bitboard();
+                    attacks |= AddPosition.ToBitboard();
                 }
                 else if (addAttackFrom.IsDirectionBishop() && AddPiece.PieceIsSliderBishop())
                 {
-                    attacks |= AddPosition.Bitboard();
+                    attacks |= AddPosition.ToBitboard();
                 }
             }
-            attacks &= ~OutFrom.Bitboard();
+            attacks &= ~OutFrom.ToBitboard();
             return true;
 
         }

@@ -81,7 +81,7 @@ namespace Sinobyl.Engine
                 return retval;
             }
 
-            retval = EvalAllPawns(board[ChessPiece.WPawn], board[ChessPiece.BPawn], board.ZobristPawn);
+            retval = EvalAllPawns(board[Piece.WPawn], board[Piece.BPawn], board.ZobristPawn);
             pawnHash[idx] = retval;
             return retval;
         }
@@ -323,7 +323,7 @@ namespace Sinobyl.Engine
                 ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
                 ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
 
-                ChessPiece trailerPiece = board.PieceInDirection(passedPos, mySouth, ref trailerPos);
+                Piece trailerPiece = board.PieceInDirection(passedPos, mySouth, ref trailerPos);
 
                 bool isCandidate = candidatePawns.Contains(passedPos);
 
@@ -482,7 +482,7 @@ namespace Sinobyl.Engine
                 {
                     ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
-                    ChessPiece trailerPiece = board.PieceInDirection(passedPos, Direction.DirS, ref trailerPos);
+                    Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirS, ref trailerPos);
 
                     attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.Black;
                     supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.White;
@@ -537,7 +537,7 @@ namespace Sinobyl.Engine
                     ChessPosition passedPos = BitboardInfo.PopFirst(ref positions);
                     ChessPosition passesPos2 = passedPos.Reverse();
                     ChessPosition trailerPos = ChessPosition.OUTOFBOUNDS;
-                    ChessPiece trailerPiece = board.PieceInDirection(passedPos, Direction.DirN, ref trailerPos);
+                    Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirN, ref trailerPos);
 
                     attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.White;
                     supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.Black;

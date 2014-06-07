@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
 	{
         public static readonly string FENStart = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-		public readonly ChessPiece[] pieceat = new ChessPiece[64];
+		public readonly Piece[] pieceat = new Piece[64];
 		public readonly Player whosturn;
 		public readonly bool castleWS;
 		public readonly bool castleWL;
@@ -21,7 +21,7 @@ namespace Sinobyl.Engine
 		public readonly int fullmove = 0;
 
         public ChessFEN(
-            ChessPositionDictionary<ChessPiece> Pieces,
+            ChessPositionDictionary<Piece> Pieces,
             Player WhosTurn = Player.White,
             bool CastleWS = false,
             bool CastleWL = false,
@@ -106,7 +106,7 @@ namespace Sinobyl.Engine
 
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
-				pieceat[(int)pos] = ChessPiece.EMPTY;
+				pieceat[(int)pos] = Piece.EMPTY;
 			}
 
 			//set board piece positions
@@ -124,7 +124,7 @@ namespace Sinobyl.Engine
 					}
 					else
 					{
-                        pieceat[(int)FileInfo.AllFiles[ifile].ToPosition(rank)] = ChessPieceInfo.Parse(c);
+                        pieceat[(int)FileInfo.AllFiles[ifile].ToPosition(rank)] = PieceInfo.Parse(c);
 						ifile++;
 					}
 				}
@@ -191,7 +191,7 @@ namespace Sinobyl.Engine
 		}
 		public ChessFEN Reverse()
 		{
-            ChessPositionDictionary<ChessPiece> pieces = new ChessPositionDictionary<ChessPiece>();
+            ChessPositionDictionary<Piece> pieces = new ChessPositionDictionary<Piece>();
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
             {
                 var piece = 
@@ -212,9 +212,9 @@ namespace Sinobyl.Engine
 				{
 					Rank rank = RankInfo.AllRanks[irank];
 					File file = FileInfo.AllFiles[ifile];
-					ChessPiece piece = pieceat[(int)file.ToPosition(rank)];
+					Piece piece = pieceat[(int)file.ToPosition(rank)];
 
-					if (piece == ChessPiece.EMPTY)
+					if (piece == Piece.EMPTY)
 					{
 						emptycount++;
 					}

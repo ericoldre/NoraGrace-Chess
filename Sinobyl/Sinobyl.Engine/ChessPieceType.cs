@@ -18,7 +18,7 @@ namespace Sinobyl.Engine
             ChessPieceType.Pawn, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Rook, ChessPieceType.Queen, ChessPieceType.King};
 
 
-        public static ChessPiece ForPlayer(this ChessPieceType type, Player player)
+        public static Piece ForPlayer(this ChessPieceType type, Player player)
         {
             System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);
             System.Diagnostics.Debug.Assert(
@@ -29,7 +29,7 @@ namespace Sinobyl.Engine
                 || type == ChessPieceType.Queen
                 || type == ChessPieceType.King);
 
-            return (ChessPiece)((int)type | ((int)player << 3));
+            return (Piece)((int)type | ((int)player << 3));
             //if (player == ChessPlayer.White)
             //{
             //    switch (type)
@@ -96,11 +96,11 @@ namespace Sinobyl.Engine
         public T King { get { return this[ChessPieceType.King]; } set { this[ChessPieceType.King] = value; } }
 
 
-        public IEnumerable<KeyValuePair<ChessPiece, T>> PieceValues()
+        public IEnumerable<KeyValuePair<Piece, T>> PieceValues()
         {
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+            foreach (Piece piece in PieceInfo.AllPieces)
             {
-                yield return new KeyValuePair<ChessPiece, T>(piece, this[piece.ToPieceType()]);
+                yield return new KeyValuePair<Piece, T>(piece, this[piece.ToPieceType()]);
             }
         }
 

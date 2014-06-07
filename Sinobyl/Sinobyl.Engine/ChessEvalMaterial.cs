@@ -35,16 +35,16 @@ namespace Sinobyl.Engine
 
             retval = EvalMaterial(
                 zob: board.ZobristMaterial,
-                wp: board.PieceCount(ChessPiece.WPawn),
-                wn: board.PieceCount(ChessPiece.WKnight),
-                wb: board.PieceCount(ChessPiece.WBishop),
-                wr: board.PieceCount(ChessPiece.WRook),
-                wq: board.PieceCount(ChessPiece.WQueen),
-                bp: board.PieceCount(ChessPiece.BPawn),
-                bn: board.PieceCount(ChessPiece.BKnight),
-                bb: board.PieceCount(ChessPiece.BBishop),
-                br: board.PieceCount(ChessPiece.BRook),
-                bq: board.PieceCount(ChessPiece.BQueen));
+                wp: board.PieceCount(Piece.WPawn),
+                wn: board.PieceCount(Piece.WKnight),
+                wb: board.PieceCount(Piece.WBishop),
+                wr: board.PieceCount(Piece.WRook),
+                wq: board.PieceCount(Piece.WQueen),
+                bp: board.PieceCount(Piece.BPawn),
+                bn: board.PieceCount(Piece.BKnight),
+                bb: board.PieceCount(Piece.BBishop),
+                br: board.PieceCount(Piece.BRook),
+                bq: board.PieceCount(Piece.BQueen));
 
             _hash[idx] = retval;
             return retval;

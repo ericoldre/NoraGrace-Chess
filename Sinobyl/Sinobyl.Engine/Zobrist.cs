@@ -10,7 +10,7 @@ namespace Sinobyl.Engine
 	/// </summary>
 	public class Zobrist
 	{
-        private static readonly Int64[,] _piecepos = new Int64[ChessPieceInfo.LookupArrayLength, 64];
+        private static readonly Int64[,] _piecepos = new Int64[PieceInfo.LookupArrayLength, 64];
 		private static readonly Int64[] _enpassant = new Int64[64];
 
         private static readonly Int64 _castleWS;
@@ -34,7 +34,7 @@ namespace Sinobyl.Engine
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
 				_enpassant[(int)pos] = Rand64(rand);
-				foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+				foreach (Piece piece in PieceInfo.AllPieces)
 				{
 					_piecepos[(int)piece, (int)pos] = Rand64(rand);
 				}
@@ -55,7 +55,7 @@ namespace Sinobyl.Engine
 			}
 			return retval;
 		}
-		public static Int64 PiecePosition(ChessPiece piece, ChessPosition pos)
+		public static Int64 PiecePosition(Piece piece, ChessPosition pos)
 		{
 			//Chess.AssertPiece(piece);
 			//Chess.AssertPosition(pos);
@@ -67,7 +67,7 @@ namespace Sinobyl.Engine
 			return _enpassant[(int)pos];
 		}
 
-        public static Int64 Material(ChessPiece piece, int pieceCountBesidesThis)
+        public static Int64 Material(Piece piece, int pieceCountBesidesThis)
         {
             return _piecepos[(int)piece, pieceCountBesidesThis];
         }
@@ -97,8 +97,8 @@ namespace Sinobyl.Engine
 			Int64 retval = 0;
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
-				ChessPiece piece = board.PieceAt(pos);
-				if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
+				Piece piece = board.PieceAt(pos);
+				if (piece == Piece.WPawn || piece == Piece.BPawn)
 				{
 					retval ^= PiecePosition(piece, pos);
 				}
@@ -108,7 +108,7 @@ namespace Sinobyl.Engine
         public static Int64 BoardZobMaterial(ChessBoard board)
         {
             Int64 retval = 0;
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+            foreach (Piece piece in PieceInfo.AllPieces)
             {
                 for (int i = 0; i < board.PieceCount(piece); i++)
                 {
@@ -123,8 +123,8 @@ namespace Sinobyl.Engine
 			Int64 retval = 0;
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
-				ChessPiece piece = board.PieceAt(pos);
-				if (piece != ChessPiece.EMPTY)
+				Piece piece = board.PieceAt(pos);
+				if (piece != Piece.EMPTY)
 				{
 					retval ^= PiecePosition(piece, pos);
 				}

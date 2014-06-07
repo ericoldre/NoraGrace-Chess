@@ -71,7 +71,7 @@
     <Compile Include="ChessMoveSEE.cs" />
     <Compile Include="ChessOpening.cs" />
     <Compile Include="ChessPGN.cs" />
-    <Compile Include="ChessPiece.cs" />
+    <Compile Include="Piece.cs" />
     <Compile Include="ChessPieceType.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="ChessPosition.cs" />

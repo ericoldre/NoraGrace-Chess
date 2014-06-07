@@ -12,13 +12,13 @@ namespace Sinobyl.Engine.Tests
         [TestMethod]
         public void TestMethod1()
         {
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+            foreach (Piece piece in PieceInfo.AllPieces)
             {
                 var type = piece.ToPieceType();
                 var player = piece.PieceToPlayer();
                 var res = type.ForPlayer(player);
 
-                Assert.AreEqual<ChessPiece>(piece, res);
+                Assert.AreEqual<Piece>(piece, res);
             }
         }
     }

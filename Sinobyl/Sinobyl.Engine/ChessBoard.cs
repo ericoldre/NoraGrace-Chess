@@ -21,8 +21,8 @@ namespace Sinobyl.Engine
 	public class ChessMoveHistory
 	{
         public ChessMove Move;
-        public ChessPiece PieceMoved;
-		public ChessPiece Captured;
+        public Piece PieceMoved;
+		public Piece Captured;
 		public ChessPosition Enpassant;
         public CastleFlags Castle;
 		public int FiftyCount;
@@ -32,7 +32,7 @@ namespace Sinobyl.Engine
         public Int64 ZobristMaterial;
         public Bitboard Checkers;
 
-        public void Reset(ChessMove move, ChessPiece piecemoved, ChessPiece captured, ChessPosition enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
+        public void Reset(ChessMove move, Piece piecemoved, Piece captured, ChessPosition enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
         {
             this.Move = move;
             this.PieceMoved = piecemoved;
@@ -52,16 +52,16 @@ namespace Sinobyl.Engine
 	public sealed class ChessBoard
     {
 
-		private ChessPiece[] _pieceat = new ChessPiece[65];
+		private Piece[] _pieceat = new Piece[65];
 
         //private ChessPieceDictionary<int> _pieceCount = new ChessPieceDictionary<int>();
-		private int[] _pieceCount = new int[ChessPieceInfo.LookupArrayLength];
+		private int[] _pieceCount = new int[PieceInfo.LookupArrayLength];
 
         //private ChessPlayerDictionary<ChessPosition> _kingpos = new ChessPlayerDictionary<ChessPosition>();
         private ChessPosition[] _kingpos = new ChessPosition[2];
 
         //private ChessPieceDictionary<ChessBitboard> _pieces = new ChessPieceDictionary<ChessBitboard>();
-        private Bitboard[] _pieces = new Bitboard[ChessPieceInfo.LookupArrayLength];
+        private Bitboard[] _pieces = new Bitboard[PieceInfo.LookupArrayLength];
 
         //private ChessPieceTypeDictionary<ChessBitboard> _pieceTypes = new ChessPieceTypeDictionary<ChessBitboard>();
         private Bitboard[] _pieceTypes = new Bitboard[ChessPieceTypeInfo.LookupArrayLength];
@@ -132,9 +132,9 @@ namespace Sinobyl.Engine
 		{
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
 			{
-				_pieceat[(int)pos] = ChessPiece.EMPTY;
+				_pieceat[(int)pos] = Piece.EMPTY;
 			}
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+            foreach (Piece piece in PieceInfo.AllPieces)
 			{
                 _pieceCount[(int)piece] = 0;
                 _pieces[(int)piece] = 0;
@@ -183,18 +183,18 @@ namespace Sinobyl.Engine
 
         private void PieceMove(ChessPosition from, ChessPosition to)
         {
-            ChessPiece piece = _pieceat[(int)from];
+            Piece piece = _pieceat[(int)from];
             PieceRemove(from);
             PieceAdd(to, piece);
         }
 
-        private void PieceChange(ChessPosition pos, ChessPiece newPiece)
+        private void PieceChange(ChessPosition pos, Piece newPiece)
         {
             PieceRemove(pos);
             PieceAdd(pos, newPiece);
         }
 
-        private void PieceAdd(ChessPosition pos, ChessPiece piece)
+        private void PieceAdd(ChessPosition pos, Piece piece)
 		{
             _pieceat[(int)pos] = piece;
             _zob ^= Zobrist.PiecePosition(piece, pos);
@@ -208,24 +208,24 @@ namespace Sinobyl.Engine
             _allPieces |= posBits;
             _playerBoards[(int)piece.PieceToPlayer()] |= posBits;
 
-			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
+			if (piece == Piece.WPawn || piece == Piece.BPawn)
 			{
                 _zobPawn ^= Zobrist.PiecePosition(piece, pos);
 			}
-			else if (piece == ChessPiece.WKing)
+			else if (piece == Piece.WKing)
 			{
                 _kingpos[(int)Player.White] = pos;
 			}
-			else if (piece == ChessPiece.BKing)
+			else if (piece == Piece.BKing)
 			{
                 _kingpos[(int)Player.Black] = pos;
 			}
 		}
         private void PieceRemove(ChessPosition pos)
 		{
-            ChessPiece piece = PieceAt(pos);
+            Piece piece = PieceAt(pos);
 
-            _pieceat[(int)pos] = ChessPiece.EMPTY;
+            _pieceat[(int)pos] = Piece.EMPTY;
 			_zob ^= Zobrist.PiecePosition(piece, pos);
             _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)piece] - 1);
             _pieceCount[(int)piece]--;
@@ -237,12 +237,12 @@ namespace Sinobyl.Engine
             _allPieces &= notPosBits;
             _playerBoards[(int)piece.PieceToPlayer()] &= notPosBits;
 
-			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
+			if (piece == Piece.WPawn || piece == Piece.BPawn)
 			{
                 _zobPawn ^= Zobrist.PiecePosition(piece, pos); 
 			}
 		}
-		public int PieceCount(ChessPiece piece)
+		public int PieceCount(Piece piece)
 		{
             return _pieceCount[(int)piece];
 		}
@@ -308,11 +308,11 @@ namespace Sinobyl.Engine
                 {
                     return repcount;
                 }
-                if (movehist.Captured != ChessPiece.EMPTY)
+                if (movehist.Captured != Piece.EMPTY)
                 {
                     break;
                 }
-                if (movehist.PieceMoved == ChessPiece.WPawn || movehist.PieceMoved == ChessPiece.BPawn)
+                if (movehist.PieceMoved == Piece.WPawn || movehist.PieceMoved == Piece.BPawn)
                 {
                     break;
                 }
@@ -335,7 +335,7 @@ namespace Sinobyl.Engine
 		}
 
 
-		public List<ChessPosition> PieceList(ChessPiece piece)
+		public List<ChessPosition> PieceList(Piece piece)
 		{
 			List<ChessPosition> retval = new List<ChessPosition>();
             foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
@@ -360,7 +360,7 @@ namespace Sinobyl.Engine
                 //clear all existing pieces.
                 foreach (var pos in ChessPositionInfo.AllPositions)
                 {
-                    if (_pieceat[(int)pos] != ChessPiece.EMPTY)
+                    if (_pieceat[(int)pos] != Piece.EMPTY)
                     {
                         this.PieceRemove(pos);
                     }
@@ -373,7 +373,7 @@ namespace Sinobyl.Engine
                 //add pieces
                 foreach (var pos in ChessPositionInfo.AllPositions)
 				{
-                    if (value.pieceat[pos.GetIndex64()] != ChessPiece.EMPTY)
+                    if (value.pieceat[pos.GetIndex64()] != Piece.EMPTY)
 					{
 						this.PieceAdd(pos,value.pieceat[(int)pos]);
 					}
@@ -417,7 +417,7 @@ namespace Sinobyl.Engine
             get { return _zobMaterial; }
         }
 
-        public Bitboard this[ChessPiece piece]
+        public Bitboard this[Piece piece]
         {
             get { return _pieces[(int)piece]; }
         }
@@ -443,7 +443,7 @@ namespace Sinobyl.Engine
             }
         }
 
-        public ChessPiece PieceAt(ChessPosition pos)
+        public Piece PieceAt(ChessPosition pos)
 		{
             return _pieceat[(int)pos];
 		}
@@ -486,9 +486,9 @@ namespace Sinobyl.Engine
             System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
 			ChessPosition from = move.From();
 			ChessPosition to = move.To();
-			ChessPiece piece = this.PieceAt(from);
-			ChessPiece capture = this.PieceAt(to);
-            ChessPiece promote = move.Promote();
+			Piece piece = this.PieceAt(from);
+			Piece capture = this.PieceAt(to);
+            Piece promote = move.Promote();
             Rank fromrank = from.ToRank();
 			Rank torank = to.ToRank();
 			File fromfile = from.ToFile();
@@ -501,32 +501,32 @@ namespace Sinobyl.Engine
 			_movesSinceNull++;
 
 			//remove captured piece
-			if (capture != ChessPiece.EMPTY)
+			if (capture != Piece.EMPTY)
 			{
 				this.PieceRemove(to);
 			}
 
             //move piece, promote if needed
             this.PieceMove(from, to);
-            if (promote != ChessPiece.EMPTY)
+            if (promote != Piece.EMPTY)
             {
                 this.PieceChange(to, promote);
             }
 			
 			//if castle, move rook
-			if (piece == ChessPiece.WKing && from == ChessPosition.E1 && to == ChessPosition.G1)
+			if (piece == Piece.WKing && from == ChessPosition.E1 && to == ChessPosition.G1)
 			{
                 this.PieceMove(ChessPosition.H1, ChessPosition.F1);
 			}
-			if (piece == ChessPiece.WKing && from == ChessPosition.E1 && to == ChessPosition.C1)
+			if (piece == Piece.WKing && from == ChessPosition.E1 && to == ChessPosition.C1)
 			{
                 this.PieceMove(ChessPosition.A1, ChessPosition.D1);
 			}
-			if (piece == ChessPiece.BKing && from == ChessPosition.E8 && to == ChessPosition.G8)
+			if (piece == Piece.BKing && from == ChessPosition.E8 && to == ChessPosition.G8)
 			{
                 this.PieceMove(ChessPosition.H8, ChessPosition.F8);
 			}
-			if (piece == ChessPiece.BKing && from == ChessPosition.E8 && to == ChessPosition.C8)
+			if (piece == Piece.BKing && from == ChessPosition.E8 && to == ChessPosition.C8)
 			{
                 this.PieceMove(ChessPosition.A8, ChessPosition.D8);
 			}
@@ -535,28 +535,28 @@ namespace Sinobyl.Engine
             if(_castleFlags != 0)
             {
                 if (((_castleFlags & CastleFlags.WhiteShort) != 0) 
-                    && (piece == ChessPiece.WKing || from == ChessPosition.H1))
+                    && (piece == Piece.WKing || from == ChessPosition.H1))
                 {
                     _castleFlags &= ~CastleFlags.WhiteShort;
                     _zob ^= Zobrist.CastleWS;
                 }
 
                 if (((_castleFlags & CastleFlags.WhiteLong) != 0)
-                    && (piece == ChessPiece.WKing || from == ChessPosition.A1))
+                    && (piece == Piece.WKing || from == ChessPosition.A1))
                 {
                     _castleFlags &= ~CastleFlags.WhiteLong;
                     _zob ^= Zobrist.CastleWL;
                 }
 
                 if (((_castleFlags & CastleFlags.BlackShort) != 0)
-                    && (piece == ChessPiece.BKing || from == ChessPosition.H8))
+                    && (piece == Piece.BKing || from == ChessPosition.H8))
                 {
                     _castleFlags &= ~CastleFlags.BlackShort;
                     _zob ^= Zobrist.CastleBS;
                 }
 
                 if (((_castleFlags & CastleFlags.BlackLong) != 0)
-                    && (piece == ChessPiece.BKing || from == ChessPosition.A8))
+                    && (piece == Piece.BKing || from == ChessPosition.A8))
                 {
                     _castleFlags &= ~CastleFlags.BlackLong;
                     _zob ^= Zobrist.CastleBL;
@@ -566,11 +566,11 @@ namespace Sinobyl.Engine
 
 
 			//if enpassant move then remove captured pawn
-			if (piece == ChessPiece.WPawn && to == this._enpassant)
+			if (piece == Piece.WPawn && to == this._enpassant)
 			{
                 this.PieceRemove(tofile.ToPosition(Rank.Rank5));
 			}
-			if (piece == ChessPiece.BPawn && to == this._enpassant)
+			if (piece == Piece.BPawn && to == this._enpassant)
 			{
                 this.PieceRemove(tofile.ToPosition(Rank.Rank4));
 			}
@@ -583,12 +583,12 @@ namespace Sinobyl.Engine
 			}
 
 			//mark enpassant sq if pawn double jump
-			if (piece == ChessPiece.WPawn && fromrank == Rank.Rank2 && torank == Rank.Rank4)
+			if (piece == Piece.WPawn && fromrank == Rank.Rank2 && torank == Rank.Rank4)
 			{
 				_enpassant = fromfile.ToPosition(Rank.Rank3);
                 _zob ^= Zobrist.Enpassant(_enpassant);
 			}
-			else if (piece == ChessPiece.BPawn && fromrank == Rank.Rank7 && torank == Rank.Rank5)
+			else if (piece == Piece.BPawn && fromrank == Rank.Rank7 && torank == Rank.Rank5)
 			{
 				_enpassant = fromfile.ToPosition(Rank.Rank6);
                 _zob ^= Zobrist.Enpassant(_enpassant);
@@ -599,7 +599,7 @@ namespace Sinobyl.Engine
 			{
 				_fullmove++;
 			}
-			if (piece != ChessPiece.WPawn && piece != ChessPiece.BPawn && capture == ChessPiece.EMPTY)
+			if (piece != Piece.WPawn && piece != Piece.BPawn && capture == Piece.EMPTY)
 			{
 				_fiftymove++;
 			}
@@ -647,7 +647,7 @@ namespace Sinobyl.Engine
 
             ChessMove moveUndoing = movehist.Move;
             //undo promotion
-            if (movehist.Move.Promote() != ChessPiece.EMPTY)
+            if (movehist.Move.Promote() != Piece.EMPTY)
             {
                 PieceChange(moveUndoing.To(), movehist.PieceMoved);
             }
@@ -658,39 +658,39 @@ namespace Sinobyl.Engine
 
 
 			//replace the captured piece
-			if (movehist.Captured != ChessPiece.EMPTY)
+			if (movehist.Captured != Piece.EMPTY)
 			{
                 PieceAdd(moveUndoing.To(), movehist.Captured);
 			}
 
 			//move rook back if castle
-            if (movehist.PieceMoved == ChessPiece.WKing && moveUndoing.From() == ChessPosition.E1 && moveUndoing.To() == ChessPosition.G1)
+            if (movehist.PieceMoved == Piece.WKing && moveUndoing.From() == ChessPosition.E1 && moveUndoing.To() == ChessPosition.G1)
 			{
                 this.PieceMove(ChessPosition.F1, ChessPosition.H1);
 			}
-            if (movehist.PieceMoved == ChessPiece.WKing && moveUndoing.From() == ChessPosition.E1 && moveUndoing.To() == ChessPosition.C1)
+            if (movehist.PieceMoved == Piece.WKing && moveUndoing.From() == ChessPosition.E1 && moveUndoing.To() == ChessPosition.C1)
 			{
                 this.PieceMove(ChessPosition.D1, ChessPosition.A1);
 			}
-            if (movehist.PieceMoved == ChessPiece.BKing && moveUndoing.From() == ChessPosition.E8 && moveUndoing.To() == ChessPosition.G8)
+            if (movehist.PieceMoved == Piece.BKing && moveUndoing.From() == ChessPosition.E8 && moveUndoing.To() == ChessPosition.G8)
 			{
                 this.PieceMove(ChessPosition.F8, ChessPosition.H8);
 			}
-            if (movehist.PieceMoved == ChessPiece.BKing && moveUndoing.From() == ChessPosition.E8 && moveUndoing.To() == ChessPosition.C8)
+            if (movehist.PieceMoved == Piece.BKing && moveUndoing.From() == ChessPosition.E8 && moveUndoing.To() == ChessPosition.C8)
 			{
                 this.PieceMove(ChessPosition.D8, ChessPosition.A8);
 			}
 
 			//put back pawn if enpassant capture
-            if (movehist.PieceMoved == ChessPiece.WPawn && moveUndoing.To() == movehist.Enpassant)
+            if (movehist.PieceMoved == Piece.WPawn && moveUndoing.To() == movehist.Enpassant)
 			{
                 File tofile = moveUndoing.To().ToFile();
-                PieceAdd(tofile.ToPosition(Rank.Rank5), ChessPiece.BPawn);
+                PieceAdd(tofile.ToPosition(Rank.Rank5), Piece.BPawn);
 			}
-            if (movehist.PieceMoved == ChessPiece.BPawn && moveUndoing.To() == movehist.Enpassant)
+            if (movehist.PieceMoved == Piece.BPawn && moveUndoing.To() == movehist.Enpassant)
 			{
                 File tofile = moveUndoing.To().ToFile();
-                PieceAdd(tofile.ToPosition(Rank.Rank4), ChessPiece.WPawn);
+                PieceAdd(tofile.ToPosition(Rank.Rank4), Piece.WPawn);
 			}
 
             this._castleFlags = movehist.Castle;
@@ -714,7 +714,7 @@ namespace Sinobyl.Engine
 		{
 			//save move history
             if (_histCount > _histUB) { HistResize(); }
-            _hist[_histCount++].Reset(ChessMove.EMPTY, (ChessPiece.EMPTY), (ChessPiece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
+            _hist[_histCount++].Reset(ChessMove.EMPTY, (Piece.EMPTY), (Piece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
 
 			//reset since null count;
 			_movesSinceNull = 0;
@@ -762,21 +762,21 @@ namespace Sinobyl.Engine
                 && this._hist[_histCount - 2].Move == ChessMove.EMPTY;
 		}
 
-		public ChessPiece PieceInDirection(ChessPosition from, Direction dir, ref ChessPosition pos)
+		public Piece PieceInDirection(ChessPosition from, Direction dir, ref ChessPosition pos)
 		{
 			int i = 0;
 			return PieceInDirection(from, dir, ref pos, ref i);
 		}
-		public ChessPiece PieceInDirection(ChessPosition from, Direction dir, ref ChessPosition pos, ref int dist)
+		public Piece PieceInDirection(ChessPosition from, Direction dir, ref ChessPosition pos, ref int dist)
 		{
 
-			ChessPiece piece;
+			Piece piece;
             pos = from.PositionInDirection(dir);
 			dist = 1;
 			while (pos.IsInBounds())
 			{
 				piece = this.PieceAt(pos);
-				if (piece != ChessPiece.EMPTY) { return piece; }
+				if (piece != Piece.EMPTY) { return piece; }
 
 				dist++;
 				if (dir.IsDirectionKnight())
@@ -788,7 +788,7 @@ namespace Sinobyl.Engine
                     pos = pos.PositionInDirection(dir);
 				}
 			}
-			return ChessPiece.EMPTY;
+			return Piece.EMPTY;
 		}
         public Bitboard AttacksTo(ChessPosition to, Player by)
 		{
@@ -801,8 +801,8 @@ namespace Sinobyl.Engine
             retval |= Attacks.RookAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Rook]);
             retval |= Attacks.BishopAttacks(to, this.PieceLocationsAll) & (this[ChessPieceType.Queen] | this[ChessPieceType.Bishop]);
             retval |= Attacks.KingAttacks(to) & (this[ChessPieceType.King]);
-            retval |= Attacks.PawnAttacks(to, Player.Black) & this[ChessPiece.WPawn];
-            retval |= Attacks.PawnAttacks(to, Player.White) & this[ChessPiece.BPawn];
+            retval |= Attacks.PawnAttacks(to, Player.Black) & this[Piece.WPawn];
+            retval |= Attacks.PawnAttacks(to, Player.White) & this[Piece.BPawn];
             return retval;
 		}
 

@@ -20,7 +20,7 @@ namespace Sinobyl.Engine
         protected readonly ChessEvalPawns _evalPawns;
         public readonly IChessEvalMaterial _evalMaterial;
 
-        public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[ChessPieceInfo.LookupArrayLength][];
+        public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceInfo.LookupArrayLength][];
         public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[ChessPieceTypeInfo.LookupArrayLength][];
         public readonly PhasedScore _matBishopPair;
 
@@ -96,7 +96,7 @@ namespace Sinobyl.Engine
 
 
             //setup piecesq tables
-            foreach (ChessPiece piece in ChessPieceInfo.AllPieces)
+            foreach (Piece piece in PieceInfo.AllPieces)
             {
                 _pcsqPiecePos[(int)piece] = new PhasedScore[64];
                 foreach (ChessPosition pos in ChessPositionInfo.AllPositions)
@@ -183,11 +183,11 @@ namespace Sinobyl.Engine
 
         }
 
-        public void PcSqValuesAdd(ChessPiece piece, ChessPosition pos, ref PhasedScore value)
+        public void PcSqValuesAdd(Piece piece, ChessPosition pos, ref PhasedScore value)
         {
             value = value.Add(_pcsqPiecePos[(int)piece][(int)pos]);
         }
-        public void PcSqValuesRemove(ChessPiece piece, ChessPosition pos, ref PhasedScore value)
+        public void PcSqValuesRemove(Piece piece, ChessPosition pos, ref PhasedScore value)
         {
             value = value.Subtract(_pcsqPiecePos[(int)piece][(int)pos]);
         }
@@ -219,8 +219,8 @@ namespace Sinobyl.Engine
 
             //pawns
             PawnInfo pawns = this._evalPawns.PawnEval(board);
-            System.Diagnostics.Debug.Assert(pawns.WhitePawns == board[ChessPiece.WPawn]);
-            System.Diagnostics.Debug.Assert(pawns.BlackPawns == board[ChessPiece.BPawn]);
+            System.Diagnostics.Debug.Assert(pawns.WhitePawns == board[Piece.WPawn]);
+            System.Diagnostics.Debug.Assert(pawns.BlackPawns == board[Piece.BPawn]);
 
             evalInfo.MaterialPawnsApply(board, material, pawns, this.DrawScore);
 
@@ -258,10 +258,10 @@ namespace Sinobyl.Engine
             var attacksWhite = evalInfo.Attacks[(int)Player.White];
             var attacksBlack = evalInfo.Attacks[(int)Player.Black];
 
-            attacksWhite.PawnEast = board[ChessPiece.WPawn].ShiftDirNE();
-            attacksWhite.PawnWest = board[ChessPiece.WPawn].ShiftDirNW();
-            attacksBlack.PawnEast = board[ChessPiece.BPawn].ShiftDirSE();
-            attacksBlack.PawnWest = board[ChessPiece.BPawn].ShiftDirSW();
+            attacksWhite.PawnEast = board[Piece.WPawn].ShiftDirNE();
+            attacksWhite.PawnWest = board[Piece.WPawn].ShiftDirNW();
+            attacksBlack.PawnEast = board[Piece.BPawn].ShiftDirSE();
+            attacksBlack.PawnWest = board[Piece.BPawn].ShiftDirSW();
 
             attacksWhite.King = Attacks.KingAttacks(board.KingPosition(Player.White));
             attacksBlack.King = Attacks.KingAttacks(board.KingPosition(Player.Black));

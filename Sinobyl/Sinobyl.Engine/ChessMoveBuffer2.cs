@@ -24,13 +24,13 @@ namespace Sinobyl.Engine
             public void RegisterKiller(ChessBoard board, ChessMove move)
             {
                 //record as killer
-                if (move != move1 && board.PieceAt(move.To()) == ChessPiece.EMPTY)
+                if (move != move1 && board.PieceAt(move.To()) == Piece.EMPTY)
                 {
                     move2 = move1;
                     move1 = move;
                 }
 
-                if (board.PieceAt(move.To()) == ChessPiece.EMPTY)
+                if (board.PieceAt(move.To()) == Piece.EMPTY)
                 {
                     //save to history table
                     var ptype = (int)board.PieceAt(move.From()).ToPieceType();
@@ -167,7 +167,7 @@ namespace Sinobyl.Engine
                 if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
 
                 ChessMove move = _array[i].Move;
-                ChessPiece piece = _board.PieceAt(move.From());
+                Piece piece = _board.PieceAt(move.From());
 
                 //calc pcsq value;
                 PhasedScore pcSq = 0;
@@ -277,7 +277,7 @@ namespace Sinobyl.Engine
                 _array[i].PcSq = 0;
 
                 ChessMove move = _array[i].Move;
-                ChessPiece piece = _board.PieceAt(move.From());
+                Piece piece = _board.PieceAt(move.From());
 
                 //calc pcsq value;
                 PhasedScore pcSq = 0;

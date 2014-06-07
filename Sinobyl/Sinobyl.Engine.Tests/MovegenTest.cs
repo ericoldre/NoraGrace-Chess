@@ -169,14 +169,14 @@ namespace Sinobyl.Engine.Tests
             var all = Bitboard.Empty;
             foreach (var pos in ChessPositionInfo.AllPositions)
             {
-                if (board.PieceAt(pos) != ChessPiece.EMPTY)
+                if (board.PieceAt(pos) != Piece.EMPTY)
                 {
                     all |= pos.ToBitboard();
                     expectedPieces[(int)board.PieceAt(pos)] |= pos.ToBitboard();
                 }
             }
 
-            foreach (var piece in ChessPieceInfo.AllPieces)
+            foreach (var piece in PieceInfo.AllPieces)
             {
                 Assert.AreEqual<Bitboard>(expectedPieces[(int)piece], board[piece]);
             }

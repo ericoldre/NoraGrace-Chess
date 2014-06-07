@@ -81,11 +81,11 @@ namespace Sinobyl.Engine
             return (ChessMove)((int)from | ((int)to << 6));
         }
 
-        public static ChessMove Create(ChessPosition from, ChessPosition to, ChessPiece promote)
+        public static ChessMove Create(ChessPosition from, ChessPosition to, Piece promote)
         {
             System.Diagnostics.Debug.Assert((int)from >= 0 && (int)from <= 63);
             System.Diagnostics.Debug.Assert((int)to >= 0 && (int)to <= 63);
-            System.Diagnostics.Debug.Assert(promote == ChessPiece.WKnight || promote == ChessPiece.WBishop || promote == ChessPiece.WRook || promote == ChessPiece.WQueen || promote == ChessPiece.BKnight || promote == ChessPiece.BBishop || promote == ChessPiece.BRook || promote == ChessPiece.BQueen);
+            System.Diagnostics.Debug.Assert(promote == Piece.WKnight || promote == Piece.WBishop || promote == Piece.WRook || promote == Piece.WQueen || promote == Piece.BKnight || promote == Piece.BBishop || promote == Piece.BRook || promote == Piece.BQueen);
 
 
             return (ChessMove)((int)from | ((int)to << 6) | ((int) promote << 12));
@@ -101,9 +101,9 @@ namespace Sinobyl.Engine
             return (ChessPosition)((int)move >> 6 & 0x3F);
         }
 
-        public static ChessPiece Promote(this ChessMove move)
+        public static Piece Promote(this ChessMove move)
         {
-            return (ChessPiece)((int)move >> 12 & 0x3F);
+            return (Piece)((int)move >> 12 & 0x3F);
         }
 
         
@@ -112,7 +112,7 @@ namespace Sinobyl.Engine
 
 		public static ChessMove Parse(ChessBoard board, string movetext)
 		{
-			ChessPiece Promote = ChessPiece.EMPTY;//unless changed below
+			Piece Promote = Piece.EMPTY;//unless changed below
 			ChessPosition From = (ChessPosition.OUTOFBOUNDS);
 			ChessPosition To = (ChessPosition.OUTOFBOUNDS);
 			Regex regex = new Regex("");
@@ -123,12 +123,12 @@ namespace Sinobyl.Engine
 			movetext = movetext.Replace("=", "");
 
 			Player me = board.WhosTurn;
-			ChessPiece mypawn = board.WhosTurn == Player.White ? ChessPiece.WPawn : ChessPiece.BPawn;
-			ChessPiece myknight = board.WhosTurn == Player.White ? ChessPiece.WKnight : ChessPiece.BKnight;
-			ChessPiece mybishop = board.WhosTurn == Player.White ? ChessPiece.WBishop : ChessPiece.BBishop;
-			ChessPiece myrook = board.WhosTurn == Player.White ? ChessPiece.WRook : ChessPiece.BRook;
-			ChessPiece myqueen = board.WhosTurn == Player.White ? ChessPiece.WQueen : ChessPiece.BQueen;
-			ChessPiece myking = board.WhosTurn == Player.White ? ChessPiece.WKing : ChessPiece.BKing;
+			Piece mypawn = board.WhosTurn == Player.White ? Piece.WPawn : Piece.BPawn;
+			Piece myknight = board.WhosTurn == Player.White ? Piece.WKnight : Piece.BKnight;
+			Piece mybishop = board.WhosTurn == Player.White ? Piece.WBishop : Piece.BBishop;
+			Piece myrook = board.WhosTurn == Player.White ? Piece.WRook : Piece.BRook;
+			Piece myqueen = board.WhosTurn == Player.White ? Piece.WQueen : Piece.BQueen;
+			Piece myking = board.WhosTurn == Player.White ? Piece.WKing : Piece.BKing;
 
 			Direction mynorth = board.WhosTurn == Player.White ? Direction.DirN : Direction.DirS;
 			Direction mysouth = board.WhosTurn == Player.White ? Direction.DirS : Direction.DirN;
@@ -136,7 +136,7 @@ namespace Sinobyl.Engine
 
 
 			ChessPosition tmppos;
-			ChessPiece tmppiece;
+			Piece tmppiece;
 			File tmpfile;
 			Rank tmprank;
 
@@ -190,7 +190,7 @@ namespace Sinobyl.Engine
 					From = tmppos;
                     return Create(From, To);
 				}
-				else if (board.PieceAt(tmppos) == ChessPiece.EMPTY && To.ToRank() == myrank4)
+				else if (board.PieceAt(tmppos) == Piece.EMPTY && To.ToRank() == myrank4)
 				{
                     tmppos = tmppos.PositionInDirection(mysouth);
 					if (board.PieceAt(tmppos) == mypawn)
@@ -272,13 +272,13 @@ namespace Sinobyl.Engine
             return ChessMoveInfo.Create(From, To);
 		}
 
-		private static ChessPosition ParseFilter(ChessBoard board, ChessPosition attackto, ChessPiece piece, File file, Rank rank)
+		private static ChessPosition ParseFilter(ChessBoard board, ChessPosition attackto, Piece piece, File file, Rank rank)
 		{
             List<ChessPosition> fits = new List<ChessPosition>();
             var attacksTo = board.AttacksTo(attackto, board.WhosTurn);
 			foreach(ChessPosition pos in attacksTo.ToPositions())
 			{
-				if (piece != ChessPiece.EMPTY && piece != board.PieceAt(pos))
+				if (piece != Piece.EMPTY && piece != board.PieceAt(pos))
 				{
                     continue;
 				}
@@ -330,7 +330,7 @@ namespace Sinobyl.Engine
 		public static string Description(this ChessMove move)
 		{
 			string retval = "";
-			if (move.Promote() == ChessPiece.EMPTY)
+			if (move.Promote() == Piece.EMPTY)
 			{
 				retval = move.From().PositionToString().ToLower() + move.To().PositionToString().ToLower();
 			}
@@ -345,12 +345,12 @@ namespace Sinobyl.Engine
 		public static string Description(this ChessMove move, ChessBoard board)
 		{
 			string retval = "";
-            ChessPiece piece = board.PieceAt(move.From());
-            bool iscap = (board.PieceAt(move.To()) != ChessPiece.EMPTY);
+            Piece piece = board.PieceAt(move.From());
+            bool iscap = (board.PieceAt(move.To()) != Piece.EMPTY);
 
             Rank fromrank = move.From().ToRank();
             File fromfile = move.From().ToFile();
-            bool isprom = move.Promote() != ChessPiece.EMPTY;
+            bool isprom = move.Promote() != Piece.EMPTY;
 
             string sTo = (move.To().PositionToString());
             string sPiece = piece.PieceToString().ToUpper();
@@ -359,7 +359,7 @@ namespace Sinobyl.Engine
 			string sProm = "";
 			
 			//enpassant cap
-            if (move.To() == board.EnPassant && (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn))
+            if (move.To() == board.EnPassant && (piece == Piece.WPawn || piece == Piece.BPawn))
 			{
 				iscap = true;
 			}
@@ -369,7 +369,7 @@ namespace Sinobyl.Engine
                 sProm = move.Promote().PieceToString().ToUpper();
 			}
 
-			if (piece == ChessPiece.WPawn || piece == ChessPiece.BPawn)
+			if (piece == Piece.WPawn || piece == Piece.BPawn)
 			{
 				if (iscap)
 				{
@@ -381,19 +381,19 @@ namespace Sinobyl.Engine
 					retval += sProm;
 				}
 			}
-            else if (piece == ChessPiece.WKing && move.From() == ChessPosition.E1 && move.To() == ChessPosition.G1)
+            else if (piece == Piece.WKing && move.From() == ChessPosition.E1 && move.To() == ChessPosition.G1)
 			{
 				retval += "O-O";
 			}
-            else if (piece == ChessPiece.BKing && move.From() == ChessPosition.E8 && move.To() == ChessPosition.G8)
+            else if (piece == Piece.BKing && move.From() == ChessPosition.E8 && move.To() == ChessPosition.G8)
 			{
 				retval += "O-O";
 			}
-            else if (piece == ChessPiece.WKing && move.From() == ChessPosition.E1 && move.To() == ChessPosition.C1)
+            else if (piece == Piece.WKing && move.From() == ChessPosition.E1 && move.To() == ChessPosition.C1)
 			{
 				retval += "O-O-O";
 			}
-            else if (piece == ChessPiece.BKing && move.From() == ChessPosition.E8 && move.To() == ChessPosition.C8)
+            else if (piece == Piece.BKing && move.From() == ChessPosition.E8 && move.To() == ChessPosition.C8)
 			{
 				retval += "O-O-O";
 			}
@@ -406,7 +406,7 @@ namespace Sinobyl.Engine
 				{
                     if (pos == move.From()) { continue; }
 
-					ChessPiece otherpiece = board.PieceAt(pos);
+					Piece otherpiece = board.PieceAt(pos);
 					if (otherpiece == piece)
 					{
 						pieceunique = false;
@@ -469,14 +469,14 @@ namespace Sinobyl.Engine
             
             
             var piece = board.PieceAt(from);
-            if (piece == ChessPiece.EMPTY) { return false; }
+            if (piece == Piece.EMPTY) { return false; }
             var pieceType = piece.ToPieceType();
             var me = piece.PieceToPlayer();
 
             if (board.WhosTurn != me) { return false; }            
             if (board[me].Contains(to)) { return false; }
 
-            if (move.Promote() != ChessPiece.EMPTY)
+            if (move.Promote() != Piece.EMPTY)
             {
                 if (pieceType != ChessPieceType.Pawn) { return false; }
                 if (to.ToRank() != Rank.Rank1 && to.ToRank() != Rank.Rank8) { return false; }
@@ -503,8 +503,8 @@ namespace Sinobyl.Engine
                     else if(me== Player.White
                         && from == ChessPosition.E1
                         && to == ChessPosition.G1
-                        && board.PieceAt(ChessPosition.F1) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.G1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.F1) == Piece.EMPTY
+                        && board.PieceAt(ChessPosition.G1) == Piece.EMPTY
                         && (board.CastleRights & CastleFlags.WhiteShort) == CastleFlags.WhiteShort
                         && !board.IsCheck()
                         && !board.AttacksTo(ChessPosition.F1).Contains(targets)
@@ -515,9 +515,9 @@ namespace Sinobyl.Engine
                     else if (me == Player.White
                         && from == ChessPosition.E1
                         && to == ChessPosition.C1
-                        && board.PieceAt(ChessPosition.B1) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.C1) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.D1) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.B1) == Piece.EMPTY
+                        && board.PieceAt(ChessPosition.C1) == Piece.EMPTY
+                        && board.PieceAt(ChessPosition.D1) == Piece.EMPTY
                         && (board.CastleRights & CastleFlags.WhiteLong) == CastleFlags.WhiteLong
                         && !board.IsCheck()
                         && !board.AttacksTo(ChessPosition.D1).Contains(targets)
@@ -528,8 +528,8 @@ namespace Sinobyl.Engine
                     else if (me == Player.Black
                         && from == ChessPosition.E8
                         && to == ChessPosition.G8
-                        && board.PieceAt(ChessPosition.F8) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.G8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.F8) == Piece.EMPTY
+                        && board.PieceAt(ChessPosition.G8) == Piece.EMPTY
                         && (board.CastleRights & CastleFlags.BlackShort) == CastleFlags.BlackShort
                         && !board.IsCheck()
                         && !board.AttacksTo(ChessPosition.F8).Contains(targets)
@@ -540,9 +540,9 @@ namespace Sinobyl.Engine
                     else if (me == Player.Black
                         && from == ChessPosition.E8
                         && to == ChessPosition.C8
-                        && board.PieceAt(ChessPosition.B8) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.C8) == ChessPiece.EMPTY
-                        && board.PieceAt(ChessPosition.D8) == ChessPiece.EMPTY
+                        && board.PieceAt(ChessPosition.B8) == Piece.EMPTY
+                        && board.PieceAt(ChessPosition.C8) == Piece.EMPTY
+                        && board.PieceAt(ChessPosition.D8) == Piece.EMPTY
                         && (board.CastleRights & CastleFlags.BlackLong) == CastleFlags.BlackLong
                         && !board.IsCheck()
                         && !board.AttacksTo(ChessPosition.D8).Contains(targets)
@@ -560,14 +560,14 @@ namespace Sinobyl.Engine
                         return board[me.PlayerOther()].Contains(to) || to == board.EnPassant;
                     }
                     else if (from.PositionInDirection(me.MyNorth()) == to 
-                        && board.PieceAt(to) == ChessPiece.EMPTY)
+                        && board.PieceAt(to) == Piece.EMPTY)
                     {
                         return true;
                     }
                     else if(from.ToRank() == me.MyRank2()   //rank 2
                         && from.PositionInDirection(me.MyNorth()).PositionInDirection(me.MyNorth()) == to //is double jump
-                        && board.PieceAt(to) == ChessPiece.EMPTY //target empty
-                        && board.PieceAt(from.PositionInDirection(me.MyNorth())) == ChessPiece.EMPTY) //single jump empty
+                        && board.PieceAt(to) == Piece.EMPTY //target empty
+                        && board.PieceAt(from.PositionInDirection(me.MyNorth())) == Piece.EMPTY) //single jump empty
                     {
                         return true;
                     }

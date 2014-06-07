@@ -25,7 +25,7 @@ namespace Sinobyl.Engine.Tests
         Bitboard getCandidates(ChessFEN fen)
         {
             ChessBoard board = new ChessBoard(fen);
-            var info = getPawnEval.Value.EvalAllPawns(board[ChessPiece.WPawn], board[ChessPiece.BPawn], board.ZobristPawn);
+            var info = getPawnEval.Value.EvalAllPawns(board[Piece.WPawn], board[Piece.BPawn], board.ZobristPawn);
             return info.Candidates;
         }
 

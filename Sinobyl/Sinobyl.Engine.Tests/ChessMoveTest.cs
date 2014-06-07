@@ -77,7 +77,7 @@ namespace Sinobyl.Engine.Tests
             {
                 foreach (var from in ChessPositionInfo.AllPositions)
                 {
-                    foreach (var prom in ChessPieceInfo.AllPieces)
+                    foreach (var prom in PieceInfo.AllPieces)
                     {
                         if (prom.ToPieceType() == ChessPieceType.Pawn || prom.ToPieceType() == ChessPieceType.King) { continue; }
                         ChessMove move = ChessMoveInfo.Create(from, to, prom);

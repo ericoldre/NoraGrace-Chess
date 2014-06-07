@@ -25,7 +25,7 @@ namespace Sinobyl.EvalTune.Mutators
 
         public PcSqMutator(Random rand)
         {
-            PieceType = ChessPieceInfo.AllPieces[rand.Next(0, ChessPieceInfo.AllPieces.Count())].ToPieceType();
+            PieceType = PieceInfo.AllPieces[rand.Next(0, PieceInfo.AllPieces.Count())].ToPieceType();
 
             switch (rand.Next(0, 3))
             {

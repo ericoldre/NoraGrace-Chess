@@ -928,17 +928,17 @@ namespace Sinobyl.Engine
 
 		private bool NullSearchOK()
 		{
-			if (board.PieceCount(ChessPiece.WKnight) == 0
-			&& board.PieceCount(ChessPiece.WBishop) == 0
-			&& board.PieceCount(ChessPiece.WRook) == 0
-			&& board.PieceCount(ChessPiece.WQueen) == 0)
+			if (board.PieceCount(Piece.WKnight) == 0
+			&& board.PieceCount(Piece.WBishop) == 0
+			&& board.PieceCount(Piece.WRook) == 0
+			&& board.PieceCount(Piece.WQueen) == 0)
 			{
 				return false;
 			}
-			if (board.PieceCount(ChessPiece.BKnight) == 0
-			&& board.PieceCount(ChessPiece.BBishop) == 0
-			&& board.PieceCount(ChessPiece.BRook) == 0
-			&& board.PieceCount(ChessPiece.BQueen) == 0)
+			if (board.PieceCount(Piece.BKnight) == 0
+			&& board.PieceCount(Piece.BBishop) == 0
+			&& board.PieceCount(Piece.BRook) == 0
+			&& board.PieceCount(Piece.BQueen) == 0)
 			{
 				return false;
 			}
@@ -946,15 +946,15 @@ namespace Sinobyl.Engine
 		}
 		private bool NullSearchVerify()
 		{
-			int wmat = (board.PieceCount(ChessPiece.WKnight) * 3)
-				+ (board.PieceCount(ChessPiece.WBishop) * 3)
-				+ (board.PieceCount(ChessPiece.WRook) * 5)
-				+ (board.PieceCount(ChessPiece.WQueen) * 9);
+			int wmat = (board.PieceCount(Piece.WKnight) * 3)
+				+ (board.PieceCount(Piece.WBishop) * 3)
+				+ (board.PieceCount(Piece.WRook) * 5)
+				+ (board.PieceCount(Piece.WQueen) * 9);
 
-			int bmat = (board.PieceCount(ChessPiece.BKnight) * 3)
-				+ (board.PieceCount(ChessPiece.BBishop) * 3)
-				+ (board.PieceCount(ChessPiece.BRook) * 5)
-				+ (board.PieceCount(ChessPiece.BQueen) * 9);
+			int bmat = (board.PieceCount(Piece.BKnight) * 3)
+				+ (board.PieceCount(Piece.BBishop) * 3)
+				+ (board.PieceCount(Piece.BRook) * 5)
+				+ (board.PieceCount(Piece.BQueen) * 9);
 
 			if (wmat < 9 || bmat < 9)
 			{

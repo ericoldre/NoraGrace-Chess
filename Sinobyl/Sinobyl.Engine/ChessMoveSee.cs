@@ -16,13 +16,13 @@ namespace Sinobyl.Engine
             int retval = 0;
 
 
-            ChessPiece mover = board.PieceAt(move.From());
-            ChessPiece taken = board.PieceAt(move.To());
+            Piece mover = board.PieceAt(move.From());
+            Piece taken = board.PieceAt(move.To());
             Player me = mover.PieceToPlayer();
 
 
 
-            if (taken != ChessPiece.EMPTY)
+            if (taken != Piece.EMPTY)
             {
                 retval += taken.PieceValBasic();
                 //do see
@@ -108,7 +108,7 @@ namespace Sinobyl.Engine
             if (!addAttackFrom.IsDirectionKnight())
             {
                 ChessPosition AddPosition = 0;
-                ChessPiece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
+                Piece AddPiece = board.PieceInDirection(OutFrom, addAttackFrom, ref AddPosition);
                 if (addAttackFrom.IsDirectionRook() && AddPiece.PieceIsSliderRook())
                 {
                     attacks |= AddPosition.ToBitboard();

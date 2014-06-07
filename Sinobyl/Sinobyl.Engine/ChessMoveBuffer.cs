@@ -110,7 +110,7 @@ namespace Sinobyl.Engine
 
         public void RegisterCutoff(ChessBoard board, ChessMove move)
         {
-            if (board.PieceAt(move.To()) == ChessPiece.EMPTY)
+            if (board.PieceAt(move.To()) == Piece.EMPTY)
             {
                 _playerKillers[(int)board.WhosTurn].RegisterKiller(move);
 
@@ -118,7 +118,7 @@ namespace Sinobyl.Engine
                 {
                     //register counter move hueristic.
                     ChessMove prevMove = board.HistMove(1);
-                    ChessPiece prevPiece = board.PieceAt(prevMove.To());
+                    Piece prevPiece = board.PieceAt(prevMove.To());
                     System.Diagnostics.Debug.Assert(prevPiece.PieceToPlayer() == board.WhosTurn.PlayerOther());
                     _counterMoves[(int)prevPiece][(int)prevMove.To()] = move;
                 }
@@ -139,7 +139,7 @@ namespace Sinobyl.Engine
             if (board.HistoryCount > 0)
             {
                 ChessMove prevMove = board.HistMove(1);
-                ChessPiece prevPiece = board.PieceAt(prevMove.To());
+                Piece prevPiece = board.PieceAt(prevMove.To());
                 //System.Diagnostics.Debug.Assert(prevPiece.PieceToPlayer() == board.WhosTurn.PlayerOther());
                 counterMove = _counterMoves[(int)prevPiece][(int)prevMove.To()];
             }
@@ -149,8 +149,8 @@ namespace Sinobyl.Engine
             for (int i = 0; i < _moveCount; i++)
             {
                 ChessMove move = _array[i].Move;
-                ChessPiece piece = board.PieceAt(move.From());
-                bool isCap = board.PieceAt(move.To()) != ChessPiece.EMPTY;
+                Piece piece = board.PieceAt(move.From());
+                bool isCap = board.PieceAt(move.To()) != Piece.EMPTY;
 
                 System.Diagnostics.Debug.Assert(move != ChessMove.EMPTY);
 
@@ -165,7 +165,7 @@ namespace Sinobyl.Engine
                 //calc flags
                 MoveFlags flags = 0;
                 if (move == ttMove) { flags |= MoveFlags.TransTable; }
-                if (move.Promote() != ChessPiece.EMPTY) { flags |= MoveFlags.Promote; }
+                if (move.Promote() != Piece.EMPTY) { flags |= MoveFlags.Promote; }
 
                 if (isCap)
                 {

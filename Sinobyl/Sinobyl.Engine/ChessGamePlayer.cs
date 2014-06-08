@@ -100,7 +100,7 @@ namespace Sinobyl.Engine
 
 
     }
-    public class ChessGamePlayerMurderhole : ChessGamePlayer, IDisposable
+    public class ChessGamePlayerSinobyl : ChessGamePlayer, IDisposable
     {
 
         private readonly SearchAsync search;
@@ -111,7 +111,7 @@ namespace Sinobyl.Engine
         private TimeManagerAdvanced _timeManager = new TimeManagerAdvanced();
         public TimeSpan DelaySearch { get; set; }
 
-        public ChessGamePlayerMurderhole()
+        public ChessGamePlayerSinobyl()
         {
             DelaySearch = new TimeSpan(0);
             search = new SearchAsync();

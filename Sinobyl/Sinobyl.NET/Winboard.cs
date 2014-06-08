@@ -10,7 +10,7 @@ namespace Sinobyl.NET
 	public class Winboard: IDisposable
 	{
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(Winboard));
-		private readonly ChessGamePlayerMurderhole _player = new ChessGamePlayerMurderhole();
+		private readonly ChessGamePlayerSinobyl _player = new ChessGamePlayerSinobyl();
 		private readonly Board _board = new Board();
 		private Player _myplayer = Player.Black;
         private TimeControl _timeControl = TimeControl.Blitz(5, 5);

@@ -21,8 +21,8 @@ namespace NoraGrace.CommandLine
 		
         static void Main(string[] args)
 		{
-            
-            Console.WriteLine("NoraGrace");
+
+            Console.WriteLine(string.Format("NoraGrace v{0}.{1} by Eric Oldre, USA", typeof(Program).Assembly.GetName().Version.Major, typeof(Program).Assembly.GetName().Version.Minor));
 			
 			foreach (string arg in args)
 			{

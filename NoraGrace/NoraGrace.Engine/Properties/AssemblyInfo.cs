@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Sinobyl.Engine")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("NoraGrace.Engine")]
+[assembly: AssemblyDescription("NoraGrace Chess Engine by Eric Oldre")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Sinobyl.Engine")]
+[assembly: AssemblyCompany("Eric Oldre")]
+[assembly: AssemblyProduct("NoraGrace.Engine")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

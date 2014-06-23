@@ -12,24 +12,46 @@ namespace NoraGrace.CommandLine
         static Evaluator eval = new Evaluator();
         //static ChessEvalOld evalOld = new ChessEvalOld();
 
-        public static void NodesToDepth(int depth)
+        public static IEnumerable<Engine.FEN> TestPositions()
         {
-            Board board = new Board();
+            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            // Stream stream = assembly.GetManifestResourceStream("Installer.Properties.mydll.dll"); // or whatever 
+            // string my_namespace = a.GetName().Name.ToString();
+            var filename = assembly.GetManifestResourceNames().First(n => n.ToLower().Contains("testpostions.txt"));
+            using (var stream = assembly.GetManifestResourceStream(filename))
+            {
+                using (var reader = new System.IO.StreamReader(stream))
+                {
+                    string sfen;
+                    while ((sfen = reader.ReadLine()) != null)
+                    {
+                        yield return new Engine.FEN(sfen);
+                    }
+                }
+            }
+        }
+
+        public static void NodesToDepth(int depth, int count = 25)
+        {
+            
             Evaluator eval = new Evaluator();
-            List<Move> movesDone = new List<Move>();
+
             TranspositionTable transTable = new TranspositionTable();
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
             //var timeManager = new TimeManagerBasic() { TimeControl = ChessTimeControl.Blitz(100, 100), ClockEnd = DateTime.Now.AddDays(100) };
             var timeManager = new TimeManagerAdvanced() { TimeControl = TimeControl.Blitz(100, 100), AmountOnClock = TimeSpan.FromDays(100) };
-            foreach (Move move in pgn.Moves)
+            int done = 0;
+            foreach (var fen in TestPositions())
             {
-                
+                Board board = new Board(fen);
+
                 Search.Args args = new Search.Args();
+                transTable.AgeEntries(100);
 
                 args.Eval = eval;
-                args.GameStartPosition = new FEN(FEN.FENStart);
-                args.GameMoves = movesDone;
+                args.GameStartPosition = fen;
+                args.GameMoves = new List<Move>();
                 args.MaxDepth = depth;
                 args.TransTable = transTable;
                 args.TimeManager = timeManager;
@@ -48,15 +70,16 @@ namespace NoraGrace.CommandLine
 
                 totalNodes += searchResults.Nodes;
 
-                board.MoveApply(move);
-                movesDone.Add(move);
+                done++;
 
                 //double nodesPerSecond = ((double)totalNodes / (double)totalTime.TotalMilliseconds) * 1000;
                 Program.ConsoleWriteline(string.Format("Position {0} of {1}, {2} Nodes {3} Avg Nodes",
-                    movesDone.Count,
+                    done,
                     pgn.Moves.Count,
                     searchResults.Nodes,
-                    totalNodes / movesDone.Count));
+                    totalNodes / done));
+
+                if (done >= count) { break; }
             }
 
             Program.ConsoleWriteline(string.Format("Total Time:{0}, Nodes/Sec {1}", totalTime, (totalNodes / totalTime.TotalMilliseconds) * 1000));

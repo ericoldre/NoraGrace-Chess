@@ -201,27 +201,11 @@ namespace NoraGrace.Engine
                 Move move = _array[i].Move;
                 Piece piece = _board.PieceAt(move.From());
 
-                //calc pcsq value;
-                PhasedScore pcSq = 0;
-                _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
-                _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
-                if (_board.WhosTurn == Player.Black) { pcSq = pcSq.Negate(); }
-                _array[i].PcSq = pcSq.Opening();
+                _array[i].Score = _array[i].SEE + PcSqChange(piece, move.From(), move.To());
 
-                for (int ii = i; ii > 0; ii--)
-                {
-                    if (_array[ii].SEE + _array[ii].PcSq > _array[ii - 1].SEE + _array[ii - 1].PcSq)
-                    {
-                        _tmpData = _array[ii];
-                        _array[ii] = _array[ii - 1];
-                        _array[ii - 1] = _tmpData;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
             }
+            SortMoveData(_array, 0, _capsCount);
+
             _currIndex = 0;
             _currStep++;
             return NextMoveData();
@@ -306,36 +290,20 @@ namespace NoraGrace.Engine
             {
                 _array[i].SEE = 0;
                 _array[i].Flags = 0;
-                _array[i].PcSq = 0;
+                _array[i].Score = 0;
 
                 Move move = _array[i].Move;
                 Piece piece = _board.PieceAt(move.From());
 
-                //calc pcsq value;
-                PhasedScore pcSq = 0;
-                _board.PcSqEvaluator.PcSqValuesRemove(piece, move.From(), ref pcSq);
-                _board.PcSqEvaluator.PcSqValuesAdd(piece, move.To(), ref pcSq);
-                if (_board.WhosTurn == Player.Black) { pcSq = pcSq.Negate(); }
 
-                _array[i].PcSq = pcSq.Opening();
+                _array[i].Score = 
+                    _playerKillers[(int)_board.WhosTurn].HistoryScore(_board, move)
+                    + PcSqChange(piece, move.From(), move.To());
 
-                _array[i].PcSq = _playerKillers[(int)_board.WhosTurn].HistoryScore(_board, move) + pcSq.Opening();
-
-                //if (_array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
-                for (int ii = i; ii > 0; ii--)
-                {
-                    if (_array[ii].PcSq > _array[ii - 1].PcSq)
-                    {
-                        _tmpData = _array[ii];
-                        _array[ii] = _array[ii - 1];
-                        _array[ii - 1] = _tmpData;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
             }
+
+            SortMoveData(_array, 0, _quietCount);
+
             _currIndex = 0;
             _currStep++;
             return NextMoveData();
@@ -430,6 +398,37 @@ namespace NoraGrace.Engine
             return sourceEnd - foundCount;
         }
 
+        private int PcSqChange(Piece piece, Position from, Position to)
+        {
+            //calc pcsq value;
+            PhasedScore pcSq = 0;
+            _board.PcSqEvaluator.PcSqValuesRemove(piece, from, ref pcSq);
+            _board.PcSqEvaluator.PcSqValuesAdd(piece, to, ref pcSq);
+            if (_board.WhosTurn == Player.Black) { pcSq = pcSq.Negate(); }
+            return pcSq.Opening();
+        }
+
+        private void SortMoveData(ChessMoveData[] array, int index, int length)
+        {
+            ChessMoveData temp;
+            for (int i = index; i < length; i++)
+            {
+                for (int ii = i; ii > index; ii--)
+                {
+                    if (_array[ii].Score > _array[ii - 1].Score)
+                    {
+                        temp = _array[ii];
+                        _array[ii] = _array[ii - 1];
+                        _array[ii - 1] = temp;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
         public IEnumerable<Move> SortedMoves()
         {
             ChessMoveData moveData;
@@ -459,29 +458,9 @@ namespace NoraGrace.Engine
     {
         public Move Move;
         public int SEE;
-        public int PcSq;
-        public MoveFlags Flags;
         public int Score;
+        public MoveFlags Flags;
 
-        public int ScoreCalc()
-        {
-            return SEE + PcSq
-                + ((Flags & MoveFlags.TransTable) != 0 ? 1000000 : 0)
-                + ((Flags & MoveFlags.Capture) != 0 && SEE >= 0 ? 100000 : 0)
-                + ((Flags & MoveFlags.Killer) != 0 ? 10000 : 0)
-                + ((Flags & MoveFlags.Capture) != 0 ? 1000 : 0);
-        }
-
-
-        //public void SetScores(ChessMove move, int see, int pcSq, MoveFlags flags)
-        //{
-        //    Move = move;
-        //    SEE = see;
-        //    PcSq = pcSq;
-        //    Flags = flags;
-        //}
-
-        //private const MoveFlags _orderFlags = MoveFlags.TransTable | MoveFlags.Promote | MoveFlags.CapturePositive | MoveFlags.CaptureEqual | MoveFlags.Killer;
     }
 
     [Flags]

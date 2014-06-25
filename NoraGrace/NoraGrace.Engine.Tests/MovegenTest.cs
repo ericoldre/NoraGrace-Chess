@@ -188,6 +188,65 @@ namespace NoraGrace.Engine.Tests
         }
 
         [TestMethod]
+        public void MovePicker1()
+        {
+            FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
+            Board board = new Board(fen);
+            MovePicker picker = new MovePicker();
+
+            picker.Initialize(board, Move.EMPTY, false);
+
+            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
+
+        }
+
+        [TestMethod]
+        public void MovePicker2()
+        {
+            FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
+            Board board = new Board(fen);
+            MovePicker picker = new MovePicker();
+            picker.RegisterCutoff(board, MoveInfo.Parse(board, "a3a4"));
+            picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
+
+            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
+
+        }
+
+        [TestMethod]
+        public void MovePicker3()
+        {
+            FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
+            Board board = new Board(fen);
+            MovePicker picker = new MovePicker();
+            picker.RegisterCutoff(board, MoveInfo.Parse(board, "d3e4"));
+            picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
+
+            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
+
+        }
+
+        [TestMethod]
+        public void MovePicker4()
+        {
+            FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
+            Board board = new Board(fen);
+            MovePicker picker = new MovePicker();
+            picker.RegisterCutoff(new Board("5rk1/pbr1q1pp/3pp3/2p5/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22"), MoveInfo.Parse(board, "d3f5"));
+            picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
+
+            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves().ToList());
+
+        }
+
+        public void AssertSameMove(IEnumerable<Move> list1, IEnumerable<Move> list2)
+        {
+            var sorted1 = list1.OrderBy(m => m.From()).ThenBy(m => m.To()).ThenBy(m => m.Promote()).ToArray();
+            var sorted2 = list2.OrderBy(m => m.From()).ThenBy(m => m.To()).ThenBy(m => m.Promote()).ToArray();
+            Assert.IsTrue(sorted1.SequenceEqual(sorted2));
+        }
+
+        [TestMethod]
         public void PositionAttacks()
         {
 

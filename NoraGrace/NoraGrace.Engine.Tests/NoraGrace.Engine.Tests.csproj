@@ -64,6 +64,7 @@
     <Compile Include="EvalTest.cs" />
     <Compile Include="FENTest.cs" />
     <Compile Include="GameTest.cs" />
+    <Compile Include="gm2600.cs" />
     <Compile Include="MovegenTest.cs" />
     <Compile Include="PGNTests.cs" />
     <Compile Include="PhasedScoreTests.cs" />

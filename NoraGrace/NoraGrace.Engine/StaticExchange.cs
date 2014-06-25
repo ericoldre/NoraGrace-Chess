@@ -25,11 +25,13 @@ namespace NoraGrace.Engine
             if (taken != Piece.EMPTY)
             {
                 retval += taken.PieceValBasic();
-                //do see
-                var attacks = board.AttacksTo(move.To());
-                attacks &= ~(move.From().ToBitboard());
-                retval -= attackswap(board, attacks, me.PlayerOther(), move.To(), mover.PieceValBasic());
+                
             }
+
+            //do see
+            var attacks = board.AttacksTo(move.To());
+            attacks &= ~(move.From().ToBitboard());
+            retval -= attackswap(board, attacks, me.PlayerOther(), move.To(), mover.PieceValBasic());
 
             //int pieceSqVal = 0;
             //pieceSqVal -= eval._pcsqPiecePosStage[(int)mover, (int)move.From, (int)ChessGameStage.Opening];

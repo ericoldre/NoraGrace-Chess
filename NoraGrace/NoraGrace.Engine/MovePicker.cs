@@ -288,17 +288,19 @@ namespace NoraGrace.Engine
             _quietCount = ExcludeFrom(_array, 0, _quietCount, _exclude, _excludeCount);
             for (int i = 0; i < _quietCount; i++)
             {
-                _array[i].SEE = 0;
-                _array[i].Flags = 0;
-                _array[i].Score = 0;
-
                 Move move = _array[i].Move;
+                int see = StaticExchange.CalculateScore(move, _board);
+                _array[i].SEE = see;
+                _array[i].Flags = 0;
+
+                
                 Piece piece = _board.PieceAt(move.From());
 
 
-                _array[i].Score = 
+                _array[i].Score =
                     _playerKillers[(int)_board.WhosTurn].HistoryScore(_board, move)
-                    + PcSqChange(piece, move.From(), move.To());
+                    + PcSqChange(piece, move.From(), move.To())
+                    + (see < 0 ? -1000 : 0);
 
             }
 

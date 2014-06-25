@@ -252,7 +252,7 @@ namespace NoraGrace.Engine
             if (_currIndex < killerInfo.Count)
             {
                 Move move = killerInfo[_currIndex];
-                if (move.IsPsuedoLegal(_board))
+                if (move.IsPsuedoLegal(_board) && _board.PieceAt(move.To()) == Piece.EMPTY)
                 {
                     _tmpData.Move = move;
                     _tmpData.Flags = MoveFlags.Killer;

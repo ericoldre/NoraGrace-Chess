@@ -119,6 +119,7 @@ namespace NoraGrace.Engine
             BadCaps,
             InitQuiet,
             Quiet,
+            Done,
         }
 
         private readonly ChessMoveData[] _array = new ChessMoveData[192];
@@ -359,10 +360,17 @@ namespace NoraGrace.Engine
             }
             else
             {
-                _tmpData.Move = Move.EMPTY;
-                return _tmpData;
+                _currIndex = 0;
+                _currStep++;
+                return NextMoveData();
             }
 
+        }
+
+        private ChessMoveData StepDone()
+        {
+            _tmpData.Move = Move.EMPTY;
+            return _tmpData;
         }
         public ChessMoveData NextMoveData()
         {
@@ -389,6 +397,8 @@ namespace NoraGrace.Engine
                 case steps.Quiet:
                     return StepQuiet();
 
+                case steps.Done:
+                    return StepDone();
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     throw new ArgumentOutOfRangeException();

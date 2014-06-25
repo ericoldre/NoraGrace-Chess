@@ -16,7 +16,7 @@ namespace NoraGrace.Engine
 		Detailed
 	}
 
-    [System.Diagnostics.DebuggerDisplay(@"{Sinobyl.Engine.MoveInfo.Description(this),nq}")]
+    [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.MoveInfo.Description(this),nq}")]
     public enum Move 
     {
         EMPTY = 0

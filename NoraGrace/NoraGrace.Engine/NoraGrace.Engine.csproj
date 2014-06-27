@@ -67,6 +67,7 @@
     <Compile Include="Move.cs" />
     <Compile Include="Move.Generate.cs" />
     <Compile Include="MovePicker.cs" />
+    <Compile Include="SearchDepth.cs" />
     <Compile Include="StaticExchange.cs" />
     <Compile Include="Opening.cs" />
     <Compile Include="PGN.cs" />

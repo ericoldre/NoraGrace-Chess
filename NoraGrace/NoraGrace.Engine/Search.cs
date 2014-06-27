@@ -189,7 +189,7 @@ namespace NoraGrace.Engine
             public int ContemptForDraw { get; set; }
             public ITimeManager TimeManager { get; set; }
             public bool ExtendChecks { get; set; }
-            public bool UseLMR { get; set; }
+
 			public Args()
 			{
                 GameStartPosition = new FEN(FEN.FENStart);
@@ -203,7 +203,6 @@ namespace NoraGrace.Engine
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
                 ExtendChecks = true;
-                UseLMR = true;
 			}
 		}
 
@@ -737,7 +736,7 @@ namespace NoraGrace.Engine
                 bool doFullSearch = true;
 
                 if (
-                    SearchArgs.UseLMR == true
+                    true //SearchArgs.UseLMR == true
                     //&& beta == alpha + 1
                     && depth.ToPly() >= 3
                     && legalMovesTried > 3

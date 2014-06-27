@@ -43,8 +43,6 @@ namespace NoraGrace.Engine
 
         private class KillerInfo
         {
-            public Move move1 { get; private set; }
-            public Move move2 { get; private set; }
             private readonly Move[][] _counterMoves = new Move[7][]; //[7][64];
             private readonly int[][] _history = new int[7][];
             public KillerInfo()
@@ -55,12 +53,6 @@ namespace NoraGrace.Engine
 
             public void RegisterKiller(Board board, Move move)
             {
-                //record as killer
-                if (move != move1 && board.PieceAt(move.To()) == Piece.EMPTY)
-                {
-                    move2 = move1;
-                    move1 = move;
-                }
 
                 if (board.PieceAt(move.To()) == Piece.EMPTY)
                 {
@@ -89,25 +81,7 @@ namespace NoraGrace.Engine
                 return score;
             }
 
-            public bool IsKiller(Move move)
-            {
-                return move == move1 || move == move2;
-            }
 
-            public Move this[int index]
-            {
-                get
-                {
-                    if (index == 0) { return move1; }
-                    if (index == 1) { return move2; }
-                    throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            public int Count
-            {
-                get { return 2; }
-            }
 
         }
 
@@ -127,6 +101,8 @@ namespace NoraGrace.Engine
         private readonly ChessMoveData[] _nonCaptures = new ChessMoveData[192];
 
         private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
+
+        private readonly Move[][] _killers = new Move[2][] { new Move[2], new Move[2] };
 
         private Move _ttMove;
         private Board _board;
@@ -238,10 +214,11 @@ namespace NoraGrace.Engine
                 _currStep++;
                 return NextMoveData();
             }
+            
             var killerInfo = _playerKillers[(int)_board.WhosTurn];
-            if (_currIndex < killerInfo.Count)
+            if (_currIndex < 2)
             {
-                Move move = killerInfo[_currIndex];
+                Move move = _killers[(int)_board.WhosTurn][_currIndex];
                 if (move.IsPsuedoLegal(_board) && _board.PieceAt(move.To()) == Piece.EMPTY)
                 {
                     _tmpData.Move = move;
@@ -446,6 +423,17 @@ namespace NoraGrace.Engine
 
         public void RegisterCutoff(Board board, Move move)
         {
+            //store killer moves in MovePicker
+            var killers = _killers[(int)board.WhosTurn];
+            if (board.PieceAt(move.To()) == Piece.EMPTY)
+            {
+                if (move != killers[0])
+                {
+                    killers[1] = killers[0];
+                    killers[0] = move;
+                }
+            }
+            //store to history object.
             _playerKillers[(int)board.WhosTurn].RegisterKiller(board, move);
         }
 

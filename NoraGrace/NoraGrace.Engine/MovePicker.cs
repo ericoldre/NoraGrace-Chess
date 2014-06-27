@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NoraGrace.Engine.Evaluation;
 
 namespace NoraGrace.Engine
 {
@@ -405,7 +406,7 @@ namespace NoraGrace.Engine
         private int PcSqChange(Piece piece, Position from, Position to)
         {
             //calc pcsq value;
-            PhasedScore pcSq = 0;
+            Evaluation.PhasedScore pcSq = 0;
             _board.PcSqEvaluator.PcSqValuesRemove(piece, from, ref pcSq);
             _board.PcSqEvaluator.PcSqValuesAdd(piece, to, ref pcSq);
             if (_board.WhosTurn == Player.Black) { pcSq = pcSq.Negate(); }

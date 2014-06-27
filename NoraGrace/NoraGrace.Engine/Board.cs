@@ -79,7 +79,7 @@ namespace NoraGrace.Engine
 		private int _movesSinceNull = 100;
 
         private readonly Evaluation.Evaluator _pcSqEvaluator;
-        private PhasedScore _pcSq;
+        private Evaluation.PhasedScore _pcSq;
 
         public Board(Evaluation.Evaluator pcSqEvaluator = null)
             : this(new FEN(FEN.FENStart), pcSqEvaluator)
@@ -239,7 +239,7 @@ namespace NoraGrace.Engine
             return _pieceCount[(int)pieceType.ForPlayer(player)];
         }
 
-        public PhasedScore PcSqValue
+        public Evaluation.PhasedScore PcSqValue
         {
             get { return _pcSq; }
         }

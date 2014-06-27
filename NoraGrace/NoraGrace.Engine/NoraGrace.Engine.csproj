@@ -81,7 +81,7 @@
     <Compile Include="TranspositionTable.cs" />
     <Compile Include="Zobrist.cs" />
     <Compile Include="EventArgs.cs" />
-    <Compile Include="PhasedScore.cs" />
+    <Compile Include="Evaluation\PhasedScore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeManager.cs" />
   </ItemGroup>

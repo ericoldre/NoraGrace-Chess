@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NoraGrace.Engine;
-
+using NoraGrace.Engine.Evaluation;
 namespace NoraGrace.EvalTune.Mutators
 {
     class WeightMutator : IEvalSettingsMutator
     {
         public string WeightType { get; set; }
         public int Amount { get; set; }
-        public GameStage Stage { get; set; }
+        public NoraGrace.Engine.Evaluation.GameStage Stage { get; set; }
 
         public WeightMutator()
         {
             WeightType = "Material";
-            Stage = GameStage.Opening;
+            Stage = NoraGrace.Engine.Evaluation.GameStage.Opening;
             Amount = 10;
         }
         public WeightMutator(Random rand)
@@ -37,10 +37,10 @@ namespace NoraGrace.EvalTune.Mutators
             switch (rand.Next(0,2))
             {
                 case 0:
-                    Stage = GameStage.Opening;
+                    Stage = NoraGrace.Engine.Evaluation.GameStage.Opening;
                     break;
                 case 1:
-                    Stage = GameStage.Endgame;
+                    Stage = NoraGrace.Engine.Evaluation.GameStage.Endgame;
                     break;
             }
 

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NoraGrace.Engine;
-
+using NoraGrace.Engine.Evaluation;
 namespace NoraGrace.EvalTune.Mutators
 {
 
     public class PieceValueMutator: IEvalSettingsMutator
     {
         public PieceType PieceType { get; private set; }
-        public GameStage[] Stages { get; private set; }
+        public NoraGrace.Engine.Evaluation.GameStage[] Stages { get; private set; }
         public int Amount { get; private set; }
 
         public PieceValueMutator(PieceType pieceType, IEnumerable<GameStage> stages, int amount)

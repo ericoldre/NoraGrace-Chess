@@ -41,13 +41,11 @@ namespace NoraGrace.Engine
 
         }
 
-        private class KillerInfo
+        private class MoveHistory
         {
-            private readonly Move[][] _counterMoves = new Move[7][]; //[7][64];
-            private readonly int[][] _history = new int[7][];
-            public KillerInfo()
+            private readonly int[][] _history = new int[16][];
+            public MoveHistory()
             {
-                for (int i = 0; i <= _counterMoves.GetUpperBound(0); i++) { _counterMoves[i] = new Move[64]; }
                 for (int i = 0; i <= _history.GetUpperBound(0); i++) { _history[i] = new int[64]; }
             }
 
@@ -57,10 +55,10 @@ namespace NoraGrace.Engine
                 if (board.PieceAt(move.To()) == Piece.EMPTY)
                 {
                     //save to history table
-                    var ptype = (int)board.PieceAt(move.From()).ToPieceType();
+                    var piece = (int)board.PieceAt(move.From());
                     var to = (int)move.To();
-                    var newscore = Math.Min(1000000, _history[ptype][to] + 1000);
-                    _history[ptype][to] = newscore;
+                    var newscore = Math.Min(1000000, _history[piece][to] + 1000);
+                    _history[piece][to] = newscore;
                 }
 
             }
@@ -68,16 +66,16 @@ namespace NoraGrace.Engine
             public void RegisterFailLow(Board board, Move move)
             {
                 //decrease value in history table
-                var ptype = (int)board.PieceAt(move.From()).ToPieceType();
+                var piece = (int)board.PieceAt(move.From());
                 var to = (int)move.To();
-                _history[ptype][to] = _history[ptype][to] / 2;
+                _history[piece][to] = _history[piece][to] / 2;
             }
 
             public int HistoryScore(Board board, Move move)
             {
-                var ptype = (int)board.PieceAt(move.From()).ToPieceType();
+                var piece = (int)board.PieceAt(move.From());
                 var to = (int)move.To();
-                var score = _history[ptype][to];
+                var score = _history[piece][to];
                 return score;
             }
 
@@ -85,7 +83,7 @@ namespace NoraGrace.Engine
 
         }
 
-        private enum steps
+        private enum GeneratorStep
         {
             ttMove,
             InitCaps,
@@ -100,7 +98,7 @@ namespace NoraGrace.Engine
         private readonly ChessMoveData[] _captures = new ChessMoveData[192];
         private readonly ChessMoveData[] _nonCaptures = new ChessMoveData[192];
 
-        private readonly KillerInfo[] _playerKillers = new KillerInfo[2];
+        private readonly MoveHistory _history = new MoveHistory();
 
         private readonly Move[][] _killers = new Move[2][] { new Move[2], new Move[2] };
 
@@ -108,7 +106,7 @@ namespace NoraGrace.Engine
         private Board _board;
         private long _boardZob;
         private bool _capsOnly;
-        private steps _currStep;
+        private GeneratorStep _currStep;
         private ChessMoveData _tmpData;
         private int _capsCount;
         private int _capsGoodCount;
@@ -120,8 +118,7 @@ namespace NoraGrace.Engine
 
         public MovePicker()
         {
-            _playerKillers[0] = new KillerInfo();
-            _playerKillers[1] = new KillerInfo();
+
 
         }
 
@@ -214,8 +211,8 @@ namespace NoraGrace.Engine
                 _currStep++;
                 return NextMoveData();
             }
-            
-            var killerInfo = _playerKillers[(int)_board.WhosTurn];
+
+            var killerInfo = _history;
             if (_currIndex < 2)
             {
                 Move move = _killers[(int)_board.WhosTurn][_currIndex];
@@ -281,7 +278,7 @@ namespace NoraGrace.Engine
 
 
                 array[i].Score =
-                    _playerKillers[(int)_board.WhosTurn].HistoryScore(_board, move)
+                    _history.HistoryScore(_board, move)
                     + PcSqChange(piece, move.From(), move.To())
                     + (see < 0 ? -1000 : 0);
 
@@ -327,27 +324,27 @@ namespace NoraGrace.Engine
             System.Diagnostics.Debug.Assert(_board.ZobristBoard == _boardZob);
             switch (_currStep)
             {
-                case steps.ttMove:
+                case GeneratorStep.ttMove:
                     return StepTTMove();
 
-                case steps.InitCaps:
+                case GeneratorStep.InitCaps:
                     return StepInitCaps();
-                case steps.GoodCaps:
+                case GeneratorStep.GoodCaps:
                     return StepGoodCaps();
 
-                case steps.Killers:
+                case GeneratorStep.Killers:
                     return StepKillers();
 
-                case steps.BadCaps:
+                case GeneratorStep.BadCaps:
                     return StepBadCaps();
 
-                case steps.InitQuiet:
+                case GeneratorStep.InitQuiet:
                     return StepInitQuiet();
 
-                case steps.Quiet:
+                case GeneratorStep.Quiet:
                     return StepQuiet();
 
-                case steps.Done:
+                case GeneratorStep.Done:
                     return StepDone();
                 default:
                     System.Diagnostics.Debug.Assert(false);
@@ -434,12 +431,12 @@ namespace NoraGrace.Engine
                 }
             }
             //store to history object.
-            _playerKillers[(int)board.WhosTurn].RegisterKiller(board, move);
+            _history.RegisterKiller(board, move);
         }
 
         public void RegisterFailLow(Board board, Move move)
         {
-            _playerKillers[(int)board.WhosTurn].RegisterFailLow(board, move);
+            _history.RegisterFailLow(board, move);
         }
 
 

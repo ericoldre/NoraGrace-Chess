@@ -14,7 +14,7 @@ namespace NoraGrace.Engine
             Board workingboard = new Board(board.FENCurrent);
 
             Player me = board.WhosTurn;
-            foreach (Move move in GenMovesOld(workingboard, false))
+            foreach (Move move in GenMoves(workingboard))
             {
                 workingboard.MoveApply(move);
                 bool resultsInCheck = workingboard.IsCheck(me);

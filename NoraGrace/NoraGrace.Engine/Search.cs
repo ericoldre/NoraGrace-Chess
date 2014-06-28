@@ -781,7 +781,7 @@ namespace NoraGrace.Engine
 				{
                     SearchArgs.TransTable.Store(board.ZobristBoard, depth.Value(), TranspositionTable.EntryType.AtLeast, beta, move);
                     CutoffStats.AtDepth[depth.ToPly()].CutoffAfter[legalMovesTried] += 1;
-                    plyMoves.RegisterCutoff(board, move);
+                    plyMoves.RegisterCutoff(board, move, depth);
 					return score;
 				}
 
@@ -798,7 +798,7 @@ namespace NoraGrace.Engine
 				}
                 else
                 {
-                    plyMoves.RegisterFailLow(board, move);
+                    plyMoves.RegisterFailLow(board, move, depth);
                 }
 			}
 

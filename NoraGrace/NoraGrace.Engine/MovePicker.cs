@@ -15,12 +15,13 @@ namespace NoraGrace.Engine
         public class Stack
         {
             List<MovePicker> _plyBuffers = new List<MovePicker>();
+            MoveHistory _history = new MoveHistory();
 
             public Stack(int plyCapacity = 50)
             {
                 while (_plyBuffers.Count < plyCapacity)
                 {
-                    _plyBuffers.Add(new MovePicker());
+                    _plyBuffers.Add(new MovePicker(_history));
                 }
             }
 
@@ -33,7 +34,7 @@ namespace NoraGrace.Engine
                     {
                         for (int i = 0; i < 10; i++)
                         {
-                            _plyBuffers.Add(new MovePicker());
+                            _plyBuffers.Add(new MovePicker(_history));
                         }
                     }
                     return _plyBuffers[ply];
@@ -42,34 +43,63 @@ namespace NoraGrace.Engine
 
         }
 
-        private class MoveHistory
+        public class MoveHistory
         {
             private readonly int[][] _history = new int[16][];
+            private int _count = 0;
+            private int _maxCount = 50000;
+
             public MoveHistory()
             {
                 for (int i = 0; i <= _history.GetUpperBound(0); i++) { _history[i] = new int[64]; }
             }
 
-            public void RegisterKiller(Board board, Move move)
+            private void Age()
             {
-
-                if (board.PieceAt(move.To()) == Piece.EMPTY)
+                if (_count > _maxCount)
                 {
-                    //save to history table
-                    var piece = (int)board.PieceAt(move.From());
-                    var to = (int)move.To();
-                    var newscore = Math.Min(1000000, _history[piece][to] + 1000);
-                    _history[piece][to] = newscore;
+                    for (int ipiece = 0; ipiece < 16; ipiece++)
+                    {
+                        for (int ipos = 0; ipos < 64; ipos++)
+                        {
+                            _history[ipiece][ipos] = _history[ipiece][ipos] / 2;
+                        }
+                    }
+                    _count = 0;
                 }
+                else
+                {
+                    _count++;
+                }
+                
+            }
+            public void RegisterCutoff(Board board, Move move, SearchDepth depth)
+            {
+                Age(); //every so often, reduce scores.
+
+                Piece piece = board.PieceAt(move.From());
+                Position to = move.To();
+
+                System.Diagnostics.Debug.Assert(board.PieceAt(to) == Piece.EMPTY);
+
+                int ply = depth.ToPly();
+                int value = (ply * 2) * (ply * 2);
+                _history[(int)piece][(int)to] += value;
 
             }
 
-            public void RegisterFailLow(Board board, Move move)
+            public void RegisterFailLow(Board board, Move move, SearchDepth depth)
             {
-                //decrease value in history table
-                var piece = (int)board.PieceAt(move.From());
-                var to = (int)move.To();
-                _history[piece][to] = _history[piece][to] / 2;
+                Age(); //every so often, reduce scores.
+
+                Piece piece = board.PieceAt(move.From());
+                Position to = move.To();
+
+                System.Diagnostics.Debug.Assert(board.PieceAt(to) == Piece.EMPTY);
+
+                int ply = depth.ToPly();
+                int value = (ply * 2) * (ply * 2);
+                _history[(int)piece][(int)to] -= value;
             }
 
             public int HistoryScore(Board board, Move move)
@@ -99,7 +129,7 @@ namespace NoraGrace.Engine
         private readonly ChessMoveData[] _captures = new ChessMoveData[192];
         private readonly ChessMoveData[] _nonCaptures = new ChessMoveData[192];
 
-        private readonly MoveHistory _history = new MoveHistory();
+        private readonly MoveHistory _history;
 
         private readonly Move[][] _killers = new Move[2][] { new Move[2], new Move[2] };
 
@@ -117,10 +147,9 @@ namespace NoraGrace.Engine
         private readonly Move[] _exclude = new Move[20];
         private int _excludeCount = 0;
 
-        public MovePicker()
+        public MovePicker(MoveHistory history)
         {
-
-
+            _history = history;
         }
 
         public void Initialize(Board board, Move ttMove = Move.EMPTY, bool capsOnly = false)
@@ -419,25 +448,32 @@ namespace NoraGrace.Engine
             }
         }
 
-        public void RegisterCutoff(Board board, Move move)
+        public void RegisterCutoff(Board board, Move move, SearchDepth depth)
         {
             //store killer moves in MovePicker
             var killers = _killers[(int)board.WhosTurn];
             if (board.PieceAt(move.To()) == Piece.EMPTY)
             {
+                //store as killer
                 if (move != killers[0])
                 {
                     killers[1] = killers[0];
                     killers[0] = move;
                 }
+
+                //store to history object.
+                _history.RegisterCutoff(board, move, depth);
             }
-            //store to history object.
-            _history.RegisterKiller(board, move);
+            
         }
 
-        public void RegisterFailLow(Board board, Move move)
+        public void RegisterFailLow(Board board, Move move, SearchDepth depth)
         {
-            _history.RegisterFailLow(board, move);
+            if (board.PieceAt(move.To()) == Piece.EMPTY)
+            {
+                //store to history object.
+                _history.RegisterFailLow(board, move, depth);
+            }
         }
 
 

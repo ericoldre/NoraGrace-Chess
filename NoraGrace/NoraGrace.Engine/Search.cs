@@ -213,6 +213,10 @@ namespace NoraGrace.Engine
 
 		public event EventHandler<SearchProgressEventArgs> ProgressReported;
 
+        const int MAX_PLY = 50;
+        private Move[][] _pv = new Move[MAX_PLY][];
+        private int[] _pvLen = new int[MAX_PLY];
+
 		public readonly Args SearchArgs;
 		private readonly Board board;
         private readonly Evaluation.IChessEval eval;
@@ -225,13 +229,18 @@ namespace NoraGrace.Engine
 
         private readonly MovePicker.Stack _moveBuffer = new MovePicker.Stack();
         private readonly Evaluation.ChessEvalInfoStack _evalInfoStack; 
-        private Move[] _currentPV = new Move[50];
+
         private readonly Dictionary<Move, int> _rootMoveNodeCounts = new Dictionary<Move, int>();
 		private readonly Int64 BlunderKey = Rand64();
 		
 		public Search(Args args)
 		{
-			SearchArgs = args;
+            for (int i = 0; i < _pv.Length; i++)
+            {
+                _pv[i] = new Move[MAX_PLY];
+            }
+
+            SearchArgs = args;
             eval = args.Eval;
             _evalInfoStack = new Evaluation.ChessEvalInfoStack(args.Eval as Evaluation.Evaluator);
 
@@ -390,11 +399,6 @@ namespace NoraGrace.Engine
 			{
 				CurrentVariation[0] = move;
 
-                for (int i = _currentPV.GetLowerBound(0); i <= _currentPV.GetUpperBound(0); i++)
-                {
-                    _currentPV[i] = Move.EMPTY;
-                }
-
                 board.MoveApply(move);
 
                 if (board.IsCheck(board.WhosTurn.PlayerOther()))
@@ -442,10 +446,16 @@ namespace NoraGrace.Engine
 					alpha = score;
 					bestmove = move;
 
-                    _currentPV[0] = move;
+                    //save principle variation
+                    int ply = 0;
+                    _pv[ply][0] = move;
+                    int subLen = _pvLen[ply + 1];
+                    Array.Copy(_pv[ply + 1], 0, _pv[ply], 1, subLen);
+                    _pvLen[ply] = subLen + 1;
+
 
 					//save instance best info
-					_bestvariation = GetLegalPV(this.board.FENCurrent, _currentPV);
+					_bestvariation = GetLegalPV(this.board.FENCurrent, _pv[0]);
 					_bestvariationscore = alpha;
 
 					//store to trans table
@@ -579,6 +589,7 @@ namespace NoraGrace.Engine
 			CountTotalAINodes++;
 			CountAIValSearch++;
             SearchArgs.TimeManager.NodeStart(CountAIValSearch); //will end up setting abort flag if over allotted time.
+            _pvLen[ply] = 0;
 
             bool isPvNode = (beta - alpha) > 1;
 
@@ -808,9 +819,11 @@ namespace NoraGrace.Engine
 					alpha = score;
 					bestmove = move;
 
-                    _currentPV[ply] = move;
-
-                    //?? plyMoves.RegisterCutoff(board, move);
+                    //save principal variation
+                    _pv[ply][0] = move;
+                    int subLen = _pvLen[ply + 1];
+                    Array.Copy(_pv[ply + 1], 0, _pv[ply], 1, subLen);
+                    _pvLen[ply] = subLen + 1;
                     
 				}
                 else
@@ -928,8 +941,6 @@ namespace NoraGrace.Engine
 				if (move_score > alpha)
 				{
 					alpha = move_score;
-
-                    _currentPV[ply] = move;
 				}
 			}
 			//trans_table_store(board,0,entrytype,alpha,0);

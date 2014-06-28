@@ -29,7 +29,7 @@ namespace NoraGrace.EvalTune
 
 
             //ALTER THIS
-            string paramName = "CheckExtension";
+            string paramName = "ExtendSEEPositiveOnly";
 
             //ALTER THIS
             double parameterValue = Settings.Default().PawnPassed8thRankScore;
@@ -66,7 +66,7 @@ namespace NoraGrace.EvalTune
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
                 player.AlterSearchArgs = (searchArgs) =>
                 {
-                    searchArgs.CheckExtension = pval > otherval ? SearchDepth.PLY : 0;
+                    searchArgs.ExtendSEEPositiveOnly = pval > otherval;
                     //manager.RatioComplexity = 0; // pval > otherval ? 1 : 0;
                    // manager.RatioFailHigh = pval > otherval ? 1.5 : 1;
                     //if (pval > otherval) { searchArgs.MaxDepth = 3; }

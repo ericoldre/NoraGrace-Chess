@@ -188,8 +188,9 @@ namespace NoraGrace.Engine
             public int MaxNodes { get; set; }
             public int ContemptForDraw { get; set; }
             public ITimeManager TimeManager { get; set; }
-            public SearchDepth CheckExtension { get; set; }
-
+            public SearchDepth ExtensionCheck { get; set; }
+            public SearchDepth ExtensionPawn7th { get; set; }
+            public bool ExtendSEEPositiveOnly { get; set; }
 			public Args()
 			{
                 GameStartPosition = new FEN(FEN.FENStart);
@@ -202,7 +203,9 @@ namespace NoraGrace.Engine
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
-                CheckExtension = SearchDepthInfo.FromPly(1);
+                ExtensionCheck = SearchDepthInfo.FromPly(1);
+                ExtensionPawn7th = SearchDepthInfo.FromPly(1);
+                ExtendSEEPositiveOnly = true;
 			}
 		}
 
@@ -728,10 +731,24 @@ namespace NoraGrace.Engine
                 //decide if we want to extend or maybe reduce this node
                 SearchDepth ext = 0;
                 bool isCheck = board.IsCheck(board.WhosTurn);
-                if (isCheck) { ext = this.SearchArgs.CheckExtension; }
+                if (isCheck) { ext = this.SearchArgs.ExtensionCheck; }
 
-                bool isDangerous = moveData.Flags != 0 || isCheck || ext > 0;
+                Position moveFrom = move.From();
+                Position moveTo = move.To();
+                Piece movePiece = board.PieceAt(moveFrom);
+                
+                bool isPawn7th = 
+                    (movePiece == Piece.WPawn && moveTo.ToRank() == Rank.Rank7)
+                    || (movePiece == Piece.BPawn && moveTo.ToRank() == Rank.Rank2);
+                if (isPawn7th) { ext = ext.AddDepth(this.SearchArgs.ExtensionPawn7th); }
 
+                bool isDangerous = moveData.Flags != 0 || isCheck || isPawn7th || ext > 0;
+
+                if (this.SearchArgs.ExtendSEEPositiveOnly)
+                {
+                    if (moveData.SEE < 0) { ext = 0; }
+                }
+                
                 
 
                 bool doFullSearch = true;

@@ -507,6 +507,16 @@ namespace NoraGrace.Engine
                         return false;
                     }
                 case PieceType.Pawn:
+                    //check moves to last rank have promotion if pawn.
+                    if (me == Player.White && to.ToRank() == Rank.Rank8 && move.Promote() == Piece.EMPTY)
+                    {
+                        return false;
+                    }
+                    else if (me == Player.Black && to.ToRank() == Rank.Rank1 && move.Promote() == Piece.EMPTY)
+                    {
+                        return false;
+                    }
+
                     if (Attacks.PawnAttacks(from, me).Contains(to))
                     {
                         return board[me.PlayerOther()].Contains(to) || to == board.EnPassant;

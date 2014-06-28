@@ -403,6 +403,7 @@ namespace NoraGrace.Engine.Evaluation
 
         private double CalcWeight(double startWeight, double startScore, double endScore)
         {
+            startWeight = Math.Min(1, Math.Max(0, startWeight));
             System.Diagnostics.Debug.Assert(startWeight >= 0 && startWeight <= 1);
             return (startScore * startWeight) + (endScore * (1f - startWeight));
         }

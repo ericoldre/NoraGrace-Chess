@@ -8,7 +8,7 @@ namespace NoraGrace.Engine
 {
     public enum SearchDepth
     {
-        PLY = 10
+        PLY = 4
     }
 
     public static class SearchDepthInfo
@@ -22,6 +22,16 @@ namespace NoraGrace.Engine
         public static SearchDepth AddPly(this SearchDepth depth, int ply)
         {
             return depth + (ply * (int)SearchDepth.PLY);
+        }
+
+        public static SearchDepth AddDepth(this SearchDepth depth, SearchDepth addValue)
+        {
+            return depth + (int)addValue;
+        }
+
+        public static SearchDepth SubstractDepth(this SearchDepth depth, SearchDepth subValue)
+        {
+            return depth - (int)subValue;
         }
 
         public static int Value(this SearchDepth depth)

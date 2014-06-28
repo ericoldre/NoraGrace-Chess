@@ -188,7 +188,7 @@ namespace NoraGrace.Engine
             public int MaxNodes { get; set; }
             public int ContemptForDraw { get; set; }
             public ITimeManager TimeManager { get; set; }
-            public bool ExtendChecks { get; set; }
+            public SearchDepth CheckExtension { get; set; }
 
 			public Args()
 			{
@@ -202,7 +202,7 @@ namespace NoraGrace.Engine
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
-                ExtendChecks = true;
+                CheckExtension = SearchDepthInfo.FromPly(1);
 			}
 		}
 
@@ -289,8 +289,9 @@ namespace NoraGrace.Engine
 			int MateScoreLast = 0;
 			int MateScoreCount = 0;
 
+            var maxDepth = SearchDepthInfo.FromPly(Math.Min(50, this.SearchArgs.MaxDepth));
 
-            while (depth.Value() <= (int)SearchDepthInfo.FromPly(this.SearchArgs.MaxDepth) && depth < SearchDepthInfo.FromPly(50))
+            while (depth.Value() <= maxDepth.Value())
             {
 
                 ValSearchRoot(depth);
@@ -725,11 +726,11 @@ namespace NoraGrace.Engine
 				}
 
                 //decide if we want to extend or maybe reduce this node
-                int ext = 0;
+                SearchDepth ext = 0;
                 bool isCheck = board.IsCheck(board.WhosTurn);
-                if (isCheck && SearchArgs.ExtendChecks) { ext = 1; }
+                if (isCheck) { ext = this.SearchArgs.CheckExtension; }
 
-                bool isDangerous = moveData.Flags != 0 || isCheck;
+                bool isDangerous = moveData.Flags != 0 || isCheck || ext > 0;
 
                 
 
@@ -740,8 +741,7 @@ namespace NoraGrace.Engine
                     //&& beta == alpha + 1
                     && depth.ToPly() >= 3
                     && legalMovesTried > 3
-                    && !isDangerous 
-                    && ext == 0)
+                    && !isDangerous)
                 {
                     doFullSearch = false;
                     score = -ValSearch(depth.SubstractPly(2), ply + 1, -beta, -alpha);
@@ -751,7 +751,7 @@ namespace NoraGrace.Engine
                 if (doFullSearch)
                 {
                     //do subsearch
-                    score = -ValSearch(depth.SubstractPly(1), ply + 1, -beta, -alpha);
+                    score = -ValSearch(depth.AddDepth(ext).SubstractPly(1), ply + 1, -beta, -alpha);
                 }
 
 

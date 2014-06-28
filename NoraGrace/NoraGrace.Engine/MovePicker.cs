@@ -28,6 +28,7 @@ namespace NoraGrace.Engine
             {
                 get
                 {
+                    System.Diagnostics.Debug.Assert(ply >= 0);
                     if (ply > _plyBuffers.Count)
                     {
                         for (int i = 0; i < 10; i++)

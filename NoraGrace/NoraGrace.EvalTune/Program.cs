@@ -29,7 +29,7 @@ namespace NoraGrace.EvalTune
 
 
             //ALTER THIS
-            string paramName = "PawnPassed8thRankScore";
+            string paramName = "CheckExtension";
 
             //ALTER THIS
             double parameterValue = Settings.Default().PawnPassed8thRankScore;
@@ -43,7 +43,7 @@ namespace NoraGrace.EvalTune
                 //evalsettings.KingAttackFactor = pval;
                // evalsettings.KingAttackFactorQueenTropismBonus = pval / 2;
                 //evalsettings.PawnCandidatePct = pval;
-                evalsettings.PawnPassed8thRankScore = (int)pval;
+                //evalsettings.PawnPassed8thRankScore = (int)pval;
                 //evalsettings.PawnPassedFarPct = pval + .1f;
                 //if (pval > otherval)
                 //{
@@ -66,7 +66,7 @@ namespace NoraGrace.EvalTune
                 DeterministicPlayer player = new DeterministicPlayer(name, eval, manager);
                 player.AlterSearchArgs = (searchArgs) =>
                 {
-                    //searchArgs.UseLMR = pval > otherval;
+                    searchArgs.CheckExtension = pval > otherval ? SearchDepth.PLY : 0;
                     //manager.RatioComplexity = 0; // pval > otherval ? 1 : 0;
                    // manager.RatioFailHigh = pval > otherval ? 1.5 : 1;
                     //if (pval > otherval) { searchArgs.MaxDepth = 3; }
@@ -103,7 +103,7 @@ namespace NoraGrace.EvalTune
 
             while (true)
             {
-                int nodesPerMove = 20000;// 15000;
+                int nodesPerMove = 100000;// 15000;
                 nodesPerMove = rand.Next(nodesPerMove, (int)((float)nodesPerMove * 1.1));
 
                 TimeControlNodes timeControl = new TimeControlNodes() { InitialAmount = nodesPerMove * 20, BonusEveryXMoves = 1, BonusAmount = nodesPerMove };

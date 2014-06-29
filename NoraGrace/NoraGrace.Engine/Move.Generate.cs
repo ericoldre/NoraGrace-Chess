@@ -286,13 +286,14 @@ namespace NoraGrace.Engine
 
             Bitboard attacks = Bitboard.Empty;
 
-
+            Player us = board.WhosTurn;
+            Player them = us.PlayerOther();
 
             //pawn caps
-            Bitboard pawnTargets = board[board.WhosTurn.PlayerOther()] | (board.EnPassant.IsInBounds() ? board.EnPassant.ToBitboard() : 0);
+            Bitboard pawnTargets = board[them] | (board.EnPassant.IsInBounds() ? board.EnPassant.ToBitboard() : 0);
             foreach (Direction capDir in new Direction[] { mypawneast, mypawnwest })
             {
-                attacks = board[mypawn].Shift(capDir) & pawnTargets;
+                attacks = board[us, PieceType.Pawn].Shift(capDir) & pawnTargets;
                 while (attacks != Bitboard.Empty)
                 {
                     Position targetpos = BitboardInfo.PopFirst(ref attacks);
@@ -311,7 +312,7 @@ namespace NoraGrace.Engine
                 }
             }
 
-            Bitboard targetLocations = board[board.WhosTurn.PlayerOther()];
+            Bitboard targetLocations = board[them];
             if (!CapsOnly)
             {
                 targetLocations |= ~board.PieceLocationsAll;
@@ -356,7 +357,7 @@ namespace NoraGrace.Engine
             if (!CapsOnly)
             {
                 //pawn jumps
-                attacks = (board[mypawn].Shift(mypawnnorth) & ~board.PieceLocationsAll);
+                attacks = (board[us, PieceType.Pawn].Shift(mypawnnorth) & ~board.PieceLocationsAll);
                 while (attacks != Bitboard.Empty)
                 {
                     Position targetpos = BitboardInfo.PopFirst(ref attacks);

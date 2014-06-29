@@ -58,7 +58,6 @@ namespace NoraGrace.Engine
 
 		private int[] _pieceCount = new int[PieceInfo.LookupArrayLength];
         private Position[] _kingpos = new Position[2];
-        private Bitboard[] _pieces = new Bitboard[PieceInfo.LookupArrayLength];
         private Bitboard[] _pieceTypes = new Bitboard[PieceTypeInfo.LookupArrayLength];
         private Bitboard[] _playerBoards = new Bitboard[2];
         private Bitboard _allPieces = 0;
@@ -125,7 +124,6 @@ namespace NoraGrace.Engine
             foreach (Piece piece in PieceInfo.AllPieces)
 			{
                 _pieceCount[(int)piece] = 0;
-                _pieces[(int)piece] = 0;
 			}
             foreach (PieceType piecetype in PieceTypeInfo.AllPieceTypes)
             {
@@ -191,7 +189,6 @@ namespace NoraGrace.Engine
             _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSq);
 
             Bitboard posBits = pos.ToBitboard();
-            _pieces[(int)piece] |= posBits;
             _pieceTypes[(int)piece.ToPieceType()] |= posBits;
             _allPieces |= posBits;
             _playerBoards[(int)piece.PieceToPlayer()] |= posBits;
@@ -220,7 +217,6 @@ namespace NoraGrace.Engine
             _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSq);
 
             Bitboard notPosBits = ~pos.ToBitboard();
-            _pieces[(int)piece] &= notPosBits;
             _pieceTypes[(int)piece.ToPieceType()] &= notPosBits;
             _allPieces &= notPosBits;
             _playerBoards[(int)piece.PieceToPlayer()] &= notPosBits;
@@ -405,10 +401,6 @@ namespace NoraGrace.Engine
             get { return _zobMaterial; }
         }
 
-        public Bitboard this[Piece piece]
-        {
-            get { return _pieces[(int)piece]; }
-        }
 
         public Bitboard this[PieceType pieceType]
         {
@@ -420,6 +412,14 @@ namespace NoraGrace.Engine
             get
             {
                 return _playerBoards[(int)player];
+            }
+        }
+
+        public Bitboard this[Player player, PieceType pieceType]
+        {
+            get
+            {
+                return _playerBoards[(int)player] & _pieceTypes[(int)pieceType];
             }
         }
 
@@ -787,8 +787,8 @@ namespace NoraGrace.Engine
             retval |= Attacks.RookAttacks(to, this.PieceLocationsAll) & (this[PieceType.Queen] | this[PieceType.Rook]);
             retval |= Attacks.BishopAttacks(to, this.PieceLocationsAll) & (this[PieceType.Queen] | this[PieceType.Bishop]);
             retval |= Attacks.KingAttacks(to) & (this[PieceType.King]);
-            retval |= Attacks.PawnAttacks(to, Player.Black) & this[Piece.WPawn];
-            retval |= Attacks.PawnAttacks(to, Player.White) & this[Piece.BPawn];
+            retval |= Attacks.PawnAttacks(to, Player.Black) & this[Player.White, PieceType.Pawn];
+            retval |= Attacks.PawnAttacks(to, Player.White) & this[Player.Black, PieceType.Pawn];
             return retval;
 		}
 

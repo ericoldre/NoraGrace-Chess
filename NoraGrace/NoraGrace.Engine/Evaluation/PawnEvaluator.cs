@@ -81,7 +81,7 @@ namespace NoraGrace.Engine.Evaluation
                 return retval;
             }
 
-            retval = EvalAllPawns(board[Piece.WPawn], board[Piece.BPawn], board.ZobristPawn);
+            retval = EvalAllPawns(board[PieceType.Pawn] & board[Player.White], board[PieceType.Pawn] & board[Player.Black], board.ZobristPawn);
             pawnHash[idx] = retval;
             return retval;
         }

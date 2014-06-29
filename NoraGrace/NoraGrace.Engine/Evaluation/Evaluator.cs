@@ -219,8 +219,8 @@ namespace NoraGrace.Engine.Evaluation
 
             //pawns
             PawnResults pawns = this._evalPawns.PawnEval(board);
-            System.Diagnostics.Debug.Assert(pawns.WhitePawns == board[Piece.WPawn]);
-            System.Diagnostics.Debug.Assert(pawns.BlackPawns == board[Piece.BPawn]);
+            System.Diagnostics.Debug.Assert(pawns.WhitePawns == (board[PieceType.Pawn] & board[Player.White]));
+            System.Diagnostics.Debug.Assert(pawns.BlackPawns == (board[PieceType.Pawn] & board[Player.Black]));
 
             evalInfo.MaterialPawnsApply(board, material, pawns, this.DrawScore);
 
@@ -258,10 +258,10 @@ namespace NoraGrace.Engine.Evaluation
             var attacksWhite = evalInfo.Attacks[(int)Player.White];
             var attacksBlack = evalInfo.Attacks[(int)Player.Black];
 
-            attacksWhite.PawnEast = board[Piece.WPawn].ShiftDirNE();
-            attacksWhite.PawnWest = board[Piece.WPawn].ShiftDirNW();
-            attacksBlack.PawnEast = board[Piece.BPawn].ShiftDirSE();
-            attacksBlack.PawnWest = board[Piece.BPawn].ShiftDirSW();
+            attacksWhite.PawnEast = board[Player.White, PieceType.Pawn].ShiftDirNE();
+            attacksWhite.PawnWest = board[Player.White, PieceType.Pawn].ShiftDirNW();
+            attacksBlack.PawnEast = board[Player.Black, PieceType.Pawn].ShiftDirSE();
+            attacksBlack.PawnWest = board[Player.Black, PieceType.Pawn].ShiftDirSW();
 
             attacksWhite.King = Attacks.KingAttacks(board.KingPosition(Player.White));
             attacksBlack.King = Attacks.KingAttacks(board.KingPosition(Player.Black));

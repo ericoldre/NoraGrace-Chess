@@ -56,7 +56,7 @@ namespace NoraGrace.Engine
 
 		private Piece[] _pieceat = new Piece[65];
 
-		private int[] _pieceCount = new int[PieceInfo.LookupArrayLength];
+		private int[][] _pieceCount = new int[2][];
         private Position[] _kingpos = new Position[2];
         private Bitboard[] _pieceTypes = new Bitboard[PieceTypeInfo.LookupArrayLength];
         private Bitboard[] _playerBoards = new Bitboard[2];
@@ -92,6 +92,9 @@ namespace NoraGrace.Engine
 		}
         public Board(FEN fen, Evaluation.Evaluator pcSqEvaluator = null)
 		{
+            _pieceCount[0] = new int[PieceTypeInfo.LookupArrayLength];
+            _pieceCount[1] = new int[PieceTypeInfo.LookupArrayLength];
+
             _histUB = _hist.GetUpperBound(0);
             for (int i = 0; i <= _histUB; i++)
             {
@@ -121,13 +124,11 @@ namespace NoraGrace.Engine
 			{
 				_pieceat[(int)pos] = Piece.EMPTY;
 			}
-            foreach (Piece piece in PieceInfo.AllPieces)
-			{
-                _pieceCount[(int)piece] = 0;
-			}
             foreach (PieceType piecetype in PieceTypeInfo.AllPieceTypes)
             {
                 _pieceTypes[(int)piecetype] = Bitboard.Empty;
+                _pieceCount[0][(int)piecetype] = 0;
+                _pieceCount[1][(int)piecetype] = 0;
             }
             _playerBoards[(int)Player.White] = 0;
             _playerBoards[(int)Player.Black] = 0;
@@ -182,10 +183,13 @@ namespace NoraGrace.Engine
 
         private void PieceAdd(Position pos, Piece piece)
 		{
+            Player player = piece.PieceToPlayer();
+            PieceType pieceType = piece.ToPieceType();
+
             _pieceat[(int)pos] = piece;
             _zob ^= Zobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)piece]);
-            _pieceCount[(int)piece]++;
+            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)player][(int)pieceType]);
+            _pieceCount[(int)player][(int)pieceType]++;
             _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSq);
 
             Bitboard posBits = pos.ToBitboard();
@@ -209,11 +213,13 @@ namespace NoraGrace.Engine
         private void PieceRemove(Position pos)
 		{
             Piece piece = PieceAt(pos);
+            Player player = piece.PieceToPlayer();
+            PieceType pieceType = piece.ToPieceType();
 
             _pieceat[(int)pos] = Piece.EMPTY;
 			_zob ^= Zobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)piece] - 1);
-            _pieceCount[(int)piece]--;
+            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)player][(int)pieceType] - 1);
+            _pieceCount[(int)player][(int)pieceType]--;
             _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSq);
 
             Bitboard notPosBits = ~pos.ToBitboard();
@@ -228,11 +234,11 @@ namespace NoraGrace.Engine
 		}
 		public int PieceCount(Piece piece)
 		{
-            return _pieceCount[(int)piece];
+            return _pieceCount[(int)piece.PieceToPlayer()][(int)piece.ToPieceType()];
 		}
         public int PieceCount(Player player, PieceType pieceType)
         {
-            return _pieceCount[(int)pieceType.ForPlayer(player)];
+            return _pieceCount[(int)player][(int)pieceType];
         }
 
         public Evaluation.PhasedScore PcSqValue

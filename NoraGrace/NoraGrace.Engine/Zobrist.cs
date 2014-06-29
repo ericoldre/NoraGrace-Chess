@@ -108,13 +108,17 @@ namespace NoraGrace.Engine
         public static Int64 BoardZobMaterial(Board board)
         {
             Int64 retval = 0;
-            foreach (Piece piece in PieceInfo.AllPieces)
+            foreach (Player player in PlayerInfo.AllPlayers)
             {
-                for (int i = 0; i < board.PieceCount(piece); i++)
+                foreach (PieceType pieceType in PieceTypeInfo.AllPieceTypes)
                 {
-                    retval ^= Material(piece, i);
+                    for (int i = 0; i < board.PieceCount(player, pieceType); i++)
+                    {
+                        retval ^= Material(pieceType.ForPlayer(player), i);
+                    }
                 }
             }
+            
             return retval;
 
         }

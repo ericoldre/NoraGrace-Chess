@@ -36,16 +36,16 @@ namespace NoraGrace.Engine.Evaluation
 
             retval = EvalMaterial(
                 zob: board.ZobristMaterial,
-                wp: board.PieceCount(Piece.WPawn),
-                wn: board.PieceCount(Piece.WKnight),
-                wb: board.PieceCount(Piece.WBishop),
-                wr: board.PieceCount(Piece.WRook),
-                wq: board.PieceCount(Piece.WQueen),
-                bp: board.PieceCount(Piece.BPawn),
-                bn: board.PieceCount(Piece.BKnight),
-                bb: board.PieceCount(Piece.BBishop),
-                br: board.PieceCount(Piece.BRook),
-                bq: board.PieceCount(Piece.BQueen));
+                wp: board.PieceCount(Player.White, PieceType.Pawn),
+                wn: board.PieceCount(Player.White, PieceType.Knight),
+                wb: board.PieceCount(Player.White, PieceType.Bishop),
+                wr: board.PieceCount(Player.White, PieceType.Rook),
+                wq: board.PieceCount(Player.White, PieceType.Queen),
+                bp: board.PieceCount(Player.Black, PieceType.Pawn),
+                bn: board.PieceCount(Player.Black, PieceType.Knight),
+                bb: board.PieceCount(Player.Black, PieceType.Bishop),
+                br: board.PieceCount(Player.Black, PieceType.Rook),
+                bq: board.PieceCount(Player.Black, PieceType.Queen));
 
             _hash[idx] = retval;
             return retval;

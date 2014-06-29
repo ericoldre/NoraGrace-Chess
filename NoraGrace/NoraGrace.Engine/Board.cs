@@ -232,10 +232,7 @@ namespace NoraGrace.Engine
                 _zobPawn ^= Zobrist.PiecePosition(piece, pos); 
 			}
 		}
-		public int PieceCount(Piece piece)
-		{
-            return _pieceCount[(int)piece.PieceToPlayer()][(int)piece.ToPieceType()];
-		}
+		
         public int PieceCount(Player player, PieceType pieceType)
         {
             return _pieceCount[(int)player][(int)pieceType];

@@ -970,17 +970,17 @@ namespace NoraGrace.Engine
 
 		private bool NullSearchOK()
 		{
-			if (board.PieceCount(Piece.WKnight) == 0
-			&& board.PieceCount(Piece.WBishop) == 0
-			&& board.PieceCount(Piece.WRook) == 0
-			&& board.PieceCount(Piece.WQueen) == 0)
+			if (board.PieceCount(Player.White, PieceType.Knight) == 0
+            && board.PieceCount(Player.White, PieceType.Bishop) == 0
+            && board.PieceCount(Player.White, PieceType.Rook) == 0
+            && board.PieceCount(Player.White, PieceType.Queen) == 0)
 			{
 				return false;
 			}
-			if (board.PieceCount(Piece.BKnight) == 0
-			&& board.PieceCount(Piece.BBishop) == 0
-			&& board.PieceCount(Piece.BRook) == 0
-			&& board.PieceCount(Piece.BQueen) == 0)
+            if (board.PieceCount(Player.Black, PieceType.Knight) == 0
+            && board.PieceCount(Player.Black, PieceType.Bishop) == 0
+            && board.PieceCount(Player.Black, PieceType.Rook) == 0
+            && board.PieceCount(Player.Black, PieceType.Queen) == 0)
 			{
 				return false;
 			}
@@ -988,15 +988,15 @@ namespace NoraGrace.Engine
 		}
 		private bool NullSearchVerify()
 		{
-			int wmat = (board.PieceCount(Piece.WKnight) * 3)
-				+ (board.PieceCount(Piece.WBishop) * 3)
-				+ (board.PieceCount(Piece.WRook) * 5)
-				+ (board.PieceCount(Piece.WQueen) * 9);
+            int wmat = (board.PieceCount(Player.White, PieceType.Knight) * 3)
+                + (board.PieceCount(Player.White, PieceType.Bishop) * 3)
+                + (board.PieceCount(Player.White, PieceType.Rook) * 5)
+                + (board.PieceCount(Player.White, PieceType.Queen) * 9);
 
-			int bmat = (board.PieceCount(Piece.BKnight) * 3)
-				+ (board.PieceCount(Piece.BBishop) * 3)
-				+ (board.PieceCount(Piece.BRook) * 5)
-				+ (board.PieceCount(Piece.BQueen) * 9);
+            int bmat = (board.PieceCount(Player.Black, PieceType.Knight) * 3)
+                + (board.PieceCount(Player.Black, PieceType.Bishop) * 3)
+                + (board.PieceCount(Player.Black, PieceType.Rook) * 5)
+                + (board.PieceCount(Player.Black, PieceType.Queen) * 9);
 
 			if (wmat < 9 || bmat < 9)
 			{

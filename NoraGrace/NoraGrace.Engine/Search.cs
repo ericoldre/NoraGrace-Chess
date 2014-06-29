@@ -214,13 +214,13 @@ namespace NoraGrace.Engine
 		public event EventHandler<SearchProgressEventArgs> ProgressReported;
 
         const int MAX_PLY = 50;
-        private Move[][] _pv = new Move[MAX_PLY][];
-        private int[] _pvLen = new int[MAX_PLY];
+        private Move[][] _pv = new Move[MAX_PLY + 1][];
+        private int[] _pvLen = new int[MAX_PLY + 1];
 
 		public readonly Args SearchArgs;
 		private readonly Board board;
         private readonly Evaluation.IChessEval eval;
-		private Move[] CurrentVariation = new Move[50];
+        private Move[] CurrentVariation = new Move[MAX_PLY + 1];
 		private DateTime _starttime;
 		private bool _aborting = false;
 		private bool _returnBestResult = true; //if false return null
@@ -237,7 +237,7 @@ namespace NoraGrace.Engine
 		{
             for (int i = 0; i < _pv.Length; i++)
             {
-                _pv[i] = new Move[MAX_PLY];
+                _pv[i] = new Move[MAX_PLY + 1];
             }
 
             SearchArgs = args;
@@ -301,7 +301,7 @@ namespace NoraGrace.Engine
 			int MateScoreLast = 0;
 			int MateScoreCount = 0;
 
-            var maxDepth = SearchDepthInfo.FromPly(Math.Min(50, this.SearchArgs.MaxDepth));
+            var maxDepth = SearchDepthInfo.FromPly(Math.Min(MAX_PLY, this.SearchArgs.MaxDepth));
 
             while (depth.Value() <= maxDepth.Value())
             {
@@ -589,7 +589,7 @@ namespace NoraGrace.Engine
 			CountTotalAINodes++;
 			CountAIValSearch++;
             SearchArgs.TimeManager.NodeStart(CountAIValSearch); //will end up setting abort flag if over allotted time.
-            _pvLen[ply] = 0;
+            
 
             bool isPvNode = (beta - alpha) > 1;
 
@@ -627,11 +627,14 @@ namespace NoraGrace.Engine
                 return board.WhosTurn == Player.White ? eval.DrawScore : -eval.DrawScore;
 			}
 
-			if (depth.ToPly() <= 0) 
+			if (depth.ToPly() <= 0 || ply > MAX_PLY) 
 			{
 				//MAY TRY: if last move was a null move, want to allow me to do any legal move, because one may be a quiet move that puts me above beta
 				return ValSearchQ(ply, alpha, beta);
 			}
+
+            
+            _pvLen[ply] = 0;
 
 			//check trans table
             Move tt_move = Move.EMPTY;
@@ -821,9 +824,18 @@ namespace NoraGrace.Engine
 
                     //save principal variation
                     _pv[ply][0] = move;
-                    int subLen = _pvLen[ply + 1];
-                    Array.Copy(_pv[ply + 1], 0, _pv[ply], 1, subLen);
-                    _pvLen[ply] = subLen + 1;
+                    if (ply < MAX_PLY)
+                    {
+                        int subLen = _pvLen[ply + 1];
+                        Array.Copy(_pv[ply + 1], 0, _pv[ply], 1, subLen);
+                        _pvLen[ply] = subLen + 1;
+                    }
+                    else
+                    {
+                        _pvLen[ply] = 1;
+                    }
+                    
+                    
                     
 				}
                 else
@@ -865,12 +877,15 @@ namespace NoraGrace.Engine
 			CountTotalAINodes++;
 			CountAIQSearch++;
 
+            
 
 			//int oldScore = eval.EvalFor(board, board.WhosTurn);
 
             Evaluation.EvalResults init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, alpha, beta);
-            
+
+            if (ply > MAX_PLY) { return init_score; }
+
 			bool playerincheck = board.IsCheck();
 
 

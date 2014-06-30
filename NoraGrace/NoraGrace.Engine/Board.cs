@@ -24,6 +24,8 @@ namespace NoraGrace.Engine
 	public sealed class Board
     {
 
+        
+
         private class MoveHistory
         {
             public Move Move;
@@ -56,10 +58,14 @@ namespace NoraGrace.Engine
 
 		private Piece[] _pieceat = new Piece[65];
 
-		private int[][] _pieceCount = new int[2][];
+		private int[][] _pieceCount = Helpers.ArrayInit<int>(2, PieceTypeInfo.LookupArrayLength);
         private Position[] _kingpos = new Position[2];
         private Bitboard[] _pieceTypes = new Bitboard[PieceTypeInfo.LookupArrayLength];
         private Bitboard[] _playerBoards = new Bitboard[2];
+
+        private Position[][][] _piecePositions = Helpers.ArrayInit<Position>(2, PieceTypeInfo.LookupArrayLength, 10);
+        private int[] _piecePositionIndex = new int[65];
+
         private Bitboard _allPieces = 0;
         private Bitboard _checkers = 0;
 		private Player _whosturn;
@@ -92,8 +98,6 @@ namespace NoraGrace.Engine
 		}
         public Board(FEN fen, Evaluation.Evaluator pcSqEvaluator = null)
 		{
-            _pieceCount[0] = new int[PieceTypeInfo.LookupArrayLength];
-            _pieceCount[1] = new int[PieceTypeInfo.LookupArrayLength];
 
             _histUB = _hist.GetUpperBound(0);
             for (int i = 0; i <= _histUB; i++)
@@ -120,18 +124,15 @@ namespace NoraGrace.Engine
 
 		private void initPieceAtArray()
 		{
-            foreach (Position pos in PositionInfo.AllPositions)
-			{
-				_pieceat[(int)pos] = Piece.EMPTY;
-			}
-            foreach (PieceType piecetype in PieceTypeInfo.AllPieceTypes)
-            {
-                _pieceTypes[(int)piecetype] = Bitboard.Empty;
-                _pieceCount[0][(int)piecetype] = 0;
-                _pieceCount[1][(int)piecetype] = 0;
-            }
-            _playerBoards[(int)Player.White] = 0;
-            _playerBoards[(int)Player.Black] = 0;
+            Helpers.ArrayReset(_pieceat, Piece.EMPTY);
+            Helpers.ArrayReset(_pieceCount, 0);
+            Helpers.ArrayReset(_kingpos, Position.OUTOFBOUNDS);
+            Helpers.ArrayReset(_pieceTypes, Bitboard.Empty);
+            Helpers.ArrayReset(_playerBoards, Bitboard.Empty);
+            Helpers.ArrayReset(_piecePositions, Position.OUTOFBOUNDS);
+            Helpers.ArrayReset(_piecePositionIndex, -1);
+
+
             _allPieces = 0;
 
             _pcSq = 0;
@@ -188,8 +189,11 @@ namespace NoraGrace.Engine
 
             _pieceat[(int)pos] = piece;
             _zob ^= Zobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)player][(int)pieceType]);
-            _pieceCount[(int)player][(int)pieceType]++;
+            int countOthers = _pieceCount[(int)player][(int)pieceType];
+            _zobMaterial ^= Zobrist.Material(piece, countOthers);
+            _piecePositionIndex[(int)pos] = countOthers;
+            _piecePositions[(int)player][(int)pieceType][countOthers] = pos;
+            _pieceCount[(int)player][(int)pieceType] = countOthers + 1;
             _pcSqEvaluator.PcSqValuesAdd(piece, pos, ref _pcSq);
 
             Bitboard posBits = pos.ToBitboard();
@@ -218,21 +222,62 @@ namespace NoraGrace.Engine
 
             _pieceat[(int)pos] = Piece.EMPTY;
 			_zob ^= Zobrist.PiecePosition(piece, pos);
-            _zobMaterial ^= Zobrist.Material(piece, _pieceCount[(int)player][(int)pieceType] - 1);
-            _pieceCount[(int)player][(int)pieceType]--;
+
+            int index = _piecePositionIndex[(int)pos];
+            int countOthers = _pieceCount[(int)player][(int)pieceType] - 1;
+
+            _piecePositionIndex[(int)pos] = -1;
+            var list = _piecePositions[(int)player][(int)pieceType];
+            for (int i = index; i < countOthers; i++)
+            {
+                list[i] = list[i + 1];
+                _piecePositionIndex[(int)list[i]]--;
+            }
+
+            _zobMaterial ^= Zobrist.Material(piece, countOthers);
+            _pieceCount[(int)player][(int)pieceType] = countOthers;
             _pcSqEvaluator.PcSqValuesRemove(piece, pos, ref _pcSq);
 
             Bitboard notPosBits = ~pos.ToBitboard();
-            _pieceTypes[(int)piece.ToPieceType()] &= notPosBits;
+            _pieceTypes[(int)pieceType] &= notPosBits;
+            _playerBoards[(int)player] &= notPosBits;
             _allPieces &= notPosBits;
-            _playerBoards[(int)piece.PieceToPlayer()] &= notPosBits;
 
 			if (piece == Piece.WPawn || piece == Piece.BPawn)
 			{
                 _zobPawn ^= Zobrist.PiecePosition(piece, pos); 
 			}
 		}
-		
+
+        private Bitboard PieceBitboardFromList(Player player, PieceType pieceType)
+        {
+            Bitboard retval = Bitboard.Empty;
+            int count = _pieceCount[(int)player][(int)pieceType];
+            for (int i = 0; i < count; i++)
+            {
+                retval |= _piecePositions[(int)player][(int)pieceType][i].ToBitboard();
+            }
+            return retval;
+        }
+
+        private void Validate()
+        {
+            System.Diagnostics.Debug.Assert(this[Player.White, PieceType.Pawn] == PieceBitboardFromList(Player.White, PieceType.Pawn));
+            System.Diagnostics.Debug.Assert(this[Player.White, PieceType.Knight] == PieceBitboardFromList(Player.White, PieceType.Knight));
+            System.Diagnostics.Debug.Assert(this[Player.White, PieceType.Bishop] == PieceBitboardFromList(Player.White, PieceType.Bishop));
+            System.Diagnostics.Debug.Assert(this[Player.White, PieceType.Rook] == PieceBitboardFromList(Player.White, PieceType.Rook));
+            System.Diagnostics.Debug.Assert(this[Player.White, PieceType.Queen] == PieceBitboardFromList(Player.White, PieceType.Queen));
+            System.Diagnostics.Debug.Assert(this[Player.White, PieceType.King] == PieceBitboardFromList(Player.White, PieceType.King));
+
+            System.Diagnostics.Debug.Assert(this[Player.Black, PieceType.Pawn] == PieceBitboardFromList(Player.Black, PieceType.Pawn));
+            System.Diagnostics.Debug.Assert(this[Player.Black, PieceType.Knight] == PieceBitboardFromList(Player.Black, PieceType.Knight));
+            System.Diagnostics.Debug.Assert(this[Player.Black, PieceType.Bishop] == PieceBitboardFromList(Player.Black, PieceType.Bishop));
+            System.Diagnostics.Debug.Assert(this[Player.Black, PieceType.Rook] == PieceBitboardFromList(Player.Black, PieceType.Rook));
+            System.Diagnostics.Debug.Assert(this[Player.Black, PieceType.Queen] == PieceBitboardFromList(Player.Black, PieceType.Queen));
+            System.Diagnostics.Debug.Assert(this[Player.Black, PieceType.King] == PieceBitboardFromList(Player.Black, PieceType.King));
+
+        }
+
         public int PieceCount(Player player, PieceType pieceType)
         {
             return _pieceCount[(int)player][(int)pieceType];
@@ -604,6 +649,7 @@ namespace NoraGrace.Engine
 			_zob ^= Zobrist.PlayerKey;
             _checkers = AttacksTo(_kingpos[(int)_whosturn]) & this[_whosturn.PlayerOther()];
 
+            Validate();
 		}
 
 		public int HistoryCount

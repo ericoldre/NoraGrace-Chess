@@ -172,8 +172,38 @@ namespace NoraGrace.Engine
         private void PieceMove(Position from, Position to)
         {
             Piece piece = _pieceat[(int)from];
-            PieceRemove(from);
-            PieceAdd(to, piece);
+
+            Player player = piece.PieceToPlayer();
+            PieceType pieceType = piece.ToPieceType();
+
+            _pieceat[(int)from] = Piece.EMPTY;
+            _pieceat[(int)to] = piece;
+
+            _zob ^= Zobrist.PiecePosition(piece, from);
+            _zob ^= Zobrist.PiecePosition(piece, to);
+
+            int index = _piecePositionIndex[(int)from];
+            _piecePositionIndex[(int)to] = index;
+            _piecePositions[(int)player][(int)pieceType][index] = to;
+
+            _pcSqEvaluator.PcSqValuesRemove(piece, from, ref _pcSq);
+            _pcSqEvaluator.PcSqValuesAdd(piece, to, ref _pcSq);
+
+            Bitboard posBits = from.ToBitboard() | to.ToBitboard();
+
+            _pieceTypes[(int)pieceType] ^= posBits;
+            _playerBoards[(int)player] ^= posBits;
+            _allPieces ^= posBits;
+
+            if (pieceType == PieceType.Pawn)
+            {
+                _zobPawn ^= Zobrist.PiecePosition(piece, from);
+                _zobPawn ^= Zobrist.PiecePosition(piece, to);
+            }
+            else if (pieceType == PieceType.King)
+            {
+                _kingpos[(int)player] = to;
+            }
         }
 
         private void PieceChange(Position pos, Piece newPiece)
@@ -281,6 +311,11 @@ namespace NoraGrace.Engine
         public int PieceCount(Player player, PieceType pieceType)
         {
             return _pieceCount[(int)player][(int)pieceType];
+        }
+
+        public Position PieceLocation(Player player, PieceType pieceType, int index)
+        {
+            return _piecePositions[(int)player][(int)pieceType][index];
         }
 
         public Evaluation.PhasedScore PcSqValue

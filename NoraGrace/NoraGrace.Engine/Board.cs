@@ -402,18 +402,7 @@ namespace NoraGrace.Engine
 		}
 
 
-		public List<Position> PieceList(Piece piece)
-		{
-			List<Position> retval = new List<Position>();
-            foreach (Position pos in PositionInfo.AllPositions)
-			{
-				if (PieceAt(pos) == piece)
-				{
-					retval.Add(pos);
-				}
-			}
-			return retval;
-		}
+
 
 		public FEN FENCurrent
 		{

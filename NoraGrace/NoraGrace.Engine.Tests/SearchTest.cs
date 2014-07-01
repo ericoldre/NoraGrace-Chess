@@ -88,8 +88,10 @@ namespace NoraGrace.Engine.Tests
         {
             Move m1 = MoveInfo.Parse(board, move1);
             Move m2 = MoveInfo.Parse(board, move2);
-            int score1 = StaticExchange.CalculateScore(m1, board);
-            int score2 = StaticExchange.CalculateScore(m2, board);
+            StaticExchange se = new StaticExchange();
+
+            int score1 = se.CalculateScore(board, m1);
+            int score2 = se.CalculateScore(board, m2);
             Assert.IsTrue(score1 > score2);
         }
     }

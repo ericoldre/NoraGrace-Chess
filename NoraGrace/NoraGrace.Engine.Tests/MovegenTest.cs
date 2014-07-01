@@ -178,7 +178,7 @@ namespace NoraGrace.Engine.Tests
 
             foreach (var piece in PieceInfo.AllPieces)
             {
-                Assert.AreEqual<Bitboard>(expectedPieces[(int)piece], board[piece]);
+                Assert.AreEqual<Bitboard>(expectedPieces[(int)piece], board[piece.PieceToPlayer(), piece.ToPieceType()]);
             }
             Assert.AreEqual<Bitboard>(all, board.PieceLocationsAll);
             //Assert.AreEqual(Attacks.RotateVert(all), board.PieceLocationsAllVert);
@@ -192,7 +192,7 @@ namespace NoraGrace.Engine.Tests
         {
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
-            MovePicker picker = new MovePicker(new MovePicker.MoveHistory());
+            MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
 
             picker.Initialize(board, Move.EMPTY, false);
 
@@ -205,7 +205,7 @@ namespace NoraGrace.Engine.Tests
         {
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
-            MovePicker picker = new MovePicker(new MovePicker.MoveHistory());
+            MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
             picker.RegisterCutoff(board, MoveInfo.Parse(board, "a3a4"), SearchDepth.PLY);
             picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
 
@@ -218,7 +218,7 @@ namespace NoraGrace.Engine.Tests
         {
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
-            MovePicker picker = new MovePicker(new MovePicker.MoveHistory());
+            MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
             picker.RegisterCutoff(board, MoveInfo.Parse(board, "d3e4"), SearchDepth.PLY);
             picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
 
@@ -231,7 +231,7 @@ namespace NoraGrace.Engine.Tests
         {
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
-            MovePicker picker = new MovePicker(new MovePicker.MoveHistory());
+            MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
             picker.RegisterCutoff(new Board("5rk1/pbr1q1pp/3pp3/2p5/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22"), MoveInfo.Parse(board, "d3f5"), SearchDepth.PLY);
             picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
 

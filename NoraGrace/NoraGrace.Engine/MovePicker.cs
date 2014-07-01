@@ -16,12 +16,12 @@ namespace NoraGrace.Engine
         {
             List<MovePicker> _plyBuffers = new List<MovePicker>();
             MoveHistory _history = new MoveHistory();
-
+            StaticExchange _see = new StaticExchange();
             public Stack(int plyCapacity = 50)
             {
                 while (_plyBuffers.Count < plyCapacity)
                 {
-                    _plyBuffers.Add(new MovePicker(_history));
+                    _plyBuffers.Add(new MovePicker(_history, _see));
                 }
             }
 
@@ -34,7 +34,7 @@ namespace NoraGrace.Engine
                     {
                         for (int i = 0; i < 10; i++)
                         {
-                            _plyBuffers.Add(new MovePicker(_history));
+                            _plyBuffers.Add(new MovePicker(_history, _see));
                         }
                     }
                     return _plyBuffers[ply];
@@ -130,6 +130,7 @@ namespace NoraGrace.Engine
         private readonly ChessMoveData[] _nonCaptures = new ChessMoveData[192];
 
         private readonly MoveHistory _history;
+        private readonly StaticExchange _see;
 
         private readonly Move[][] _killers = new Move[2][] { new Move[2], new Move[2] };
 
@@ -147,9 +148,10 @@ namespace NoraGrace.Engine
         private readonly Move[] _exclude = new Move[20];
         private int _excludeCount = 0;
 
-        public MovePicker(MoveHistory history)
+        public MovePicker(MoveHistory history, StaticExchange see)
         {
             _history = history;
+            _see = see;
         }
 
         public void Initialize(Board board, Move ttMove = Move.EMPTY, bool capsOnly = false)
@@ -201,7 +203,7 @@ namespace NoraGrace.Engine
 
             for (int i = 0; i < _capsCount; i++)
             {
-                array[i].SEE = StaticExchange.CalculateScore(array[i].Move, _board); //calculate if winning capture.
+                array[i].SEE = _see.CalculateScore(_board, array[i].Move); //calculate if winning capture.
                 array[i].Flags = MoveFlags.Capture;
 
                 if (array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
@@ -299,7 +301,7 @@ namespace NoraGrace.Engine
             for (int i = 0; i < _quietCount; i++)
             {
                 Move move = array[i].Move;
-                int see = StaticExchange.CalculateScore(move, _board);
+                int see = _see.CalculateScore(_board, move);
                 array[i].SEE = see;
                 array[i].Flags = 0;
 

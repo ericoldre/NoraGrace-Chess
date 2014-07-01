@@ -6,9 +6,22 @@ using System.Threading.Tasks;
 
 namespace NoraGrace.Engine
 {
-    public static class StaticExchange
+    public class StaticExchange
     {
-        public static int CalculateScore(Move move, Board board)
+        private static readonly int[] pieceVals = new int[PieceTypeInfo.LookupArrayLength];
+
+        static StaticExchange()
+        {
+            pieceVals[0] = 0;
+            pieceVals[(int)PieceType.Pawn] = 100;
+            pieceVals[(int)PieceType.Knight] = 300;
+            pieceVals[(int)PieceType.Bishop] = 300;
+            pieceVals[(int)PieceType.Rook] = 500;
+            pieceVals[(int)PieceType.Queen] = 900;
+            pieceVals[(int)PieceType.King] = 10000;
+        }
+
+        private static int CalculateScoreOld(Move move, Board board)
         {
             System.Diagnostics.Debug.Assert(move != Move.EMPTY);
             //System.Diagnostics.Debug.Assert(ChessMove.GenMoves(board).Contains(move));
@@ -124,6 +137,103 @@ namespace NoraGrace.Engine
             return true;
 
         }
+
+        private readonly int[] array = new int[32];
+        private readonly PieceType[] arrayAttacker = new PieceType[32];
+
+        public int CalculateScore(Board board, Move move)
+        {
+            //return CalculateScoreOld(move, board);
+            var moverPos = move.From();
+            var targetPos = move.To();
+            var moverType = board.PieceAt(moverPos).ToPieceType();
+            var targetType = board.PieceAt(targetPos).ToPieceType();
+
+            var moverBB = moverPos.ToBitboard();
+            ////early cutoff.
+            if (pieceVals[(int)targetType] > pieceVals[(int)moverType])
+            {
+                return (pieceVals[(int)targetType] - pieceVals[(int)moverType]) + 1;
+            }
+
+            var rookMask = Attacks.RookMask(targetPos);
+            var bishopMask = Attacks.BishopMask(targetPos);
+
+
+
+            Bitboard remainingPieces = board.PieceLocationsAll ^ moverPos.ToBitboard();
+
+            Bitboard attackers = (Attacks.KnightAttacks(targetPos) & board[PieceType.Knight])
+                | (Attacks.RookAttacks(targetPos, remainingPieces) & (board[PieceType.Queen] | board[PieceType.Rook]))
+                | (Attacks.BishopAttacks(targetPos, remainingPieces) & (board[PieceType.Queen] | board[PieceType.Bishop]))
+                | (Attacks.KingAttacks(targetPos) & board[PieceType.King])
+                | (Attacks.PawnAttacks(targetPos, Player.Black) & board[Player.White, PieceType.Pawn])
+                | (Attacks.PawnAttacks(targetPos, Player.White) & board[Player.Black, PieceType.Pawn]);
+            
+            attackers &= remainingPieces; //remove moving piece from attacker list.
+
+            var side = board.WhosTurn.PlayerOther();
+            var sideAttackers = attackers & board[side];
+
+            if (sideAttackers == 0) 
+            { 
+                return pieceVals[(int)targetType]; 
+            }
+
+            array[0] = pieceVals[(int)targetType];
+            arrayAttacker[0] = targetType;
+
+            targetType = moverType;
+            int index = 1;
+            while (sideAttackers != 0)
+            {
+
+                for (moverType = PieceType.Pawn; moverType <= PieceType.King; moverType++)
+                {
+                    if ((board[moverType] & sideAttackers) != 0)
+                    {
+                        break;
+                    }
+                }
+
+                moverPos = (board[moverType] & sideAttackers).NorthMostPosition();
+
+                moverBB = moverPos.ToBitboard();
+
+                remainingPieces ^= moverBB;
+
+                if ((moverBB & rookMask) != 0)
+                {
+                    attackers |= Attacks.RookAttacks(targetPos, remainingPieces) & remainingPieces & (board[PieceType.Rook] | board[PieceType.Queen]);
+                }
+                else if ((moverBB & bishopMask) != 0)
+                {
+                    attackers |= Attacks.BishopAttacks(targetPos, remainingPieces) & remainingPieces & (board[PieceType.Bishop] | board[PieceType.Queen]);
+                }
+
+                attackers &= remainingPieces;
+
+                arrayAttacker[index] = targetType;
+                array[index] = (-array[index - 1]) + pieceVals[(int)targetType];
+                index++;
+
+                targetType = moverType;
+                side = side.PlayerOther();
+                sideAttackers = attackers & board[side];
+
+                
+            }
+
+            while ((--index) > 0)
+            {
+                array[index - 1] = Math.Min(-array[index], array[index - 1]);
+            }
+
+            int retval = array[0];
+            return retval;
+
+        }
+
 
     }
 }

@@ -100,7 +100,7 @@ namespace NoraGrace.Engine.Tests
 
             var pawnEval = new PawnEvaluator(Settings.Default());
 
-            var result = pawnEval.EvalAllPawns(board[Piece.WPawn], board[Piece.BPawn], board.ZobristPawn);
+            var result = pawnEval.EvalAllPawns(board[Player.White, PieceType.Pawn], board[Player.Black, PieceType.Pawn], board.ZobristPawn);
 
             Assert.AreEqual<int>(2, result.PassedPawns.ToPositions().Count());
             Assert.AreEqual<int>(2, result.Doubled.ToPositions().Count());

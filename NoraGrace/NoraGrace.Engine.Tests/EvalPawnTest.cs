@@ -25,7 +25,7 @@ namespace NoraGrace.Engine.Tests
         Bitboard getCandidates(FEN fen)
         {
             Board board = new Board(fen);
-            var info = getPawnEval.Value.EvalAllPawns(board[Piece.WPawn], board[Piece.BPawn], board.ZobristPawn);
+            var info = getPawnEval.Value.EvalAllPawns(board[Player.White, PieceType.Pawn], board[Player.Black, PieceType.Pawn], board.ZobristPawn);
             return info.Candidates;
         }
 

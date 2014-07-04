@@ -224,7 +224,7 @@ namespace NoraGrace.Engine.Evaluation
 
             evalInfo.MaterialPawnsApply(board, material, pawns, this.DrawScore);
 
-            if (prevEvalInfo != null)
+            if (prevEvalInfo != null && evalInfo.PassedPawns == prevEvalInfo.PassedPawns)
             {
                 evalInfo.ApplyPreviousEval(board, prevEvalInfo);
                 System.Diagnostics.Debug.Assert(evalInfo.LazyAge > 0);

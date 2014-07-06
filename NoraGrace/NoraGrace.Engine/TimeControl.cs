@@ -24,6 +24,31 @@ namespace NoraGrace.Engine
         public abstract T Subtract(T x, T y);
         public abstract T Add(T x, T y);
         public abstract T Multiply(T x, double y);
+
+        public override bool Equals(object obj)
+        {
+            TimeControlGeneric<T> other = obj as TimeControlGeneric<T>;
+            return other != null
+                && this.InitialAmount.Equals(other.InitialAmount)
+                && this.BonusAmount.Equals(other.BonusAmount)
+                && this.MovesPerControl.Equals(other.MovesPerControl);
+        }
+
+        public static bool operator ==(TimeControlGeneric<T> c1, TimeControlGeneric<T> c2)
+        {
+            if(c1== null)
+            {
+                return c2 == null;
+            }
+            else
+            {
+                return c2 != null && c1.Equals(c2);
+            }
+        }
+        public static bool operator !=(TimeControlGeneric<T> c1, TimeControlGeneric<T> c2)
+        {
+            return !(c1 == c2);
+        }
     }
 
     public class TimeControl: TimeControlGeneric<TimeSpan>

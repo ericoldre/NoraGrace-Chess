@@ -292,7 +292,6 @@ namespace NoraGrace.Engine
 			SearchArgs.TransTable.AgeEntries(2);
              
             SearchArgs.TimeManager.StopSearch += TimeManager_StopSearch;
-            SearchArgs.TimeManager.RequestNodes += TimeManager_RequestNodes;
             SearchArgs.TimeManager.StartSearch();
              
 
@@ -341,7 +340,6 @@ namespace NoraGrace.Engine
 
             SearchArgs.TimeManager.EndSearch();
             SearchArgs.TimeManager.StopSearch -= TimeManager_StopSearch;
-            SearchArgs.TimeManager.RequestNodes -= TimeManager_RequestNodes;
             
 			//return progress
 			if (_returnBestResult)
@@ -355,11 +353,6 @@ namespace NoraGrace.Engine
 			}
 		}
 
-
-        void TimeManager_RequestNodes(object sender, TimeManagerRequestNodesEventArgs e)
-        {
-            e.NodeCount = this.CountAIValSearch;
-        }
 
         void TimeManager_StopSearch(object sender, EventArgs e)
         {

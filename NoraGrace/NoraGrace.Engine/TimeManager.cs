@@ -9,7 +9,7 @@ namespace NoraGrace.Engine
     public interface ITimeManager
     {
         event EventHandler<EventArgs> StopSearch;
-        void StartSearch();
+        void StartSearch(FEN fen);
         void EndSearch();
 
         void StartDepth(int depth);
@@ -28,7 +28,7 @@ namespace NoraGrace.Engine
 
     public abstract class TimeManagerBase : ITimeManager
     {
-        protected static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(TimeManagerBase));
+        protected static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(TimeManager));
         public event EventHandler<EventArgs> StopSearch;
 
         private int _nodeCount;
@@ -37,7 +37,6 @@ namespace NoraGrace.Engine
 
         protected void RaiseStopSearch()
         {
-            if (_log.IsDebugEnabled) { _log.Debug("StopSearch"); }
             var ev = this.StopSearch;
             if (ev != null) { ev(this, EventArgs.Empty); }
         }
@@ -47,13 +46,9 @@ namespace NoraGrace.Engine
             return _nodeCount;
         }
 
-        protected virtual bool CheckStop()
+        public virtual void StartSearch(FEN fen)
         {
-            return false;
-        }
-        public virtual void StartSearch()
-        {
-            if (_log.IsDebugEnabled) { _log.Debug("StopSearch"); }
+
         }
 
         public virtual void EndSearch()
@@ -63,33 +58,27 @@ namespace NoraGrace.Engine
 
         public virtual void StartDepth(int depth)
         {
-            if (CheckStop()) { RaiseStopSearch(); }
-            if (_log.IsDebugEnabled) { _log.DebugFormat("StartDepth:{0}", depth); }
+
         }
 
         public virtual void EndDepth(int depth)
         {
-            if (CheckStop()) { RaiseStopSearch(); }
-            if (_log.IsDebugEnabled) { _log.DebugFormat("EndDepth:{0}", depth); }
+
         }
 
         public virtual void StartMove(Move move)
         {
-            if (CheckStop()) { RaiseStopSearch(); }
-            if (_log.IsDebugEnabled) { _log.DebugFormat("StartMove:{0}", move.Description()); }
+
         }
 
         public virtual void EndMove(Move move)
         {
             IsFailingHigh = false;
-            if (CheckStop()) { RaiseStopSearch(); }
-            if (_log.IsDebugEnabled) { _log.DebugFormat("EndMove:{0}", move.Description()); }
         }
 
         public virtual void NewPV(Move move)
         {
-            if (CheckStop()) { RaiseStopSearch(); }
-            if (_log.IsDebugEnabled) { _log.DebugFormat("NewPV:{0}", move.Description()); }
+
         }
 
         public virtual void NodeStart(int nodeCount)
@@ -119,10 +108,9 @@ namespace NoraGrace.Engine
         //used as inputs
         public TimeControlGeneric<TUnit> TimeControl { get; set; }
         public TUnit AmountOnClock { get; set; }
-
+        public FEN FEN { get; private set; }
         //
         public TUnit AmountToSpend { get; protected set; }
-        public TUnit BaseAmount { get; protected set; }
 
         //configuration factors
         public double RatioBase { get; set; }
@@ -140,17 +128,29 @@ namespace NoraGrace.Engine
         public abstract bool IsGreater(TUnit x, TUnit y);
         public abstract TUnit AmountSpent();
 
+        public TUnit Max(TUnit v1, TUnit v2)
+        {
+            if (IsGreater(v1, v2)) { return v1; }
+            else { return v2; }
+        }
+
+        public TUnit Min(TUnit v1, TUnit v2)
+        {
+            if (IsGreater(v1, v2)) { return v2; }
+            else { return v1; }
+        }
+
         public TimeManagerGeneric()
         {
             RatioBase = .0457;
-            RatioComplexity = 0;//test show not yet really working .7;
-            RatioHistory = 1;
+
             RatioFailHigh = 1.5; //should show good improvement
             RatioFloor = .333;
             RatioCeiling = 4;
             RatioOfTotalCeiling = .25;
         }
 
+        
         public override void FailingHigh()
         {
             bool oldValue = this.IsFailingHigh;
@@ -163,50 +163,57 @@ namespace NoraGrace.Engine
             
         }
 
-        
-
-        
-        public override void StartSearch()
+        public override void StartSearch(FEN fen)
         {
-            base.StartSearch();
+            base.StartSearch(fen);
+
+            this.FEN = fen;
+
+            int movesLeft = 30;
 
             TUnit perMoveBonus = TimeControl.MovesPerControl > 0 ?
                 Multiply(TimeControl.BonusAmount, 1f / TimeControl.MovesPerControl) :
                 Multiply(TimeControl.BonusAmount, 0);
 
-            BaseAmount = Add(Multiply(AmountOnClock, RatioBase), perMoveBonus);
-            AmountToSpend = BaseAmount;
+            if (this.TimeControl.MovesPerControl > 0)
+            {
+                movesLeft = (this.TimeControl.MovesPerControl - ((fen.fullmove - 1) % this.TimeControl.MovesPerControl));
+            }
+            else
+            {
+
+            }
+
+            RatioBase = 1f / (double)movesLeft;
+            RatioCeiling = RatioBase * 4;
+            RatioFloor = RatioBase / 4;
+
+
+            RatioBase = Math.Min(.97, RatioBase);
+            RatioCeiling = Math.Min(.97, RatioBase);
+
+
             AmountToSpendCalc();
-            
+
+            if (_log.IsInfoEnabled)
+            {
+                _log.InfoFormat("move:{0} movesleft:{1} clock:{2} spendbase:{3}", fen.fullmove, movesLeft, this.AmountOnClock, AmountToSpend);
+            }
+
         }
 
         public virtual void AmountToSpendCalc()
         {
-            var baseAmount = BaseAmount;
-
-            var failhigh = baseAmount;
             if(IsFailingHigh)
             {
-                failhigh = Multiply(baseAmount, RatioFailHigh);
+                AmountToSpend = Multiply(AmountOnClock, RatioCeiling);
+            }
+            else
+            {
+                AmountToSpend = Multiply(AmountOnClock, RatioBase);
             }
 
-            var floor = Multiply(BaseAmount, RatioFloor);
-            var ceiling = Multiply(BaseAmount, RatioCeiling);
-            var ceiling2 = Multiply(this.AmountOnClock, this.RatioOfTotalCeiling);
-            if(IsGreater(ceiling, ceiling2)){ceiling = ceiling2;}
-            
-            var bounded = failhigh;
-            
-            if (IsGreater(floor, bounded)) { bounded = floor; }
-
-            
-            if (IsGreater(bounded, ceiling)) { bounded = ceiling; }
-
-            
-            
-            this.AmountToSpend = bounded;
-
-            _log.InfoFormat("Base:{0} failH:{1} Bounded:{2}", baseAmount, failhigh, bounded);
+            //_log.InfoFormat("Base:{0} failH:{1} Bounded:{2}", baseAmount, failhigh, bounded);
         }
 
         private TUnit _spentByDepthStart;
@@ -227,6 +234,15 @@ namespace NoraGrace.Engine
             if (IsGreater(projected, AmountToSpend))
             {
                 RaiseStopSearch();
+            }
+        }
+
+        public override void EndSearch()
+        {
+            base.EndSearch();
+            if (_log.IsDebugEnabled)
+            {
+                _log.DebugFormat("Done:{0}", AmountSpent());
             }
         }
 
@@ -252,7 +268,7 @@ namespace NoraGrace.Engine
 
     }
 
-    public class TimeManagerAdvanced : TimeManagerGeneric<TimeSpan>
+    public class TimeManager : TimeManagerGeneric<TimeSpan>
     {
 
         private TimeSpan _timeSpent = TimeSpan.FromMilliseconds(0);
@@ -284,9 +300,9 @@ namespace NoraGrace.Engine
             return _timeSpent;
         }
 
-        public override void StartSearch()
+        public override void StartSearch(FEN fen)
         {
-            base.StartSearch();
+            base.StartSearch(fen);
             _timeSpent = TimeSpan.FromMilliseconds(0);
             _searchStartTime = DateTime.Now;
         }
@@ -336,9 +352,9 @@ namespace NoraGrace.Engine
             return _spent;
         }
 
-        public override void StartSearch()
+        public override void StartSearch(FEN fen)
         {
-            base.StartSearch();
+            base.StartSearch(fen);
             _spent = 0;
         }
 

@@ -292,7 +292,7 @@ namespace NoraGrace.Engine
 			SearchArgs.TransTable.AgeEntries(2);
              
             SearchArgs.TimeManager.StopSearch += TimeManager_StopSearch;
-            SearchArgs.TimeManager.StartSearch();
+            SearchArgs.TimeManager.StartSearch(board.FENCurrent);
              
 
 			SearchDepth depth = SearchDepth.PLY;

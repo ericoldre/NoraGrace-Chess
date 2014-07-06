@@ -108,7 +108,7 @@ namespace NoraGrace.Engine
         private readonly TranspositionTable _transTable = new TranspositionTable();
         private BackgroundWorker BookBackgroundWorker;
         private Evaluation.Evaluator _eval = new Evaluation.Evaluator();
-        private TimeManagerAdvanced _timeManager = new TimeManagerAdvanced();
+        private TimeManager _timeManager = new TimeManager();
         public TimeSpan DelaySearch { get; set; }
 
         public ChessGamePlayerSinobyl()

@@ -40,7 +40,7 @@ namespace NoraGrace.CommandLine
             int totalNodes = 0;
             TimeSpan totalTime = new TimeSpan(0);
             //var timeManager = new TimeManagerBasic() { TimeControl = ChessTimeControl.Blitz(100, 100), ClockEnd = DateTime.Now.AddDays(100) };
-            var timeManager = new TimeManagerAdvanced() { TimeControl = TimeControl.Blitz(100, 100), AmountOnClock = TimeSpan.FromDays(100) };
+            var timeManager = new TimeManager() { TimeControl = TimeControl.Blitz(100, 100), AmountOnClock = TimeSpan.FromDays(100) };
             int done = 0;
             foreach (var fen in TestPositions())
             {

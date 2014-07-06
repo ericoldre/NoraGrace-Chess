@@ -137,9 +137,9 @@ namespace NoraGrace.Engine
             TimeSpan timeLeftAtStart = ClockEnd - DateTime.Now;
 
             TimeSpan extraPerMove = TimeSpan.FromSeconds(0);
-            if (TimeControl.BonusEveryXMoves > 0)
+            if (TimeControl.MovesPerControl > 0)
             {
-                extraPerMove = TimeSpan.FromMilliseconds(TimeControl.BonusAmount.TotalMilliseconds / TimeControl.BonusEveryXMoves);
+                extraPerMove = TimeSpan.FromMilliseconds(TimeControl.BonusAmount.TotalMilliseconds / TimeControl.MovesPerControl);
             }
             
             TimeSpan timeToSpend = TimeSpan.FromMilliseconds(timeLeftAtStart.TotalMilliseconds / 30) + extraPerMove;
@@ -401,8 +401,8 @@ namespace NoraGrace.Engine
         {
             base.StartSearch();
 
-            TUnit perMoveBonus = TimeControl.BonusEveryXMoves > 0 ?
-                Multiply(TimeControl.BonusAmount, 1f / TimeControl.BonusEveryXMoves) :
+            TUnit perMoveBonus = TimeControl.MovesPerControl > 0 ?
+                Multiply(TimeControl.BonusAmount, 1f / TimeControl.MovesPerControl) :
                 Multiply(TimeControl.BonusAmount, 0);
 
             BaseAmount = Add(Multiply(AmountOnClock, RatioBase), perMoveBonus);

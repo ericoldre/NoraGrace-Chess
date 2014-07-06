@@ -9,12 +9,12 @@ namespace NoraGrace.Engine
     {
         public T InitialAmount { get; set; }
         public T BonusAmount { get; set; }
-        public int BonusEveryXMoves { get; set; }
+        public int MovesPerControl { get; set; }
 
         public T CalcNewTimeLeft(T beforeMove, T amountUsed, int moveNum)
         {
             T retval = Subtract(beforeMove, amountUsed);
-            if (BonusEveryXMoves != 0 && moveNum % BonusEveryXMoves == 0)
+            if (MovesPerControl != 0 && moveNum % MovesPerControl == 0)
             {
                 retval = Add(retval, BonusAmount);
             }
@@ -30,24 +30,39 @@ namespace NoraGrace.Engine
     {
 
 
+        public static TimeControl Parse(string s)
+        {
+            string[] args = s.Split(' ');
+            
+            int movesPerTimeControl = int.Parse(args[0]);
+
+            if (!args[1].Contains(":")) { args[1] = args[1] + ":00"; }
+            string[] argsInitTime = args[1].Split(':');
+            TimeSpan initialTime = TimeSpan.FromMinutes(int.Parse(argsInitTime[0])) + TimeSpan.FromSeconds(double.Parse(argsInitTime[1]));
+
+            TimeSpan bonusAmount = TimeSpan.FromSeconds(double.Parse(args[2]));
+
+            return new TimeControl(initialTime, bonusAmount, movesPerTimeControl);
+        }
+
         public TimeControl()
         {
             InitialAmount = TimeSpan.FromMinutes(1);
             BonusAmount = TimeSpan.FromSeconds(1);
-            BonusEveryXMoves = 1;
+            MovesPerControl = 0;
 
         }
 
 
-        public TimeControl(TimeSpan a_InitialTime, TimeSpan a_BonusAmount, int a_BonusEveryXMoves)
+        public TimeControl(TimeSpan a_InitialTime, TimeSpan a_BonusAmount, int movesPerControl)
         {
             InitialAmount = a_InitialTime;
-            BonusEveryXMoves = a_BonusEveryXMoves;
+            MovesPerControl = movesPerControl;
             BonusAmount = a_BonusAmount;
         }
         public static TimeControl Blitz(int a_Minutes, int a_Seconds)
         {
-            return new TimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromSeconds(a_Seconds), 1);
+            return new TimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromSeconds(a_Seconds), 0);
         }
         public static TimeControl TotalGame(int a_Minutes)
         {
@@ -55,7 +70,7 @@ namespace NoraGrace.Engine
         }
         public static TimeControl MovesInMinutes(int a_Minutes, int a_Moves)
         {
-            return new TimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromMinutes(a_Minutes), a_Moves);
+            return new TimeControl(TimeSpan.FromMinutes(a_Minutes), TimeSpan.FromSeconds(0), a_Moves);
         }
 
         public override TimeSpan Add(TimeSpan x, TimeSpan y)
@@ -73,27 +88,7 @@ namespace NoraGrace.Engine
             return TimeSpan.FromMilliseconds(x.TotalMilliseconds * y);
         }
 
-        //public TimeSpan CalcNewTimeLeft(TimeSpan beforeMove, TimeSpan amountUsed, int moveNum)
-        //{
-        //    TimeSpan retval = beforeMove - amountUsed;
-        //    if (BonusEveryXMoves != 0 && moveNum % BonusEveryXMoves == 0)
-        //    {
-        //        retval += BonusAmount;
-        //    }
-        //    return retval;
-        //}
 
-        //public TimeSpan RecommendSearchTime(TimeSpan a_Remaining, int a_MoveNum)
-        //{
-
-        //    TimeSpan ExtraPerMove = TimeSpan.FromSeconds(0);
-        //    if (this.BonusEveryXMoves > 0)
-        //    {
-        //        ExtraPerMove = TimeSpan.FromMilliseconds(this.BonusAmount.TotalMilliseconds / this.BonusEveryXMoves);
-        //    }
-
-        //    return TimeSpan.FromMilliseconds(a_Remaining.TotalMilliseconds / 30) + ExtraPerMove;
-        //}
 
 
     }

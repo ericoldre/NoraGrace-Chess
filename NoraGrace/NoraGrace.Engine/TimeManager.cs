@@ -101,9 +101,151 @@ namespace NoraGrace.Engine
 
     }
 
+    public abstract class TimeManagerComplexity : TimeManagerBase
+    {
+
+        private class ComplexityInfo
+        {
+            public double RefutePct { get; set; }
+
+        }
+
+        public double PctFloor { get; private set; }
+        private double[] _pcts = new double[20];
+        private ComplexityInfo _currentComplexity;
+        private List<ComplexityInfo> _complexityHistory = new List<ComplexityInfo>();
+
+        public double PctOfNormalToSpend { get; private set; }
+
+        public TimeManagerComplexity()
+        {
+
+            PctFloor = .25;
+            double growth = FindGrowth(PctFloor, _pcts.Length, 20);
+            GetSequence(PctFloor, growth, _pcts.Length).ToArray().CopyTo(_pcts, 0);
+
+        }
+
+        private List<int> _moveNodes = new List<int>();
+        private int _currentMoveStartNodes;
+        public override void StartSearch(FEN fen)
+        {
+            //create a new complexity object and add it to the history of recent moves. ma
+            _currentComplexity = new ComplexityInfo();
+            while (_complexityHistory.Count >= _pcts.Length)
+            {
+                _complexityHistory.RemoveAt(0);
+            }
+            _complexityHistory.Add(_currentComplexity);
+            System.Diagnostics.Debug.Assert(_complexityHistory.Count <= _pcts.Length);
+
+            base.StartSearch(fen);
+            
+        }
+        public override void StartDepth(int depth)
+        {
+            base.StartDepth(depth);
+            _moveNodes.Clear();
+        }
+        public override void StartMove(Move move)
+        {
+
+            base.StartMove(move);
+            _currentMoveStartNodes = GetNodeCount();
+        }
+
+        public override void EndMove(Move move)
+        {
+            base.EndMove(move);
+            _moveNodes.Add(GetNodeCount() - _currentMoveStartNodes);
+        }
+
+        public override void EndDepth(int depth)
+        {
+            base.EndDepth(depth);
+
+            if (_moveNodes.Count > 1)
+            {
+                _moveNodes.Sort();
+                int top = _moveNodes[_moveNodes.Count - 1];
+                int nextbest = _moveNodes[_moveNodes.Count - 2];
+                if (top < 50000)
+                {
+                    //not enough to go on at all
+                    _currentComplexity.RefutePct = 0;
+                    PctOfNormalToSpend = 1;
+                    return;
+                }
+                _currentComplexity.RefutePct = (double)nextbest / (double)top;
+            }
+            else
+            {
+                _currentComplexity.RefutePct = 0;
+            }
+
+            var orderedHistory = _complexityHistory.ToList().OrderBy(o => o.RefutePct).ToList();
+            var idxCurrent = orderedHistory.IndexOf(_currentComplexity);
+            if (orderedHistory.Count < _pcts.Length) { idxCurrent += (_pcts.Length - orderedHistory.Count) / 2; }
+
+            idxCurrent = Math.Max(0, Math.Min(idxCurrent, _pcts.Length - 1));
+            PctOfNormalToSpend = _pcts[idxCurrent];
+
+            if (_log.IsDebugEnabled)
+            {
+                _log.DebugFormat("refutePct:{0} spendOfNorm:{1}", _currentComplexity.RefutePct, PctOfNormalToSpend);
+            }
+        }
+        public override void EndSearch()
+        {
+            base.EndSearch();
+        }
+
+        #region initialize pct array
+        private double FindGrowth(double floor, int count, int iterations)
+        {
+            System.Diagnostics.Debug.Assert(floor < 1);
+
+            double minGrow = 1;
+            double maxGrow = 2;
+
+            while (Average(floor, minGrow, count) > 1) { minGrow *= .5; }
+            while (Average(floor, maxGrow, count) < 1) { maxGrow *= 2; }
+
+            for (int i = 0; i < iterations; i++)
+            {
+                double testGrow = (minGrow + maxGrow) / 2f;
+                double testAvg = Average(floor, testGrow, count);
+                if (testAvg < 1)
+                {
+                    minGrow = testGrow;
+                }
+                else
+                {
+                    maxGrow = testGrow;
+                }
+            }
+
+            return (minGrow + maxGrow) / 2f; ;
+        }
+        
+        private double Average(double floor, double growth, int count)
+        {
+            return GetSequence(floor, growth, count).Average();
+        }
+        private IEnumerable<double> GetSequence(double floor, double growth, int count)
+        {
+            for(int i = 0; i < count; i++)
+            {
+                yield return floor;
+                floor = floor * growth;
+            }
+        }
+
+        #endregion
+    }
 
 
-    public abstract class TimeManagerGeneric<TUnit> : TimeManagerBase
+    public abstract class TimeManagerGeneric<TUnit> : TimeManagerComplexity
     {
         //used as inputs
         public TimeControlGeneric<TUnit> TimeControl { get; set; }
@@ -210,7 +352,7 @@ namespace NoraGrace.Engine
             }
             else
             {
-                AmountToSpend = Multiply(AmountOnClock, RatioBase);
+                AmountToSpend = Multiply(Multiply(AmountOnClock, RatioBase), PctOfNormalToSpend);
             }
 
             //_log.InfoFormat("Base:{0} failH:{1} Bounded:{2}", baseAmount, failhigh, bounded);

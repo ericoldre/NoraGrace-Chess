@@ -124,6 +124,11 @@ namespace NoraGrace.Engine
             double growth = FindGrowth(PctFloor, _pcts.Length, 20);
             GetSequence(PctFloor, growth, _pcts.Length).ToArray().CopyTo(_pcts, 0);
 
+            //Random rand = new Random(1);
+            //while (_complexityHistory.Count < _pcts.Length)
+            //{
+            //    _complexityHistory.Add(new ComplexityInfo() { RefutePct = rand.NextDouble() * .5 });
+            //}
         }
 
         private List<int> _moveNodes = new List<int>();
@@ -183,6 +188,13 @@ namespace NoraGrace.Engine
                 _currentComplexity.RefutePct = 0;
             }
 
+
+            PctOfNormalToSpendCalc();
+
+        }
+
+        private void PctOfNormalToSpendCalc()
+        {
             var orderedHistory = _complexityHistory.ToList().OrderBy(o => o.RefutePct).ToList();
             var idxCurrent = orderedHistory.IndexOf(_currentComplexity);
             if (orderedHistory.Count < _pcts.Length) { idxCurrent += (_pcts.Length - orderedHistory.Count) / 2; }
@@ -256,12 +268,8 @@ namespace NoraGrace.Engine
 
         //configuration factors
         public double RatioBase { get; set; }
-        public double RatioComplexity { get; set; }
-        public double RatioHistory { get; set; }
-        public double RatioFailHigh { get; set; }
-        public double RatioFloor { get; set; }
+
         public double RatioCeiling { get; set; }
-        public double RatioOfTotalCeiling { get; set; }
 
         //abstract math helpers
         public abstract TUnit Add(TUnit x, TUnit y);
@@ -282,15 +290,7 @@ namespace NoraGrace.Engine
             else { return v1; }
         }
 
-        public TimeManagerGeneric()
-        {
-            RatioBase = .0457;
 
-            RatioFailHigh = 1.5; //should show good improvement
-            RatioFloor = .333;
-            RatioCeiling = 4;
-            RatioOfTotalCeiling = .25;
-        }
 
         
         public override void FailingHigh()
@@ -311,11 +311,8 @@ namespace NoraGrace.Engine
 
             this.FEN = fen;
 
-            int movesLeft = 30;
+            int movesLeft;
 
-            TUnit perMoveBonus = TimeControl.MovesPerControl > 0 ?
-                Multiply(TimeControl.BonusAmount, 1f / TimeControl.MovesPerControl) :
-                Multiply(TimeControl.BonusAmount, 0);
 
             if (this.TimeControl.MovesPerControl > 0)
             {
@@ -323,16 +320,15 @@ namespace NoraGrace.Engine
             }
             else
             {
-
+                movesLeft = 30;
             }
 
             RatioBase = 1f / (double)movesLeft;
             RatioCeiling = RatioBase * 4;
-            RatioFloor = RatioBase / 4;
 
 
             RatioBase = Math.Min(.97, RatioBase);
-            RatioCeiling = Math.Min(.97, RatioBase);
+            RatioCeiling = Math.Min(.97, RatioCeiling);
 
 
             AmountToSpendCalc();
@@ -352,7 +348,9 @@ namespace NoraGrace.Engine
             }
             else
             {
-                AmountToSpend = Multiply(Multiply(AmountOnClock, RatioBase), PctOfNormalToSpend);
+                var byPct = Multiply(Multiply(AmountOnClock, RatioBase), PctOfNormalToSpend);
+                var byMax = Multiply(AmountOnClock, RatioCeiling);
+                AmountToSpend = Min(byPct, byMax);
             }
 
             //_log.InfoFormat("Base:{0} failH:{1} Bounded:{2}", baseAmount, failhigh, bounded);

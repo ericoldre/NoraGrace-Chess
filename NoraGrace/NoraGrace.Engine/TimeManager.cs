@@ -111,7 +111,7 @@ namespace NoraGrace.Engine
         }
 
         public double PctFloor { get; private set; }
-        private double[] _pcts = new double[20];
+        private double[] _pcts = new double[8];
         private ComplexityInfo _currentComplexity;
         private List<ComplexityInfo> _complexityHistory = new List<ComplexityInfo>();
 
@@ -143,6 +143,8 @@ namespace NoraGrace.Engine
             }
             _complexityHistory.Add(_currentComplexity);
             System.Diagnostics.Debug.Assert(_complexityHistory.Count <= _pcts.Length);
+
+            PctOfNormalToSpend = 1;
 
             base.StartSearch(fen);
             

@@ -645,6 +645,93 @@ namespace NoraGrace.Engine.Evaluation
 
         #endregion
 
+        #region unstoppable pawns
+
+        public static PhasedScore EvalUnstoppablePawns(Board board, Bitboard passed, Bitboard candidates)
+        {
+            int plysToPromoteWhite = 99;
+            if (board[Player.Black] == (board[Player.Black, PieceType.King] | board[Player.Black, PieceType.Pawn]))
+            {
+                //black has only king/pawns, check to see if white has clear path to promote.
+                Bitboard playerPassed = passed & board[Player.White];
+                while (playerPassed != 0)
+                {
+                    Position pawnPos = BitboardInfo.PopFirst(ref playerPassed);
+                    int plys;
+                    if (IsPassedUnstoppable(board, Player.White, pawnPos, out plys))
+                    {
+                        plysToPromoteWhite = Math.Min(plysToPromoteWhite, plys);
+                    }
+                }
+            }
+
+            int plysToPromoteBlack = 99;
+            if (board[Player.White] == (board[Player.White, PieceType.King] | board[Player.White, PieceType.Pawn]))
+            {
+                //white has only king/pawns
+                //black has only king/pawns, check to see if white has clear path to promote.
+                Bitboard playerPassed = passed & board[Player.Black];
+                while (playerPassed != 0)
+                {
+                    Position pawnPos = BitboardInfo.PopFirst(ref playerPassed);
+                    int plys;
+                    if (IsPassedUnstoppable(board, Player.Black, pawnPos, out plys))
+                    {
+                        plysToPromoteBlack = Math.Min(plysToPromoteBlack, plys);
+                    }
+                }
+            }
+
+            if (Math.Abs(plysToPromoteWhite - plysToPromoteBlack) > 2)
+            {
+                if (plysToPromoteWhite < plysToPromoteBlack)
+                {
+                    return PhasedScoreInfo.Create(0, 350 - (plysToPromoteWhite * 10));
+                }
+                else
+                {
+                    return PhasedScoreInfo.Create(0, -350 + (plysToPromoteBlack * 10));
+                }
+            }
+            return PhasedScoreInfo.Create(0, 0);
+        }
+
+        public static bool IsPassedUnstoppable(Board board, Player pawnPlayer, Position pawnPos, out int plysToPromote)
+        {
+
+            Player kingPlayer = pawnPlayer.PlayerOther();
+
+
+            //should not call unless other player does not have pawns.
+            System.Diagnostics.Debug.Assert(board[kingPlayer] == (board[kingPlayer, PieceType.King] | board[kingPlayer, PieceType.Pawn]));
+
+            //resolve basic locations
+            File pawnFile = pawnPos.ToFile();
+            Rank pawnRank = pawnPos.ToRank();
+            Rank pawnRank8 = pawnPlayer.MyRank(Rank.Rank8);
+            Position queenSq = pawnRank8.ToPosition(pawnFile);
+            Position kingPosition = board.KingPosition(kingPlayer);
+
+            //calculate dist
+            int pawnDist = Math.Abs(pawnRank8 - pawnRank);
+            int kingDist = kingPosition.DistanceTo(queenSq);
+
+            //calc plys to capture or promote
+            plysToPromote = (pawnDist * 2) - (board.WhosTurn == pawnPlayer ? 1 : 0);
+            int plysToCapture = (kingDist * 2) - (board.WhosTurn == kingPlayer ? 1 : 0);
+
+            return plysToCapture > (plysToPromote + 1);
+            //if (plysToCapture <= (plysToPromote + 1)) { return false; }
+
+            ////check to see if pieces in way?
+            //Bitboard path = pawnPos.Between(queenSq) | queenSq.ToBitboard();
+            //Bitboard blockers = path & board[pawnPlayer];
+            //int blockersCount = blockers.BitCount();
+            //pawnDist += 
+
+        }
+
+        #endregion
     }
 
     public class PawnResults

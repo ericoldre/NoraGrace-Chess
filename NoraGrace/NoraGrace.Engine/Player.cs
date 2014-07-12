@@ -76,6 +76,17 @@ namespace NoraGrace.Engine
             return player == Player.White ? Direction.DirN : Direction.DirS;
         }
 
+        public static readonly Rank[][] _myRanks = new Rank[][]
+        {
+            new Rank[] {Rank.Rank8, Rank.Rank7, Rank.Rank6, Rank.Rank5, Rank.Rank4, Rank.Rank3, Rank.Rank2, Rank.Rank1},
+            new Rank[] {Rank.Rank1, Rank.Rank2, Rank.Rank3, Rank.Rank4, Rank.Rank5, Rank.Rank6, Rank.Rank7, Rank.Rank8}
+        };
+
+        public static Rank MyRank(this Player player, Rank rank)
+        {
+            return _myRanks[(int)player][(int)rank];
+        }
+
         public static Rank MyRank2(this Player player)
         {
             System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);

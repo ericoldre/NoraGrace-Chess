@@ -274,7 +274,15 @@ namespace NoraGrace.Engine.Evaluation
             EvaluateMyKingAttack(board, Player.Black, evalInfo);
 
 
+            //first check for unstoppable pawns, if none, then eval normal passed pawns.
+            //evalInfo.PawnsPassed = PawnEvaluator.EvalUnstoppablePawns(board, pawns.PassedPawns, pawns.Candidates);
+            //if (evalInfo.PawnsPassed == 0)
+            //{
+            //    evalInfo.PawnsPassed = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
+            //}
+
             evalInfo.PawnsPassed = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
+            
 
 
             //shelter storm;
@@ -398,8 +406,12 @@ namespace NoraGrace.Engine.Evaluation
             if (!Attacks.PawnAttacksFlood(pos, me).Contains(board[me.PlayerOther(), PieceType.Pawn]))
             {
                 int dist = Math.Max(pos.DistanceToNoDiag(board.KingPosition(me.PlayerOther())) - 4, 0);
-                int score = Math.Max(5, 15 - dist * 2);
-                return PhasedScoreInfo.Create(score, score);
+                int score = Math.Max(0, 15 - dist * 2);
+                if (pieceType == PieceType.Bishop)
+                {
+                    score = score / 2;
+                }
+                return PhasedScoreInfo.Create(score, 0);
             }
             else
             {
@@ -457,18 +469,18 @@ namespace NoraGrace.Engine.Evaluation
                         {
                             myAttacks.Knight |= slidingAttacks;
                         }
-                        if (potentialOutputs.Contains(pos))
-                        {
-                            mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Knight, pos));
-                        }
+                        //if (potentialOutputs.Contains(pos))
+                        //{
+                        //    mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Knight, pos));
+                        //}
                         break;
                     case PieceType.Bishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
                         myAttacks.Bishop |= slidingAttacks;
-                        if (potentialOutputs.Contains(pos))
-                        {
-                            mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Bishop, pos));
-                        }
+                        //if (potentialOutputs.Contains(pos))
+                        //{
+                        //    mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Bishop, pos));
+                        //}
                         break;
                     case PieceType.Rook:
                         slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);

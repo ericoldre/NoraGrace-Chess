@@ -682,15 +682,15 @@ namespace NoraGrace.Engine.Evaluation
                 }
             }
 
-            if (Math.Abs(plysToPromoteWhite - plysToPromoteBlack) > 2)
+            if (plysToPromoteWhite != plysToPromoteBlack && Math.Abs(plysToPromoteWhite - plysToPromoteBlack) > 2)
             {
                 if (plysToPromoteWhite < plysToPromoteBlack)
                 {
-                    return PhasedScoreInfo.Create(0, 350 - (plysToPromoteWhite * 10));
+                    return PhasedScoreInfo.Create(0, 750 - (plysToPromoteWhite * 20));
                 }
                 else
                 {
-                    return PhasedScoreInfo.Create(0, -350 + (plysToPromoteBlack * 10));
+                    return PhasedScoreInfo.Create(0, -750 + (plysToPromoteBlack * 20));
                 }
             }
             return PhasedScoreInfo.Create(0, 0);
@@ -712,22 +712,41 @@ namespace NoraGrace.Engine.Evaluation
             Position queenSq = pawnRank8.ToPosition(pawnFile);
             Position kingPosition = board.KingPosition(kingPlayer);
 
+
+
             //calculate dist
             int pawnDist = Math.Abs(pawnRank8 - pawnRank);
             int kingDist = kingPosition.DistanceTo(queenSq);
+
 
             //calc plys to capture or promote
             plysToPromote = (pawnDist * 2) - (board.WhosTurn == pawnPlayer ? 1 : 0);
             int plysToCapture = (kingDist * 2) - (board.WhosTurn == kingPlayer ? 1 : 0);
 
-            return plysToCapture > (plysToPromote + 1);
-            //if (plysToCapture <= (plysToPromote + 1)) { return false; }
+            //find path to promotion
+            Bitboard path = pawnPos.Between(queenSq) | queenSq.ToBitboard();
 
-            ////check to see if pieces in way?
-            //Bitboard path = pawnPos.Between(queenSq) | queenSq.ToBitboard();
-            //Bitboard blockers = path & board[pawnPlayer];
-            //int blockersCount = blockers.BitCount();
-            //pawnDist += 
+            
+
+            if (path == (path & Attacks.KingAttacks(board.KingPosition(pawnPlayer))))
+            {
+                //entire path guarded by king.
+                return true;
+            }
+
+            //something in the way. add plys to clear out of way.
+            if ((path & board.PieceLocationsAll) != 0)
+            {
+                plysToPromote += (path & board.PieceLocationsAll).BitCount() * 2;
+            }
+
+
+            if (plysToCapture <= plysToPromote + 1)
+            {
+                return false;
+            }
+
+            return plysToCapture > (plysToPromote + 1);
 
         }
 

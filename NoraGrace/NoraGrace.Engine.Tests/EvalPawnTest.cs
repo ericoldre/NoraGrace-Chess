@@ -43,6 +43,10 @@ namespace NoraGrace.Engine.Tests
             // 
             Assert.IsTrue(GetUnstoppableEndScore("8/5k2/8/8/2K5/5p2/8/8 b - - 0 1") < 0);
             Assert.IsTrue(GetUnstoppableEndScore("8/5k2/8/8/2K5/5p2/8/8 w - - 0 1") == 0);
+
+            //white could catch but black king guarding.
+            Assert.IsTrue(GetUnstoppableEndScore("8/8/8/8/2K2p2/P7/6k1/8 w - - 0 1 ") < 0);
+            
         }
 
         public int GetUnstoppableEndScore(string fen)

@@ -14,6 +14,7 @@ namespace NoraGrace.Engine.Evaluation
     public class Evaluator: IChessEval
     {
 
+        
         public const int MaxValue = int.MaxValue - 100;
         public const int MinValue = -MaxValue;
 
@@ -383,6 +384,30 @@ namespace NoraGrace.Engine.Evaluation
             return retval;
 
         }
+
+
+        public const Bitboard OUTPOST_AREA = (Bitboard.FileC | Bitboard.FileD | Bitboard.FileE | Bitboard.FileF)
+            & (Bitboard.Rank3 | Bitboard.Rank4 | Bitboard.Rank5 | Bitboard.Rank6);
+
+
+        public static PhasedScore EvaluateOutpost(Board board, Player me, PieceType pieceType, Position pos)
+        {
+            System.Diagnostics.Debug.Assert((Attacks.PawnAttacks(pos, me.PlayerOther()) & board[me, PieceType.Pawn]) != 0); //assert is guarded by own pawn;
+            System.Diagnostics.Debug.Assert(OUTPOST_AREA.Contains(pos)); //is in the designated outpost area.
+
+            if (!Attacks.PawnAttacksFlood(pos, me).Contains(board[me.PlayerOther(), PieceType.Pawn]))
+            {
+                int dist = Math.Max(pos.DistanceToNoDiag(board.KingPosition(me.PlayerOther())) - 4, 0);
+                int score = Math.Max(5, 15 - dist * 2);
+                return PhasedScoreInfo.Create(score, score);
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
+
         protected int EvaluateMyPieces(Board board, Player me, EvalResults info)
         {
             int retval = 0;
@@ -409,6 +434,7 @@ namespace NoraGrace.Engine.Evaluation
 
             Bitboard myDiagSliders = myPieces & (board[PieceType.Bishop] | board[PieceType.Queen]);
             Bitboard myHorizSliders = myPieces & (board[PieceType.Rook] | board[PieceType.Queen]);
+            Bitboard potentialOutputs = OUTPOST_AREA & (myAttacks.PawnEast | myAttacks.PawnWest);
 
             while (slidersAndKnights != Bitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
@@ -431,10 +457,18 @@ namespace NoraGrace.Engine.Evaluation
                         {
                             myAttacks.Knight |= slidingAttacks;
                         }
+                        if (potentialOutputs.Contains(pos))
+                        {
+                            mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Knight, pos));
+                        }
                         break;
                     case PieceType.Bishop:
                         slidingAttacks = Attacks.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
                         myAttacks.Bishop |= slidingAttacks;
+                        if (potentialOutputs.Contains(pos))
+                        {
+                            mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Bishop, pos));
+                        }
                         break;
                     case PieceType.Rook:
                         slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
@@ -479,11 +513,6 @@ namespace NoraGrace.Engine.Evaluation
                 
             }
             
-            //decide if we
-            if (myAttacks.KingAttackerCount >= 2 && myAttacks.KingAttackerWeight >= 5)
-            {
-
-            }
 
 
             myAttacks.Mobility = mobility;

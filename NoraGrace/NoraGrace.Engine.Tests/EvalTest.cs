@@ -66,6 +66,13 @@ namespace NoraGrace.Engine.Tests
         }
 
         [TestMethod]
+        public void TestOutposts()
+        {
+            Assert.IsTrue(Evaluator.EvaluateOutpost(new Board("6k1/4p3/8/4N3/5P2/3K4/8/8 w - - 0 1 "), Player.White, PieceType.Knight, Position.E5) > 0);
+            Assert.IsTrue(Evaluator.EvaluateOutpost(new Board("6k1/4pp2/8/4N3/5P2/3K4/8/8 w - - 0 1 "), Player.White, PieceType.Knight, Position.E5) == 0);
+        }
+
+        [TestMethod]
         public void TestProblematicPositions()
         {
             //TestPositionRange("7k/5p2/8/3K4/3p2p1/6Pp/1P1R1P1P/r7 b - - 0 38", -500, 500);

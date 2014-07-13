@@ -206,7 +206,7 @@ namespace NoraGrace.Engine.Tests
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
-            picker.RegisterCutoff(board, MoveInfo.Parse(board, "a3a4"), SearchDepth.PLY);
+            picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveInfo.Parse(board, "a3a4") }, SearchDepth.PLY);
             picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
 
             AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
@@ -219,7 +219,7 @@ namespace NoraGrace.Engine.Tests
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
-            picker.RegisterCutoff(board, MoveInfo.Parse(board, "d3e4"), SearchDepth.PLY);
+            picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveInfo.Parse(board, "d3e4") }, SearchDepth.PLY);
             picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
 
             AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
@@ -232,7 +232,7 @@ namespace NoraGrace.Engine.Tests
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
-            picker.RegisterCutoff(new Board("5rk1/pbr1q1pp/3pp3/2p5/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22"), MoveInfo.Parse(board, "d3f5"), SearchDepth.PLY);
+            picker.RegisterCutoff(new Board("5rk1/pbr1q1pp/3pp3/2p5/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22"), new ChessMoveData() { Move = MoveInfo.Parse(board, "d3f5") }, SearchDepth.PLY);
             picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
 
             AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves().ToList());

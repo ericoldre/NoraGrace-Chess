@@ -45,13 +45,13 @@ namespace NoraGrace.Engine
 
         public class MoveHistory
         {
-            private readonly int[][] _history = new int[16][];
+            private readonly int[][] _history = Helpers.ArrayInit<int>(16, 64);
             private int _count = 0;
             private int _maxCount = 50000;
 
             public MoveHistory()
             {
-                for (int i = 0; i <= _history.GetUpperBound(0); i++) { _history[i] = new int[64]; }
+
             }
 
             private void Age()
@@ -128,6 +128,8 @@ namespace NoraGrace.Engine
 
         private readonly ChessMoveData[] _captures = new ChessMoveData[192];
         private readonly ChessMoveData[] _nonCaptures = new ChessMoveData[192];
+        private readonly Move[] _failLows = new Move[192];
+        private int _failLowCount = 0;
 
         private readonly MoveHistory _history;
         private readonly StaticExchange _see;
@@ -166,14 +168,12 @@ namespace NoraGrace.Engine
             _currIndex = 0;
             _quietCount = 0;
             _excludeCount = 0;
+            _failLowCount = 0;
             //_moveCount = ChessMoveInfo.GenMovesArray(_array, board, capsOnly);
             //_moveCurrent = 0;
         }
 
-        public void Sort(Board board, bool useSEE, Move ttMove)
-        {
 
-        }
 
         private ChessMoveData StepTTMove()
         {
@@ -308,16 +308,17 @@ namespace NoraGrace.Engine
                 
                 Piece piece = _board.PieceAt(move.From());
 
+                int pcsq = PcSqChange(piece, move.From(), move.To()) / 4;
 
                 array[i].Score =
                     _history.HistoryScore(_board, move)
-                    + PcSqChange(piece, move.From(), move.To())
+                    + pcsq
                     + (see < 0 ? -1000 : 0);
 
             }
-
+            
             SortMoveData(array, 0, _quietCount);
-
+            
             _currIndex = 0;
             _currStep++;
             return NextMoveData();
@@ -450,12 +451,14 @@ namespace NoraGrace.Engine
             }
         }
 
-        public void RegisterCutoff(Board board, Move move, SearchDepth depth)
+        public void RegisterCutoff(Board board, ChessMoveData moveData, SearchDepth depth)
         {
-            //store killer moves in MovePicker
-            var killers = _killers[(int)board.WhosTurn];
+            Move move = moveData.Move;
             if (board.PieceAt(move.To()) == Piece.EMPTY)
             {
+                //store killer moves in MovePicker
+                var killers = _killers[(int)board.WhosTurn];
+
                 //store as killer
                 if (move != killers[0])
                 {
@@ -465,16 +468,31 @@ namespace NoraGrace.Engine
 
                 //store to history object.
                 _history.RegisterCutoff(board, move, depth);
+
+                //loop through all previously tried quiet moves and reduct history score.
+                for (int i = 0; i < _failLowCount; i++)
+                {
+                    _history.RegisterFailLow(board, _failLows[i], depth);
+                }
             }
+
+
             
         }
 
-        public void RegisterFailLow(Board board, Move move, SearchDepth depth)
+        public void RegisterFailLow(Board board, ChessMoveData moveData, SearchDepth depth)
         {
+            Move move = moveData.Move;
             if (board.PieceAt(move.To()) == Piece.EMPTY)
             {
+                if (moveData.SEE >= 0)
+                {
+                    //do not mark it in history table UNTIL we get a fail-high. otherwise will pollute table with too many negatives.
+                    _failLows[_failLowCount++] = move;
+                }
+                
                 //store to history object.
-                _history.RegisterFailLow(board, move, depth);
+                //_history.RegisterFailLow(board, move, depth); 
             }
         }
 
@@ -482,7 +500,7 @@ namespace NoraGrace.Engine
     }
 
 
-    [System.Diagnostics.DebuggerDisplay(@"{Move.Description()} SEE:{SEE} PcSq:{PcSq} Flags:{Flags}")]
+    [System.Diagnostics.DebuggerDisplay(@"{Move.Description()} SEE:{SEE} Score:{Score} Flags:{Flags}")]
     public struct ChessMoveData
     {
         public Move Move;

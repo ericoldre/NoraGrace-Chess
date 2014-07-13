@@ -683,7 +683,6 @@ namespace NoraGrace.Engine
 
             var plyMoves = _moveBuffer[ply];
             plyMoves.Initialize(board, tt_move, false);
-            plyMoves.Sort(board, true, tt_move);
 
 			TranspositionTable.EntryType tt_entryType = TranspositionTable.EntryType.AtMost;
 
@@ -805,7 +804,7 @@ namespace NoraGrace.Engine
 				{
                     SearchArgs.TransTable.Store(board.ZobristBoard, depth.Value(), TranspositionTable.EntryType.AtLeast, beta, move);
                     CutoffStats.AtDepth[depth.ToPly()].CutoffAfter[legalMovesTried] += 1;
-                    plyMoves.RegisterCutoff(board, move, depth);
+                    plyMoves.RegisterCutoff(board, moveData, depth);
 					return score;
 				}
 
@@ -833,7 +832,7 @@ namespace NoraGrace.Engine
 				}
                 else
                 {
-                    plyMoves.RegisterFailLow(board, move, depth);
+                    plyMoves.RegisterFailLow(board, moveData, depth);
                 }
 			}
 
@@ -893,7 +892,6 @@ namespace NoraGrace.Engine
 
             var plyMoves = _moveBuffer[ply];
             plyMoves.Initialize(board, Move.EMPTY, !playerincheck);
-            plyMoves.Sort(board, false, Move.EMPTY);
 
 			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,ChessMoveInfo.Create(),false);
 			//moves.Sort(moveOrderer);

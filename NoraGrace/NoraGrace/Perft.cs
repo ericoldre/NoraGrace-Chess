@@ -31,7 +31,7 @@ namespace NoraGrace.CommandLine
             }
         }
 
-        public static void NodesToDepth(int depth, int count = 25)
+        public static void NodesToDepth(int depth, int count = 50)
         {
             
             Evaluator eval = new Evaluator();

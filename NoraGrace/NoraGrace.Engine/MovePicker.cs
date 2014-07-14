@@ -15,13 +15,13 @@ namespace NoraGrace.Engine
         public class Stack
         {
             List<MovePicker> _plyBuffers = new List<MovePicker>();
-            MoveHistory _history = new MoveHistory();
+            public readonly MoveHistory History = new MoveHistory();
             StaticExchange _see = new StaticExchange();
             public Stack(int plyCapacity = 50)
             {
                 while (_plyBuffers.Count < plyCapacity)
                 {
-                    _plyBuffers.Add(new MovePicker(_history, _see));
+                    _plyBuffers.Add(new MovePicker(History, _see));
                 }
             }
 
@@ -34,7 +34,7 @@ namespace NoraGrace.Engine
                     {
                         for (int i = 0; i < 10; i++)
                         {
-                            _plyBuffers.Add(new MovePicker(_history, _see));
+                            _plyBuffers.Add(new MovePicker(History, _see));
                         }
                     }
                     return _plyBuffers[ply];
@@ -46,6 +46,7 @@ namespace NoraGrace.Engine
         public class MoveHistory
         {
             private readonly int[][] _history = Helpers.ArrayInit<int>(16, 64);
+            private readonly int[][] _maxPositionalGain = Helpers.ArrayInit<int>(16, 64);
             private int _count = 0;
             private int _maxCount = 50000;
 
@@ -63,6 +64,7 @@ namespace NoraGrace.Engine
                         for (int ipos = 0; ipos < 64; ipos++)
                         {
                             _history[ipiece][ipos] = _history[ipiece][ipos] / 2;
+                            _maxPositionalGain[ipiece][ipos] = _maxPositionalGain[ipiece][ipos] / 2;
                         }
                     }
                     _count = 0;
@@ -71,8 +73,18 @@ namespace NoraGrace.Engine
                 {
                     _count++;
                 }
-                
             }
+
+            public void RegisterPositionalGain(Piece piece, Position to, int positionalGain)
+            {
+                _maxPositionalGain[(int)piece][(int)to] = Math.Max(positionalGain, _maxPositionalGain[(int)piece][(int)to]);
+            }
+
+            public int ReadMaxPositionalGain(Piece piece, Position to)
+            {
+                return _maxPositionalGain[(int)piece][(int)to];
+            }
+
             public void RegisterCutoff(Board board, Move move, SearchDepth depth)
             {
                 Age(); //every so often, reduce scores.
@@ -451,6 +463,7 @@ namespace NoraGrace.Engine
             }
         }
 
+        
         public void RegisterCutoff(Board board, ChessMoveData moveData, SearchDepth depth)
         {
             Move move = moveData.Move;

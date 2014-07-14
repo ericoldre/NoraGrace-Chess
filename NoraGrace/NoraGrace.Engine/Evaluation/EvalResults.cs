@@ -127,6 +127,14 @@ namespace NoraGrace.Engine.Evaluation
             }
         }
 
+        public int PositionalScore
+        {
+            get
+            {
+                return Score - Material;
+            }
+        }
+
         public int PcSqPhased
         {
             get
@@ -183,6 +191,11 @@ namespace NoraGrace.Engine.Evaluation
             {
                 _plyInfoList.Add(new EvalResults());
             }
+        }
+
+        public EvalResults this[int ply]
+        {
+            get { return _plyInfoList[ply]; }
         }
 
         public Evaluator Evaluator

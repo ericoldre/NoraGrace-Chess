@@ -692,9 +692,16 @@ namespace NoraGrace.Engine
 			int blunders = 0;
             Move bestmove = Move.EMPTY;
 
+            //run static evaluation of current position.
             Evaluation.EvalResults init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, Evaluation.Evaluator.MinValue, Evaluation.Evaluator.MaxValue);
-            
+
+            //detect difference in positional score from previous ply and record max positional gain for previous move
+            var previousMove = board.HistMove(1);
+            int previousMovePositionalGain = (init_info.PositionalScore - _evalInfoStack[ply - 1].PositionalScore) * (board.WhosTurn == Player.Black ? 1 : -1);
+            _moveBuffer.History.RegisterPositionalGain(board.PieceAt(previousMove.To()), previousMove.To(), previousMovePositionalGain);
+
+
             ChessMoveData moveData;
             while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
 			{

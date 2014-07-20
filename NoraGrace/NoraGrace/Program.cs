@@ -170,6 +170,17 @@ namespace NoraGrace.CommandLine
                     NoraGrace.Engine.Attacks.Generation.FindMagics();
                     ConsoleWriteline("done");
                     break;
+                case "sts":
+                    using (var reader = new System.IO.StreamReader("STSAll.epd"))
+                    {
+                        var epds = NoraGrace.Engine.EPD.ParseMultiple(reader).ToArray();
+
+                        foreach(var x in epds)
+                        {
+                            string s = x.ID;
+                        }
+                    }
+                    break;
                 default:
                     _winboard.ProcessCmd(input);
                     break;

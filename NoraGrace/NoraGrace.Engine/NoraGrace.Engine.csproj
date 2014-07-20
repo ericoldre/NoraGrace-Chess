@@ -54,6 +54,7 @@
     <Compile Include="Board.cs" />
     <Compile Include="Book.cs" />
     <Compile Include="Direction.cs" />
+    <Compile Include="EPD.cs" />
     <Compile Include="Evaluation\Evaluator.cs" />
     <Compile Include="Evaluation\EvalResults.cs" />
     <Compile Include="Evaluation\MaterialEvaluator.cs" />

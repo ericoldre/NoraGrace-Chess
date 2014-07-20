@@ -173,12 +173,39 @@ namespace NoraGrace.CommandLine
                 case "sts":
                     using (var reader = new System.IO.StreamReader("STSAll.epd"))
                     {
-                        var epds = NoraGrace.Engine.EPD.ParseMultiple(reader).ToArray();
+                        int totalCorrect = 0;
+                        int totalScore = 0;
+                        TimeSpan totalTime = TimeSpan.FromSeconds(0);
 
-                        foreach(var x in epds)
+                        int possibleCorrect = 0;
+                        int possibleScore = 0;
+                        TimeSpan possibleTime = TimeSpan.FromSeconds(0);
+
+
+                            
+                        var epds = NoraGrace.Engine.EPD.ParseMultiple(reader).ToArray();
+                        NoraGrace.Engine.TranspositionTable transTable = new Engine.TranspositionTable();
+                        foreach(var epd in epds.Take(1500))
                         {
-                            string s = x.ID;
+                            possibleCorrect++;
+                            possibleScore += 10;
+                            possibleTime += TimeSpan.FromSeconds(1);
+
+                            bool correct;
+                            int score;
+                            TimeSpan time;
+                            correct = epd.RunTest(TimeSpan.FromSeconds(1), transTable, out score, out time);
+                            ConsoleWriteline(string.Format("{4}/{5} {0} {1} {2} {3}", epd.ID, correct, score, time, possibleCorrect, epds.Length));
+
+                            totalCorrect += correct ? 1 : 0;
+                            totalScore += score;
+                            totalTime += time;
+
+                            
                         }
+                        ConsoleWriteline(string.Format("TotalCorrect:{0}/{1}", totalCorrect, possibleCorrect));
+                        ConsoleWriteline(string.Format("TotalScore:{0}/{1}", totalScore, possibleScore));
+                        ConsoleWriteline(string.Format("TotalTime:{0}/{1}", totalTime, possibleTime));
                     }
                     break;
                 default:

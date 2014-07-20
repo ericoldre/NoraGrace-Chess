@@ -101,6 +101,32 @@ namespace NoraGrace.Engine
 
     }
 
+    public class TimeManagerSetTime : TimeManagerBase
+    {
+        public DateTime TimeToStop { get; private set; }
+        public TimeSpan TimeToSearch { get; private set; }
+        public TimeManagerSetTime(TimeSpan timeToSearch)
+        {
+            TimeToSearch = timeToSearch;
+        }
+        public override void StartSearch(FEN fen)
+        {
+            base.StartSearch(fen);
+            TimeToStop = DateTime.Now + TimeToSearch;
+        }
+        public override void NodeStart(int nodeCount)
+        {
+            base.NodeStart(nodeCount);
+            if (nodeCount % 512 == 0)
+            {
+                if (DateTime.Now > TimeToStop)
+                {
+                    this.RaiseStopSearch();
+                }
+            }
+        }
+    }
+
     public abstract class TimeManagerComplexity : TimeManagerBase
     {
 

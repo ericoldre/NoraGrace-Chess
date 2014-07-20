@@ -81,5 +81,48 @@ namespace NoraGrace.Engine
             }
         }
 
+        public bool RunTest(TimeSpan timeToSearch, TranspositionTable transTable, out int score, out TimeSpan timeScore)
+        {
+            Search.Args args = new Search.Args();
+            args.GameStartPosition = this.FEN;
+            args.TimeManager = new TimeManagerSetTime(timeToSearch);
+            args.TransTable = transTable;
+            transTable.AgeEntries(100);
+
+            Search search = new Search(args);
+            Move searchMove = Move.EMPTY;
+            TimeSpan searchMoveTime = timeToSearch;
+            search.ProgressReported += (s, e) =>
+            {
+                Move currentMove = e.Progress.PrincipleVariation[0];
+                if (currentMove != searchMove)
+                {
+                    searchMove = currentMove;
+                    searchMoveTime = e.Progress.Time;
+                }
+            };
+            search.Start();
+
+            score = 0;
+            timeScore = timeToSearch;
+            if (this.MoveScores != null)
+            {
+                if (MoveScores.ContainsKey(searchMove))
+                {
+                    score = MoveScores[searchMove];
+                }
+            }
+
+            if (searchMove == this.BestMove)
+            {
+                timeScore = searchMoveTime;
+                return true;
+            }
+
+            return false;
+
+        }
+
+
     }
 }

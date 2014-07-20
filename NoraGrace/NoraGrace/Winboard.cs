@@ -215,6 +215,9 @@ namespace NoraGrace.CommandLine
                 case "analyze":
                     _player.YourTurn(_board, new TimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));
                     break;
+                case "exit":
+                    _player.TurnStop();
+                    break;
                 //custom stuff for debugging
                 case "setpos1":
                     _board.FENCurrent = new FEN("8/4r3/R4n2/2pPk3/p1P1B1p1/3K2P1/5P2/8 w - - 4 54 ");

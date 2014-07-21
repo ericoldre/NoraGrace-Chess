@@ -473,6 +473,15 @@ namespace NoraGrace.Engine
             get { return _zobMaterial; }
         }
 
+        public Bitboard RookSliders
+        {
+            get { return _pieceTypes[(int)PieceType.Rook] | _pieceTypes[(int)PieceType.Queen]; }
+        }
+
+        public Bitboard BishopSliders
+        {
+            get { return _pieceTypes[(int)PieceType.Bishop] | _pieceTypes[(int)PieceType.Queen]; }
+        }
 
         public Bitboard this[PieceType pieceType]
         {

@@ -69,6 +69,7 @@ namespace NoraGrace.Engine
             }
             return false;
         }
+
         public static bool IsPsuedoLegal(this Move move, Board board)
         {
             if (move == Move.EMPTY) { return false; }
@@ -198,6 +199,80 @@ namespace NoraGrace.Engine
                     return false;
             }
 
+        }
+
+        public static bool CausesCheck(this Move move, Board board, CheckInfo oppenentCheckInfo)
+        {
+            Position from = move.From();
+            Position to = move.To();
+            PieceType pieceType = board.PieceAt(from).ToPieceType();
+
+            if (oppenentCheckInfo.DirectAll.Contains(to))
+            {
+                bool direct = false;
+                PieceType pieceTypeAfter = move.Promote() == Piece.EMPTY ? pieceType : move.Promote().ToPieceType(); //in case of promotion
+                switch (pieceTypeAfter)
+                {
+                    case PieceType.Pawn:
+                        direct = oppenentCheckInfo.PawnDirect.Contains(to);
+                        break;
+                    case PieceType.Knight:
+                        direct = oppenentCheckInfo.KnightDirect.Contains(to);
+                        break;
+                    case PieceType.Bishop:
+                        direct = oppenentCheckInfo.BishopDirect.Contains(to);
+                        break;
+                    case PieceType.Rook:
+                        direct = oppenentCheckInfo.RookDirect.Contains(to);
+                        break;
+                    case PieceType.Queen:
+                        direct = oppenentCheckInfo.BishopDirect.Contains(to) || oppenentCheckInfo.RookDirect.Contains(to);
+                        break;
+                }
+                if (direct) { return true; }
+            }
+
+            bool isEnpassantCapture = pieceType == PieceType.Pawn && to == board.EnPassant;
+
+            if (oppenentCheckInfo.PinnedOrDiscovered.Contains(from) || isEnpassantCapture)
+            {
+                Bitboard allAfterMove = (board.PieceLocationsAll & ~from.ToBitboard()) | to.ToBitboard();
+
+                if (isEnpassantCapture)
+                {
+                    Position enpassantCapturedSq = board.WhosTurn.MyRank(Rank.Rank5).ToPosition(board.EnPassant.ToFile());
+                    allAfterMove &= ~enpassantCapturedSq.ToBitboard(); 
+                }
+
+                Bitboard stmAll = board[board.WhosTurn];
+                Bitboard revealed = (Attacks.BishopAttacks(oppenentCheckInfo.KingPosition, allAfterMove) & stmAll & board.BishopSliders)
+                    | (Attacks.RookAttacks(oppenentCheckInfo.KingPosition, allAfterMove) & stmAll & board.RookSliders);
+                if (revealed != Bitboard.Empty) { return true; }
+            }
+
+            //check if castling reveals check via rook
+            if (pieceType == PieceType.King)
+            {
+                if (from == Position.E1 && to == Position.G1 && oppenentCheckInfo.RookDirect.Contains(Position.F1))
+                {
+                    return true;
+                }
+                if (from == Position.E1 && to == Position.C1 && oppenentCheckInfo.RookDirect.Contains(Position.D1))
+                {
+                    return true;
+                }
+
+                if (from == Position.E8 && to == Position.G8 && oppenentCheckInfo.RookDirect.Contains(Position.F8))
+                {
+                    return true;
+                }
+                if (from == Position.E8 && to == Position.C8 && oppenentCheckInfo.RookDirect.Contains(Position.D8))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
 	}

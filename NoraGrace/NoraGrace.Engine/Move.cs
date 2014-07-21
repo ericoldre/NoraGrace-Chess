@@ -201,7 +201,7 @@ namespace NoraGrace.Engine
 
         }
 
-        public static bool CausesCheck(this Move move, Board board, CheckInfo oppenentCheckInfo)
+        public static bool CausesCheck(this Move move, Board board, ref CheckInfo oppenentCheckInfo)
         {
             Position from = move.From();
             Position to = move.To();

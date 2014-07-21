@@ -725,7 +725,7 @@ namespace NoraGrace.Engine
 			int blunders = 0;
             Move bestmove = Move.EMPTY;
 
-
+            CheckInfo checkInfo = CheckInfo.Generate(board, board.WhosTurn.PlayerOther());
 
             ChessMoveData moveData;
             while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
@@ -734,6 +734,8 @@ namespace NoraGrace.Engine
 
 				CurrentVariation[ply] = move;
 
+                bool move_will_give_check = MoveInfo.CausesCheck(move, board, ref checkInfo);
+
                 var moveGain = _moveBuffer.History.ReadMaxPositionalGain(board.PieceAt(move.From()), move.To());
 
                 //futility check
@@ -741,6 +743,7 @@ namespace NoraGrace.Engine
                     && moveData.Flags == 0
                     && depth.ToPly() <= 3
                     && !in_check_before_move
+                    && !move_will_give_check
                     && legalMovesTried > 3)
                 {
                     if (init_score + moveGain + MarginFutilityPre(depth.SubstractPly(1)) < alpha)
@@ -766,6 +769,7 @@ namespace NoraGrace.Engine
                 //decide if we want to extend or maybe reduce this node
                 SearchDepth ext = 0;
                 bool isCheck = board.IsCheck(board.WhosTurn);
+
                 if (isCheck) { ext = this.SearchArgs.ExtensionCheck; }
 
                 Position moveFrom = move.From();

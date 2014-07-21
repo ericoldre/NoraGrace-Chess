@@ -53,6 +53,7 @@
     <Compile Include="Bitboard.cs" />
     <Compile Include="Board.cs" />
     <Compile Include="Book.cs" />
+    <Compile Include="CheckInfo.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="EPD.cs" />
     <Compile Include="Evaluation\Evaluator.cs" />

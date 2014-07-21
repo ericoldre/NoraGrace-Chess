@@ -130,7 +130,7 @@ namespace NoraGrace.Engine
                     retval |= from.ToBitboard();
                 }
             }
-            return retval;
+            return retval & ~to.ToBitboard();
         }
 
         public static Direction DirectionTo(this Position from, Position to)

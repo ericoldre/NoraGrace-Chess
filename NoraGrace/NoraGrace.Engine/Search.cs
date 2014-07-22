@@ -578,12 +578,12 @@ namespace NoraGrace.Engine
 
         public int MarginFutilityPre(SearchDepth depth)
         {
-            return 130 + (depth.ToPly() * 45);
+            return 110 + (depth.ToPly() * 35);
         }
 
         public int MarginFutilityPost(SearchDepth depth)
         {
-            return 100 + (depth.ToPly() * 40);
+            return 90 + (depth.ToPly() * 35);
         }
 
         public int MarginRazor(SearchDepth depth)
@@ -722,7 +722,6 @@ namespace NoraGrace.Engine
 			score = -INFINITY;
 			//bool haslegalmove = false;
 			int legalMovesTried = 0;
-			int blunders = 0;
             Move bestmove = Move.EMPTY;
 
             CheckInfo checkInfo = CheckInfo.Generate(board, board.WhosTurn.PlayerOther());
@@ -734,8 +733,6 @@ namespace NoraGrace.Engine
 
 				CurrentVariation[ply] = move;
 
-                bool move_will_give_check = MoveInfo.CausesCheck(move, board, ref checkInfo);
-
                 var moveGain = _moveBuffer.History.ReadMaxPositionalGain(board.PieceAt(move.From()), move.To());
 
                 //futility check
@@ -743,12 +740,22 @@ namespace NoraGrace.Engine
                     && moveData.Flags == 0
                     && depth.ToPly() <= 3
                     && !in_check_before_move
-                    && !move_will_give_check
                     && legalMovesTried > 3)
                 {
                     if (init_score + moveGain + MarginFutilityPre(depth.SubstractPly(1)) < alpha)
                     {
-                        continue;
+                        if (move.CausesCheck(board, ref checkInfo))
+                        {
+                            //process normal
+                        }
+                        else if (move.MakesThreat(board) && moveData.SEE >= 0)
+                        {
+                            //process normal
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
                 }
 

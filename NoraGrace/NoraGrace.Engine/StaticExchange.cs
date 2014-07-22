@@ -204,11 +204,11 @@ namespace NoraGrace.Engine
 
                 if ((moverBB & rookMask) != 0)
                 {
-                    attackers |= Attacks.RookAttacks(targetPos, remainingPieces) & remainingPieces & (board[PieceType.Rook] | board[PieceType.Queen]);
+                    attackers |= Attacks.RookAttacks(targetPos, remainingPieces) & remainingPieces & (board.RookSliders);
                 }
                 else if ((moverBB & bishopMask) != 0)
                 {
-                    attackers |= Attacks.BishopAttacks(targetPos, remainingPieces) & remainingPieces & (board[PieceType.Bishop] | board[PieceType.Queen]);
+                    attackers |= Attacks.BishopAttacks(targetPos, remainingPieces) & remainingPieces & (board.BishopSliders);
                 }
 
                 attackers &= remainingPieces;

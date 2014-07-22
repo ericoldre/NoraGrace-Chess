@@ -444,8 +444,8 @@ namespace NoraGrace.Engine.Evaluation
 
             Bitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
 
-            Bitboard myDiagSliders = myPieces & (board[PieceType.Bishop] | board[PieceType.Queen]);
-            Bitboard myHorizSliders = myPieces & (board[PieceType.Rook] | board[PieceType.Queen]);
+            Bitboard myDiagSliders = myPieces & board.BishopSliders;
+            Bitboard myHorizSliders = myPieces & board.RookSliders;
             Bitboard potentialOutputs = OUTPOST_AREA & (myAttacks.PawnEast | myAttacks.PawnWest);
 
             while (slidersAndKnights != Bitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())

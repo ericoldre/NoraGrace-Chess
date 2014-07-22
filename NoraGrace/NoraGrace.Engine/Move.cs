@@ -201,6 +201,31 @@ namespace NoraGrace.Engine
 
         }
 
+        public static bool MakesThreat(this Move move, Board board)
+        {
+            Position from = move.From();
+            Position to = move.To();
+            Player player = board.WhosTurn;
+            Player opponent = player.PlayerOther();
+            Bitboard them = board[opponent];
+            PieceType pieceType = board.PieceAt(from).ToPieceType();
+
+            switch (pieceType)
+            {
+                case PieceType.Pawn:
+                    return (Attacks.PawnAttacks(to, player) & them & ~board[PieceType.Pawn]) != Bitboard.Empty;
+                case PieceType.Knight:
+                    return (Attacks.KnightAttacks(to) & them & board.RookSliders) != Bitboard.Empty;
+                case PieceType.Bishop:
+                    return (Attacks.BishopAttacks(to, board.PieceLocationsAll) & them & board.RookSliders) != Bitboard.Empty;
+                case PieceType.Rook:
+                    return (Attacks.RookAttacks(to, board.PieceLocationsAll) & them & board[PieceType.Queen]) != Bitboard.Empty;
+                default:
+                    return false;
+            }
+
+        }
+
         public static bool CausesCheck(this Move move, Board board, ref CheckInfo oppenentCheckInfo)
         {
             Position from = move.From();

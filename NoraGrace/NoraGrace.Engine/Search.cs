@@ -773,6 +773,7 @@ namespace NoraGrace.Engine
                     && legalMovesTried > 0
                     && (init_score + moveGain + MarginFutilityPre(depth.SubstractPly(1)) < alpha)
                     && !move.CausesCheck(board, ref checkInfo)
+                    && !init_info.PassedPawns.Contains(move.From())
                     )
                 {
                     continue;

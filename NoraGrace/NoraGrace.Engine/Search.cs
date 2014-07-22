@@ -102,6 +102,11 @@ namespace NoraGrace.Engine
             return 30000 - ply; //private static readonly int VALCHECKMATE = 30000;
         }
 
+        public static bool IsMateScore(int score)
+        {
+            return Math.Abs(score) > MateIn(MAX_PLY);
+        }
+
 		#region helper classes
 		public class Progress
 		{
@@ -658,6 +663,7 @@ namespace NoraGrace.Engine
 
             //post futility placeholder
             if (depth.ToPly() <= 5
+                && !IsMateScore(beta)
                 && !in_check_before_move
                 && !isPvNode
                 && prev_move_num >= 3
@@ -670,6 +676,7 @@ namespace NoraGrace.Engine
             if (depth.ToPly() <= 3
                 && !in_check_before_move
                 && !isPvNode
+                && !IsMateScore(beta)
                 && init_score + MarginRazor(depth) < alpha)
             {
                 int razorAlpha = alpha - MarginRazor(depth);
@@ -683,7 +690,7 @@ namespace NoraGrace.Engine
 			//try null move;
 			if (depth.ToPly() > 1
 			&& this.NullSearchOK()
-			&& beta < 10000
+			&& !IsMateScore(beta)
 			&& (!in_check_before_move)
 			&& board.MovesSinceNull > 0)
 			{

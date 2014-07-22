@@ -414,7 +414,7 @@ namespace NoraGrace.Engine
 				if (depth.ToPly() <= 3)
 				{
 					//first couple nodes search full width
-					score = -ValSearch(depth - 1, 1, move_num, -beta, -alpha);
+					score = -ValSearchPVS(depth - 1, 1, move_num, -beta, -alpha);
 				}
 				else if (_bestvariation != null && _bestvariation.Count > 0 && move == this._bestvariation[0])
 				{
@@ -535,7 +535,7 @@ namespace NoraGrace.Engine
 				//lower window can never be lower than alpha
 				if (windowAlpha > alpha) { windowAlpha = alpha; }
 
-                int score = -ValSearch(depth - 1, 1, prev_move_num, -windowBeta, -windowAlpha);
+                int score = -ValSearchPVS(depth - 1, 1, prev_move_num, -windowBeta, -windowAlpha);
 
 				if (score <= alpha)
 				{
@@ -596,7 +596,25 @@ namespace NoraGrace.Engine
             return 170 + (depth.ToPly() * 70);
         }
 
-		private int ValSearch(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta)
+        private int ValSearchPVS(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta)
+        {
+            if (alpha == beta - 1)
+            {
+                return ValSearchMain(depth, ply, prev_move_num, alpha, beta);
+            }
+            else if (prev_move_num <= 1)
+            {
+                return ValSearchMain(depth, ply, prev_move_num, alpha, beta);
+            }
+            else
+            {
+                int scout = ValSearchMain(depth, ply, prev_move_num, beta - 1, beta);
+                if (scout >= beta) { return beta; }
+                return ValSearchMain(depth, ply, prev_move_num, alpha, beta);
+            }
+        }
+        
+		private int ValSearchMain(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta)
 		{
 			//for logging
 			CountTotalAINodes++;
@@ -666,7 +684,8 @@ namespace NoraGrace.Engine
                 && !IsMateScore(beta)
                 && !in_check_before_move
                 && !isPvNode
-                && prev_move_num >= 3
+                //&& prev_move_num >= 3
+                && board.MovesSinceNull > 0
                 && init_score > beta + MarginFutilityPost(depth))
             {
                 return beta;
@@ -689,14 +708,17 @@ namespace NoraGrace.Engine
 
 			//try null move;
 			if (depth.ToPly() > 1
+            && !isPvNode
+            && init_score > beta
 			&& this.NullSearchOK()
 			&& !IsMateScore(beta)
 			&& (!in_check_before_move)
 			&& board.MovesSinceNull > 0)
 			{
+
 				int nullr = depth.ToPly() >= 5 ? 3 : 2;
 				board.MoveNullApply();
-				int nullscore = -ValSearch(depth.SubstractPly(nullr + 1), ply, 0, -beta, -beta + 1);
+				int nullscore = -ValSearchPVS(depth.SubstractPly(nullr + 1), ply, 0, -beta, -beta + 1);
 
 				if (nullscore >= beta && this.NullSearchVerify() && depth.ToPly() >= 5)
 				{
@@ -705,7 +727,7 @@ namespace NoraGrace.Engine
 				
 					board.MoveNullApply();
 
-					nullscore = ValSearch(depth.SubstractPly(nullr + 2), ply, 0, beta - 1, beta);
+					nullscore = ValSearchPVS(depth.SubstractPly(nullr + 2), ply, 0, beta - 1, beta);
 					board.MoveNullUndo();
 				}
 				board.MoveNullUndo();
@@ -746,24 +768,14 @@ namespace NoraGrace.Engine
                 if (!isPvNode
                     && moveData.Flags == 0
                     && depth.ToPly() <= 3
+                    && move.Promote() == Piece.EMPTY
                     && !in_check_before_move
-                    && legalMovesTried > 3)
+                    && legalMovesTried > 0
+                    && (init_score + moveGain + MarginFutilityPre(depth.SubstractPly(1)) < alpha)
+                    && !move.CausesCheck(board, ref checkInfo)
+                    )
                 {
-                    if (init_score + moveGain + MarginFutilityPre(depth.SubstractPly(1)) < alpha)
-                    {
-                        if (move.CausesCheck(board, ref checkInfo))
-                        {
-                            //process normal
-                        }
-                        else if (move.MakesThreat(board) && moveData.SEE >= 0)
-                        {
-                            //process normal
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
+                    continue;
                 }
 
 				board.MoveApply(move);
@@ -815,14 +827,14 @@ namespace NoraGrace.Engine
                     && !isDangerous)
                 {
                     doFullSearch = false;
-                    score = -ValSearch(depth.SubstractPly(2), ply + 1, legalMovesTried, -beta, -alpha);
+                    score = -ValSearchPVS(depth.SubstractPly(2), ply + 1, legalMovesTried, -beta, -alpha);
                     if (score > alpha) { doFullSearch = true; }
                 }
 
                 if (doFullSearch)
                 {
                     //do subsearch
-                    score = -ValSearch(depth.AddDepth(ext).SubstractPly(1), ply + 1, legalMovesTried, -beta, -alpha);
+                    score = -ValSearchPVS(depth.AddDepth(ext).SubstractPly(1), ply + 1, legalMovesTried, -beta, -alpha);
                 }
 
 

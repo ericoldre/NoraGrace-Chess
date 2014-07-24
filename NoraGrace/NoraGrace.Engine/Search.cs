@@ -758,10 +758,13 @@ namespace NoraGrace.Engine
             ChessMoveData moveData;
             while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
 			{
-                Move move = moveData.Move;    
+                Move move = moveData.Move;
 
-				CurrentVariation[ply] = move;
-
+                CurrentVariation[ply] = move;
+                
+                Position moveFrom = move.From();
+                Position moveTo = move.To();
+                Piece movePiece = board.PieceAt(moveFrom);
                 var moveGain = _moveBuffer.History.ReadMaxPositionalGain(board.PieceAt(move.From()), move.To());
 
                 //futility check
@@ -799,17 +802,9 @@ namespace NoraGrace.Engine
 
                 if (isCheck) { ext = this.SearchArgs.ExtensionCheck; }
 
-                Position moveFrom = move.From();
-                Position moveTo = move.To();
-                Piece movePiece = board.PieceAt(moveFrom);
+
                 
-                bool isPawn7th = 
-                    (movePiece == Piece.WPawn && moveTo.ToRank() == Rank.Rank7)
-                    || (movePiece == Piece.BPawn && moveTo.ToRank() == Rank.Rank2);
-                if (isPawn7th) { ext = ext.AddDepth(this.SearchArgs.ExtensionPawn7th); }
-
-
-                bool isDangerous = moveData.Flags != 0 || isCheck || isPawn7th || ext > 0;
+                bool isDangerous = moveData.Flags != 0 || isCheck || ext > 0;
 
                 if (this.SearchArgs.ExtendSEEPositiveOnly)
                 {
@@ -820,9 +815,8 @@ namespace NoraGrace.Engine
 
                 bool doFullSearch = true;
 
-                if (
-                    true //SearchArgs.UseLMR == true
-                    //&& beta == alpha + 1
+                if (true
+                    //!isPvNode // test 7/23 dropped elo by 5
                     && depth.ToPly() >= 3
                     && legalMovesTried > 3
                     && !isDangerous)

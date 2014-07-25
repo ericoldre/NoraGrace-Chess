@@ -547,7 +547,7 @@ namespace NoraGrace.Engine
 				}
 
                 
-                if (initWindow == 0 && score >= windowBeta) 
+                if (score >= windowBeta) 
                 {
                     //we are failing high on a non-pv node which is looking better than we thought. extend search time!
                     SearchArgs.TimeManager.FailingHigh();

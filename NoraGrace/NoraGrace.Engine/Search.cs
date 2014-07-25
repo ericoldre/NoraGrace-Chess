@@ -411,7 +411,7 @@ namespace NoraGrace.Engine
                 SearchArgs.TimeManager.StartMove(move);
                 int nodeCountBeforeMove = this.CountAIValSearch;
 
-				if (depth.ToPly() <= 3)
+				if (depth.ToPly() <= 1)
 				{
 					//first couple nodes search full width
 					score = -ValSearchPVS(depth - 1, 1, move_num, -beta, -alpha);

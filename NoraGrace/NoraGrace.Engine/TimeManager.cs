@@ -30,7 +30,7 @@ namespace NoraGrace.Engine
     {
         protected static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(TimeManager));
         public event EventHandler<EventArgs> StopSearch;
-
+        
         private int _nodeCount;
 
         protected virtual bool IsFailingHigh { get; set; }
@@ -46,9 +46,19 @@ namespace NoraGrace.Engine
             return _nodeCount;
         }
 
+        public int CurrentDepth { get; private set; }
+
+
+        private Move _currentBestMove;
+        public virtual Move CurrentBestMove
+        {
+            get { return _currentBestMove; }
+            set { _currentBestMove = value; }
+        }
         public virtual void StartSearch(FEN fen)
         {
-
+            CurrentDepth = 0;
+            CurrentBestMove = Move.EMPTY;
         }
 
         public virtual void EndSearch()
@@ -58,7 +68,7 @@ namespace NoraGrace.Engine
 
         public virtual void StartDepth(int depth)
         {
-
+            CurrentDepth = depth;
         }
 
         public virtual void EndDepth(int depth)
@@ -78,7 +88,7 @@ namespace NoraGrace.Engine
 
         public virtual void NewPV(Move move)
         {
-
+            if (move != CurrentBestMove) { CurrentBestMove = move; }
         }
 
         public virtual void NodeStart(int nodeCount)
@@ -142,6 +152,8 @@ namespace NoraGrace.Engine
         private List<ComplexityInfo> _complexityHistory = new List<ComplexityInfo>();
 
         public double PctOfNormalToSpend { get; private set; }
+        private int _depthOfLastPVChange;
+
 
         public TimeManagerComplexity()
         {
@@ -171,10 +183,20 @@ namespace NoraGrace.Engine
             System.Diagnostics.Debug.Assert(_complexityHistory.Count <= _pcts.Length);
 
             PctOfNormalToSpend = 1;
-
+            _depthOfLastPVChange = 0;
             base.StartSearch(fen);
             
         }
+
+        public override Move CurrentBestMove
+        {
+            set
+            {
+                if (value != CurrentBestMove) { _depthOfLastPVChange = CurrentDepth; }
+                base.CurrentBestMove = value;
+            }
+        }
+
         public override void StartDepth(int depth)
         {
             base.StartDepth(depth);
@@ -182,7 +204,6 @@ namespace NoraGrace.Engine
         }
         public override void StartMove(Move move)
         {
-
             base.StartMove(move);
             _currentMoveStartNodes = GetNodeCount();
         }
@@ -210,6 +231,10 @@ namespace NoraGrace.Engine
                     return;
                 }
                 _currentComplexity.RefutePct = (double)nextbest / (double)top;
+                //if (_depthOfLastPVChange >= depth - 2) //TODO: this will extend time if the PV has recently changed, need move conclusive testing on use
+                //{
+                //    _currentComplexity.RefutePct += 1.0;
+                //}
             }
             else
             {

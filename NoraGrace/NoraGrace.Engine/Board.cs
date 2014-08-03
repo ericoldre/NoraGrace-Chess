@@ -227,17 +227,13 @@ namespace NoraGrace.Engine
             _allPieces |= posBits;
             _playerBoards[(int)piece.PieceToPlayer()] |= posBits;
 
-			if (piece == Piece.WPawn || piece == Piece.BPawn)
+			if (pieceType == PieceType.Pawn)
 			{
                 _zobPawn ^= Zobrist.PiecePosition(piece, pos);
 			}
-			else if (piece == Piece.WKing)
+            else if (pieceType == PieceType.King)
 			{
-                _kingpos[(int)Player.White] = pos;
-			}
-			else if (piece == Piece.BKing)
-			{
-                _kingpos[(int)Player.Black] = pos;
+                _kingpos[(int)player] = pos;
 			}
 		}
         private void PieceRemove(Position pos)
@@ -269,7 +265,7 @@ namespace NoraGrace.Engine
             _playerBoards[(int)player] &= notPosBits;
             _allPieces &= notPosBits;
 
-			if (piece == Piece.WPawn || piece == Piece.BPawn)
+			if (pieceType == PieceType.Pawn)
 			{
                 _zobPawn ^= Zobrist.PiecePosition(piece, pos); 
 			}

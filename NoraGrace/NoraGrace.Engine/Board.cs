@@ -29,8 +29,6 @@ namespace NoraGrace.Engine
         private class MoveHistory
         {
             public Move Move;
-            public Piece PieceMoved;
-            public Piece Captured;
             public Position Enpassant;
             public CastleFlags Castle;
             public int FiftyCount;
@@ -40,11 +38,9 @@ namespace NoraGrace.Engine
             public Int64 ZobristMaterial;
             public Bitboard Checkers;
 
-            public void Reset(Move move, Piece piecemoved, Piece captured, Position enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
+            public void Reset(Move move, Position enpassant, CastleFlags castle, int fifty, int sinceNull, Int64 zob, Int64 zobPawn, Int64 zobMaterial, Bitboard checkers)
             {
                 this.Move = move;
-                this.PieceMoved = piecemoved;
-                this.Captured = captured;
                 this.Enpassant = enpassant;
                 this.Castle = castle;
                 this.FiftyCount = fifty;
@@ -375,11 +371,11 @@ namespace NoraGrace.Engine
                 {
                     return repcount;
                 }
-                if (movehist.Captured != Piece.EMPTY)
+                if (movehist.Move.IsCapture())
                 {
                     break;
                 }
-                if (movehist.PieceMoved == Piece.WPawn || movehist.PieceMoved == Piece.BPawn)
+                if (movehist.Move.MovingPieceType() == PieceType.Pawn)
                 {
                     break;
                 }
@@ -559,16 +555,16 @@ namespace NoraGrace.Engine
 
 			Position from = move.From();
 			Position to = move.To();
-			Piece piece = this.PieceAt(from);
-			Piece capture = this.PieceAt(to);
-            Piece promote = move.Promote();
-            Rank fromrank = from.ToRank();
-			Rank torank = to.ToRank();
-			File fromfile = from.ToFile();
-			File tofile = to.ToFile();
+            Piece piece = move.MovingPiece();
+            Piece capture = move.CapturedPiece();
+
+            //Rank fromrank = from.ToRank();
+			//Rank torank = to.ToRank();
+			//File fromfile = from.ToFile();
+			//File tofile = to.ToFile();
 
             if (_histCount > _histUB) { HistResize(); }
-			_hist[_histCount++].Reset(move, piece, capture, _enpassant, _castleFlags, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
+			_hist[_histCount++].Reset(move, _enpassant, _castleFlags, _fiftymove,_movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
 
 			//increment since null count;
 			_movesSinceNull++;
@@ -581,9 +577,11 @@ namespace NoraGrace.Engine
 
             //move piece, promote if needed
             this.PieceMove(from, to);
-            if (promote != Piece.EMPTY)
+
+            //promote if needed
+            if (move.IsPromotion())
             {
-                this.PieceChange(to, promote);
+                this.PieceChange(to, move.Promote());
             }
 			
 			//if castle, move rook
@@ -639,14 +637,10 @@ namespace NoraGrace.Engine
 
 
 			//if enpassant move then remove captured pawn
-			if (piece == Piece.WPawn && to == this._enpassant)
-			{
-                this.PieceRemove(tofile.ToPosition(Rank.Rank5));
-			}
-			if (piece == Piece.BPawn && to == this._enpassant)
-			{
-                this.PieceRemove(tofile.ToPosition(Rank.Rank4));
-			}
+            if (move.IsEnPassant())
+            {
+                this.PieceRemove(to.ToFile().ToPosition(move.MovingPlayer().MyRank(Rank.Rank5)));
+            }
 
 			//unmark enpassant sq
 			if (_enpassant.IsInBounds())
@@ -655,17 +649,13 @@ namespace NoraGrace.Engine
 				_enpassant = (Position.OUTOFBOUNDS);
 			}
 
-			//mark enpassant sq if pawn double jump
-			if (piece == Piece.WPawn && fromrank == Rank.Rank2 && torank == Rank.Rank4)
-			{
-				_enpassant = fromfile.ToPosition(Rank.Rank3);
+            //mark enpassant sq if pawn double jump
+            if (move.IsPawnDoubleJump())
+            {
+                _enpassant = from.PositionInDirectionUnsafe(move.MovingPlayer().MyNorth());
                 _zob ^= Zobrist.Enpassant(_enpassant);
-			}
-			else if (piece == Piece.BPawn && fromrank == Rank.Rank7 && torank == Rank.Rank5)
-			{
-				_enpassant = fromfile.ToPosition(Rank.Rank6);
-                _zob ^= Zobrist.Enpassant(_enpassant);
-			}
+            }
+			
 
 			//increment the move count
 			if (_whosturn == Player.Black)
@@ -718,10 +708,11 @@ namespace NoraGrace.Engine
             _histCount--;
 
             Move moveUndoing = movehist.Move;
+
             //undo promotion
-            if (movehist.Move.Promote() != Piece.EMPTY)
+            if (moveUndoing.IsPromotion())
             {
-                PieceChange(moveUndoing.To(), movehist.PieceMoved);
+                PieceChange(moveUndoing.To(), moveUndoing.MovingPiece());
             }
 			
             //move piece to it's original location
@@ -730,40 +721,47 @@ namespace NoraGrace.Engine
 
 
 			//replace the captured piece
-			if (movehist.Captured != Piece.EMPTY)
+			if (moveUndoing.IsCapture())
 			{
-                PieceAdd(moveUndoing.To(), movehist.Captured);
+                PieceAdd(moveUndoing.To(), moveUndoing.CapturedPiece());
 			}
 
-			//move rook back if castle
-            if (movehist.PieceMoved == Piece.WKing && moveUndoing.From() == Position.E1 && moveUndoing.To() == Position.G1)
-			{
-                this.PieceMove(Position.F1, Position.H1);
-			}
-            if (movehist.PieceMoved == Piece.WKing && moveUndoing.From() == Position.E1 && moveUndoing.To() == Position.C1)
-			{
-                this.PieceMove(Position.D1, Position.A1);
-			}
-            if (movehist.PieceMoved == Piece.BKing && moveUndoing.From() == Position.E8 && moveUndoing.To() == Position.G8)
-			{
-                this.PieceMove(Position.F8, Position.H8);
-			}
-            if (movehist.PieceMoved == Piece.BKing && moveUndoing.From() == Position.E8 && moveUndoing.To() == Position.C8)
-			{
-                this.PieceMove(Position.D8, Position.A8);
-			}
+            //move rook back if castle
+            if (moveUndoing.IsCastle())
+            {
+                Player movingPlayer = moveUndoing.MovingPlayer();
+                Position to = moveUndoing.To();
+                if (moveUndoing.MovingPlayer() == Player.White && moveUndoing.To() == Position.G1)
+                {
+                    this.PieceMove(Position.F1, Position.H1);
+                }
+                if (moveUndoing.MovingPlayer() == Player.White && moveUndoing.To() == Position.C1)
+                {
+                    this.PieceMove(Position.D1, Position.A1);
+                }
+                if (moveUndoing.MovingPlayer() == Player.Black && moveUndoing.To() == Position.G8)
+                {
+                    this.PieceMove(Position.F8, Position.H8);
+                }
+                if (moveUndoing.MovingPlayer() == Player.Black && moveUndoing.To() == Position.C8)
+                {
+                    this.PieceMove(Position.D8, Position.A8);
+                }
+            }
+			
+
 
 			//put back pawn if enpassant capture
-            if (movehist.PieceMoved == Piece.WPawn && moveUndoing.To() == movehist.Enpassant)
+            if (moveUndoing.IsEnPassant())
 			{
+                System.Diagnostics.Debug.Assert(moveUndoing.To() == movehist.Enpassant);
+
                 File tofile = moveUndoing.To().ToFile();
-                PieceAdd(tofile.ToPosition(Rank.Rank5), Piece.BPawn);
+                Rank enpassantRank = moveUndoing.MovingPlayer().MyRank(Rank.Rank5);
+
+                PieceAdd(tofile.ToPosition(enpassantRank), PieceType.Pawn.ForPlayer(moveUndoing.MovingPlayer().PlayerOther()));
 			}
-            if (movehist.PieceMoved == Piece.BPawn && moveUndoing.To() == movehist.Enpassant)
-			{
-                File tofile = moveUndoing.To().ToFile();
-                PieceAdd(tofile.ToPosition(Rank.Rank4), Piece.WPawn);
-			}
+
 
             this._castleFlags = movehist.Castle;
 			this._enpassant = movehist.Enpassant;
@@ -786,7 +784,7 @@ namespace NoraGrace.Engine
 		{
 			//save move history
             if (_histCount > _histUB) { HistResize(); }
-            _hist[_histCount++].Reset(Move.EMPTY, (Piece.EMPTY), (Piece.EMPTY), _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
+            _hist[_histCount++].Reset(Move.EMPTY, _enpassant, _castleFlags, _fiftymove, _movesSinceNull, _zob, _zobPawn, _zobMaterial, _checkers);
 
 			//reset since null count;
 			_movesSinceNull = 0;

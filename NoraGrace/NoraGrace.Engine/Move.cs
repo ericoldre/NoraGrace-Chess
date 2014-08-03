@@ -131,6 +131,11 @@ namespace NoraGrace.Engine
             return move.MovingPieceType() == PieceType.King && Math.Abs((int)move.From() - (int)move.To()) == 2;
         }
 
+        public static bool IsPawnDoubleJump(this Move move)
+        {
+            return move.MovingPieceType() == PieceType.Pawn && Math.Abs((int)move.From() - (int)move.To()) == 16;
+        }
+
 
 
         public static bool IsLegal(this Move move, Board board)

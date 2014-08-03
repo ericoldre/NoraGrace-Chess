@@ -75,24 +75,30 @@ namespace NoraGrace.Engine
                 }
             }
 
-            public void RegisterPositionalGain(Piece piece, Position to, int positionalGain)
+            public void RegisterPositionalGain(Move move, int positionalGain)
             {
+                var piece = move.MovingPiece();
+                var to = move.To();
                 _maxPositionalGain[(int)piece][(int)to] = Math.Max(positionalGain, _maxPositionalGain[(int)piece][(int)to]);
             }
 
-            public int ReadMaxPositionalGain(Piece piece, Position to)
+            public int ReadMaxPositionalGain(Move move)
             {
+                var piece = move.MovingPiece();
+                var to = move.To();
                 return _maxPositionalGain[(int)piece][(int)to];
             }
 
-            public void RegisterCutoff(Board board, Move move, SearchDepth depth)
+            public void RegisterCutoff(Move move, SearchDepth depth)
             {
+                System.Diagnostics.Debug.Assert(!move.IsCapture());
+
                 Age(); //every so often, reduce scores.
 
-                Piece piece = board.PieceAt(move.From());
+                Piece piece = move.MovingPiece();
                 Position to = move.To();
 
-                System.Diagnostics.Debug.Assert(board.PieceAt(to) == Piece.EMPTY);
+                
 
                 int ply = depth.ToPly();
                 int value = (ply * 2) * (ply * 2);
@@ -102,21 +108,23 @@ namespace NoraGrace.Engine
 
             public void RegisterFailLow(Board board, Move move, SearchDepth depth)
             {
+                System.Diagnostics.Debug.Assert(!move.IsCapture() && !move.IsEnPassant());
+
                 Age(); //every so often, reduce scores.
 
-                Piece piece = board.PieceAt(move.From());
+                Piece piece = move.MovingPiece();
                 Position to = move.To();
 
-                System.Diagnostics.Debug.Assert(board.PieceAt(to) == Piece.EMPTY);
+                
 
                 int ply = depth.ToPly();
                 int value = (ply * 2) * (ply * 2);
                 _history[(int)piece][(int)to] -= value;
             }
 
-            public int HistoryScore(Board board, Move move)
+            public int HistoryScore(Move move)
             {
-                var piece = (int)board.PieceAt(move.From());
+                var piece = (int)move.MovingPiece();
                 var to = (int)move.To();
                 var score = _history[piece][to];
                 return score;
@@ -221,9 +229,8 @@ namespace NoraGrace.Engine
                 if (array[i].SEE >= 0) { _capsGoodCount++; } //incr good cap count.
 
                 Move move = array[i].Move;
-                Piece piece = _board.PieceAt(move.From());
 
-                array[i].Score = array[i].SEE + PcSqChange(piece, move.From(), move.To());
+                array[i].Score = array[i].SEE + PcSqChange(move.MovingPiece(), move.From(), move.To());
 
             }
             SortMoveData(array, 0, _capsCount);
@@ -260,8 +267,9 @@ namespace NoraGrace.Engine
             if (_currIndex < 2)
             {
                 Move move = _killers[(int)_board.WhosTurn][_currIndex];
-                if (move.IsPsuedoLegal(_board) && _board.PieceAt(move.To()) == Piece.EMPTY)
+                if (move != Move.EMPTY && move.IsPsuedoLegal(_board))
                 {
+                    System.Diagnostics.Debug.Assert(!move.IsCapture());
                     _tmpData.Move = move;
                     _tmpData.Flags = MoveFlags.Killer;
                     _currIndex++;
@@ -318,12 +326,10 @@ namespace NoraGrace.Engine
                 array[i].Flags = 0;
 
                 
-                Piece piece = _board.PieceAt(move.From());
-
-                int pcsq = PcSqChange(piece, move.From(), move.To()) / 4;
+                int pcsq = PcSqChange(move.MovingPiece(), move.From(), move.To()) / 4;
 
                 array[i].Score =
-                    _history.HistoryScore(_board, move)
+                    _history.HistoryScore(move)
                     + pcsq
                     + (see < 0 ? -1000 : 0);
 
@@ -467,7 +473,7 @@ namespace NoraGrace.Engine
         public void RegisterCutoff(Board board, ChessMoveData moveData, SearchDepth depth)
         {
             Move move = moveData.Move;
-            if (board.PieceAt(move.To()) == Piece.EMPTY)
+            if (!move.IsCapture())
             {
                 //store killer moves in MovePicker
                 var killers = _killers[(int)board.WhosTurn];
@@ -480,9 +486,9 @@ namespace NoraGrace.Engine
                 }
 
                 //store to history object.
-                _history.RegisterCutoff(board, move, depth);
+                _history.RegisterCutoff(move, depth);
 
-                //loop through all previously tried quiet moves and reduct history score.
+                //loop through all previously tried quiet moves and reduce history score.
                 for (int i = 0; i < _failLowCount; i++)
                 {
                     _history.RegisterFailLow(board, _failLows[i], depth);
@@ -495,13 +501,12 @@ namespace NoraGrace.Engine
 
         public void RegisterFailLow(Board board, ChessMoveData moveData, SearchDepth depth)
         {
-            Move move = moveData.Move;
-            if (board.PieceAt(move.To()) == Piece.EMPTY)
+            if (!moveData.Move.IsCapture())
             {
                 if (moveData.SEE >= 0)
                 {
                     //do not mark it in history table UNTIL we get a fail-high. otherwise will pollute table with too many negatives.
-                    _failLows[_failLowCount++] = move;
+                    _failLows[_failLowCount++] = moveData.Move;
                 }
                 
                 //store to history object.

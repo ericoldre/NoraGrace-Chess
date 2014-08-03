@@ -585,22 +585,26 @@ namespace NoraGrace.Engine
             }
 			
 			//if castle, move rook
-			if (piece == Piece.WKing && from == Position.E1 && to == Position.G1)
-			{
-                this.PieceMove(Position.H1, Position.F1);
-			}
-			if (piece == Piece.WKing && from == Position.E1 && to == Position.C1)
-			{
-                this.PieceMove(Position.A1, Position.D1);
-			}
-			if (piece == Piece.BKing && from == Position.E8 && to == Position.G8)
-			{
-                this.PieceMove(Position.H8, Position.F8);
-			}
-			if (piece == Piece.BKing && from == Position.E8 && to == Position.C8)
-			{
-                this.PieceMove(Position.A8, Position.D8);
-			}
+            if (move.IsCastle())
+            {
+                if (piece == Piece.WKing && from == Position.E1 && to == Position.G1)
+                {
+                    this.PieceMove(Position.H1, Position.F1);
+                }
+                else if (piece == Piece.WKing && from == Position.E1 && to == Position.C1)
+                {
+                    this.PieceMove(Position.A1, Position.D1);
+                }
+                else if (piece == Piece.BKing && from == Position.E8 && to == Position.G8)
+                {
+                    this.PieceMove(Position.H8, Position.F8);
+                }
+                else if (piece == Piece.BKing && from == Position.E8 && to == Position.C8)
+                {
+                    this.PieceMove(Position.A8, Position.D8);
+                }
+            }
+			
 
 			//mark unavailability of castling
             if(_castleFlags != 0)

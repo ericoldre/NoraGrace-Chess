@@ -158,7 +158,8 @@ namespace NoraGrace.Engine
             if (move.MovingPiece() != board.PieceAt(from)) { return false; }
             if (move.CapturedPiece() != board.PieceAt(to)) { return false; }
 
-            var piece = board.PieceAt(from);
+            var piece = move.MovingPiece();
+
             if (piece == Piece.EMPTY) { return false; }
             var pieceType = piece.ToPieceType();
             var me = piece.PieceToPlayer();
@@ -166,11 +167,11 @@ namespace NoraGrace.Engine
             if (board.WhosTurn != me) { return false; }
             if (board[me].Contains(to)) { return false; }
 
-            if (move.Promote() != Piece.EMPTY)
+            if (move.IsPromotion())
             {
-                if (pieceType != PieceType.Pawn) { return false; }
-                if (to.ToRank() != Rank.Rank1 && to.ToRank() != Rank.Rank8) { return false; }
-                if (move.Promote().PieceToPlayer() != me) { return false; }
+                //these should be verified in move constructor, but put check here just in case.
+                System.Diagnostics.Debug.Assert(pieceType == PieceType.Pawn);
+                System.Diagnostics.Debug.Assert(to.ToRank() == me.MyRank(Rank.Rank8));
             }
 
             var targets = ~board[me];
@@ -255,25 +256,23 @@ namespace NoraGrace.Engine
                         return false;
                     }
 
-                    if (Attacks.PawnAttacks(from, me).Contains(to))
+                    if(move.IsEnPassant())
                     {
-                        return board[me.PlayerOther()].Contains(to) || to == board.EnPassant;
+                        return to == board.EnPassant;
                     }
-                    else if (from.PositionInDirection(me.MyNorth()) == to
-                        && board.PieceAt(to) == Piece.EMPTY)
+                    else if(move.IsCapture())
+                    {
+                        //already verified that attacking spot correct
+                        return Attacks.PawnAttacks(from, me).Contains(to);
+                    }
+                    else if(move.IsPawnDoubleJump())
+                    {
+                        //already verified start and end spot validity.
+                        return board.PieceAt(move.From().PositionInDirectionUnsafe(me.MyNorth())) == Piece.EMPTY;
+                    }
+                    else 
                     {
                         return true;
-                    }
-                    else if (from.ToRank() == me.MyRank2()   //rank 2
-                        && from.PositionInDirection(me.MyNorth()).PositionInDirection(me.MyNorth()) == to //is double jump
-                        && board.PieceAt(to) == Piece.EMPTY //target empty
-                        && board.PieceAt(from.PositionInDirection(me.MyNorth())) == Piece.EMPTY) //single jump empty
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
                     }
                 default:
                     return false;
@@ -288,7 +287,7 @@ namespace NoraGrace.Engine
             Player player = board.WhosTurn;
             Player opponent = player.PlayerOther();
             Bitboard them = board[opponent];
-            PieceType pieceType = board.PieceAt(from).ToPieceType();
+            PieceType pieceType = move.MovingPieceType();
 
             switch (pieceType)
             {
@@ -310,12 +309,12 @@ namespace NoraGrace.Engine
         {
             Position from = move.From();
             Position to = move.To();
-            PieceType pieceType = board.PieceAt(from).ToPieceType();
+            PieceType pieceType = move.MovingPieceType();
 
             if (oppenentCheckInfo.DirectAll.Contains(to))
             {
                 bool direct = false;
-                PieceType pieceTypeAfter = move.Promote() == Piece.EMPTY ? pieceType : move.Promote().ToPieceType(); //in case of promotion
+                PieceType pieceTypeAfter = move.IsPromotion() ? move.PromoteType(): pieceType; //in case of promotion
                 switch (pieceTypeAfter)
                 {
                     case PieceType.Pawn:
@@ -337,13 +336,11 @@ namespace NoraGrace.Engine
                 if (direct) { return true; }
             }
 
-            bool isEnpassantCapture = pieceType == PieceType.Pawn && to == board.EnPassant;
-
-            if (oppenentCheckInfo.PinnedOrDiscovered.Contains(from) || isEnpassantCapture)
+            if (oppenentCheckInfo.PinnedOrDiscovered.Contains(from) || move.IsEnPassant())
             {
                 Bitboard allAfterMove = (board.PieceLocationsAll & ~from.ToBitboard()) | to.ToBitboard();
 
-                if (isEnpassantCapture)
+                if (move.IsEnPassant())
                 {
                     Position enpassantCapturedSq = board.WhosTurn.MyRank(Rank.Rank5).ToPosition(board.EnPassant.ToFile());
                     allAfterMove &= ~enpassantCapturedSq.ToBitboard();
@@ -356,7 +353,7 @@ namespace NoraGrace.Engine
             }
 
             //check if castling reveals check via rook
-            if (pieceType == PieceType.King)
+            if (move.IsCastle())
             {
                 if (from == Position.E1 && to == Position.G1 && oppenentCheckInfo.RookDirect.Contains(Position.F1))
                 {

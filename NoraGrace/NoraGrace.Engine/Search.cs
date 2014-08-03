@@ -674,7 +674,7 @@ namespace NoraGrace.Engine
             {
                 var previousMove = board.HistMove(1);
                 int previousMovePositionalGain = (init_info.PositionalScore - _evalInfoStack[ply - 1].PositionalScore) * (board.WhosTurn == Player.Black ? 1 : -1);
-                _moveBuffer.History.RegisterPositionalGain(board.PieceAt(previousMove.To()), previousMove.To(), previousMovePositionalGain);
+                _moveBuffer.History.RegisterPositionalGain(previousMove, previousMovePositionalGain);
             }
             
 			bool in_check_before_move = board.IsCheck();
@@ -763,10 +763,7 @@ namespace NoraGrace.Engine
 
                 CurrentVariation[ply] = move;
                 
-                Position moveFrom = move.From();
-                Position moveTo = move.To();
-                Piece movePiece = board.PieceAt(moveFrom);
-                var moveGain = _moveBuffer.History.ReadMaxPositionalGain(board.PieceAt(move.From()), move.To());
+                var moveGain = _moveBuffer.History.ReadMaxPositionalGain(move);
 
                 //futility check
                 if (!isPvNode

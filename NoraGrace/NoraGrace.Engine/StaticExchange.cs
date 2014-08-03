@@ -146,20 +146,19 @@ namespace NoraGrace.Engine
             //return CalculateScoreOld(move, board);
             var moverPos = move.From();
             var targetPos = move.To();
-            var moverType = board.PieceAt(moverPos).ToPieceType();
-            var targetType = board.PieceAt(targetPos).ToPieceType();
+            var moverType = move.MovingPieceType();
+            var targetType = move.CapturedPieceType();
 
-            var moverBB = moverPos.ToBitboard();
+            
             ////early cutoff.
             if (pieceVals[(int)targetType] > pieceVals[(int)moverType])
             {
                 return (pieceVals[(int)targetType] - pieceVals[(int)moverType]) + 1;
             }
 
+            var moverBB = moverPos.ToBitboard();
             var rookMask = Attacks.RookMask(targetPos);
             var bishopMask = Attacks.BishopMask(targetPos);
-
-
 
             Bitboard remainingPieces = board.PieceLocationsAll ^ moverPos.ToBitboard();
 

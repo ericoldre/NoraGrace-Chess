@@ -118,7 +118,7 @@ namespace NoraGrace.Engine
                 while (attacks != Bitboard.Empty)
                 {
                     Position attackPos = BitboardInfo.PopFirst(ref attacks);
-                    array[arrayIndex++].Move = MoveInfo.Create(piecepos, attackPos, board.PieceAt(piecepos), board.PieceAt(attackPos));
+                    array[arrayIndex++].Move = MoveInfo.Create(piecepos, attackPos, piece, board.PieceAt(attackPos));
                 }
             }
 

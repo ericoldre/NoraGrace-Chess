@@ -89,6 +89,11 @@ namespace NoraGrace.Engine
             return (Player)((int)move >> 15 & 0x1); // shift of the moving piece to player bit.
         }
 
+        public static bool IsCapture(this Move move)
+        {
+            return ((int)move >> 16 & 0xF) != 0;
+        }
+
         public static Piece CapturedPiece(this Move move)
         {
             return (Piece)((int)move >> 16 & 0xF);
@@ -99,10 +104,13 @@ namespace NoraGrace.Engine
             return (PieceType)((int)move >> 16 & 0x7);
         }
 
+        public static bool IsPromotion(this Move move)
+        {
+            return ((int)move >> 20 & 0x7) != 0;
+        }
 
         public static Piece Promote(this Move move)
         {
-
             return move.PromoteType() == PieceType.EMPTY ? Piece.EMPTY : move.PromoteType().ForPlayer(move.MovingPlayer());
         }
 
@@ -111,6 +119,17 @@ namespace NoraGrace.Engine
             return (PieceType)((int)move >> 20 & 0x7);
         }
 
+        public static bool IsEnPassant(this Move move)
+        {
+            return move.MovingPieceType() == PieceType.Pawn
+                && !move.IsCapture()
+                && move.From().ToFile() != move.To().ToFile();
+        }
+
+        public static bool IsCastle(this Move move)
+        {
+            return move.MovingPieceType() == PieceType.King && Math.Abs((int)move.From() - (int)move.To()) == 2;
+        }
 
 
 

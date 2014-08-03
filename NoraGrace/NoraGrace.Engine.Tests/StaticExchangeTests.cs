@@ -21,7 +21,7 @@ namespace Sinobyl.Engine.Tests
             var move = MoveInfo.Create(Position.E4, Position.D5);
 
             int score = see.CalculateScore(board, move);
-            Assert.IsTrue(score == 200);
+            Assert.IsTrue(score == 201);
         }
 
         [TestMethod]
@@ -31,7 +31,7 @@ namespace Sinobyl.Engine.Tests
             StaticExchange see = new StaticExchange();
 
             int moveSee = see.CalculateScore(board, MoveInfo.Create(Position.E4, Position.D5));
-            Assert.IsTrue(moveSee == 300);
+            Assert.IsTrue(moveSee >= 200 && moveSee <= 301);
         }
 
         //

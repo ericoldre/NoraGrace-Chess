@@ -751,6 +751,7 @@ namespace NoraGrace.Engine
 			score = -INFINITY;
 			//bool haslegalmove = false;
 			int legalMovesTried = 0;
+            int quietMovesTried = 0;
             Move bestmove = Move.EMPTY;
 
             CheckInfo checkInfo = CheckInfo.Generate(board, board.WhosTurn.PlayerOther());
@@ -775,10 +776,34 @@ namespace NoraGrace.Engine
                     && !in_check_before_move
                     && legalMovesTried > 0
                     && (init_score + moveGain + MarginFutilityPre(depth.SubstractPly(1)) < alpha)
-                    && !move.CausesCheck(board, ref checkInfo)
                     && !init_info.PassedPawns.Contains(move.From())
+                    && !move.CausesCheck(board, ref checkInfo)
                     )
                 {
+                    continue;
+                }
+
+                if (!isPvNode 
+                    && moveData.Flags == 0
+                    && depth.ToPly() <= 3
+                    && !in_check_before_move
+                    && !IsMateScore(beta)
+                    && legalMovesTried >= depth.ToPly() * 4 
+                    && quietMovesTried >= depth.ToPly() * 2 
+                    && !move.CausesCheck(board, ref checkInfo)) 
+                { // late-move pruning
+                    continue;
+                }
+
+                if (!isPvNode
+                    && (moveData.Flags & MoveFlags.TransTable) == 0
+                    && (moveData.Flags & MoveFlags.Killer) == 0
+                    && depth.ToPly() <= 3
+                    && !in_check_before_move
+                    && !IsMateScore(beta)
+                    && moveData.SEE < 0
+                    && !move.CausesCheck(board, ref checkInfo))
+                { // see pruning
                     continue;
                 }
 
@@ -794,6 +819,7 @@ namespace NoraGrace.Engine
 				else
 				{
 					legalMovesTried++;
+                    if (moveData.Flags == 0) { quietMovesTried++; }
 				}
 
                 //decide if we want to extend or maybe reduce this node

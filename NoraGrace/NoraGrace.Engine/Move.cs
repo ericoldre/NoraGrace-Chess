@@ -41,18 +41,17 @@ namespace NoraGrace.Engine
                 );
         }
 
-        public static Move Create(Position from, Position to, Piece piece, Piece captured, Piece promote)
+        public static Move Create(Position from, Position to, Piece piece, Piece captured, PieceType promoteType)
         {
             System.Diagnostics.Debug.Assert((int)from >= 0 && (int)from <= 63);
             System.Diagnostics.Debug.Assert((int)to >= 0 && (int)to <= 63);
             System.Diagnostics.Debug.Assert((int)piece == ((int)piece & 0xF));
             System.Diagnostics.Debug.Assert((int)captured == ((int)captured & 0xF));
             System.Diagnostics.Debug.Assert(captured == Piece.EMPTY || (piece.PieceToPlayer() != captured.PieceToPlayer())); //if capture is opposite color
-            System.Diagnostics.Debug.Assert(promote == Piece.WKnight || promote == Piece.WBishop || promote == Piece.WRook || promote == Piece.WQueen || promote == Piece.BKnight || promote == Piece.BBishop || promote == Piece.BRook || promote == Piece.BQueen);
+            System.Diagnostics.Debug.Assert(promoteType == PieceType.Knight || promoteType == PieceType.Bishop || promoteType == PieceType.Rook || promoteType == PieceType.Queen);
             System.Diagnostics.Debug.Assert(piece.ToPieceType() == PieceType.Pawn);             //is pawn 
             System.Diagnostics.Debug.Assert((Bitboard.Rank1 | Bitboard.Rank8).Contains(to));    //to 8th
             System.Diagnostics.Debug.Assert((Bitboard.Rank2 | Bitboard.Rank7).Contains(from));  //from 7th
-            System.Diagnostics.Debug.Assert(piece.PieceToPlayer() == promote.PieceToPlayer());   // promotion is same side
 
 
             return (Move)(
@@ -60,7 +59,7 @@ namespace NoraGrace.Engine
                 | ((int)to << 6)
                 | ((int)piece << 12)
                 | ((int)captured << 16)
-                | ((int)promote << 20)
+                | ((int)promoteType << 20)
                 );
         }
 
@@ -103,7 +102,13 @@ namespace NoraGrace.Engine
 
         public static Piece Promote(this Move move)
         {
-            return (Piece)((int)move >> 20 & 0xF);
+
+            return move.PromoteType() == PieceType.EMPTY ? Piece.EMPTY : move.PromoteType().ForPlayer(move.MovingPlayer());
+        }
+
+        public static PieceType PromoteType(this Move move)
+        {
+            return (PieceType)((int)move >> 20 & 0x7);
         }
 
 

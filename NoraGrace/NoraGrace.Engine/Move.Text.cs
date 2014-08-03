@@ -52,7 +52,7 @@ namespace NoraGrace.Engine
                 From = PositionInfo.Parse(movetext.Substring(0, 2));
                 To = PositionInfo.Parse(movetext.Substring(2, 2));
                 Promote = movetext[4].ParseAsPiece(me);
-                return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote.ToPieceType());
             }
             else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
             {
@@ -111,7 +111,7 @@ namespace NoraGrace.Engine
                 {
                     From = tmppos;
                     Promote = movetext[2].ParseAsPiece(me);
-                    return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote);
+                    return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote.ToPieceType());
                 }
                 throw new ArgumentException("no pawn can promoted to " + movetext.Substring(0, 2));
             }
@@ -130,7 +130,7 @@ namespace NoraGrace.Engine
                 tmpfile = FileInfo.Parse(movetext[0]);
                 From = ParseFilter(board, To, mypawn, tmpfile, Rank.EMPTY);
                 Promote = movetext[3].ParseAsPiece(me);
-                return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote.ToPieceType());
             }
             else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678]$"))
             {

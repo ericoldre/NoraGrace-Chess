@@ -149,10 +149,10 @@ namespace NoraGrace.Engine
                             Position piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
                             if (targetpos.ToRank() == myrank8)
                             {
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen.ForPlayer(me));
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook.ForPlayer(me));
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop.ForPlayer(me));
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight.ForPlayer(me));
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen);
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook);
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop);
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight);
                             }
                             else
                             {
@@ -175,10 +175,10 @@ namespace NoraGrace.Engine
                         Position targetpos = piecepos.PositionInDirectionUnsafe(mypawnnorth);
                         if (targetpos.ToRank() == myrank8)
                         {
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen.ForPlayer(me));
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook.ForPlayer(me));
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop.ForPlayer(me));
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight.ForPlayer(me));
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen);
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook);
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop);
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight);
                         }
                         else
                         {
@@ -300,10 +300,10 @@ namespace NoraGrace.Engine
                     Position piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
                     if (targetpos.ToRank() == myrank8)
                     {
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myqueen);
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myrook);
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), mybishop);
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myknight);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight);
                     }
                     else
                     {
@@ -364,10 +364,10 @@ namespace NoraGrace.Engine
                     Position piecepos = targetpos.PositionInDirectionUnsafe(mypawnnorth.Opposite());
                     if (targetpos.ToRank() == myrank8)
                     {
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myqueen);
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myrook);
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), mybishop);
-                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myknight);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight);
                     }
                     else
                     {

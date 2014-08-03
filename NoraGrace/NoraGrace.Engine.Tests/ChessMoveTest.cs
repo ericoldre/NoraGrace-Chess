@@ -65,37 +65,5 @@ namespace NoraGrace.Engine.Tests
         #endregion
 
 
-        /// <summary>
-        ///A test for GetHashCode
-        ///</summary>
-        [TestMethod()]
-        public void GetHashCodeTest()
-        {
-            System.Collections.Generic.Dictionary<int, Move> dic = new System.Collections.Generic.Dictionary<int, Move>();
-
-            foreach (var to in PositionInfo.AllPositions)
-            {
-                foreach (var from in PositionInfo.AllPositions)
-                {
-                    foreach (var prom in PieceInfo.AllPieces)
-                    {
-                        if (prom.ToPieceType() == PieceType.Pawn || prom.ToPieceType() == PieceType.King) { continue; }
-                        Move move = MoveInfo.Create(from, to, prom);
-                        var hash = move.GetHashCode();
-                        if (dic.ContainsKey(hash))
-                        {
-                            var otherMove = dic[hash];
-
-                            var hash1 = move.GetHashCode();
-                            var hash2 = otherMove.GetHashCode();
-                            Assert.AreNotEqual<int>(hash1, hash2);
-                        }
-                        Assert.IsFalse(dic.ContainsKey(hash));
-                        dic.Add(hash, move);
-                    }
-                }
-            }
-
-        }
     }
 }

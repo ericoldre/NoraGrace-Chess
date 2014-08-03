@@ -149,7 +149,7 @@ namespace NoraGrace.Engine.Tests
         {
             Position f = PositionInfo.AllPositions[random.Next(PositionInfo.AllPositions.Length)];
             Position t = PositionInfo.AllPositions[random.Next(PositionInfo.AllPositions.Length)];
-            return MoveInfo.Create(f, t);
+            return MoveInfo.Create(f, t, Piece.WKing, Piece.EMPTY);
         }
 
         public TranspositionTable.EntryType RandEntryType()

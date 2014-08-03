@@ -4,42 +4,64 @@ using System.Text;
 using System.Linq;
 namespace NoraGrace.Engine
 {
-	/// <summary>
-	/// Summary description for ChessMove.
-	/// </summary>
-	/// 
-	public enum NotationType
-	{
-		Coord,
-		San,
-		Detailed
-	}
+    /// <summary>
+    /// Summary description for ChessMove.
+    /// </summary>
+    /// 
+    public enum NotationType
+    {
+        Coord,
+        San,
+        Detailed
+    }
 
     [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.MoveInfo.Description(this),nq}")]
-    public enum Move 
+    public enum Move
     {
         EMPTY = 0
     }
 
-	public static partial class MoveInfo
-	{
+    public static partial class MoveInfo
+    {
 
-        public static Move Create(Position from, Position to)
+        public static Move Create(Position from, Position to, Piece piece, Piece captured)
         {
             System.Diagnostics.Debug.Assert((int)from >= 0 && (int)from <= 63);
             System.Diagnostics.Debug.Assert((int)to >= 0 && (int)to <= 63);
+            System.Diagnostics.Debug.Assert((int)piece == ((int)piece & 0xF));
+            System.Diagnostics.Debug.Assert((int)captured == ((int)captured & 0xF));
+            System.Diagnostics.Debug.Assert(captured == Piece.EMPTY || (piece.PieceToPlayer() != captured.PieceToPlayer())); //if capture is opposite color
+            System.Diagnostics.Debug.Assert(piece.ToPieceType() != PieceType.Pawn || !(Bitboard.Rank1 | Bitboard.Rank8).Contains(to)); //is not pawn to 8th
 
-            return (Move)((int)from | ((int)to << 6));
+            return (Move)(
+                (int)from
+                | ((int)to << 6)
+                | ((int)piece << 12)
+                | ((int)captured << 16)
+                );
         }
 
-        public static Move Create(Position from, Position to, Piece promote)
+        public static Move Create(Position from, Position to, Piece piece, Piece captured, Piece promote)
         {
             System.Diagnostics.Debug.Assert((int)from >= 0 && (int)from <= 63);
             System.Diagnostics.Debug.Assert((int)to >= 0 && (int)to <= 63);
+            System.Diagnostics.Debug.Assert((int)piece == ((int)piece & 0xF));
+            System.Diagnostics.Debug.Assert((int)captured == ((int)captured & 0xF));
+            System.Diagnostics.Debug.Assert(captured == Piece.EMPTY || (piece.PieceToPlayer() != captured.PieceToPlayer())); //if capture is opposite color
             System.Diagnostics.Debug.Assert(promote == Piece.WKnight || promote == Piece.WBishop || promote == Piece.WRook || promote == Piece.WQueen || promote == Piece.BKnight || promote == Piece.BBishop || promote == Piece.BRook || promote == Piece.BQueen);
+            System.Diagnostics.Debug.Assert(piece.ToPieceType() == PieceType.Pawn);             //is pawn 
+            System.Diagnostics.Debug.Assert((Bitboard.Rank1 | Bitboard.Rank8).Contains(to));    //to 8th
+            System.Diagnostics.Debug.Assert((Bitboard.Rank2 | Bitboard.Rank7).Contains(from));  //from 7th
+            System.Diagnostics.Debug.Assert(piece.PieceToPlayer() == promote.PieceToPlayer());   // promotion is same side
 
 
-            return (Move)((int)from | ((int)to << 6) | ((int) promote << 12));
+            return (Move)(
+                (int)from
+                | ((int)to << 6)
+                | ((int)piece << 12)
+                | ((int)captured << 16)
+                | ((int)promote << 20)
+                );
         }
 
         public static Position From(this Move move)
@@ -54,10 +76,10 @@ namespace NoraGrace.Engine
 
         public static Piece Promote(this Move move)
         {
-            return (Piece)((int)move >> 12 & 0x3F);
+            return (Piece)((int)move >> 20 & 0xF);
         }
 
-        
+
 
 
         public static bool IsLegal(this Move move, Board board)
@@ -266,7 +288,7 @@ namespace NoraGrace.Engine
                 if (isEnpassantCapture)
                 {
                     Position enpassantCapturedSq = board.WhosTurn.MyRank(Rank.Rank5).ToPosition(board.EnPassant.ToFile());
-                    allAfterMove &= ~enpassantCapturedSq.ToBitboard(); 
+                    allAfterMove &= ~enpassantCapturedSq.ToBitboard();
                 }
 
                 Bitboard stmAll = board[board.WhosTurn];
@@ -300,7 +322,8 @@ namespace NoraGrace.Engine
             return false;
         }
 
-	}
+    }
 
 
 }
+

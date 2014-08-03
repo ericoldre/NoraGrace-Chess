@@ -67,7 +67,7 @@ namespace NoraGrace.Engine
 					{
 						Position from = PositionInfo.Parse(smove.Substring(0, 2));
                         Position to = PositionInfo.Parse(smove.Substring(2, 2));
-						Move move = MoveInfo.Create(from, to);
+                        Move move = MoveInfo.Parse(board, smove);
 						board.MoveApply(move);
 						if (_positions.ContainsKey(board.ZobristBoard))
 						{

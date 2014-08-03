@@ -18,7 +18,7 @@ namespace Sinobyl.Engine.Tests
             Board board = new Board("4k3/8/4p3/3n4/4P3/8/8/4K3 w - - 0 1 ");
             StaticExchange see = new StaticExchange();
 
-            var move = MoveInfo.Create(Position.E4, Position.D5);
+            var move = MoveInfo.Create(Position.E4, Position.D5, board.PieceAt(Position.E4), board.PieceAt(Position.D5));
 
             int score = see.CalculateScore(board, move);
             Assert.IsTrue(score == 201);
@@ -30,7 +30,7 @@ namespace Sinobyl.Engine.Tests
             Board board = new Board("4k3/8/4p3/3n4/4P3/5B2/8/4K3 w - - 0 1");
             StaticExchange see = new StaticExchange();
 
-            int moveSee = see.CalculateScore(board, MoveInfo.Create(Position.E4, Position.D5));
+            int moveSee = see.CalculateScore(board, MoveInfo.Create(Position.E4, Position.D5, board.PieceAt(Position.E4), board.PieceAt(Position.D5)));
             Assert.IsTrue(moveSee >= 200 && moveSee <= 301);
         }
 
@@ -40,7 +40,7 @@ namespace Sinobyl.Engine.Tests
         {
             Board board = new Board("4k3/3r4/4p3/3p4/4P3/5B2/8/4K3 w - - 0 1 ");
             StaticExchange see = new StaticExchange();
-            var move = MoveInfo.Create(Position.E4, Position.D5);
+            var move = MoveInfo.Create(Position.E4, Position.D5, board.PieceAt(Position.E4), board.PieceAt(Position.D5));
             int moveSee = see.CalculateScore(board, move);
             Assert.IsTrue(moveSee == 0);
         }

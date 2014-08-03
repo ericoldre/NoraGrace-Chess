@@ -66,7 +66,7 @@ namespace NoraGrace.Engine
             while (attacks != Bitboard.Empty)
             {
                 Position attackPos = BitboardInfo.PopFirst(ref attacks);
-                array[arrayIndex++].Move = MoveInfo.Create(kingPos, attackPos);
+                array[arrayIndex++].Move = MoveInfo.Create(kingPos, attackPos, board.PieceAt(kingPos), board.PieceAt(attackPos));
             }
 
             //determine check state.
@@ -118,7 +118,7 @@ namespace NoraGrace.Engine
                 while (attacks != Bitboard.Empty)
                 {
                     Position attackPos = BitboardInfo.PopFirst(ref attacks);
-                    array[arrayIndex++].Move = MoveInfo.Create(piecepos, attackPos);
+                    array[arrayIndex++].Move = MoveInfo.Create(piecepos, attackPos, board.PieceAt(piecepos), board.PieceAt(attackPos));
                 }
             }
 
@@ -149,14 +149,14 @@ namespace NoraGrace.Engine
                             Position piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
                             if (targetpos.ToRank() == myrank8)
                             {
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Queen.ForPlayer(me));
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Rook.ForPlayer(me));
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Bishop.ForPlayer(me));
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Knight.ForPlayer(me));
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen.ForPlayer(me));
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook.ForPlayer(me));
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop.ForPlayer(me));
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight.ForPlayer(me));
                             }
                             else
                             {
-                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos);
+                                array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos));
                             }
                         }
                     }
@@ -175,14 +175,14 @@ namespace NoraGrace.Engine
                         Position targetpos = piecepos.PositionInDirectionUnsafe(mypawnnorth);
                         if (targetpos.ToRank() == myrank8)
                         {
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Queen.ForPlayer(me));
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Rook.ForPlayer(me));
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Bishop.ForPlayer(me));
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, PieceType.Knight.ForPlayer(me));
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Queen.ForPlayer(me));
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Rook.ForPlayer(me));
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Bishop.ForPlayer(me));
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), PieceType.Knight.ForPlayer(me));
                         }
                         else
                         {
-                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos);
+                            array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos));
                         }
                     }
 
@@ -195,7 +195,7 @@ namespace NoraGrace.Engine
                     {
                         Position piecepos = BitboardInfo.PopFirst(ref attacks);
                         Position targetpos = piecepos.PositionInDirectionUnsafe(mypawnnorth).PositionInDirectionUnsafe(mypawnnorth);
-                        array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos);
+                        array[arrayIndex++].Move = MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos));
                     }
                 }
 
@@ -219,7 +219,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.F1, Player.Black)
                         && !board.PositionAttacked(Position.G1, Player.Black))
                     {
-                        array[arrayIndex++].Move = MoveInfo.Create(Position.E1, Position.G1);
+                        array[arrayIndex++].Move = MoveInfo.Create(Position.E1, Position.G1, board.PieceAt(Position.E1), board.PieceAt(Position.G1));
                     }
                     if ((board.CastleRights & CastleFlags.WhiteLong) != 0
                         && board.PieceAt(Position.E1) == Piece.WKing
@@ -231,7 +231,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.D1, Player.Black)
                         && !board.PositionAttacked(Position.C1, Player.Black))
                     {
-                        array[arrayIndex++].Move = MoveInfo.Create(Position.E1, Position.C1);
+                        array[arrayIndex++].Move = MoveInfo.Create(Position.E1, Position.C1, board.PieceAt(Position.E1), board.PieceAt(Position.C1));
                     }
                 }
                 else
@@ -245,7 +245,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.F8, Player.White)
                         && !board.PositionAttacked(Position.G8, Player.White))
                     {
-                        array[arrayIndex++].Move = MoveInfo.Create(Position.E8, Position.G8);
+                        array[arrayIndex++].Move = MoveInfo.Create(Position.E8, Position.G8, board.PieceAt(Position.E8), board.PieceAt(Position.G8));
                     }
                     if ((board.CastleRights & CastleFlags.BlackLong) != 0
                         && board.PieceAt(Position.E8) == Piece.BKing
@@ -257,7 +257,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.D8, Player.White)
                         && !board.PositionAttacked(Position.C8, Player.White))
                     {
-                        array[arrayIndex++].Move = MoveInfo.Create(Position.E8, Position.C8);
+                        array[arrayIndex++].Move = MoveInfo.Create(Position.E8, Position.C8, board.PieceAt(Position.E8), board.PieceAt(Position.C8));
                     }
 
                 }
@@ -300,14 +300,14 @@ namespace NoraGrace.Engine
                     Position piecepos = targetpos.PositionInDirectionUnsafe(capDir.Opposite());
                     if (targetpos.ToRank() == myrank8)
                     {
-                        yield return MoveInfo.Create(piecepos, targetpos, myqueen);
-                        yield return MoveInfo.Create(piecepos, targetpos, myrook);
-                        yield return MoveInfo.Create(piecepos, targetpos, mybishop);
-                        yield return MoveInfo.Create(piecepos, targetpos, myknight);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myqueen);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myrook);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), mybishop);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myknight);
                     }
                     else
                     {
-                        yield return MoveInfo.Create(piecepos, targetpos);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos));
                     }
                 }
             }
@@ -346,7 +346,7 @@ namespace NoraGrace.Engine
                 while (attacks != Bitboard.Empty)
                 {
                     Position attackPos = BitboardInfo.PopFirst(ref attacks);
-                    yield return MoveInfo.Create(piecepos, attackPos);
+                    yield return MoveInfo.Create(piecepos, attackPos, board.PieceAt(piecepos), board.PieceAt(attackPos));
                 }
             }
 
@@ -364,20 +364,20 @@ namespace NoraGrace.Engine
                     Position piecepos = targetpos.PositionInDirectionUnsafe(mypawnnorth.Opposite());
                     if (targetpos.ToRank() == myrank8)
                     {
-                        yield return MoveInfo.Create(piecepos, targetpos, myqueen);
-                        yield return MoveInfo.Create(piecepos, targetpos, myrook);
-                        yield return MoveInfo.Create(piecepos, targetpos, mybishop);
-                        yield return MoveInfo.Create(piecepos, targetpos, myknight);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myqueen);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myrook);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), mybishop);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos), myknight);
                     }
                     else
                     {
-                        yield return MoveInfo.Create(piecepos, targetpos);
+                        yield return MoveInfo.Create(piecepos, targetpos, board.PieceAt(piecepos), board.PieceAt(targetpos));
                         if (piecepos.ToRank() == myrank2)
                         {
                             var doubleJumpPos = targetpos.PositionInDirectionUnsafe(mypawnnorth);
                             if (board.PieceAt(doubleJumpPos) == Piece.EMPTY)
                             {
-                                yield return MoveInfo.Create(piecepos, doubleJumpPos);
+                                yield return MoveInfo.Create(piecepos, doubleJumpPos, board.PieceAt(piecepos), board.PieceAt(doubleJumpPos));
                             }
                         }
                     }
@@ -395,7 +395,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.F1, Player.Black)
                         && !board.PositionAttacked(Position.G1, Player.Black))
                     {
-                        yield return MoveInfo.Create(Position.E1, Position.G1);
+                        yield return MoveInfo.Create(Position.E1, Position.G1, board.PieceAt(Position.E1), board.PieceAt(Position.G1));
                     }
                     if ((board.CastleRights & CastleFlags.WhiteLong) != 0
                         && board.PieceAt(Position.E1) == Piece.WKing
@@ -407,7 +407,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.D1, Player.Black)
                         && !board.PositionAttacked(Position.C1, Player.Black))
                     {
-                        yield return MoveInfo.Create(Position.E1, Position.C1);
+                        yield return MoveInfo.Create(Position.E1, Position.C1, board.PieceAt(Position.E1), board.PieceAt(Position.C1));
                     }
                 }
                 else
@@ -421,7 +421,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.F8, Player.White)
                         && !board.PositionAttacked(Position.G8, Player.White))
                     {
-                        yield return MoveInfo.Create(Position.E8, Position.G8);
+                        yield return MoveInfo.Create(Position.E8, Position.G8, board.PieceAt(Position.E8), board.PieceAt(Position.G8));
                     }
                     if ((board.CastleRights & CastleFlags.BlackLong) != 0
                         && board.PieceAt(Position.E8) == Piece.BKing
@@ -433,7 +433,7 @@ namespace NoraGrace.Engine
                         && !board.PositionAttacked(Position.D8, Player.White)
                         && !board.PositionAttacked(Position.C8, Player.White))
                     {
-                        yield return MoveInfo.Create(Position.E8, Position.C8);
+                        yield return MoveInfo.Create(Position.E8, Position.C8, board.PieceAt(Position.E8), board.PieceAt(Position.C8));
                     }
 
                 }

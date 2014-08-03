@@ -52,7 +52,7 @@ namespace NoraGrace.Engine
                 From = PositionInfo.Parse(movetext.Substring(0, 2));
                 To = PositionInfo.Parse(movetext.Substring(2, 2));
                 Promote = movetext[4].ParseAsPiece(me);
-                return Create(From, To, Promote);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote);
             }
             else if (movetext == "0-0" || movetext == "O-O" || movetext == "o-o")
             {
@@ -88,7 +88,7 @@ namespace NoraGrace.Engine
                 if (board.PieceAt(tmppos) == mypawn)
                 {
                     From = tmppos;
-                    return Create(From, To);
+                    return Create(From, To, board.PieceAt(From), board.PieceAt(To));
                 }
                 else if (board.PieceAt(tmppos) == Piece.EMPTY && To.ToRank() == myrank4)
                 {
@@ -96,7 +96,7 @@ namespace NoraGrace.Engine
                     if (board.PieceAt(tmppos) == mypawn)
                     {
                         From = tmppos;
-                        return Create(From, To);
+                        return Create(From, To, board.PieceAt(From), board.PieceAt(To));
                     }
                 }
                 throw new ArgumentException("no pawn can move to " + movetext);
@@ -111,7 +111,7 @@ namespace NoraGrace.Engine
                 {
                     From = tmppos;
                     Promote = movetext[2].ParseAsPiece(me);
-                    return Create(From, To, Promote);
+                    return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote);
                 }
                 throw new ArgumentException("no pawn can promoted to " + movetext.Substring(0, 2));
             }
@@ -121,7 +121,7 @@ namespace NoraGrace.Engine
                 To = PositionInfo.Parse(movetext.Substring(1, 2));
                 tmpfile = FileInfo.Parse(movetext[0]);
                 From = ParseFilter(board, To, mypawn, tmpfile, Rank.EMPTY);
-                return Create(From, To);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To));
             }
             else if (Regex.IsMatch(movetext, "^[abcdefgh][abcdefgh][12345678][BNRQK]$"))
             {
@@ -130,7 +130,7 @@ namespace NoraGrace.Engine
                 tmpfile = FileInfo.Parse(movetext[0]);
                 From = ParseFilter(board, To, mypawn, tmpfile, Rank.EMPTY);
                 Promote = movetext[3].ParseAsPiece(me);
-                return Create(From, To, Promote);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To), Promote);
             }
             else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678]$"))
             {
@@ -138,7 +138,7 @@ namespace NoraGrace.Engine
                 To = PositionInfo.Parse(movetext.Substring(1, 2));
                 tmppiece = movetext[0].ParseAsPiece(me);
                 From = ParseFilter(board, To, tmppiece, File.EMPTY, Rank.EMPTY);
-                return Create(From, To);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To));
             }
             else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][abcdefgh][12345678]$"))
             {
@@ -147,7 +147,7 @@ namespace NoraGrace.Engine
                 tmppiece = movetext[0].ParseAsPiece(me);
                 tmpfile = FileInfo.Parse(movetext[1]);
                 From = ParseFilter(board, To, tmppiece, tmpfile, Rank.EMPTY);
-                return Create(From, To);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To));
             }
             else if (Regex.IsMatch(movetext, "^[BNRQK][12345678][abcdefgh][12345678]$"))
             {
@@ -156,7 +156,7 @@ namespace NoraGrace.Engine
                 tmppiece = movetext[0].ParseAsPiece(me);
                 tmprank = RankInfo.Parse(movetext[1]);
                 From = ParseFilter(board, To, tmppiece, File.EMPTY, tmprank);
-                return Create(From, To);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To));
 
             }
             else if (Regex.IsMatch(movetext, "^[BNRQK][abcdefgh][12345678][abcdefgh][12345678]$"))
@@ -167,9 +167,9 @@ namespace NoraGrace.Engine
                 tmpfile = FileInfo.Parse(movetext[1]);
                 tmprank = RankInfo.Parse(movetext[2]);
                 From = ParseFilter(board, To, tmppiece, tmpfile, tmprank);
-                return Create(From, To);
+                return Create(From, To, board.PieceAt(From), board.PieceAt(To));
             }
-            return MoveInfo.Create(From, To);
+            return MoveInfo.Create(From, To, board.PieceAt(From), board.PieceAt(To));
         }
 
         private static Position ParseFilter(Board board, Position attackto, Piece piece, File file, Rank rank)

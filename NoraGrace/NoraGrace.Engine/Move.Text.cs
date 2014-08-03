@@ -219,17 +219,25 @@ namespace NoraGrace.Engine
 
 
 
+        public static string DebugDescription(this Move move)
+        {
+            string retval = "";
+            retval = move.MovingPiece().PieceToString().ToUpper()
+                + move.From().Name().ToLower()
+                + (move.CapturedPiece() != Piece.EMPTY ? "x" + move.CapturedPiece().PieceToString().ToUpper() : "")
+                + move.To().Name().ToLower()
+                + (move.Promote() != Piece.EMPTY ? move.Promote().PieceToString().ToLower() : "");
+
+            return retval;
+        }
+
         public static string Description(this Move move)
         {
             string retval = "";
-            if (move.Promote() == Piece.EMPTY)
-            {
-                retval = move.From().Name().ToLower() + move.To().Name().ToLower();
-            }
-            else
-            {
-                retval = move.From().Name().ToLower() + move.To().Name().ToLower() + move.Promote().PieceToString().ToLower();
-            }
+            retval = move.From().Name().ToLower()
+                + move.To().Name().ToLower()
+                + (move.Promote() != Piece.EMPTY ? move.Promote().PieceToString().ToLower() : "");
+
             return retval;
         }
 

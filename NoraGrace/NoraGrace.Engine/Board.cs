@@ -553,6 +553,10 @@ namespace NoraGrace.Engine
 		public void MoveApply(Move move)
 		{
             System.Diagnostics.Debug.Assert(move != Move.EMPTY);
+            System.Diagnostics.Debug.Assert(move.MovingPiece() == this.PieceAt(move.From()));
+            System.Diagnostics.Debug.Assert(move.CapturedPiece() == this.PieceAt(move.To()));
+            System.Diagnostics.Debug.Assert(move.MovingPlayer() == WhosTurn);
+
 			Position from = move.From();
 			Position to = move.To();
 			Piece piece = this.PieceAt(from);

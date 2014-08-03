@@ -15,7 +15,7 @@ namespace NoraGrace.Engine
         Detailed
     }
 
-    [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.MoveInfo.Description(this),nq}")]
+    [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.MoveInfo.DebugDescription(this),nq}")]
     public enum Move
     {
         EMPTY = 0
@@ -74,6 +74,33 @@ namespace NoraGrace.Engine
             return (Position)((int)move >> 6 & 0x3F);
         }
 
+        public static Piece MovingPiece(this Move move)
+        {
+            return (Piece)((int)move >> 12 & 0xF);
+        }
+
+        public static PieceType MovingPieceType(this Move move)
+        {
+            return (PieceType)((int)move >> 12 & 0x7);
+        }
+
+        public static Player MovingPlayer(this Move move)
+        {
+            System.Diagnostics.Debug.Assert(move != Move.EMPTY);
+            return (Player)((int)move >> 15 & 0x1); // shift of the moving piece to player bit.
+        }
+
+        public static Piece CapturedPiece(this Move move)
+        {
+            return (Piece)((int)move >> 16 & 0xF);
+        }
+
+        public static PieceType CapturedPieceType(this Move move)
+        {
+            return (PieceType)((int)move >> 16 & 0x7);
+        }
+
+
         public static Piece Promote(this Move move)
         {
             return (Piece)((int)move >> 20 & 0xF);
@@ -99,6 +126,8 @@ namespace NoraGrace.Engine
             var from = move.From();
             var to = move.To();
 
+            if (move.MovingPiece() != board.PieceAt(from)) { return false; }
+            if (move.CapturedPiece() != board.PieceAt(to)) { return false; }
 
             var piece = board.PieceAt(from);
             if (piece == Piece.EMPTY) { return false; }

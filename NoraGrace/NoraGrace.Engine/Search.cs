@@ -247,7 +247,7 @@ namespace NoraGrace.Engine
 
             SearchArgs = args;
             eval = args.Eval;
-            _evalInfoStack = new Evaluation.ChessEvalInfoStack(args.Eval as Evaluation.Evaluator);
+            _evalInfoStack = new Evaluation.ChessEvalInfoStack(args.Eval as Evaluation.Evaluator, MAX_PLY + 1);
 
             board = new Board(SearchArgs.GameStartPosition);
             
@@ -649,7 +649,7 @@ namespace NoraGrace.Engine
 
 
             //fall to queiscent search?
-			if (depth.ToPly() <= 0 || ply > MAX_PLY) 
+			if (depth.ToPly() <= 0 || ply >= MAX_PLY) 
 			{
 				//MAY TRY: if last move was a null move, want to allow me to do any legal move, because one may be a quiet move that puts me above beta
 				return ValSearchQ(ply, alpha, beta);
@@ -936,7 +936,7 @@ namespace NoraGrace.Engine
             Evaluation.EvalResults init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, alpha, beta);
 
-            if (ply > MAX_PLY) { return init_score; }
+            if (ply >= MAX_PLY) { return init_score; }
 
 			bool playerincheck = board.IsCheck();
 

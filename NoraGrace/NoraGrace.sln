@@ -85,6 +85,9 @@ Global
 		{700B6C8C-87BD-497F-952B-7BB09DC15111} = {677C3724-192D-47EC-A3EB-F907AE6CD782}
 		{69A354D6-A253-4ADE-BCFE-4A5798A569A5} = {676FAE1C-AFAC-4715-91FD-E31C02FBF8E7}
 	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Sinobyl.vsmdi
 	EndGlobalSection

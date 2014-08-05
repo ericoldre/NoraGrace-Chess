@@ -147,7 +147,7 @@ namespace NoraGrace.Engine
         }
 
         public double PctFloor { get; private set; }
-        private double[] _pcts = new double[8];
+        private double[] _pcts = new double[10];
         private ComplexityInfo _currentComplexity;
         private List<ComplexityInfo> _complexityHistory = new List<ComplexityInfo>();
 
@@ -157,16 +157,10 @@ namespace NoraGrace.Engine
 
         public TimeManagerComplexity()
         {
-
+            //initialize pcts time table
             PctFloor = .25;
             double growth = FindGrowth(PctFloor, _pcts.Length, 20);
-            GetSequence(PctFloor, growth, _pcts.Length).ToArray().CopyTo(_pcts, 0);
-
-            //Random rand = new Random(1);
-            //while (_complexityHistory.Count < _pcts.Length)
-            //{
-            //    _complexityHistory.Add(new ComplexityInfo() { RefutePct = rand.NextDouble() * .5 });
-            //}
+            GetSequence(PctFloor, growth, _pcts.Length).Select(d => d + .1).ToArray().CopyTo(_pcts, 0);
         }
 
         private List<int> _moveNodes = new List<int>();
@@ -192,7 +186,12 @@ namespace NoraGrace.Engine
         {
             set
             {
-                if (value != CurrentBestMove) { _depthOfLastPVChange = CurrentDepth; }
+                if (value != CurrentBestMove) 
+                { 
+                    _depthOfLastPVChange = CurrentDepth;
+                    ComplexityCalc();
+                    PctOfNormalToSpendCalc();
+                }
                 base.CurrentBestMove = value;
             }
         }
@@ -218,23 +217,29 @@ namespace NoraGrace.Engine
         {
             base.EndDepth(depth);
 
+
+            ComplexityCalc();
+            PctOfNormalToSpendCalc();
+
+        }
+
+        private void ComplexityCalc()
+        {
+            //sort moves, find most complicated
+            _moveNodes.Sort();
+            int top = _moveNodes[_moveNodes.Count - 1];
+            if (top < 50000)
+            {
+                //not enough to go on at all
+                _currentComplexity.RefutePct = 0;
+                PctOfNormalToSpend = 1;
+                return;
+            }
+
             if (_moveNodes.Count > 1)
             {
-                _moveNodes.Sort();
-                int top = _moveNodes[_moveNodes.Count - 1];
-                int nextbest = _moveNodes[_moveNodes.Count - 2];
-                if (top < 50000)
-                {
-                    //not enough to go on at all
-                    _currentComplexity.RefutePct = 0;
-                    PctOfNormalToSpend = 1;
-                    return;
-                }
+                int nextbest = _moveNodes[_moveNodes.Count - 2];   
                 _currentComplexity.RefutePct = (double)nextbest / (double)top;
-                //if (_depthOfLastPVChange >= depth - 2) //TODO: this will extend time if the PV has recently changed, need move conclusive testing on use
-                //{
-                //    _currentComplexity.RefutePct += 1.0;
-                //}
             }
             else
             {
@@ -242,8 +247,14 @@ namespace NoraGrace.Engine
             }
 
 
-            PctOfNormalToSpendCalc();
-
+            if (_depthOfLastPVChange >= CurrentDepth - 5) //TODO: this will extend time if the PV has recently changed, need move conclusive testing on use
+            {
+                _currentComplexity.RefutePct += 1.0;
+            }
+            if (_depthOfLastPVChange >= CurrentDepth - 1) //extend even more if VERY recently changed.
+            {
+                _currentComplexity.RefutePct += 1.0;
+            }
         }
 
         private void PctOfNormalToSpendCalc()

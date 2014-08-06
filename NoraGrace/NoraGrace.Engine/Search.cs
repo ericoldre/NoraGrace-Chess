@@ -813,11 +813,7 @@ namespace NoraGrace.Engine
 					board.MoveUndo();
 					continue;
 				}
-				else
-				{
-					legalMovesTried++;
-                    if (moveData.Flags == 0) { quietMovesTried++; }
-				}
+
 
                 //decide if we want to extend or maybe reduce this node
                 SearchDepth ext = 0;
@@ -833,28 +829,33 @@ namespace NoraGrace.Engine
                 {
                     if (moveData.SEE < 0) { ext = 0; }
                 }
-                
-                
+
+                int reduce = 0;
+                if(depth.ToPly() > 3
+                    && legalMovesTried >= 3
+                    && !isDangerous)
+                {
+                    reduce = legalMovesTried >= 7 && depth.ToPly() >= 6 ? depth.ToPly() / 3 : 1;
+                }
 
                 bool doFullSearch = true;
 
-                if (true
-                    //!isPvNode // test 7/23 dropped elo by 5
-                    && depth.ToPly() >= 3
-                    && legalMovesTried > 3
-                    && !isDangerous)
+                if (reduce > 0)
                 {
                     doFullSearch = false;
-                    score = -ValSearchPVS(depth.SubstractPly(2), ply + 1, legalMovesTried, -beta, -alpha);
+                    score = -ValSearchPVS(depth.SubstractPly(1 + reduce), ply + 1, legalMovesTried + 1, -beta, -alpha);
                     if (score > alpha) { doFullSearch = true; }
                 }
 
                 if (doFullSearch)
                 {
                     //do subsearch
-                    score = -ValSearchPVS(depth.AddDepth(ext).SubstractPly(1), ply + 1, legalMovesTried, -beta, -alpha);
+                    score = -ValSearchPVS(depth.AddDepth(ext).SubstractPly(1), ply + 1, legalMovesTried + 1, -beta, -alpha);
                 }
 
+
+                legalMovesTried++;
+                if (moveData.Flags == 0) { quietMovesTried++; }
 
 				board.MoveUndo();
 

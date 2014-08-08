@@ -596,7 +596,7 @@ namespace NoraGrace.Engine
             return 170 + (depth.ToPly() * 70);
         }
 
-        private int ValSearchPVS(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta)
+        private int ValSearchPVS(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta, Move skip_move = Move.EMPTY)
         {
             if (alpha == beta - 1)
             {
@@ -613,8 +613,8 @@ namespace NoraGrace.Engine
                 return ValSearchMain(depth, ply, prev_move_num, alpha, beta);
             }
         }
-        
-		private int ValSearchMain(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta)
+
+        private int ValSearchMain(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta, Move skip_move = Move.EMPTY)
 		{
 			//for logging
 			CountTotalAINodes++;
@@ -660,7 +660,7 @@ namespace NoraGrace.Engine
 
             //check trans table
             Move tt_move = Move.EMPTY;
-            if (SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, depth.Value(), alpha, beta, out tt_move, out score))
+            if (SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, depth.Value(), alpha, beta, out tt_move, out score) && skip_move == Move.EMPTY)
             {
                 return score;
             }
@@ -669,78 +669,82 @@ namespace NoraGrace.Engine
             Evaluation.EvalResults init_info;
             int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, Evaluation.Evaluator.MinValue, Evaluation.Evaluator.MaxValue);
 
-            //detect difference in positional score from previous ply and record max positional gain for previous move
-            if(board.MovesSinceNull > 0)
-            {
-                var previousMove = board.HistMove(1);
-                int previousMovePositionalGain = (init_info.PositionalScore - _evalInfoStack[ply - 1].PositionalScore) * (board.WhosTurn == Player.Black ? 1 : -1);
-                _moveBuffer.History.RegisterPositionalGain(previousMove, previousMovePositionalGain);
-            }
-            
-			bool in_check_before_move = board.IsCheck();
+            bool in_check_before_move = board.IsCheck();
 
-            //post futility placeholder
-            if (depth.ToPly() <= 5
-                && !IsMateScore(beta)
-                && !in_check_before_move
-                && !isPvNode
-                //&& prev_move_num >= 3
-                && board.MovesSinceNull > 0
-                && init_score > beta + MarginFutilityPost(depth))
+            if (skip_move == Move.EMPTY)
             {
-                return beta;
-            }
-
-            //razoring placeholder.
-            if (depth.ToPly() <= 3
-                && !in_check_before_move
-                && !isPvNode
-                && !IsMateScore(beta)
-                && init_score + MarginRazor(depth) < alpha)
-            {
-                int razorAlpha = alpha - MarginRazor(depth);
-                int razorScore = ValSearchQ(ply, razorAlpha, razorAlpha + 1);
-                if (razorScore <= razorAlpha)
+                //detect difference in positional score from previous ply and record max positional gain for previous move
+                if (board.MovesSinceNull > 0)
                 {
-                    return alpha;
+                    var previousMove = board.HistMove(1);
+                    int previousMovePositionalGain = (init_info.PositionalScore - _evalInfoStack[ply - 1].PositionalScore) * (board.WhosTurn == Player.Black ? 1 : -1);
+                    _moveBuffer.History.RegisterPositionalGain(previousMove, previousMovePositionalGain);
                 }
-            }
 
-			//try null move;
-			if (depth.ToPly() > 1
-            && !isPvNode
-            && init_score > beta
-			&& this.NullSearchOK()
-			&& !IsMateScore(beta)
-			&& (!in_check_before_move)
-			&& board.MovesSinceNull > 0)
-			{
+                //post futility placeholder
+                if (depth.ToPly() <= 5
+                    && !IsMateScore(beta)
+                    && !in_check_before_move
+                    && !isPvNode
+                    //&& prev_move_num >= 3
+                    && board.MovesSinceNull > 0
+                    && init_score > beta + MarginFutilityPost(depth))
+                {
+                    return beta;
+                }
 
-				int nullr = depth.ToPly() >= 5 ? 3 : 2;
-				board.MoveNullApply();
-				int nullscore = -ValSearchPVS(depth.SubstractPly(nullr + 1), ply, 0, -beta, -beta + 1);
+                //razoring placeholder.
+                if (depth.ToPly() <= 3
+                    && !in_check_before_move
+                    && !isPvNode
+                    && !IsMateScore(beta)
+                    && init_score + MarginRazor(depth) < alpha)
+                {
+                    int razorAlpha = alpha - MarginRazor(depth);
+                    int razorScore = ValSearchQ(ply, razorAlpha, razorAlpha + 1);
+                    if (razorScore <= razorAlpha)
+                    {
+                        return alpha;
+                    }
+                }
 
-				if (nullscore >= beta && this.NullSearchVerify() && depth.ToPly() >= 5)
-				{
-					//doing a second null move restores position to where it was previous to
-					//first null, but ensures that null move won't be done in 1st ply of verification
-				
-					board.MoveNullApply();
+                //try null move;
+                if (depth.ToPly() > 1
+                && !isPvNode
+                && init_score > beta
+                && this.NullSearchOK()
+                && !IsMateScore(beta)
+                && (!in_check_before_move)
+                && board.MovesSinceNull > 0)
+                {
 
-					nullscore = ValSearchPVS(depth.SubstractPly(nullr + 2), ply, 0, beta - 1, beta);
-					board.MoveNullUndo();
-				}
-				board.MoveNullUndo();
-				if (nullscore >= beta)
-				{
-					//record in trans table?
-					//(board,depth_remaining,TRANSVALUEATLEAST,beta,0);
-                    SearchArgs.TransTable.Store(board.ZobristBoard, depth.Value(), TranspositionTable.EntryType.AtLeast, beta, Move.EMPTY);
-					return beta;
-					//wouldDoNullCutoff = true;
-				}
-			}
+                    int nullr = depth.ToPly() >= 5 ? 3 : 2;
+                    board.MoveNullApply();
+                    int nullscore = -ValSearchPVS(depth.SubstractPly(nullr + 1), ply, 0, -beta, -beta + 1);
 
+                    if (nullscore >= beta && this.NullSearchVerify() && depth.ToPly() >= 5)
+                    {
+                        //doing a second null move restores position to where it was previous to
+                        //first null, but ensures that null move won't be done in 1st ply of verification
+
+                        board.MoveNullApply();
+
+                        nullscore = ValSearchPVS(depth.SubstractPly(nullr + 2), ply, 0, beta - 1, beta);
+                        board.MoveNullUndo();
+                    }
+                    board.MoveNullUndo();
+                    if (nullscore >= beta)
+                    {
+                        //record in trans table?
+                        //(board,depth_remaining,TRANSVALUEATLEAST,beta,0);
+                        SearchArgs.TransTable.Store(board.ZobristBoard, depth.Value(), TranspositionTable.EntryType.AtLeast, beta, Move.EMPTY);
+                        return beta;
+                        //wouldDoNullCutoff = true;
+                    }
+                }
+
+            } //end early cutoffs
+            
 
 
             var plyMoves = _moveBuffer[ply];
@@ -760,6 +764,8 @@ namespace NoraGrace.Engine
             while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
 			{
                 Move move = moveData.Move;
+
+                if (move == skip_move) { continue; }
 
                 CurrentVariation[ply] = move;
                 
@@ -821,6 +827,20 @@ namespace NoraGrace.Engine
 
                 if (isCheck) { ext = this.SearchArgs.ExtensionCheck; }
 
+                //singular extension check?
+                if(true && ext == 0 
+                    && depth.ToPly() >= 6
+                    && (moveData.Flags & MoveFlags.TransTable) == MoveFlags.TransTable
+                    && skip_move == Move.EMPTY
+                    && !IsMateScore(alpha) && !IsMateScore(beta))
+                {
+                    board.MoveUndo();
+                    int rbeta = alpha - 20;
+                    var rdepth = (SearchDepth)((int)depth / 2);
+                    int rvalue = ValSearchMain(rdepth, ply + 1, 0, rbeta - 1, rbeta, move);
+                    if (rvalue < rbeta) { ext = SearchDepth.PLY; }
+                    board.MoveApply(move);
+                }
 
                 
                 bool isDangerous = moveData.Flags != 0 || isCheck || ext > 0;

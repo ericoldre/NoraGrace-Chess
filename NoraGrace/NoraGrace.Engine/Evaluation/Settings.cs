@@ -42,10 +42,10 @@ namespace NoraGrace.Engine.Evaluation
                 },
                 MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
                 {
-                    Pawn = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
-                    Knight = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
-                    Bishop = new ChessGameStageDictionary<int>() { Opening = 300, Endgame = 300 },
-                    Rook = new ChessGameStageDictionary<int>() { Opening = 500, Endgame = 500 },
+                    Pawn = new ChessGameStageDictionary<int>() { Opening = 85, Endgame = 105 },
+                    Knight = new ChessGameStageDictionary<int>() { Opening = 310, Endgame = 310 },
+                    Bishop = new ChessGameStageDictionary<int>() { Opening = 310, Endgame = 310 },
+                    Rook = new ChessGameStageDictionary<int>() { Opening = 520, Endgame = 520 },
                     Queen = new ChessGameStageDictionary<int>() { Opening = 950, Endgame = 950 },
                     King = new ChessGameStageDictionary<int>() { Opening = 0, Endgame = 0 },
                 },

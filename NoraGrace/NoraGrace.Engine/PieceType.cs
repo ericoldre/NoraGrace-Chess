@@ -17,6 +17,27 @@ namespace NoraGrace.Engine
         public static readonly PieceType[] AllPieceTypes = new PieceType[]{
             PieceType.Pawn, PieceType.Knight, PieceType.Bishop, PieceType.Rook, PieceType.Queen, PieceType.King};
 
+        public static int BasicVal(this PieceType type)
+        {
+            switch (type)
+            {
+                case PieceType.EMPTY:
+                    return 0;
+                case PieceType.Pawn:
+                    return 100;
+                case PieceType.Knight:
+                case PieceType.Bishop:
+                    return 300;
+                case PieceType.Rook:
+                    return 500;
+                case PieceType.Queen:
+                    return 900;
+                case PieceType.King:
+                    return 10000;
+                default:
+                    return 0;
+            }
+        }
 
         public static Piece ForPlayer(this PieceType type, Player player)
         {

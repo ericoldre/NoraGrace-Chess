@@ -65,9 +65,9 @@ namespace NoraGrace.Engine
 
 					foreach (string smove in smoves)
 					{
-						Position from = PositionInfo.Parse(smove.Substring(0, 2));
-                        Position to = PositionInfo.Parse(smove.Substring(2, 2));
-                        Move move = MoveInfo.Parse(board, smove);
+						Position from = PositionUtil.Parse(smove.Substring(0, 2));
+                        Position to = PositionUtil.Parse(smove.Substring(2, 2));
+                        Move move = MoveUtil.Parse(board, smove);
 						board.MoveApply(move);
 						if (_positions.ContainsKey(board.ZobristBoard))
 						{

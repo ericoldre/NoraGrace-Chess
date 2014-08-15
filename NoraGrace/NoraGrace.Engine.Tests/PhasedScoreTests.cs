@@ -24,7 +24,7 @@ namespace NoraGrace.Engine.Tests
             {
                 foreach (var endgame in vals)
                 {
-                    yield return new SampleInfo() { Opening = opening, Endgame = endgame, Score = PhasedScoreInfo.Create(opening, endgame) };
+                    yield return new SampleInfo() { Opening = opening, Endgame = endgame, Score = PhasedScoreUtil.Create(opening, endgame) };
                 }
             }
         }

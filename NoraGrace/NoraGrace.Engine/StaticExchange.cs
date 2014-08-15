@@ -8,7 +8,7 @@ namespace NoraGrace.Engine
 {
     public class StaticExchange
     {
-        private static readonly int[] pieceVals = new int[PieceTypeInfo.LookupArrayLength];
+        private static readonly int[] pieceVals = new int[PieceTypeUtil.LookupArrayLength];
 
         static StaticExchange()
         {

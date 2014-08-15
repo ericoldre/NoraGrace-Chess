@@ -12,7 +12,7 @@ namespace NoraGrace.Engine.Tests
         [TestMethod]
         public void TestMethod1()
         {
-            foreach (Piece piece in PieceInfo.AllPieces)
+            foreach (Piece piece in PieceUtil.AllPieces)
             {
                 var type = piece.ToPieceType();
                 var player = piece.PieceToPlayer();

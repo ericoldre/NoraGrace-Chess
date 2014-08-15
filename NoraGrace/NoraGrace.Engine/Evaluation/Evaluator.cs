@@ -21,8 +21,8 @@ namespace NoraGrace.Engine.Evaluation
         protected readonly PawnEvaluator _evalPawns;
         public readonly IMaterialEvaluator _evalMaterial;
 
-        public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceInfo.LookupArrayLength][];
-        public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeInfo.LookupArrayLength][];
+        public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceUtil.LookupArrayLength][];
+        public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeUtil.LookupArrayLength][];
         public readonly PhasedScore _matBishopPair;
 
         public readonly int[] _endgameMateKingPcSq;
@@ -52,7 +52,7 @@ namespace NoraGrace.Engine.Evaluation
         static Evaluator()
         {
             _kingSafetyRegion = new Bitboard[64];
-            foreach (var kingPos in PositionInfo.AllPositions)
+            foreach (var kingPos in PositionUtil.AllPositions)
             {
                 var rank = kingPos.ToRank();
                 if (rank == Rank.Rank1) { rank = Rank.Rank2; }
@@ -93,25 +93,25 @@ namespace NoraGrace.Engine.Evaluation
             _evalMaterial = evalMaterial ?? new MaterialEvaluator(_settings);
             
             //bishop pairs
-            _matBishopPair = PhasedScoreInfo.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);
+            _matBishopPair = PhasedScoreUtil.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);
 
 
             //setup piecesq tables
-            foreach (Piece piece in PieceInfo.AllPieces)
+            foreach (Piece piece in PieceUtil.AllPieces)
             {
                 _pcsqPiecePos[(int)piece] = new PhasedScore[64];
-                foreach (Position pos in PositionInfo.AllPositions)
+                foreach (Position pos in PositionUtil.AllPositions)
                 {
                 
                     if (piece.PieceToPlayer() == Player.White)
                     {
-                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreInfo.Create(
+                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreUtil.Create(
                             settings.PcSqTables[piece.ToPieceType()][GameStage.Opening][pos],
                             settings.PcSqTables[piece.ToPieceType()][GameStage.Endgame][pos]);
                     }
                     else
                     {
-                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreInfo.Create(
+                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreUtil.Create(
                             -settings.PcSqTables[piece.ToPieceType()][GameStage.Opening][pos.Reverse()],
                             -settings.PcSqTables[piece.ToPieceType()][GameStage.Endgame][pos.Reverse()]);
                     }
@@ -124,7 +124,7 @@ namespace NoraGrace.Engine.Evaluation
 
             //setup mobility arrays
 
-            foreach (PieceType pieceType in PieceTypeInfo.AllPieceTypes)
+            foreach (PieceType pieceType in PieceTypeUtil.AllPieceTypes)
             {
                 _mobilityPieceTypeCount[(int)pieceType] = new PhasedScore[28];
                 for (int attacksCount = 0; attacksCount < 28; attacksCount++)
@@ -135,13 +135,13 @@ namespace NoraGrace.Engine.Evaluation
                     int startVal = (attacksCount - opiece[GameStage.Opening].ExpectedAttacksAvailable) * opiece[GameStage.Opening].AmountPerAttackDefault;
                     int endVal = (attacksCount - opiece[GameStage.Endgame].ExpectedAttacksAvailable) * opiece[GameStage.Endgame].AmountPerAttackDefault;
 
-                    _mobilityPieceTypeCount[(int)pieceType][attacksCount] = PhasedScoreInfo.Create(startVal, endVal);
+                    _mobilityPieceTypeCount[(int)pieceType][attacksCount] = PhasedScoreUtil.Create(startVal, endVal);
                 }
             }
 
             //initialize pcsq for trying to mate king in endgame, try to push it to edge of board.
             _endgameMateKingPcSq = new int[64];
-            foreach (var pos in PositionInfo.AllPositions)
+            foreach (var pos in PositionUtil.AllPositions)
             {
                 List<int> distToMid = new List<int>();
                 distToMid.Add(pos.DistanceToNoDiag(Position.D4));
@@ -152,8 +152,8 @@ namespace NoraGrace.Engine.Evaluation
                 _endgameMateKingPcSq[(int)pos] = minDist * 50;
             }
 
-            RookFileOpen = PhasedScoreInfo.Create(settings.RookFileOpen, settings.RookFileOpen / 2);
-            RookFileHalfOpen = PhasedScoreInfo.Create(settings.RookFileOpen / 2, settings.RookFileOpen / 4);
+            RookFileOpen = PhasedScoreUtil.Create(settings.RookFileOpen, settings.RookFileOpen / 2);
+            RookFileHalfOpen = PhasedScoreUtil.Create(settings.RookFileOpen / 2, settings.RookFileOpen / 4);
 
             KingAttackCountValue = settings.KingAttackCountValue;
             KingAttackWeightValue = settings.KingAttackWeightValue;
@@ -288,7 +288,7 @@ namespace NoraGrace.Engine.Evaluation
             //shelter storm;
             if (material.DoShelter)
             {
-                evalInfo.ShelterStorm = PhasedScoreInfo.Create(_settings.PawnShelterFactor * pawns.EvalShelter(
+                evalInfo.ShelterStorm = PhasedScoreUtil.Create(_settings.PawnShelterFactor * pawns.EvalShelter(
                     whiteKingFile: board.KingPosition(Player.White).ToFile(),
                     blackKingFile: board.KingPosition(Player.Black).ToFile(),
                     castleFlags: board.CastleRights), 0);
@@ -368,7 +368,7 @@ namespace NoraGrace.Engine.Evaluation
                 Bitboard kingAdjecent = Attacks.KingAttacks(board.KingPosition(him));
                 while (kingAdjecent != Bitboard.Empty)
                 {
-                    Position pos = BitboardInfo.PopFirst(ref kingAdjecent);
+                    Position pos = BitboardUtil.PopFirst(ref kingAdjecent);
                     Bitboard posBB = pos.ToBitboard();
                     if ((posBB & myAttacks.All()) != Bitboard.Empty)
                     {
@@ -411,7 +411,7 @@ namespace NoraGrace.Engine.Evaluation
                 {
                     score = score / 2;
                 }
-                return PhasedScoreInfo.Create(score, 0);
+                return PhasedScoreUtil.Create(score, 0);
             }
             else
             {
@@ -450,7 +450,7 @@ namespace NoraGrace.Engine.Evaluation
 
             while (slidersAndKnights != Bitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
-                Position pos = BitboardInfo.PopFirst(ref slidersAndKnights);
+                Position pos = BitboardUtil.PopFirst(ref slidersAndKnights);
 
                 PieceType pieceType = board.PieceAt(pos).ToPieceType();
 
@@ -565,7 +565,7 @@ namespace NoraGrace.Engine.Evaluation
                 {
                     Position loseKing = board.KingPosition(losePlayer);
                     Position winKing = board.KingPosition(winPlayer);
-                    newPcSq = PhasedScoreInfo.Create(0, _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25));
+                    newPcSq = PhasedScoreUtil.Create(0, _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25));
                     return true;
                 }
             }

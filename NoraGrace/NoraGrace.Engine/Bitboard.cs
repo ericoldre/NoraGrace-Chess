@@ -37,7 +37,7 @@ namespace NoraGrace.Engine
     }
 
 
-    public static class BitboardInfo
+    public static class BitboardUtil
     {
 
 

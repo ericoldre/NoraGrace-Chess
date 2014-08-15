@@ -218,7 +218,7 @@ namespace NoraGrace.Engine
         {
             var array = _captures;
 
-            _capsCount = MoveInfo.GenCapsNonCaps(array, _board, true, 0); //generate capture
+            _capsCount = MoveUtil.GenCapsNonCaps(array, _board, true, 0); //generate capture
             _capsCount = ExcludeFrom(array, 0, _capsCount, _exclude, _excludeCount); //remove trans table move from array
 
             for (int i = 0; i < _capsCount; i++)
@@ -316,7 +316,7 @@ namespace NoraGrace.Engine
             }
             var array = _nonCaptures;
 
-            _quietCount = MoveInfo.GenCapsNonCaps(array, _board, false, 0);
+            _quietCount = MoveUtil.GenCapsNonCaps(array, _board, false, 0);
             _quietCount = ExcludeFrom(array, 0, _quietCount, _exclude, _excludeCount);
             for (int i = 0; i < _quietCount; i++)
             {

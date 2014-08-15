@@ -72,9 +72,9 @@ namespace NoraGrace.Engine.Tests
         [TestMethod]
         public void PositionInDirectionUnsafeTest()
         {
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
             {
-                foreach (Direction dir in DirectionInfo.AllDirections)
+                foreach (Direction dir in DirectionUtil.AllDirections)
                 {
                     var correctResult = pos.PositionInDirection(dir);
                     if (correctResult.IsInBounds())
@@ -91,15 +91,15 @@ namespace NoraGrace.Engine.Tests
 		{
 			
 			Position posCurr;
-            foreach (Position posFrom in PositionInfo.AllPositions)
+            foreach (Position posFrom in PositionUtil.AllPositions)
 			{
-                foreach (Position posTo in PositionInfo.AllPositions)
+                foreach (Position posTo in PositionUtil.AllPositions)
 				{
 					if(posFrom==posTo){continue;}
                     Direction dirFromTo = posFrom.DirectionTo(posTo);
 					if (dirFromTo == 0) 
 					{
-                        foreach (Direction dirTry in DirectionInfo.AllDirectionsQueen)
+                        foreach (Direction dirTry in DirectionUtil.AllDirectionsQueen)
 						{
 							posCurr = posFrom;
 							while(posCurr.IsInBounds())
@@ -108,7 +108,7 @@ namespace NoraGrace.Engine.Tests
                                 posCurr = posCurr.PositionInDirection(dirTry);
 							}
 						}
-                        foreach (Direction dirTry in DirectionInfo.AllDirectionsKnight)
+                        foreach (Direction dirTry in DirectionUtil.AllDirectionsKnight)
                         {
                             posCurr = posFrom.PositionInDirection(dirTry);
                             Assert.IsFalse(posCurr == posTo);
@@ -154,58 +154,58 @@ namespace NoraGrace.Engine.Tests
             Assert.AreEqual<string>("g", File.FileG.FileToString());
             Assert.AreEqual<string>("h", File.FileH.FileToString());
 
-			Assert.AreEqual<Rank>(Rank.Rank1, RankInfo.Parse('1'));
-			Assert.AreEqual<Rank>(Rank.Rank2, RankInfo.Parse('2'));
-            Assert.AreEqual<Rank>(Rank.Rank3, RankInfo.Parse('3'));
-            Assert.AreEqual<Rank>(Rank.Rank4, RankInfo.Parse('4'));
-            Assert.AreEqual<Rank>(Rank.Rank5, RankInfo.Parse('5'));
-            Assert.AreEqual<Rank>(Rank.Rank6, RankInfo.Parse('6'));
-            Assert.AreEqual<Rank>(Rank.Rank7, RankInfo.Parse('7'));
-            Assert.AreEqual<Rank>(Rank.Rank8, RankInfo.Parse('8'));
+			Assert.AreEqual<Rank>(Rank.Rank1, RankUtil.Parse('1'));
+			Assert.AreEqual<Rank>(Rank.Rank2, RankUtil.Parse('2'));
+            Assert.AreEqual<Rank>(Rank.Rank3, RankUtil.Parse('3'));
+            Assert.AreEqual<Rank>(Rank.Rank4, RankUtil.Parse('4'));
+            Assert.AreEqual<Rank>(Rank.Rank5, RankUtil.Parse('5'));
+            Assert.AreEqual<Rank>(Rank.Rank6, RankUtil.Parse('6'));
+            Assert.AreEqual<Rank>(Rank.Rank7, RankUtil.Parse('7'));
+            Assert.AreEqual<Rank>(Rank.Rank8, RankUtil.Parse('8'));
 
-			Assert.AreEqual<File>(File.FileA, FileInfo.Parse('a'));
-            Assert.AreEqual<File>(File.FileB, FileInfo.Parse('b'));
-            Assert.AreEqual<File>(File.FileC, FileInfo.Parse('c'));
-            Assert.AreEqual<File>(File.FileD, FileInfo.Parse('d'));
-            Assert.AreEqual<File>(File.FileE, FileInfo.Parse('e'));
-            Assert.AreEqual<File>(File.FileF, FileInfo.Parse('f'));
-            Assert.AreEqual<File>(File.FileG, FileInfo.Parse('g'));
-            Assert.AreEqual<File>(File.FileH, FileInfo.Parse('h'));
+			Assert.AreEqual<File>(File.FileA, FileUtil.Parse('a'));
+            Assert.AreEqual<File>(File.FileB, FileUtil.Parse('b'));
+            Assert.AreEqual<File>(File.FileC, FileUtil.Parse('c'));
+            Assert.AreEqual<File>(File.FileD, FileUtil.Parse('d'));
+            Assert.AreEqual<File>(File.FileE, FileUtil.Parse('e'));
+            Assert.AreEqual<File>(File.FileF, FileUtil.Parse('f'));
+            Assert.AreEqual<File>(File.FileG, FileUtil.Parse('g'));
+            Assert.AreEqual<File>(File.FileH, FileUtil.Parse('h'));
 
 		}
 
 		[TestMethod]
 		public void DirectionTests()
 		{
-			Assert.IsFalse(PositionInfo.PositionInDirection(Position.A1, Direction.DirW).IsInBounds());
-            Assert.IsFalse(PositionInfo.PositionInDirection(Position.A1, Direction.DirS).IsInBounds());
-            Assert.IsFalse(PositionInfo.PositionInDirection(Position.A8, Direction.DirW).IsInBounds());
-            Assert.IsFalse(PositionInfo.PositionInDirection(Position.A8, Direction.DirN).IsInBounds());
-            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H1, Direction.DirE).IsInBounds());
-            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H1, Direction.DirS).IsInBounds());
-            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H8, Direction.DirE).IsInBounds());
-            Assert.IsFalse(PositionInfo.PositionInDirection(Position.H8, Direction.DirN).IsInBounds());
+			Assert.IsFalse(PositionUtil.PositionInDirection(Position.A1, Direction.DirW).IsInBounds());
+            Assert.IsFalse(PositionUtil.PositionInDirection(Position.A1, Direction.DirS).IsInBounds());
+            Assert.IsFalse(PositionUtil.PositionInDirection(Position.A8, Direction.DirW).IsInBounds());
+            Assert.IsFalse(PositionUtil.PositionInDirection(Position.A8, Direction.DirN).IsInBounds());
+            Assert.IsFalse(PositionUtil.PositionInDirection(Position.H1, Direction.DirE).IsInBounds());
+            Assert.IsFalse(PositionUtil.PositionInDirection(Position.H1, Direction.DirS).IsInBounds());
+            Assert.IsFalse(PositionUtil.PositionInDirection(Position.H8, Direction.DirE).IsInBounds());
+            Assert.IsFalse(PositionUtil.PositionInDirection(Position.H8, Direction.DirN).IsInBounds());
 
             
 
-            Assert.AreEqual<Position>(Position.D5, PositionInfo.PositionInDirection(Position.D4, Direction.DirN));
-            Assert.AreEqual<Position>(Position.D3, PositionInfo.PositionInDirection(Position.D4, Direction.DirS));
-            Assert.AreEqual<Position>(Position.C4, PositionInfo.PositionInDirection(Position.D4, Direction.DirW));
-            Assert.AreEqual<Position>(Position.E4, PositionInfo.PositionInDirection(Position.D4, Direction.DirE));
+            Assert.AreEqual<Position>(Position.D5, PositionUtil.PositionInDirection(Position.D4, Direction.DirN));
+            Assert.AreEqual<Position>(Position.D3, PositionUtil.PositionInDirection(Position.D4, Direction.DirS));
+            Assert.AreEqual<Position>(Position.C4, PositionUtil.PositionInDirection(Position.D4, Direction.DirW));
+            Assert.AreEqual<Position>(Position.E4, PositionUtil.PositionInDirection(Position.D4, Direction.DirE));
 
-            Assert.AreEqual<Position>(Position.E5, PositionInfo.PositionInDirection(Position.D4, Direction.DirNE));
-            Assert.AreEqual<Position>(Position.E3, PositionInfo.PositionInDirection(Position.D4, Direction.DirSE));
-            Assert.AreEqual<Position>(Position.C3, PositionInfo.PositionInDirection(Position.D4, Direction.DirSW));
-            Assert.AreEqual<Position>(Position.C5, PositionInfo.PositionInDirection(Position.D4, Direction.DirNW));
+            Assert.AreEqual<Position>(Position.E5, PositionUtil.PositionInDirection(Position.D4, Direction.DirNE));
+            Assert.AreEqual<Position>(Position.E3, PositionUtil.PositionInDirection(Position.D4, Direction.DirSE));
+            Assert.AreEqual<Position>(Position.C3, PositionUtil.PositionInDirection(Position.D4, Direction.DirSW));
+            Assert.AreEqual<Position>(Position.C5, PositionUtil.PositionInDirection(Position.D4, Direction.DirNW));
 
-            Assert.AreEqual<Position>(Position.F7, PositionInfo.PositionInDirection(Position.E5, Direction.DirNNE));
-            Assert.AreEqual<Position>(Position.G6, PositionInfo.PositionInDirection(Position.E5, Direction.DirEEN));
-            Assert.AreEqual<Position>(Position.G4, PositionInfo.PositionInDirection(Position.E5, Direction.DirEES));
-            Assert.AreEqual<Position>(Position.F3, PositionInfo.PositionInDirection(Position.E5, Direction.DirSSE));
-            Assert.AreEqual<Position>(Position.D3, PositionInfo.PositionInDirection(Position.E5, Direction.DirSSW));
-            Assert.AreEqual<Position>(Position.C4, PositionInfo.PositionInDirection(Position.E5, Direction.DirWWS));
-            Assert.AreEqual<Position>(Position.C6, PositionInfo.PositionInDirection(Position.E5, Direction.DirWWN));
-            Assert.AreEqual<Position>(Position.D7, PositionInfo.PositionInDirection(Position.E5, Direction.DirNNW));
+            Assert.AreEqual<Position>(Position.F7, PositionUtil.PositionInDirection(Position.E5, Direction.DirNNE));
+            Assert.AreEqual<Position>(Position.G6, PositionUtil.PositionInDirection(Position.E5, Direction.DirEEN));
+            Assert.AreEqual<Position>(Position.G4, PositionUtil.PositionInDirection(Position.E5, Direction.DirEES));
+            Assert.AreEqual<Position>(Position.F3, PositionUtil.PositionInDirection(Position.E5, Direction.DirSSE));
+            Assert.AreEqual<Position>(Position.D3, PositionUtil.PositionInDirection(Position.E5, Direction.DirSSW));
+            Assert.AreEqual<Position>(Position.C4, PositionUtil.PositionInDirection(Position.E5, Direction.DirWWS));
+            Assert.AreEqual<Position>(Position.C6, PositionUtil.PositionInDirection(Position.E5, Direction.DirWWN));
+            Assert.AreEqual<Position>(Position.D7, PositionUtil.PositionInDirection(Position.E5, Direction.DirNNW));
 
 		}
 
@@ -213,15 +213,15 @@ namespace NoraGrace.Engine.Tests
         public void BitboardBitCount()
         {
 
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
             {
                 Assert.AreEqual<int>(1, pos.ToBitboard().BitCount());
             }
-            foreach (var rank in RankInfo.AllRanks)
+            foreach (var rank in RankUtil.AllRanks)
             {
                 Assert.AreEqual<int>(8, rank.ToBitboard().BitCount());
             }
-            foreach (var file in FileInfo.AllFiles)
+            foreach (var file in FileUtil.AllFiles)
             {
                 Assert.AreEqual<int>(8, file.ToBitboard().BitCount());
             }
@@ -268,11 +268,11 @@ namespace NoraGrace.Engine.Tests
             Assert.AreEqual<Bitboard>(~Bitboard.Rank8 & ~Bitboard.FileH, Bitboard.Full.ShiftDirSW());
             Assert.AreEqual<Bitboard>(~Bitboard.Rank1 & ~Bitboard.FileH, Bitboard.Full.ShiftDirNW());
 
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
             {
-                foreach (Direction dir in DirectionInfo.AllDirections)
+                foreach (Direction dir in DirectionUtil.AllDirections)
                 {
-                    Position posEnd = PositionInfo.PositionInDirection(pos, dir);
+                    Position posEnd = PositionUtil.PositionInDirection(pos, dir);
                     Bitboard shifted = pos.ToBitboard().Shift(dir);
                     Assert.AreEqual<bool>(posEnd.IsInBounds(), shifted.ToPositions().Count() == 1);
                     Assert.AreEqual<Bitboard>(posEnd.ToBitboard(), shifted);
@@ -284,7 +284,7 @@ namespace NoraGrace.Engine.Tests
         [TestMethod]
         public void BitboardLSBMSB()
         {
-            foreach (var pos in PositionInfo.AllPositions)
+            foreach (var pos in PositionUtil.AllPositions)
             {
                 var bb = pos.ToBitboard();
                 var northMost = bb.NorthMostPosition();
@@ -322,11 +322,11 @@ namespace NoraGrace.Engine.Tests
         [TestMethod]
         public void BitboardTests()
         {
-            foreach (var pos in PositionInfo.AllPositions)
+            foreach (var pos in PositionUtil.AllPositions)
             {
-                foreach (var dir in DirectionInfo.AllDirections)
+                foreach (var dir in DirectionUtil.AllDirections)
                 {
-                    var posnew = PositionInfo.PositionInDirection(pos, dir);
+                    var posnew = PositionUtil.PositionInDirection(pos, dir);
                     if (!posnew.IsInBounds())
                     {
                         Assert.IsTrue(posnew.ToBitboard().Empty());
@@ -337,9 +337,9 @@ namespace NoraGrace.Engine.Tests
                     }
                 }
             }
-            foreach (var pos1 in PositionInfo.AllPositions)
+            foreach (var pos1 in PositionUtil.AllPositions)
             {
-                foreach (var pos2 in PositionInfo.AllPositions)
+                foreach (var pos2 in PositionUtil.AllPositions)
                 {
 
                     //if we have 3 unique positions
@@ -358,7 +358,7 @@ namespace NoraGrace.Engine.Tests
                         Assert.IsTrue(!(bbAll & bb2).Empty());
 
                         //verify bitboard does not contain any other positions
-                        foreach (var posOther in PositionInfo.AllPositions.Where(posO => !posArray.Any(posE => posO == posE)))
+                        foreach (var posOther in PositionUtil.AllPositions.Where(posO => !posArray.Any(posE => posO == posE)))
                         {
                             var bbOther = posOther.ToBitboard();
                             Assert.IsTrue((bbOther & bbAll).Empty());    

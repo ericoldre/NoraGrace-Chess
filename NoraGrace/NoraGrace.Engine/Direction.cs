@@ -12,7 +12,7 @@ namespace NoraGrace.Engine
         DirNNE = DirN + DirNE, DirEEN = DirE + DirNE, DirEES = DirE + DirSE, DirSSE = DirS + DirSE, DirSSW = DirS + DirSW, DirWWS = DirW + DirSW, DirWWN = DirW + DirNW, DirNNW = DirN + DirNW
     }
 
-    public static class DirectionInfo
+    public static class DirectionUtil
     {
 
         public static readonly Direction[] AllDirections = new Direction[]{

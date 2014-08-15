@@ -147,9 +147,9 @@ namespace NoraGrace.Engine.Tests
         public Random random = new Random(6);
         public Move RandomMove()
         {
-            Position f = PositionInfo.AllPositions[random.Next(PositionInfo.AllPositions.Length)];
-            Position t = PositionInfo.AllPositions[random.Next(PositionInfo.AllPositions.Length)];
-            return MoveInfo.Create(f, t, Piece.WKing, Piece.EMPTY);
+            Position f = PositionUtil.AllPositions[random.Next(PositionUtil.AllPositions.Length)];
+            Position t = PositionUtil.AllPositions[random.Next(PositionUtil.AllPositions.Length)];
+            return MoveUtil.Create(f, t, Piece.WKing, Piece.EMPTY);
         }
 
         public TranspositionTable.EntryType RandEntryType()

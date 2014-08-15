@@ -182,7 +182,7 @@ namespace NoraGrace.CommandLine
                     _timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);
                     break;
                 case "usermove":
-                    Move usermove = MoveInfo.Parse(_board, argument);
+                    Move usermove = MoveUtil.Parse(_board, argument);
                     _board.MoveApply(usermove);
                     bool done = GameDoneAnnounce();
                     if (!done && _board.WhosTurn == _myplayer)
@@ -232,7 +232,7 @@ namespace NoraGrace.CommandLine
 
 		public void SimulateUsermove(string usermoveTxt)
 		{
-			Move usermove = MoveInfo.Parse(_board, usermoveTxt);
+			Move usermove = MoveUtil.Parse(_board, usermoveTxt);
 			_board.MoveApply(usermove);
 			bool done = GameDoneAnnounce();
 

@@ -18,7 +18,7 @@ namespace NoraGrace.Engine
         OUTOFBOUNDS = 64
     }
 
-    public static class PositionInfo
+    public static class PositionUtil
     {
 
         public const int LookupArrayLength = 64;
@@ -38,8 +38,8 @@ namespace NoraGrace.Engine
         public static Position Parse(string s)
         {
             if (s.Length != 2) { throw new ArgumentException(s + " is not a valid position"); }
-            File file = FileInfo.Parse(s[0]);
-            Rank rank = RankInfo.Parse(s[1]);
+            File file = FileUtil.Parse(s[0]);
+            Rank rank = RankUtil.Parse(s[1]);
             return file.ToPosition(rank);
         }
 
@@ -396,7 +396,7 @@ namespace NoraGrace.Engine
             ChessPositionDictionary<T> other = obj as ChessPositionDictionary<T>;
             if (other == null) { return false; }
 
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
             {
                 if (!this[pos].Equals(other[pos]))
                 {
@@ -411,7 +411,7 @@ namespace NoraGrace.Engine
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;//randomly choosen prime
-                foreach (Position pos in PositionInfo.AllPositions)
+                foreach (Position pos in PositionUtil.AllPositions)
                 {
                     T field = this[pos];
                     int fieldHash = 6823; //randomly choosen prime

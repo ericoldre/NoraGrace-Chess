@@ -167,7 +167,7 @@ namespace NoraGrace.Engine.Tests
         {
             Bitboard[] expectedPieces = new Bitboard[12];
             var all = Bitboard.Empty;
-            foreach (var pos in PositionInfo.AllPositions)
+            foreach (var pos in PositionUtil.AllPositions)
             {
                 if (board.PieceAt(pos) != Piece.EMPTY)
                 {
@@ -176,7 +176,7 @@ namespace NoraGrace.Engine.Tests
                 }
             }
 
-            foreach (var piece in PieceInfo.AllPieces)
+            foreach (var piece in PieceUtil.AllPieces)
             {
                 Assert.AreEqual<Bitboard>(expectedPieces[(int)piece], board[piece.PieceToPlayer(), piece.ToPieceType()]);
             }
@@ -196,7 +196,7 @@ namespace NoraGrace.Engine.Tests
 
             picker.Initialize(board, Move.EMPTY, false);
 
-            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
+            AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves());
 
         }
 
@@ -206,10 +206,10 @@ namespace NoraGrace.Engine.Tests
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
-            picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveInfo.Parse(board, "a3a4") }, SearchDepth.PLY);
-            picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
+            picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveUtil.Parse(board, "a3a4") }, SearchDepth.PLY);
+            picker.Initialize(board, MoveUtil.Parse(board, "f3g4"), false);
 
-            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
+            AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves());
 
         }
 
@@ -219,10 +219,10 @@ namespace NoraGrace.Engine.Tests
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
-            picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveInfo.Parse(board, "d3e4") }, SearchDepth.PLY);
-            picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
+            picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveUtil.Parse(board, "d3e4") }, SearchDepth.PLY);
+            picker.Initialize(board, MoveUtil.Parse(board, "f3g4"), false);
 
-            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves());
+            AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves());
 
         }
 
@@ -232,10 +232,10 @@ namespace NoraGrace.Engine.Tests
             FEN fen = new FEN("5rk1/pbr1q1pp/3pp3/2p2p2/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22 ");
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
-            picker.RegisterCutoff(new Board("5rk1/pbr1q1pp/3pp3/2p5/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22"), new ChessMoveData() { Move = MoveInfo.Parse(board, "d3f5") }, SearchDepth.PLY);
-            picker.Initialize(board, MoveInfo.Parse(board, "f3g4"), false);
+            picker.RegisterCutoff(new Board("5rk1/pbr1q1pp/3pp3/2p5/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22"), new ChessMoveData() { Move = MoveUtil.Parse(board, "d3f5") }, SearchDepth.PLY);
+            picker.Initialize(board, MoveUtil.Parse(board, "f3g4"), false);
 
-            AssertSameMove(MoveInfo.GenMoves(board), picker.SortedMoves().ToList());
+            AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves().ToList());
 
         }
 

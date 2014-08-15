@@ -22,7 +22,7 @@ namespace NoraGrace.Engine
         Unknown = 10, IllegalMove = 11
     }
 
-    public static class GameResultInfo
+    public static class GameResultUtil
     {
 
         public static string Description(this GameResult? gameResult)
@@ -649,7 +649,7 @@ namespace NoraGrace.Engine
 						}
 						else
 						{
-							Move move = MoveInfo.Parse(board, token);
+							Move move = MoveUtil.Parse(board, token);
 							board.MoveApply(move);
 							moves.Add(move);
 

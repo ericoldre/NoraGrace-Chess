@@ -167,7 +167,7 @@ namespace NoraGrace.Engine
         static Attacks()
         {
             //bishop attacks (magic bitboard based)
-            foreach (Position position in PositionInfo.AllPositions)
+            foreach (Position position in PositionUtil.AllPositions)
             {
                 var mask = BishopMaskCalc(position);
                 var possibleCombinations = 1 << mask.BitCount();
@@ -189,7 +189,7 @@ namespace NoraGrace.Engine
             }
 
             //rook attacks (magic bitboard based)
-            foreach (Position position in PositionInfo.AllPositions)
+            foreach (Position position in PositionUtil.AllPositions)
             {
                 var mask = RookMaskCalc(position);
                 var possibleCombinations = 1 << mask.BitCount();
@@ -211,10 +211,10 @@ namespace NoraGrace.Engine
             }
 
             //knight attacks
-            foreach (var sq in PositionInfo.AllPositions)
+            foreach (var sq in PositionUtil.AllPositions)
             {
                 Bitboard board = 0;
-                foreach (var dir in DirectionInfo.AllDirectionsKnight)
+                foreach (var dir in DirectionUtil.AllDirectionsKnight)
                 {
                     board |= sq.PositionInDirection(dir).ToBitboard();
                 }
@@ -222,10 +222,10 @@ namespace NoraGrace.Engine
             }
             
             //king attacks
-            foreach (var sq in PositionInfo.AllPositions)
+            foreach (var sq in PositionUtil.AllPositions)
             {
                 Bitboard board = 0;
-                foreach (var dir in DirectionInfo.AllDirectionsQueen)
+                foreach (var dir in DirectionUtil.AllDirectionsQueen)
                 {
                     board |= sq.PositionInDirection(dir).ToBitboard();
                 }
@@ -233,11 +233,11 @@ namespace NoraGrace.Engine
             }
 
             //pawn attacks
-            foreach(Player player in PlayerInfo.AllPlayers)
+            foreach(Player player in PlayerUtil.AllPlayers)
             {
                 _attacks_from_pawn_lu[(int)player] = new Bitboard[65];
                 _attacks_from_pawn_flood_lu[(int)player] = new Bitboard[65];
-                foreach (var sq in PositionInfo.AllPositions)
+                foreach (var sq in PositionUtil.AllPositions)
                 {
                     Bitboard board = 0;
                     board |= sq.PositionInDirection(player.MyNorth()).PositionInDirection(Direction.DirE).ToBitboard();
@@ -331,7 +331,7 @@ namespace NoraGrace.Engine
         private static Bitboard RookMaskCalc(Position position)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (Direction dir in DirectionInfo.AllDirectionsRook)
+            foreach (Direction dir in DirectionUtil.AllDirectionsRook)
             {
                 Position p = position.PositionInDirection(dir);
                 Position next = p.PositionInDirection(dir);
@@ -348,7 +348,7 @@ namespace NoraGrace.Engine
         private static Bitboard BishopMaskCalc(Position position)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (Direction dir in DirectionInfo.AllDirectionsBishop)
+            foreach (Direction dir in DirectionUtil.AllDirectionsBishop)
             {
                 Position p = position.PositionInDirection(dir);
                 while (p.PositionInDirection(dir) != Position.OUTOFBOUNDS)
@@ -363,7 +363,7 @@ namespace NoraGrace.Engine
         private static Bitboard RookAttacksCalc(Position position, Bitboard blockers)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (Direction dir in DirectionInfo.AllDirectionsRook)
+            foreach (Direction dir in DirectionUtil.AllDirectionsRook)
             {
                 Position p = position.PositionInDirection(dir);
                 while (p != Position.OUTOFBOUNDS)
@@ -379,7 +379,7 @@ namespace NoraGrace.Engine
         private static Bitboard BishopAttacksCalc(Position position, Bitboard blockers)
         {
             Bitboard retval = Bitboard.Empty;
-            foreach (Direction dir in DirectionInfo.AllDirectionsBishop)
+            foreach (Direction dir in DirectionUtil.AllDirectionsBishop)
             {
                 Position p = position.PositionInDirection(dir);
                 while (p != Position.OUTOFBOUNDS)
@@ -530,7 +530,7 @@ namespace NoraGrace.Engine
 
                 //find bishops
                 Console.WriteLine("private static readonly ulong[] _bishopMagics = new ulong[]{");
-                foreach (Position p in PositionInfo.AllPositions)
+                foreach (Position p in PositionUtil.AllPositions)
                 {
                     //var mask = BishopMask(p);
                     //var maskCount = mask.BitCount();
@@ -542,7 +542,7 @@ namespace NoraGrace.Engine
 
                 //find rooks
                 Console.WriteLine("\n\nprivate static readonly ulong[] _rookMagics = new ulong[]{");
-                foreach (Position p in PositionInfo.AllPositions)
+                foreach (Position p in PositionUtil.AllPositions)
                 {
                     //var mask = RookMask(p);
                     //var maskCount = mask.BitCount();

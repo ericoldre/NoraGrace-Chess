@@ -19,7 +19,7 @@ namespace NoraGrace.Engine
 		public override Move FindMove(FEN fen)
 		{
 			Board board = new Board(fen);
-			var moves = MoveInfo.GenMoves(board);
+			var moves = MoveUtil.GenMoves(board);
 
 			List<moveinfo> infos = new List<moveinfo>();
 			int totalPop = 0;

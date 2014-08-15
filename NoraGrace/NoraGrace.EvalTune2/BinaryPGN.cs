@@ -135,7 +135,7 @@ namespace NoraGrace.EvalTune2
                     board.IsCheck()
                     || (result == GameResult.Draw && board.FiftyMovePlyCount >= 10)
                     || ddepth == 0
-                    || MoveInfo.GenMoves(board).Any(m => m.CapturedPieceType().BasicVal() > m.MovingPieceType().BasicVal() && m.IsLegal(board));
+                    || MoveUtil.GenMoves(board).Any(m => m.CapturedPieceType().BasicVal() > m.MovingPieceType().BasicVal() && m.IsLegal(board));
 
                 writer.Write((int)move);
                 writer.Write((bool)exclude);

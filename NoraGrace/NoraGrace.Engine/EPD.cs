@@ -41,7 +41,7 @@ namespace NoraGrace.Engine
                     switch (key)
                     {
                         case "bm":
-                            retval.BestMove = MoveInfo.Parse(board, val);
+                            retval.BestMove = MoveUtil.Parse(board, val);
                             break;
                         case "id":
                             retval.ID = val;
@@ -55,7 +55,7 @@ namespace NoraGrace.Engine
                                     string smove = moveScore.Split('=')[0].Trim();
                                     string sscore = moveScore.Split('=')[1].Trim();
                                     if (retval.MoveScores == null) { retval.MoveScores = new Dictionary<Move, int>(); }
-                                    Move move = MoveInfo.Parse(board, smove);
+                                    Move move = MoveUtil.Parse(board, smove);
                                     if(!retval.MoveScores.ContainsKey(move))
                                     {
                                         retval.MoveScores.Add(move, int.Parse(sscore));

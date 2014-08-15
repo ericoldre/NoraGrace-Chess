@@ -10,7 +10,7 @@ namespace NoraGrace.Engine
         EMPTY = 0, Pawn = 1, Knight = 2, Bishop = 3, Rook = 4, Queen = 5, King = 6
     }
 
-    public static class PieceTypeInfo
+    public static class PieceTypeUtil
     {
         public const int LookupArrayLength = 7;
 
@@ -119,7 +119,7 @@ namespace NoraGrace.Engine
 
         public IEnumerable<KeyValuePair<Piece, T>> PieceValues()
         {
-            foreach (Piece piece in PieceInfo.AllPieces)
+            foreach (Piece piece in PieceUtil.AllPieces)
             {
                 yield return new KeyValuePair<Piece, T>(piece, this[piece.ToPieceType()]);
             }
@@ -144,7 +144,7 @@ namespace NoraGrace.Engine
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;//randomly choosen prime
-                foreach (var index in PieceTypeInfo.AllPieceTypes)
+                foreach (var index in PieceTypeUtil.AllPieceTypes)
                 {
                     T field = this[index];
                     int fieldHash = 6823; //randomly choosen prime

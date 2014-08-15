@@ -54,12 +54,12 @@ namespace NoraGrace.Engine
 
 		private Piece[] _pieceat = new Piece[65];
 
-		private int[][] _pieceCount = Helpers.ArrayInit<int>(2, PieceTypeInfo.LookupArrayLength);
+		private int[][] _pieceCount = Helpers.ArrayInit<int>(2, PieceTypeUtil.LookupArrayLength);
         private Position[] _kingpos = new Position[2];
-        private Bitboard[] _pieceTypes = new Bitboard[PieceTypeInfo.LookupArrayLength];
+        private Bitboard[] _pieceTypes = new Bitboard[PieceTypeUtil.LookupArrayLength];
         private Bitboard[] _playerBoards = new Bitboard[2];
 
-        private Position[][][] _piecePositions = Helpers.ArrayInit<Position>(2, PieceTypeInfo.LookupArrayLength, 10);
+        private Position[][][] _piecePositions = Helpers.ArrayInit<Position>(2, PieceTypeUtil.LookupArrayLength, 10);
         private int[] _piecePositionIndex = new int[65];
 
         private Bitboard _allPieces = 0;
@@ -324,7 +324,7 @@ namespace NoraGrace.Engine
 		{
 			if (IsCheck())
 			{
-				if (!MoveInfo.GenMovesLegal(this).Any())
+				if (!MoveUtil.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -336,7 +336,7 @@ namespace NoraGrace.Engine
 		{
 			if (!IsCheck())
 			{
-				if (!MoveInfo.GenMovesLegal(this).Any())
+				if (!MoveUtil.GenMovesLegal(this).Any())
 				{
 					return true;
 				}
@@ -406,7 +406,7 @@ namespace NoraGrace.Engine
 			{
 
                 //clear all existing pieces.
-                foreach (var pos in PositionInfo.AllPositions)
+                foreach (var pos in PositionUtil.AllPositions)
                 {
                     if (_pieceat[(int)pos] != Piece.EMPTY)
                     {
@@ -419,7 +419,7 @@ namespace NoraGrace.Engine
 				initPieceAtArray();
 
                 //add pieces
-                foreach (var pos in PositionInfo.AllPositions)
+                foreach (var pos in PositionUtil.AllPositions)
 				{
                     if (value.pieceat[pos.GetIndex64()] != Piece.EMPTY)
 					{
@@ -538,7 +538,7 @@ namespace NoraGrace.Engine
 
 		public void MoveApply(string movedesc)
 		{
-			Move move = MoveInfo.Parse(this, movedesc);
+			Move move = MoveUtil.Parse(this, movedesc);
 			this.MoveApply(move);
 		}
 

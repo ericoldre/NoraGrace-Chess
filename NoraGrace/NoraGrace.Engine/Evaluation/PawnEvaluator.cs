@@ -28,7 +28,7 @@ namespace NoraGrace.Engine.Evaluation
         {
             _attackMask[0] = new Bitboard[64];
             _attackMask[1] = new Bitboard[64];
-            foreach (var position in PositionInfo.AllPositions)
+            foreach (var position in PositionUtil.AllPositions)
             {
                 Bitboard north = position.ToBitboard().Flood(Direction.DirN) & ~position.ToBitboard();
                 Bitboard south = position.ToBitboard().Flood(Direction.DirS) & ~position.ToBitboard();
@@ -143,7 +143,7 @@ namespace NoraGrace.Engine.Evaluation
 
             while(positions != Bitboard.Empty)
             {
-                Position pos = BitboardInfo.PopFirst(ref positions);
+                Position pos = BitboardUtil.PopFirst(ref positions);
                 File f = pos.ToFile();
                 Rank r = pos.ToRank();
                 Bitboard bbFile = pos.ToFile().ToBitboard();
@@ -276,7 +276,7 @@ namespace NoraGrace.Engine.Evaluation
         public PhasedScore EvalPassedPawns(Board board, ChessEvalAttackInfo[] attackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
         {
             
-            PhasedScore retval = PhasedScoreInfo.Create(0, 0);
+            PhasedScore retval = PhasedScoreUtil.Create(0, 0);
 
             var positions = (passedPawns | candidatePawns) & board[Player.White];
             if (positions != Bitboard.Empty)
@@ -320,7 +320,7 @@ namespace NoraGrace.Engine.Evaluation
 
             while (positions != Bitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
             {
-                Position passedPos = BitboardInfo.PopFirst(ref positions);
+                Position passedPos = BitboardUtil.PopFirst(ref positions);
                 Position trailerPos = Position.OUTOFBOUNDS;
 
                 Piece trailerPiece = board.PieceInDirection(passedPos, mySouth, ref trailerPos);
@@ -386,7 +386,7 @@ namespace NoraGrace.Engine.Evaluation
                 totalEndScore += workspace[i];
             }
 
-            return PhasedScoreInfo.Create(totalStartScore, totalEndScore);
+            return PhasedScoreUtil.Create(totalStartScore, totalEndScore);
         }
 
         private void EvalPassedPawn(Player me, Position p, Position myKing, Position hisKing,
@@ -480,7 +480,7 @@ namespace NoraGrace.Engine.Evaluation
 
                 while (positions != Bitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
                 {
-                    Position passedPos = BitboardInfo.PopFirst(ref positions);
+                    Position passedPos = BitboardUtil.PopFirst(ref positions);
                     Position trailerPos = Position.OUTOFBOUNDS;
                     Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirS, ref trailerPos);
 
@@ -514,7 +514,7 @@ namespace NoraGrace.Engine.Evaluation
                         endScore = endScore / 2;
                     }
 
-                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Add(PhasedScoreInfo.Create(startScore, endScore));
+                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Add(PhasedScoreUtil.Create(startScore, endScore));
 
                     ///evalInfo.PawnsPassedStart += mbonus;
                     //evalInfo.PawnsPassedEnd += ebonus;
@@ -534,7 +534,7 @@ namespace NoraGrace.Engine.Evaluation
 
                 while (positions != Bitboard.Empty) // (ChessPosition passedPos in black.ToPositions())
                 {
-                    Position passedPos = BitboardInfo.PopFirst(ref positions);
+                    Position passedPos = BitboardUtil.PopFirst(ref positions);
                     Position passesPos2 = passedPos.Reverse();
                     Position trailerPos = Position.OUTOFBOUNDS;
                     Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirN, ref trailerPos);
@@ -568,7 +568,7 @@ namespace NoraGrace.Engine.Evaluation
                         endScore = endScore / 2;
                     }
 
-                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Subtract(PhasedScoreInfo.Create(startScore, endScore));
+                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Subtract(PhasedScoreUtil.Create(startScore, endScore));
                 }
             }
 
@@ -656,7 +656,7 @@ namespace NoraGrace.Engine.Evaluation
                 Bitboard playerPassed = passed & board[Player.White];
                 while (playerPassed != 0)
                 {
-                    Position pawnPos = BitboardInfo.PopFirst(ref playerPassed);
+                    Position pawnPos = BitboardUtil.PopFirst(ref playerPassed);
                     int plys;
                     if (IsPassedUnstoppable(board, Player.White, pawnPos, out plys))
                     {
@@ -673,7 +673,7 @@ namespace NoraGrace.Engine.Evaluation
                 Bitboard playerPassed = passed & board[Player.Black];
                 while (playerPassed != 0)
                 {
-                    Position pawnPos = BitboardInfo.PopFirst(ref playerPassed);
+                    Position pawnPos = BitboardUtil.PopFirst(ref playerPassed);
                     int plys;
                     if (IsPassedUnstoppable(board, Player.Black, pawnPos, out plys))
                     {
@@ -686,14 +686,14 @@ namespace NoraGrace.Engine.Evaluation
             {
                 if (plysToPromoteWhite < plysToPromoteBlack)
                 {
-                    return PhasedScoreInfo.Create(0, 750 - (plysToPromoteWhite * 20));
+                    return PhasedScoreUtil.Create(0, 750 - (plysToPromoteWhite * 20));
                 }
                 else
                 {
-                    return PhasedScoreInfo.Create(0, -750 + (plysToPromoteBlack * 20));
+                    return PhasedScoreUtil.Create(0, -750 + (plysToPromoteBlack * 20));
                 }
             }
-            return PhasedScoreInfo.Create(0, 0);
+            return PhasedScoreUtil.Create(0, 0);
         }
 
         public static bool IsPassedUnstoppable(Board board, Player pawnPlayer, Position pawnPos, out int plysToPromote)
@@ -773,7 +773,7 @@ namespace NoraGrace.Engine.Evaluation
             PawnZobrist = pawnZobrist;
             WhitePawns = whitePawns;
             BlackPawns = blackPawns;
-            Value = PhasedScoreInfo.Create(startVal, endVal);
+            Value = PhasedScoreUtil.Create(startVal, endVal);
             PassedPawns = passedPawns;
             Doubled = doubled;
             Isolated = isolated;

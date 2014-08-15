@@ -26,7 +26,7 @@ namespace NoraGrace.EvalTune.Mutators
 
         public PcSqMutator(Random rand)
         {
-            PieceType = PieceInfo.AllPieces[rand.Next(0, PieceInfo.AllPieces.Count())].ToPieceType();
+            PieceType = PieceUtil.AllPieces[rand.Next(0, PieceUtil.AllPieces.Count())].ToPieceType();
 
             switch (rand.Next(0, 3))
             {
@@ -49,10 +49,10 @@ namespace NoraGrace.EvalTune.Mutators
             
 
             List<Bitboard> boards = new List<Bitboard>();
-            boards.AddRange(PositionInfo.AllPositions.Select(p => p.ToBitboard()));
-            boards.AddRange(RankInfo.AllRanks.Select(r => r.ToBitboard()));
-            boards.AddRange(FileInfo.AllFiles.Select(f => f.ToBitboard()));
-            boards.AddRange(PositionInfo.AllPositions.Select(p => bitboardExpand(p.ToBitboard())));
+            boards.AddRange(PositionUtil.AllPositions.Select(p => p.ToBitboard()));
+            boards.AddRange(RankUtil.AllRanks.Select(r => r.ToBitboard()));
+            boards.AddRange(FileUtil.AllFiles.Select(f => f.ToBitboard()));
+            boards.AddRange(PositionUtil.AllPositions.Select(p => bitboardExpand(p.ToBitboard())));
 
             this.Positions = boards[rand.Next(0, boards.Count())];
             

@@ -12,7 +12,7 @@ namespace NoraGrace.Engine
         EMPTY = 8,
     }
 
-    public static class FileInfo
+    public static class FileUtil
     {
         private static readonly string _filedesclookup = "abcdefgh";
         public static readonly File[] AllFiles = new File[] { File.FileA, File.FileB, File.FileC, File.FileD, File.FileE, File.FileF, File.FileG, File.FileH };

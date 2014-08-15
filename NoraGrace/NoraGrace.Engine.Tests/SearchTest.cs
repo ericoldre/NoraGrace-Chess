@@ -86,8 +86,8 @@ namespace NoraGrace.Engine.Tests
 
         private void AssertFirstGreaterSEE(Board board, string move1, string move2)
         {
-            Move m1 = MoveInfo.Parse(board, move1);
-            Move m2 = MoveInfo.Parse(board, move2);
+            Move m1 = MoveUtil.Parse(board, move1);
+            Move m2 = MoveUtil.Parse(board, move2);
             StaticExchange se = new StaticExchange();
 
             int score1 = se.CalculateScore(board, m1);

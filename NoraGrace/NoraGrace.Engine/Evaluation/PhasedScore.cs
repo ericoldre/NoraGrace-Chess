@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace NoraGrace.Engine.Evaluation
 {
-    [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.Evaluation.PhasedScoreInfo.Description(this),nq}")]
+    [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.Evaluation.PhasedScoreUtil.Description(this),nq}")]
     public enum PhasedScore: long
     {
     }
 
-    public static class PhasedScoreInfo
+    public static class PhasedScoreUtil
     {
         public static PhasedScore Create(int opening, int endgame)
         {

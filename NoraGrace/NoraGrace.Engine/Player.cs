@@ -45,7 +45,7 @@ namespace NoraGrace.Engine
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;//randomly choosen prime
-                foreach (var index in PlayerInfo.AllPlayers)
+                foreach (var index in PlayerUtil.AllPlayers)
                 {
                     T field = this[index];
                     int fieldHash = 6823; //randomly choosen prime
@@ -60,7 +60,7 @@ namespace NoraGrace.Engine
         }
     }
     
-    public static class PlayerInfo
+    public static class PlayerUtil
     {
         public static readonly Player[] AllPlayers = new Player[] { Player.White, Player.Black };
 

@@ -10,7 +10,7 @@ namespace NoraGrace.Engine.Evaluation
         Opening = 0, Endgame = 1
     }
 
-    public static class GameStageInfo
+    public static class GameStageUtil
     {
 
         public static readonly GameStage[] AllGameStages = new GameStage[] { GameStage.Opening, GameStage.Endgame };

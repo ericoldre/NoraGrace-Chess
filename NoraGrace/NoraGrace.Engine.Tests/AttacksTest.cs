@@ -27,7 +27,7 @@ namespace NoraGrace.Engine.Tests
         private static Bitboard RandomBitboard(int pctFill)
         {
             Bitboard retval = 0;
-            foreach (var pos in PositionInfo.AllPositions)
+            foreach (var pos in PositionUtil.AllPositions)
             {
                 if (rand.Next(0, 99) < pctFill)
                 {

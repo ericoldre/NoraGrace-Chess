@@ -45,10 +45,10 @@ namespace NoraGrace.Engine
 
             while (xray != Bitboard.Empty)
             {
-                Position xrayAttacker = BitboardInfo.PopFirst(ref xray);
+                Position xrayAttacker = BitboardUtil.PopFirst(ref xray);
                 Bitboard xrayBlockers = xrayAttacker.Between(kingPos) & all;
 
-                Position xrayBlocker1 = BitboardInfo.PopFirst(ref xrayBlockers);
+                Position xrayBlocker1 = BitboardUtil.PopFirst(ref xrayBlockers);
                 if (xrayBlockers == Bitboard.Empty)
                 {
                     //only one piece inbetween xrayAttacker and king

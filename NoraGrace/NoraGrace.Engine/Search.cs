@@ -208,8 +208,8 @@ namespace NoraGrace.Engine
                 MaxNodes = int.MaxValue;
                 ContemptForDraw = 40;
                 TimeManager = new TimeManagerAnalyze();
-                ExtensionCheck = SearchDepthInfo.FromPly(1);
-                ExtensionPawn7th = SearchDepthInfo.FromPly(1);
+                ExtensionCheck = SearchDepthUtil.FromPly(1);
+                ExtensionPawn7th = SearchDepthUtil.FromPly(1);
                 ExtendSEEPositiveOnly = true;
 			}
 		}
@@ -305,7 +305,7 @@ namespace NoraGrace.Engine
 			int MateScoreLast = 0;
 			int MateScoreCount = 0;
 
-            var maxDepth = SearchDepthInfo.FromPly(Math.Min(MAX_PLY, this.SearchArgs.MaxDepth));
+            var maxDepth = SearchDepthUtil.FromPly(Math.Min(MAX_PLY, this.SearchArgs.MaxDepth));
 
             while (depth.Value() <= maxDepth.Value())
             {
@@ -381,7 +381,7 @@ namespace NoraGrace.Engine
 			bool in_check_before_move = board.IsCheck();
 
             //get all legal moves ordered first by TT move then by nodes needed to refute.
-            var moves = MoveInfo.GenMovesLegal(board)
+            var moves = MoveUtil.GenMovesLegal(board)
                 .Select(m => new { move = m, nodes = _rootMoveNodeCounts.ContainsKey(m) ? _rootMoveNodeCounts[m] : 0 })
                 .OrderBy(m => m.move == tt_move ? 0 : 1)
                 .ThenByDescending(m => m.nodes)
@@ -481,7 +481,7 @@ namespace NoraGrace.Engine
             foreach (var move in moves)
             {
                 //var legalMoves = ChessMoveInfo.GenMovesLegal(board).ToArray();
-                if (MoveInfo.GenMovesLegal(board).Contains(move))
+                if (MoveUtil.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);
                     board.MoveApply(move);
@@ -497,7 +497,7 @@ namespace NoraGrace.Engine
                 Move move;
                 int score;
                 this.SearchArgs.TransTable.QueryCutoff(board.ZobristBoard, 0, int.MinValue, int.MaxValue, out move, out score);
-                if (MoveInfo.GenMovesLegal(board).Contains(move))
+                if (MoveUtil.GenMovesLegal(board).Contains(move))
                 {
                     retval.Add(move);
                     board.MoveApply(move);

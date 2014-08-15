@@ -10,7 +10,7 @@ namespace NoraGrace.Engine
 	/// </summary>
 	public class Zobrist
 	{
-        private static readonly Int64[,] _piecepos = new Int64[PieceInfo.LookupArrayLength, 64];
+        private static readonly Int64[,] _piecepos = new Int64[PieceUtil.LookupArrayLength, 64];
 		private static readonly Int64[] _enpassant = new Int64[64];
 
         private static readonly Int64 _castleWS;
@@ -31,10 +31,10 @@ namespace NoraGrace.Engine
 			_player = Rand64(rand);
 
 			//initialize the piecepos and enpassant zob keys
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
 			{
 				_enpassant[(int)pos] = Rand64(rand);
-				foreach (Piece piece in PieceInfo.AllPieces)
+				foreach (Piece piece in PieceUtil.AllPieces)
 				{
 					_piecepos[(int)piece, (int)pos] = Rand64(rand);
 				}
@@ -95,7 +95,7 @@ namespace NoraGrace.Engine
 		public static Int64 BoardZobPawn(Board board)
 		{
 			Int64 retval = 0;
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
 			{
 				Piece piece = board.PieceAt(pos);
 				if (piece == Piece.WPawn || piece == Piece.BPawn)
@@ -108,9 +108,9 @@ namespace NoraGrace.Engine
         public static Int64 BoardZobMaterial(Board board)
         {
             Int64 retval = 0;
-            foreach (Player player in PlayerInfo.AllPlayers)
+            foreach (Player player in PlayerUtil.AllPlayers)
             {
-                foreach (PieceType pieceType in PieceTypeInfo.AllPieceTypes)
+                foreach (PieceType pieceType in PieceTypeUtil.AllPieceTypes)
                 {
                     for (int i = 0; i < board.PieceCount(player, pieceType); i++)
                     {
@@ -125,7 +125,7 @@ namespace NoraGrace.Engine
 		public static Int64 BoardZob(Board board)
 		{
 			Int64 retval = 0;
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
 			{
 				Piece piece = board.PieceAt(pos);
 				if (piece != Piece.EMPTY)

@@ -4,10 +4,7 @@ using System.Text;
 using System.Linq;
 namespace NoraGrace.Engine
 {
-    /// <summary>
-    /// Summary description for ChessMove.
-    /// </summary>
-    /// 
+
     public enum NotationType
     {
         Coord,
@@ -15,13 +12,13 @@ namespace NoraGrace.Engine
         Detailed
     }
 
-    [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.MoveInfo.DebugDescription(this),nq}")]
+    [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.MoveUtil.DebugDescription(this),nq}")]
     public enum Move
     {
         EMPTY = 0
     }
 
-    public static partial class MoveInfo
+    public static partial class MoveUtil
     {
 
         public static Move Create(Position from, Position to, Piece piece, Piece captured)
@@ -140,7 +137,7 @@ namespace NoraGrace.Engine
 
         public static bool IsLegal(this Move move, Board board)
         {
-            List<Move> legalmoves = new List<Move>(MoveInfo.GenMovesLegal(board));
+            List<Move> legalmoves = new List<Move>(MoveUtil.GenMovesLegal(board));
             foreach (Move legalmove in legalmoves)
             {
                 if (legalmove == move) { return true; }

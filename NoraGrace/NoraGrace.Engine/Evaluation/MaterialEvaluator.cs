@@ -89,7 +89,7 @@ namespace NoraGrace.Engine.Evaluation
 
             int startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
             //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
-            int score = PhasedScoreInfo.Create(startScore, endScore).ApplyWeights(startWeight);
+            int score = PhasedScoreUtil.Create(startScore, endScore).ApplyWeights(startWeight);
             return new MaterialResults(zob, startWeight, score, 100, 100);
             //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
         }

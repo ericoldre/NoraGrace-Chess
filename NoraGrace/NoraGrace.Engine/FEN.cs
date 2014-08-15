@@ -31,7 +31,7 @@ namespace NoraGrace.Engine
             int FiftyMove = 0,
             int FullMove = 0)
         {
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
             {
                 pieceat[(int)pos] = Pieces[pos];
             }
@@ -91,7 +91,7 @@ namespace NoraGrace.Engine
 			//grab the string data from the regular expression
 			System.Text.RegularExpressions.Match match = matches[0];
 			string[] sRanks = new string[8];
-			foreach (Rank rank in RankInfo.AllRanks)
+			foreach (Rank rank in RankUtil.AllRanks)
 			{
                 sRanks[int.Parse(rank.RankToString()) - 1] = match.Groups["R" + rank.RankToString()].Value;
 			}
@@ -104,13 +104,13 @@ namespace NoraGrace.Engine
 
 			//parse the string values into usable formats
 
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
 			{
 				pieceat[(int)pos] = Piece.EMPTY;
 			}
 
 			//set board piece positions
-			foreach (Rank rank in RankInfo.AllRanks)
+			foreach (Rank rank in RankUtil.AllRanks)
 			{
                 string srank = sRanks[int.Parse(rank.RankToString()) - 1];
 				int ifile = 0;
@@ -124,7 +124,7 @@ namespace NoraGrace.Engine
 					}
 					else
 					{
-                        pieceat[(int)FileInfo.AllFiles[ifile].ToPosition(rank)] = PieceInfo.Parse(c);
+                        pieceat[(int)FileUtil.AllFiles[ifile].ToPosition(rank)] = PieceUtil.Parse(c);
 						ifile++;
 					}
 				}
@@ -170,7 +170,7 @@ namespace NoraGrace.Engine
 			this.enpassant = (Position.OUTOFBOUNDS);
 			if (sEnpassant != "-")
 			{
-				enpassant = PositionInfo.Parse(sEnpassant);
+				enpassant = PositionUtil.Parse(sEnpassant);
 			}
 
 			//set fifty move count
@@ -192,7 +192,7 @@ namespace NoraGrace.Engine
 		public FEN Reverse()
 		{
             ChessPositionDictionary<Piece> pieces = new ChessPositionDictionary<Piece>();
-            foreach (Position pos in PositionInfo.AllPositions)
+            foreach (Position pos in PositionUtil.AllPositions)
             {
                 var piece = 
                 pieces[pos] = this.pieceat[(int)pos.Reverse()].ToOppositePlayer();
@@ -210,8 +210,8 @@ namespace NoraGrace.Engine
 				int emptycount = 0;
 				for (int ifile = 0; ifile <= 7; ifile++)
 				{
-					Rank rank = RankInfo.AllRanks[irank];
-					File file = FileInfo.AllFiles[ifile];
+					Rank rank = RankUtil.AllRanks[irank];
+					File file = FileUtil.AllFiles[ifile];
 					Piece piece = pieceat[(int)file.ToPosition(rank)];
 
 					if (piece == Piece.EMPTY)

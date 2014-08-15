@@ -22,7 +22,7 @@ namespace NoraGrace.EvalTune.Mutators
 
         public PieceValueMutator(Random rand)
         {
-            PieceType = PieceInfo.AllPieces[rand.Next(0, PieceInfo.AllPieces.Count())].ToPieceType();
+            PieceType = PieceUtil.AllPieces[rand.Next(0, PieceUtil.AllPieces.Count())].ToPieceType();
 
             switch (rand.Next(0, 3))
             {

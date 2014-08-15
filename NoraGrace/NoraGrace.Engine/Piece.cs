@@ -19,7 +19,7 @@ namespace NoraGrace.Engine
 
 
         [System.Xml.Serialization.XmlIgnore()]
-        private T[] _values = new T[PieceInfo.LookupArrayLength];
+        private T[] _values = new T[PieceUtil.LookupArrayLength];
 
         [System.Xml.Serialization.XmlIgnore()]
         public T this[Piece piece]
@@ -53,7 +53,7 @@ namespace NoraGrace.Engine
 
         public IEnumerable<KeyValuePair<Piece, T>> PieceValues()
         {
-            foreach (Piece piece in PieceInfo.AllPieces)
+            foreach (Piece piece in PieceUtil.AllPieces)
             {
                 yield return new KeyValuePair<Piece, T>(piece, this[piece]);
             }
@@ -64,7 +64,7 @@ namespace NoraGrace.Engine
             PieceDictionary<T> other = obj as PieceDictionary<T>;
             if (other == null) { return false; }
 
-            foreach (Piece pos in PieceInfo.AllPieces)
+            foreach (Piece pos in PieceUtil.AllPieces)
             {
                 if (!this[pos].Equals(other[pos]))
                 {
@@ -78,7 +78,7 @@ namespace NoraGrace.Engine
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;//randomly choosen prime
-                foreach (var index in PieceInfo.AllPieces)
+                foreach (var index in PieceUtil.AllPieces)
                 {
                     T field = this[index];
                     int fieldHash = 6823; //randomly choosen prime
@@ -93,7 +93,7 @@ namespace NoraGrace.Engine
         }
     }
 
-    public static class PieceInfo
+    public static class PieceUtil
     {
         public const int LookupArrayLength = 15;
 

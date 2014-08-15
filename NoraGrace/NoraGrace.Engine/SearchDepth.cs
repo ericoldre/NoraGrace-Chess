@@ -11,7 +11,7 @@ namespace NoraGrace.Engine
         PLY = 4
     }
 
-    public static class SearchDepthInfo
+    public static class SearchDepthUtil
     {
         
         public static SearchDepth SubstractPly(this SearchDepth depth, int ply)

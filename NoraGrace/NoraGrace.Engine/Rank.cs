@@ -18,7 +18,7 @@ namespace NoraGrace.Engine
         EMPTY = 8
     }
 
-    public static class RankInfo
+    public static class RankUtil
     {
         private static readonly string _rankdesclookup = "87654321";
 

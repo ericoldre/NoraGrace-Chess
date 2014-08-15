@@ -18,13 +18,7 @@ namespace NoraGrace.Engine.Evaluation
             public int AmountPerAttackDefault { get; set; }
         }
 
-        public class ChessEvalSettingsWeight
-        {
-            public ChessGameStageDictionary<int> Material = new ChessGameStageDictionary<int>();
-            public ChessGameStageDictionary<int> PcSq = new ChessGameStageDictionary<int>();
-            public ChessGameStageDictionary<int> Mobility = new ChessGameStageDictionary<int>();
-        }
-            
+           
 
         #endregion
 
@@ -34,12 +28,6 @@ namespace NoraGrace.Engine.Evaluation
         {
             Settings retval = new Settings()
             {
-                Weight = new ChessEvalSettingsWeight()
-                {
-                    Material = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
-                    PcSq = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
-                    Mobility = new ChessGameStageDictionary<int>() { Opening = 100, Endgame = 100 },
-                },
                 MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
                 {
                     Pawn = new ChessGameStageDictionary<int>() { Opening = 85, Endgame = 105 },
@@ -273,7 +261,6 @@ namespace NoraGrace.Engine.Evaluation
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnUnconnected = new ChessGameStageDictionary<int>();
         public ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>();
-        public ChessEvalSettingsWeight Weight = new ChessEvalSettingsWeight();
         
         public int PawnPassed8thRankScore = 0;
         public double PawnPassedRankReduction = 0;

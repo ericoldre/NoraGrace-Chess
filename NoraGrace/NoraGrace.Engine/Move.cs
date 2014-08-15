@@ -5,12 +5,7 @@ using System.Linq;
 namespace NoraGrace.Engine
 {
 
-    public enum NotationType
-    {
-        Coord,
-        San,
-        Detailed
-    }
+
 
     [System.Diagnostics.DebuggerDisplay(@"{NoraGrace.Engine.MoveUtil.DebugDescription(this),nq}")]
     public enum Move
@@ -20,6 +15,13 @@ namespace NoraGrace.Engine
 
     public static partial class MoveUtil
     {
+
+        public enum NotationType
+        {
+            Coord,
+            San,
+            Detailed
+        }
 
         public static Move Create(Position from, Position to, Piece piece, Piece captured)
         {

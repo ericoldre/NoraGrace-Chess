@@ -398,7 +398,7 @@ namespace NoraGrace.Engine
 			{
 				sbHeaders.AppendLine(string.Format(@"[{0} ""{1}""]", header.Key, header.Value));// header.ToString() + Environment.NewLine);
 			}
-			if (_headers.ContainsKey("Result"))
+			if (!_headers.ContainsKey("Result"))
 			{
 				//sbHeaders.Append(new ChessPGNHeader("Result", sResult).ToString() + Environment.NewLine);
                 sbHeaders.Append(string.Format(@"[Result ""{0}""]", _headers["Result"]) + Environment.NewLine);

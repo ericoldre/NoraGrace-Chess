@@ -19,9 +19,7 @@ namespace NoraGrace.EvalTune2
         static void Main(string[] args)
         {
 
-
-
-            //BinaryPGN.ConvertToBinary("noise.pgn", "noise.bin");
+            //BinaryPGN.ConvertToBinary("noise3.pgn", "noise.bin");
             //Console.WriteLine("done");
             //return;
 
@@ -47,22 +45,22 @@ namespace NoraGrace.EvalTune2
             };
 
 
-            TunableParameterList parameters = new TunableParameterList();
-            parameters.Add(TunableParameter.KingAttackCountValue);
-            parameters.Add(TunableParameter.KingAttackWeightCutoff);
-            parameters.Add(TunableParameter.KingRingAttackControlBonus);
-            parameters.Add(TunableParameter.KingRingAttack);
-            parameters.Add(TunableParameter.KingAttackWeightValue);
-            //parameters.Add(TunableParameter.KingAttackFactor);
-            //parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
+            //TunableParameterList parameters = new TunableParameterList();
+            //parameters.Add(TunableParameter.KingAttackCountValue);
+            //parameters.Add(TunableParameter.KingAttackWeightCutoff);
+            //parameters.Add(TunableParameter.KingRingAttackControlBonus);
+            //parameters.Add(TunableParameter.KingRingAttack);
+            //parameters.Add(TunableParameter.KingAttackWeightValue);
+            ////parameters.Add(TunableParameter.KingAttackFactor);
+            ////parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
 
-            Tune(parameters, "KingAttack.txt", progCB);
-            double k = 1.9f;
-            double mcp = 300;
+            //Tune(parameters, "KingAttack.txt", progCB);
+            double k = 1.54f;
+            double mcp = 160;
 
             //FindRook(k, mcp, progCB);
-            //FindLowTanDiv(k, progCB);
-            //FindLowPow(300, progCB);
+            FindLowTanDiv(2, progCB);
+            //FindLowPow(mcp, progCB);
 
             Console.WriteLine(sw.Elapsed);
             Console.ReadLine();
@@ -85,7 +83,7 @@ namespace NoraGrace.EvalTune2
                 System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
                 stopwatch.Start();
 
-                double e = Fitness.FindFitness(() => parameters.CreateEvaluator(testValues), 1.9, 300, progCallback);
+                double e = Fitness.FindFitness(() => parameters.CreateEvaluator(testValues), progCallback);
 
                 stopwatch.Stop();
 
@@ -144,7 +142,7 @@ namespace NoraGrace.EvalTune2
         //    Console.WriteLine("lowval={0}, lowE={1}", lowVal, lowE);
         //}
 
-        public static void FindRook(double pow, double tanDiv, Action<int> progressCb)
+        public static void FindRook(Action<int> progressCb)
         {
             Func<double, Evaluator> fnEval = (rook) =>
             {
@@ -158,7 +156,7 @@ namespace NoraGrace.EvalTune2
             {
                 System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
-                double retval = Fitness.FindFitness(() => fnEval(rook), pow, tanDiv, progressCb);
+                double retval = Fitness.FindFitness(() => fnEval(rook), progressCb);
 
                 Console.WriteLine(string.Format("time={2} rook={0} retval={1}", rook, retval, sw.Elapsed));
                 return retval;
@@ -170,12 +168,13 @@ namespace NoraGrace.EvalTune2
 
         }
 
-        public static void FindLowPow(double tanDiv, Action<int> progressCb)
+        public static void FindLowPow(Action<int> progressCb)
         {
 
             Func<double, double> fnScore = (pow) =>
             {
-                double retval = Fitness.FindFitness(Fitness.DefaultEvaluator, pow, tanDiv, progressCb);
+                Fitness.TanPow = pow;
+                double retval = Fitness.FindFitness(Fitness.DefaultEvaluator, progressCb);
                 Console.WriteLine(string.Format("pow={0} retval={1}", pow, retval));
                 return retval;
             };
@@ -194,7 +193,8 @@ namespace NoraGrace.EvalTune2
 
             Func<double, double> fnScore = (tanDiv) =>
             {
-                double retval = Fitness.FindFitness(Fitness.DefaultEvaluator, k, tanDiv, progressCb);
+                Fitness.TanDiv = tanDiv;
+                double retval = Fitness.FindFitness(Fitness.DefaultEvaluator, progressCb);
                 Console.WriteLine(string.Format("tanDiv={0} retval={1}", tanDiv, retval));
                 return retval;
             };

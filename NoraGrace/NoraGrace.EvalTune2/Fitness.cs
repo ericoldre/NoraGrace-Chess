@@ -16,12 +16,12 @@ namespace NoraGrace.EvalTune2
             return new Evaluator(Settings.Default());
         }
 
-        public static double FindFitness(Func<Engine.Evaluation.Evaluator> fnEvaluator, double k, double tanDiv, Action<int> progCallback = null)
+        public static double FindFitness(Func<Engine.Evaluation.Evaluator> fnEvaluator, Action<int> progCallback = null)
         {
-            return PgnListEParallel(BinaryPGN.Read("noise.bin", progCallback), fnEvaluator, k, tanDiv);
+            return PgnListEParallel(BinaryPGN.Read("noise.bin", progCallback), fnEvaluator);
         }
 
-        public static double PgnListEParallel(IEnumerable<BinaryPGN> pgnList, Func<Engine.Evaluation.Evaluator> fnCreateEval, double k, double mcp)
+        public static double PgnListEParallel(IEnumerable<BinaryPGN> pgnList, Func<Engine.Evaluation.Evaluator> fnCreateEval)
         {
             double sum = 0;
             int count = 0;
@@ -50,7 +50,7 @@ namespace NoraGrace.EvalTune2
                 }
 
 
-                var pgnE = PgnE(pgn, myThreadEvaluator, myThreadStack, k, mcp);
+                var pgnE = PgnE(pgn, myThreadEvaluator, myThreadStack);
 
                 lock (_resultLock)
                 {
@@ -68,7 +68,7 @@ namespace NoraGrace.EvalTune2
 
 
 
-        public static double PgnE(BinaryPGN pgn, Evaluator evaluator, MovePicker.Stack moveStack, double k, double mcp)
+        public static double PgnE(BinaryPGN pgn, Evaluator evaluator, MovePicker.Stack moveStack)
         {
             Board board = new Board();
             GameResult result = pgn.Result;
@@ -83,7 +83,7 @@ namespace NoraGrace.EvalTune2
                 board.MoveApply(move);
                 if (exclude) { continue; }
 
-                var e = PosE(board, result, evaluator, moveStack, k, mcp);
+                var e = PosE(board, result, evaluator, moveStack);
                 sum += e;
                 c++;
             }
@@ -94,27 +94,30 @@ namespace NoraGrace.EvalTune2
             return retval;
         }
 
-        public static double PosE(Board board, GameResult gameResult, Evaluator evaluator, MovePicker.Stack moveStack, double k, double mcp)
+        public static double PosE(Board board, GameResult gameResult, Evaluator evaluator, MovePicker.Stack moveStack)
         {
             double qscore = qScore(board, evaluator, moveStack);
-            double retval = TanDiff(qscore, gameResult, k, mcp);
+            double retval = TanDiff(qscore, gameResult);
             return retval;
 
         }
 
-        public static double TanDiff(double qscore, GameResult gameResult, double pow, double div)
+        public static double TanPow = 2;
+        public static double TanDiv = 340;
+
+        public static double TanDiff(double qscore, GameResult gameResult)
         {
-            double tanScore = TanScore(qscore, div);
+            double tanScore = TanScore(qscore);
             double diff = Math.Abs(tanScore - (double)gameResult);
 
-            double retval = Math.Pow(diff, pow);
+            double retval = Math.Pow(diff, 2);
             //System.Diagnostics.Debug.Assert(retval >= 0 && retval <= 1);
             return retval;
         }
 
-        public static double TanScore(double qscore, double div)
+        public static double TanScore(double qscore)
         {
-            double divided = qscore / div;
+            double divided = qscore / TanDiv;
             double tan = Math.Tanh(divided);
             return tan;
         }

@@ -45,21 +45,19 @@ namespace NoraGrace.EvalTune2
             };
 
 
-            //TunableParameterList parameters = new TunableParameterList();
-            //parameters.Add(TunableParameter.KingAttackCountValue);
-            //parameters.Add(TunableParameter.KingAttackWeightCutoff);
-            //parameters.Add(TunableParameter.KingRingAttackControlBonus);
-            //parameters.Add(TunableParameter.KingRingAttack);
-            //parameters.Add(TunableParameter.KingAttackWeightValue);
-            ////parameters.Add(TunableParameter.KingAttackFactor);
-            ////parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
+            TunableParameterList parameters = new TunableParameterList();
+            parameters.Add(TunableParameter.KingAttackCountValue);
+            parameters.Add(TunableParameter.KingAttackWeightCutoff);
+            parameters.Add(TunableParameter.KingRingAttackControlBonus);
+            parameters.Add(TunableParameter.KingRingAttack);
+            parameters.Add(TunableParameter.KingAttackWeightValue);
+            //parameters.Add(TunableParameter.KingAttackFactor);
+            //parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
 
-            //Tune(parameters, "KingAttack.txt", progCB);
-            double k = 1.54f;
-            double mcp = 160;
+            Tune(parameters, "KingAttack.txt", progCB);
 
-            //FindRook(k, mcp, progCB);
-            FindLowTanDiv(2, progCB);
+            //FindRook(progCB);
+            //FindLowTanDiv(2, progCB);
             //FindLowPow(mcp, progCB);
 
             Console.WriteLine(sw.Elapsed);
@@ -69,8 +67,10 @@ namespace NoraGrace.EvalTune2
 
         }
 
-        public static void Tune(TunableParameterList parameters, string fileName, Action<int> progCallback)
+        public static void Tune(TunableParameterList parameters, string testName, Action<int> progCallback)
         {
+            //save initial settings
+            parameters.CreateSettings(parameters.CreateDefaultValues()).Save(string.Format("{0}.orig.xml", testName));
 
             double bestE = double.MaxValue;
             int iteration = 0;
@@ -96,12 +96,13 @@ namespace NoraGrace.EvalTune2
                 if (e < bestE)
                 {
                     bestE = e;
-                    parameters.WriteToFile(fileName, testValues, e, iteration);
+                    parameters.WriteToFile(string.Format("{0}.bestlog.txt", testName), testValues, e, iteration);
                     Console.WriteLine("newbest");
+                    parameters.CreateSettings(testValues).Save(string.Format("{0}.best.xml", testName));
                 }
                 else
                 {
-                    parameters.WriteToFile("reject.txt", testValues, e, iteration);
+                    parameters.WriteToFile(string.Format("{0}.rejectlog.txt", testName), testValues, e, iteration);
                 }
                 Console.WriteLine("");
                 return e;
@@ -147,8 +148,8 @@ namespace NoraGrace.EvalTune2
             Func<double, Evaluator> fnEval = (rook) =>
             {
                 var settings = Settings.Default();
-                settings.MaterialValues.Pawn.Opening = (int)rook;
-                settings.MaterialValues.Pawn.Endgame = (int)rook;
+                //settings.MaterialValues.Rook.Opening = (int)rook;
+                settings.MaterialValues.Rook.Endgame = (int)rook;
                 return new Evaluator(settings);
             };
 

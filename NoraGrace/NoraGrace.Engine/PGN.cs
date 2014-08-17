@@ -415,6 +415,19 @@ namespace NoraGrace.Engine
             }
         }
 
+        public static IEnumerable<PGN> AllGames(System.IO.FileInfo file)
+        {
+            using (var reader = new System.IO.StreamReader(file.FullName))
+            {
+                while (true)
+                {
+                    PGN pgn = NextGame(reader);
+                    if (pgn == null) { break; }
+                    yield return pgn;
+                }
+            }
+        }
+
 		public static PGN NextGame(string PGNString)
 		{
             System.IO.MemoryStream memory = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(PGNString));

@@ -18,8 +18,8 @@ namespace NoraGrace.EvalTune2
     {
         static void Main(string[] args)
         {
-
-            //BinaryPGN.ConvertToBinary("noise3.pgn", "noise.bin");
+            var pgns = PGN.AllGames(new System.IO.FileInfo("noise3.pgn")).Concat(PGN.AllGames(new System.IO.FileInfo("noise.pgn")).Take(20000));
+            BinaryPGN.ConvertToBinary(pgns, "noise.bin");
             //Console.WriteLine("done");
             //return;
 
@@ -46,15 +46,36 @@ namespace NoraGrace.EvalTune2
 
 
             TunableParameterList parameters = new TunableParameterList();
-            parameters.Add(TunableParameter.KingAttackCountValue);
-            parameters.Add(TunableParameter.KingAttackWeightCutoff);
-            parameters.Add(TunableParameter.KingRingAttackControlBonus);
-            parameters.Add(TunableParameter.KingRingAttack);
-            parameters.Add(TunableParameter.KingAttackWeightValue);
+
+            foreach (var gs in GameStageUtil.AllGameStages)
+            {
+                foreach (var pt in PieceTypeUtil.AllPieceTypes)
+                {
+                    parameters.Add(new TunableParameterMaterial(gs, pt));
+                }
+            }
+            foreach (var gs in GameStageUtil.AllGameStages)
+            {
+                foreach (var pt in PieceTypeUtil.AllPieceTypes)
+                {
+                    foreach (var p in PositionUtil.AllPositions)
+                    {
+                        if (pt == PieceType.Pawn && (p.ToRank() == Rank.Rank1 || p.ToRank() == Rank.Rank8)) { continue; }
+                        parameters.Add(new TunableParameterPcSq(gs, pt, p));
+                    }
+                }
+            }
+
+
+            //parameters.Add(TunableParameter.KingAttackCountValue);
+            //parameters.Add(TunableParameter.KingAttackWeightCutoff);
+            //parameters.Add(TunableParameter.KingRingAttackControlBonus);
+            //parameters.Add(TunableParameter.KingRingAttack);
+            //parameters.Add(TunableParameter.KingAttackWeightValue);
             //parameters.Add(TunableParameter.KingAttackFactor);
             //parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
 
-            Tune(parameters, "KingAttack.txt", progCB);
+            Tune(parameters, "MaterialPcSq.txt", progCB);
 
             //FindRook(progCB);
             //FindLowTanDiv(2, progCB);
@@ -108,7 +129,7 @@ namespace NoraGrace.EvalTune2
                 return e;
             };
 
-            Optimize.OptimizeValues(initialValues, increments, fnScore, Optimize.LowerBetter);
+            Optimize.OptimizeEachIndividually(initialValues, increments, fnScore, Optimize.LowerBetter);
         }
 
         

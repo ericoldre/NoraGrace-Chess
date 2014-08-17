@@ -93,6 +93,22 @@ namespace NoraGrace.EvalTune2
             }
         }
 
+        public static void ConvertToBinary(IEnumerable<PGN> pgns, string outputFile)
+        {
+            
+            using (var bw = new System.IO.BinaryWriter(new System.IO.FileStream(outputFile, System.IO.FileMode.Create)))
+            {
+                int c = 0;
+                foreach (var pgn in pgns)
+                {
+                    BinaryPGN.Write(pgn, bw);
+                    c++;
+                    if (c % 1000 == 0) { Console.WriteLine(c); }
+                }
+            }
+            
+        }
+
         public static void Write(IEnumerable<NoraGrace.Engine.PGN> pgns, System.IO.BinaryWriter writer)
         {
             foreach (var pgn in pgns)
@@ -101,6 +117,8 @@ namespace NoraGrace.EvalTune2
             }
         }
 
+
+        
         public static void Write(NoraGrace.Engine.PGN pgn, System.IO.BinaryWriter writer)
         {
             var result = pgn.Result.Value;
@@ -135,7 +153,8 @@ namespace NoraGrace.EvalTune2
                     board.IsCheck()
                     || (result == GameResult.Draw && board.FiftyMovePlyCount >= 10)
                     || ddepth == 0
-                    || MoveUtil.GenMoves(board).Any(m => m.CapturedPieceType().BasicVal() > m.MovingPieceType().BasicVal() && m.IsLegal(board));
+                    || Math.Abs(dscore) > 300
+                    || !PositionQuiet(board);
 
                 writer.Write((int)move);
                 writer.Write((bool)exclude);
@@ -147,6 +166,48 @@ namespace NoraGrace.EvalTune2
         }
 
 
+
+        private static NoraGrace.Engine.MovePicker.Stack _mpsQuiet;
+        public static bool PositionQuiet(Board board)
+        {
+            if (_mpsQuiet == null) { _mpsQuiet = new MovePicker.Stack(); }
+            var x = QSearchQuiet(board, _mpsQuiet);
+            return x <= 0;
+        }
+
+        private static int QSearchQuiet(Board board, MovePicker.Stack moveStack, int ply = 0)
+        {
+            if (ply >= 10) { return 0; }
+            var plyMoves = moveStack[ply];
+            plyMoves.Initialize(board, Move.EMPTY, !board.IsCheck());
+            ChessMoveData moveData;
+            //Bitboard taken = Bitboard.Empty;
+
+            int best = board.IsCheck() ? int.MinValue : 0;
+
+            while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
+            {
+                Move move = moveData.Move;
+
+                if (moveData.SEE < 0) { continue; }
+
+                board.MoveApply(move);
+                
+                if (board.IsCheck(board.WhosTurn.PlayerOther()))
+                {
+                    board.MoveUndo();
+                    continue;
+                }
+                int capScore = move.CapturedPieceType().BasicVal();
+                int responseScore = -QSearchQuiet(board, moveStack, ply + 1);
+                int moveScore = capScore + responseScore;
+
+                board.MoveUndo();
+
+                best = Math.Max(best, moveScore);
+            }
+            return best;
+        }
 
     }
 }

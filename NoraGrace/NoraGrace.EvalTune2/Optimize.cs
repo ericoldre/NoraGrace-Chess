@@ -14,13 +14,20 @@ namespace NoraGrace.EvalTune2
             return x < y;
         }
 
+
+
         public static void OptimizeValues(double[] values, double[] increments, Func<double[], double> fnScore, Func<double, double, bool> fnFirstBetter)
+        {
+            OptimizeEachIndividually(values, increments, fnScore, fnFirstBetter);
+            OptimizeLowerValues(values, increments, 0, fnScore, fnFirstBetter);
+        }
+
+        public static void OptimizeEachIndividually(double[] values, double[] increments, Func<double[], double> fnScore, Func<double, double, bool> fnFirstBetter)
         {
             for (int i = 0; i < values.Length; i++)
             {
                 OptimizeSingleValue(values, increments, i, fnScore, fnFirstBetter);
             }
-            OptimizeLowerValues(values, increments, 0, fnScore, fnFirstBetter);
         }
 
         public static double OptimizeWithin(double min, double max, double within, Func<double, double> fnScore, Func<double, double, bool> fnFirstBetter)

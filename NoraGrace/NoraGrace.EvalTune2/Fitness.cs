@@ -70,7 +70,7 @@ namespace NoraGrace.EvalTune2
 
         public static double PgnE(BinaryPGN pgn, Evaluator evaluator, MovePicker.Stack moveStack)
         {
-            Board board = new Board();
+            Board board = new Board(evaluator);
             GameResult result = pgn.Result;
 
             int c = 0;
@@ -129,8 +129,9 @@ namespace NoraGrace.EvalTune2
             return board.WhosTurn == Player.White ? playerScore : -playerScore;
         }
 
-        public static int qSearch(Board board, Evaluator evaluator, MovePicker.Stack moveStack, int ply = 0, int alpha = Evaluator.MinValue, int beta = Evaluator.MaxValue)
+        public static int qSearch(Board board, Evaluator evaluator, MovePicker.Stack moveStack, out int resultDepth, int ply = 0, int alpha = Evaluator.MinValue, int beta = Evaluator.MaxValue)
         {
+            resultDepth = 0;
             var me = board.WhosTurn;
             var ischeck = board.IsCheck();
             if (!ischeck)
@@ -163,12 +164,16 @@ namespace NoraGrace.EvalTune2
                     board.MoveUndo();
                     continue;
                 }
-
-                var score = -qSearch(board, evaluator, moveStack, ply + 1, -beta, -alpha);
+                int childResultDepth;
+                var score = -qSearch(board, evaluator, moveStack, out childResultDepth, ply + 1, -beta, -alpha);
 
 
                 board.MoveUndo();
 
+                if (score > alpha)
+                {
+                    resultDepth = childResultDepth + 1;
+                }
                 if (score >= beta) { return beta; }
                 alpha = Math.Max(alpha, score);
 

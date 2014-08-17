@@ -23,7 +23,6 @@ namespace NoraGrace.Engine.Evaluation
 
         public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceUtil.LookupArrayLength][];
         public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeUtil.LookupArrayLength][];
-        public readonly PhasedScore _matBishopPair;
 
         public readonly int[] _endgameMateKingPcSq;
 
@@ -92,9 +91,19 @@ namespace NoraGrace.Engine.Evaluation
             _evalPawns = new PawnEvaluator(_settings, 10000);
             _evalMaterial = evalMaterial ?? new MaterialEvaluator(_settings);
             
-            //bishop pairs
-            _matBishopPair = PhasedScoreUtil.Create(settings.MaterialBishopPair.Opening,  settings.MaterialBishopPair.Endgame);
 
+            //normalize pcsq
+            Action<ChessPositionDictionary<int>> actionNormalizePcSq = (data) =>
+            {
+                int sum = PositionUtil.AllPositions.Sum(p => data[p]);
+                int per = sum / 64;
+                foreach (var p in PositionUtil.AllPositions) { data[p] -= per; }
+            };
+            foreach (PieceType pieceType in PieceTypeUtil.AllPieceTypes)
+            {
+                actionNormalizePcSq(settings.PcSqTables[pieceType][GameStage.Opening]);
+                actionNormalizePcSq(settings.PcSqTables[pieceType][GameStage.Endgame]);
+            }
 
             //setup piecesq tables
             foreach (Piece piece in PieceUtil.AllPieces)

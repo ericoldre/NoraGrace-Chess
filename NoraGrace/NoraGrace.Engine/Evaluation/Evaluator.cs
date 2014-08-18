@@ -93,11 +93,11 @@ namespace NoraGrace.Engine.Evaluation
             
 
             //normalize pcsq
-            Action<ChessPositionDictionary<int>> actionNormalizePcSq = (data) =>
+            Action<Settings.PcSqDictionary> actionNormalizePcSq = (data) =>
             {
                 int sum = PositionUtil.AllPositions.Sum(p => data[p]);
                 int per = sum / 64;
-                foreach (var p in PositionUtil.AllPositions) { data[p] -= per; }
+                data.Offset -= per;
             };
             foreach (PieceType pieceType in PieceTypeUtil.AllPieceTypes)
             {

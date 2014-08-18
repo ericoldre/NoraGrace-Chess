@@ -167,20 +167,143 @@ namespace NoraGrace.EvalTune2
 
     public class TunableParameterPcSq: TunableParameter
     {
+
+        public enum PcSqTuneType
+        {
+            r1, r2, r3, r4, r5, r6, r7, r8,
+            fah, fbg, fcf, fed,
+            c4, cb, oe
+        }
+
         public GameStage GameStage { get; private set; }
         public PieceType PieceType { get; private set; }
-        public Position Position { get; private set; }
+        public PcSqTuneType TuneType { get; private set; }
 
-        public TunableParameterPcSq(GameStage gameStage, PieceType pieceType, Position position)
+        public TunableParameterPcSq(GameStage gameStage, PieceType pieceType, PcSqTuneType tuneType)
         {
             GameStage = gameStage;
             PieceType = pieceType;
-            Position = position;
+            TuneType = tuneType;
 
-            this.Name = string.Format("PcSq[GameStage={0},PieceType={1},Position={2}", GameStage, PieceType, Position);
+            this.Name = string.Format("PcSq[GameStage={0},PieceType={1},TuneType={2}", GameStage, PieceType, TuneType);
             this.Increment = 3;
-            this.fnGetValue = (s) => s.PcSqTables[PieceType][GameStage][Position];
-            this.fnSetValue = (s, v) => { s.PcSqTables[PieceType][GameStage][Position] = (int)v; };
+            this.fnGetValue = (s) =>
+            {
+                switch (TuneType)
+                {
+                    case PcSqTuneType.r1:
+                        return s.PcSqTables[PieceType][GameStage].Rank1;
+                    case PcSqTuneType.r2:
+                        return s.PcSqTables[PieceType][GameStage].Rank2;
+                    case PcSqTuneType.r3:
+                        return s.PcSqTables[PieceType][GameStage].Rank3;
+                    case PcSqTuneType.r4:
+                        return s.PcSqTables[PieceType][GameStage].Rank4;
+                    case PcSqTuneType.r5:
+                        return s.PcSqTables[PieceType][GameStage].Rank5;
+                    case PcSqTuneType.r6:
+                        return s.PcSqTables[PieceType][GameStage].Rank6;
+                    case PcSqTuneType.r7:
+                        return s.PcSqTables[PieceType][GameStage].Rank7;
+                    case PcSqTuneType.r8:
+                        return s.PcSqTables[PieceType][GameStage].Rank8;
+                    case PcSqTuneType.fah:
+                        return s.PcSqTables[PieceType][GameStage].FileAH;
+                    case PcSqTuneType.fbg:
+                        return s.PcSqTables[PieceType][GameStage].FileBG;
+                    case PcSqTuneType.fcf:
+                        return s.PcSqTables[PieceType][GameStage].FileCF;
+                    case PcSqTuneType.fed:
+                        return s.PcSqTables[PieceType][GameStage].FileDE;
+                    case PcSqTuneType.c4:
+                        return s.PcSqTables[PieceType][GameStage].Center4;
+                    case PcSqTuneType.cb:
+                        return s.PcSqTables[PieceType][GameStage].CenterBorder;
+                    case PcSqTuneType.oe:
+                        return s.PcSqTables[PieceType][GameStage].OutsideEdge;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            };
+            this.fnSetValue = (s, v) => 
+            {
+                switch (TuneType)
+                {
+                    case PcSqTuneType.r1:
+                        s.PcSqTables[PieceType][GameStage].Rank1 = (int)v;
+                        break;
+                    case PcSqTuneType.r2:
+                        s.PcSqTables[PieceType][GameStage].Rank2 = (int)v;
+                        break;
+                    case PcSqTuneType.r3:
+                        s.PcSqTables[PieceType][GameStage].Rank3 = (int)v;
+                        break;
+                    case PcSqTuneType.r4:
+                        s.PcSqTables[PieceType][GameStage].Rank4 = (int)v;
+                        break;
+                    case PcSqTuneType.r5:
+                        s.PcSqTables[PieceType][GameStage].Rank5 = (int)v;
+                        break;
+                    case PcSqTuneType.r6:
+                        s.PcSqTables[PieceType][GameStage].Rank6 = (int)v;
+                        break;
+                    case PcSqTuneType.r7:
+                        s.PcSqTables[PieceType][GameStage].Rank7 = (int)v;
+                        break;
+                    case PcSqTuneType.r8:
+                        s.PcSqTables[PieceType][GameStage].Rank8 = (int)v;
+                        break;
+                    case PcSqTuneType.fah:
+                        s.PcSqTables[PieceType][GameStage].FileAH = (int)v;
+                        break;
+                    case PcSqTuneType.fbg:
+                        s.PcSqTables[PieceType][GameStage].FileBG = (int)v;
+                        break;
+                    case PcSqTuneType.fcf:
+                        s.PcSqTables[PieceType][GameStage].FileCF = (int)v;
+                        break;
+                    case PcSqTuneType.fed:
+                        s.PcSqTables[PieceType][GameStage].FileDE = (int)v;
+                        break;
+                    case PcSqTuneType.c4:
+                        s.PcSqTables[PieceType][GameStage].Center4 = (int)v;
+                        break;
+                    case PcSqTuneType.cb:
+                        s.PcSqTables[PieceType][GameStage].CenterBorder = (int)v;
+                        break;
+                    case PcSqTuneType.oe:
+                        s.PcSqTables[PieceType][GameStage].OutsideEdge = (int)v;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            };
+        }
+
+        public static IEnumerable<TunableParameterPcSq> SelectAll()
+        {
+            foreach (var gs in GameStageUtil.AllGameStages)
+            {
+                foreach (var pt in PieceTypeUtil.AllPieceTypes)
+                {
+                    if (pt != PieceType.Pawn) { yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r1); }
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r2);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r3);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r4);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r5);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r6);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r7);
+                    if (pt != PieceType.Pawn) { yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.r8); }
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.fah);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.fbg);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.fcf);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.fed);
+
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.c4);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.cb);
+                    yield return new TunableParameterPcSq(gs, pt, PcSqTuneType.oe);
+                }
+            }
         }
     }
 }

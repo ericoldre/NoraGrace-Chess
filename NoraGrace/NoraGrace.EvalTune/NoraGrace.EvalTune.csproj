@@ -72,7 +72,6 @@
     <Compile Include="DeterministicPlayer.cs" />
     <Compile Include="IEvalSettingsMutator.cs" />
     <Compile Include="MutatorFactory.cs" />
-    <Compile Include="Mutators\PcSqMutator.cs" />
     <Compile Include="Mutators\PieceValueMutator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

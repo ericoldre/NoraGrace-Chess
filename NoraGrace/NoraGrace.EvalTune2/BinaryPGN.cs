@@ -7,6 +7,48 @@ using NoraGrace.Engine;
 
 namespace NoraGrace.EvalTune2
 {
+
+    public class BinaryPGNSource
+    {
+        private readonly IEnumerable<BinaryPGN> _origSource;
+        private readonly int _origCount;
+        private readonly int _subsetCount;
+        private readonly BinaryPGN[] _subset;
+
+        public BinaryPGNSource(IEnumerable<BinaryPGN> origSource, int subsetCount)
+        {
+            _origSource = origSource;
+            _origCount = origSource.Count();
+            _subsetCount = subsetCount;
+            _subset = new BinaryPGN[_subsetCount];
+        }
+
+        private static int[] GetRandomIndexes(int count, int maxIdx, Random rand = null)
+        {
+            
+            if (rand == null) { rand = new Random(); }
+            List<int> sourceIndexes = Enumerable.Range(0, maxIdx).ToList();
+            List<int> indexes = new List<int>();
+            
+            while(indexes.Count < count)
+            {
+                int sourceIdx = rand.Next(0, sourceIndexes.Count);
+                indexes.Add(sourceIndexes[sourceIdx]);
+                sourceIndexes.RemoveAt(sourceIdx);
+            }
+
+            indexes.Sort();
+            return indexes.ToArray();
+            
+        }
+        
+        private void SelectRandomSample()
+        {
+
+        }
+
+    }
+
     public class BinaryPGN
     {
         public GameResult Result { get; private set; }

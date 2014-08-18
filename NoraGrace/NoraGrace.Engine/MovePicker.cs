@@ -473,7 +473,7 @@ namespace NoraGrace.Engine
         public void RegisterCutoff(Board board, ChessMoveData moveData, SearchDepth depth)
         {
             Move move = moveData.Move;
-            if (!move.IsCapture())
+            if (!move.IsCapture() && !move.IsEnPassant())
             {
                 //store killer moves in MovePicker
                 var killers = _killers[(int)board.WhosTurn];
@@ -501,7 +501,7 @@ namespace NoraGrace.Engine
 
         public void RegisterFailLow(Board board, ChessMoveData moveData, SearchDepth depth)
         {
-            if (!moveData.Move.IsCapture())
+            if (!moveData.Move.IsCapture() && !moveData.Move.IsEnPassant())
             {
                 if (moveData.SEE >= 0)
                 {

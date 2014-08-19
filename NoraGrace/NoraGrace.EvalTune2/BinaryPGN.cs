@@ -127,7 +127,8 @@ namespace NoraGrace.EvalTune2
                     int c = 0;
                     foreach (var pgn in NoraGrace.Engine.PGN.AllGames(reader))
                     {
-                        BinaryPGN.Write(pgn, bw);
+                        var bpgn = BinaryPGN.FromPgn(pgn);
+                        BinaryPGN.Write(bpgn, bw);
                         c++;
                         if (c % 1000 == 0) { Console.WriteLine(c); }
                     }
@@ -143,7 +144,7 @@ namespace NoraGrace.EvalTune2
                 int c = 0;
                 foreach (var pgn in pgns)
                 {
-                    BinaryPGN.Write(pgn, bw);
+                    BinaryPGN.Write(BinaryPGN.FromPgn(pgn), bw);
                     c++;
                     if (c % 1000 == 0) { Console.WriteLine(c); }
                 }
@@ -151,36 +152,57 @@ namespace NoraGrace.EvalTune2
             
         }
 
+        public static void Randomize(System.IO.FileInfo fileIn, System.IO.FileInfo fileOut)
+        {
+            var source = Read(fileIn.FullName).ToList();
+
+            List<BinaryPGN> dest = new List<BinaryPGN>();
+
+            Random rand = new Random();
+
+            while (source.Count > 0)
+            {
+                int idx = rand.Next(source.Count);
+                dest.Add(source[idx]);
+                source.RemoveAt(idx);
+            }
+
+            using (var bw = new System.IO.BinaryWriter(new System.IO.FileStream(fileOut.FullName, System.IO.FileMode.Create)))
+            {
+                foreach (var bpgn in dest)
+                {
+                    Write(bpgn, bw);
+                }
+            }
+        }
+
         public static void Write(IEnumerable<NoraGrace.Engine.PGN> pgns, System.IO.BinaryWriter writer)
         {
             foreach (var pgn in pgns)
             {
-                Write(pgn, writer);
+                Write(FromPgn(pgn), writer);
             }
         }
 
-
-        
-        public static void Write(NoraGrace.Engine.PGN pgn, System.IO.BinaryWriter writer)
+        public static BinaryPGN FromPgn(NoraGrace.Engine.PGN pgn)
         {
-            var result = pgn.Result.Value;
 
-            writer.Write(STARTMARKER);
-            writer.Write((int)result);
-            writer.Write((int)pgn.Moves.Count);
-
+            GameResult result = pgn.Result.Value;
+            Move[] moves = new Move[pgn.Moves.Count];
+            bool[] excludes = new bool[pgn.Moves.Count];
             Board board = new Board();
 
             for (int iMove = 0; iMove < pgn.Moves.Count; iMove++)
             {
-                Move move = pgn.Moves[iMove];
+                moves[iMove] = pgn.Moves[iMove];
+
                 string comment = pgn.Comments.ContainsKey(iMove) ? pgn.Comments[iMove] : "";
                 double ddepth = 0;
                 double dscore = 0;
                 double thinkSeconds = 0;
                 string[] split = comment.Split(new char[] { '/', ' ' });
-                if (split.Length == 3 && 
-                    double.TryParse(split[0],out dscore) 
+                if (split.Length == 3 &&
+                    double.TryParse(split[0], out dscore)
                     && double.TryParse(split[1], out ddepth))
                 {
                     if (split[2].EndsWith("s"))
@@ -189,8 +211,6 @@ namespace NoraGrace.EvalTune2
                     }
                 }
 
-                board.MoveApply(move);
-
                 bool exclude =
                     board.IsCheck()
                     || (result == GameResult.Draw && board.FiftyMovePlyCount >= 10)
@@ -198,10 +218,31 @@ namespace NoraGrace.EvalTune2
                     || Math.Abs(dscore) > 300
                     || !PositionQuiet(board);
 
+                excludes[iMove] = exclude;
+
+            }
+
+            return new BinaryPGN(result, moves, excludes);
+            
+        }
+        
+        public static void Write(BinaryPGN pgn, System.IO.BinaryWriter writer)
+        {
+            var result = pgn.Result;
+
+            writer.Write(STARTMARKER);
+            writer.Write((int)result);
+            writer.Write((int)pgn.Moves.Length);
+
+            Board board = new Board();
+
+            for (int iMove = 0; iMove < pgn.Moves.Length; iMove++)
+            {
+                Move move = pgn.Moves[iMove];
+                bool exclude = pgn.Exclude[iMove];
+
                 writer.Write((int)move);
                 writer.Write((bool)exclude);
-                //writer.Write((int)dscore * 100);
-                //writer.Write((int)thinkSeconds / 1000);
                 
             }
             writer.Write(ENDMARKER);

@@ -9,28 +9,25 @@ namespace NoraGrace.EvalTune2
     public class Optimize
     {
 
-        public static bool LowerBetter(double x, double y)
+
+
+
+
+        public static void OptimizeValues(double[] values, double[] increments, Func<double[], double> fnScore)
         {
-            return x < y;
+            OptimizeEachIndividually(values, increments, fnScore);
+            OptimizeLowerValues(values, increments, 0, fnScore);
         }
 
-
-
-        public static void OptimizeValues(double[] values, double[] increments, Func<double[], double> fnScore, Func<double, double, bool> fnFirstBetter)
-        {
-            OptimizeEachIndividually(values, increments, fnScore, fnFirstBetter);
-            OptimizeLowerValues(values, increments, 0, fnScore, fnFirstBetter);
-        }
-
-        public static void OptimizeEachIndividually(double[] values, double[] increments, Func<double[], double> fnScore, Func<double, double, bool> fnFirstBetter)
+        public static void OptimizeEachIndividually(double[] values, double[] increments, Func<double[], double> fnScore)
         {
             for (int i = 0; i < values.Length; i++)
             {
-                OptimizeSingleValue(values, increments, i, fnScore, fnFirstBetter);
+                OptimizeSingleValue(values, increments, i, fnScore);
             }
         }
 
-        public static double OptimizeWithin(double min, double max, double within, Func<double, double> fnScore, Func<double, double, bool> fnFirstBetter)
+        public static double OptimizeWithin(double min, double max, double within, Func<double, double> fnScore)
         {
             System.Diagnostics.Debug.Assert(max > min);
 
@@ -41,16 +38,16 @@ namespace NoraGrace.EvalTune2
             double[] children = new double[] { middle };
             double[] incr = new double[] { inc };
             Func<double[], double> fnScoreChild = (a) => fnScore(a[0]);
-            OptimizeSingleValue(children, incr, 0, fnScoreChild, fnFirstBetter);
+            OptimizeSingleValue(children, incr, 0, fnScoreChild);
             var est = children[0];
 
-            return OptimizeWithin(est - inc, est + inc, within, fnScore, fnFirstBetter);
+            return OptimizeWithin(est - inc, est + inc, within, fnScore);
         }
 
         /// <summary>
         /// varies values[index] until best score found
         /// </summary>
-        public static void OptimizeSingleValue(double[] values, double[] increments, int index, Func<double[], double> fnScore, Func<double, double, bool> fnFirstBetter)
+        public static void OptimizeSingleValue(double[] values, double[] increments, int index, Func<double[], double> fnScore)
         {
 
             double bestScore = fnScore(values);
@@ -71,7 +68,7 @@ namespace NoraGrace.EvalTune2
 
                     var score = fnScore(values);
 
-                    if (fnFirstBetter(score, bestScore))
+                    if (score < bestScore)
                     {
                         bestScore = score;
                         skipOtherSign = true;
@@ -90,7 +87,7 @@ namespace NoraGrace.EvalTune2
             values[index] = bestValue;
         }
 
-        public static double OptimizeLowerValues(double[] values, double[] increments, int index, Func<double[], double> fnScore, Func<double, double, bool> fnFirstBetter)
+        public static double OptimizeLowerValues(double[] values, double[] increments, int index, Func<double[], double> fnScore)
         {
 
 
@@ -105,7 +102,7 @@ namespace NoraGrace.EvalTune2
             double[] initialVals = values.Clone() as double[];
 
             double[] children = values.Clone() as double[];
-            double bestScore = OptimizeLowerValues(children, increments, index + 1, fnScore, fnFirstBetter);
+            double bestScore = OptimizeLowerValues(children, increments, index + 1, fnScore);
             double[] bestParams = children.Clone() as double[];
 
             double indexInitialValue = values[index];
@@ -122,10 +119,10 @@ namespace NoraGrace.EvalTune2
 
                     children[index] = indexCurrentValue;
 
-                    var score = OptimizeLowerValues(children, increments, index + 1, fnScore, fnFirstBetter);
+                    var score = OptimizeLowerValues(children, increments, index + 1, fnScore);
 
 
-                    if (fnFirstBetter(score, bestScore))
+                    if (score < bestScore)
                     {
                         bestScore = score;
                         skipOtherSign = true;
@@ -148,5 +145,7 @@ namespace NoraGrace.EvalTune2
             return bestScore;
         }
 
+
     }
+
 }

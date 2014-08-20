@@ -346,7 +346,10 @@ namespace NoraGrace.Engine.Evaluation
                     supportingTrailer: supportingTrailer,
                     mbonus: out startScore,
                     ebonus: out endScore);
-                 
+
+                startScore = Math.Max(0, startScore);
+                endScore = Math.Max(0, endScore);
+
                 int iFile = (int)passedPos.ToFile();
 
                 //adjust scores down for candidates.

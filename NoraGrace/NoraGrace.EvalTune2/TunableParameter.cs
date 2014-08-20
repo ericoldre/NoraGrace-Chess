@@ -33,6 +33,16 @@ namespace NoraGrace.EvalTune2
             return retval;
         }
 
+        public string[] CreateNames()
+        {
+            string[] retval = new string[this.Count];
+            for (int i = 0; i < this.Count; i++)
+            {
+                retval[i] = this[i].Name;
+            }
+            return retval;
+        }
+
         public Engine.Evaluation.Evaluator CreateEvaluator(double[] values)
         {
             var settings = CreateSettings(values);

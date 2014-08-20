@@ -18,22 +18,14 @@ namespace NoraGrace.EvalTune2
     {
         static void Main(string[] args)
         {
-            var pgns = PGN.AllGames(new System.IO.FileInfo("noise3.pgn")).Concat(PGN.AllGames(new System.IO.FileInfo("noise.pgn")).Take(20000));
-            BinaryPGN.ConvertToBinary(pgns, "noise.bin");
+            
+            //var pgns = PGN.AllGames(new System.IO.FileInfo("noise3.pgn")).Concat(PGN.AllGames(new System.IO.FileInfo("noise.pgn")).Take(20000));
+            //BinaryPGN.ConvertToBinary(pgns, "noise.bin");
+            //BinaryPGN.Randomize(new System.IO.FileInfo("noise.bin"), new System.IO.FileInfo("noiseRand.bin"));
+
             //Console.WriteLine("done");
             //return;
 
-            //for (int s = -400; s <= 400; s += 25)
-            //{
-            //    double adj = (double)s / 200;
-
-            //    double tan = Math.Tanh(adj);
-                
-
-            //    Console.WriteLine("{0,-4} => {1,-4} = {2,6}", s, adj, tan);
-            //}
-            //Console.ReadLine();
-            //return;
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
@@ -55,29 +47,24 @@ namespace NoraGrace.EvalTune2
             //    }
             //}
 
-            //foreach (var gs in GameStageUtil.AllGameStages)
-            //{
-            //    foreach (var pt in PieceTypeUtil.AllPieceTypes)
-            //    {
-            //        foreach (var p in PositionUtil.AllPositions)
-            //        {
-            //            if (pt == PieceType.Pawn && (p.ToRank() == Rank.Rank1 || p.ToRank() == Rank.Rank8)) { continue; }
-            //            parameters.Add(new TunableParameterPcSq(gs, pt, p));
-            //        }
-            //    }
-            //}
+            foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(t => t != PieceType.King))
+            {
+                parameters.Add(new TunableParameterMaterial(GameStage.Opening, pt));
+                parameters.Add(new TunableParameterMaterial(GameStage.Endgame, pt));
+            }
+
 
             parameters.AddRange(TunableParameterPcSq.SelectAll());
 
-            //parameters.Add(TunableParameter.KingAttackCountValue);
-            //parameters.Add(TunableParameter.KingAttackWeightCutoff);
-            //parameters.Add(TunableParameter.KingRingAttackControlBonus);
-            //parameters.Add(TunableParameter.KingRingAttack);
-            //parameters.Add(TunableParameter.KingAttackWeightValue);
-            //parameters.Add(TunableParameter.KingAttackFactor);
-            //parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
+            parameters.Add(TunableParameter.KingAttackCountValue);
+            parameters.Add(TunableParameter.KingAttackWeightCutoff);
+            parameters.Add(TunableParameter.KingRingAttackControlBonus);
+            parameters.Add(TunableParameter.KingRingAttack);
+            parameters.Add(TunableParameter.KingAttackWeightValue);
+            parameters.Add(TunableParameter.KingAttackFactor);
+            parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
 
-            Tune(parameters, "PcSq", progCB, false);
+            Tune(parameters, "Combo", progCB, true);
 
             //FindRook(progCB);
             //FindLowTanDiv(2, progCB);
@@ -99,14 +86,14 @@ namespace NoraGrace.EvalTune2
             int iteration = 0;
             double[] initialValues = parameters.CreateDefaultValues();
             double[] increments = parameters.CreateIncrements();
-            
+            string[] names = parameters.CreateNames();
 
             Func<double[], double> fnScore = (testValues)=>
             {
                 System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
                 stopwatch.Start();
 
-                double e = Fitness.FindFitness(() => parameters.CreateEvaluator(testValues), progCallback);
+                double e = Fitness.FindFitness(() => parameters.CreateEvaluator(testValues), progCallback, 20000);
 
                 stopwatch.Stop();
 
@@ -125,7 +112,7 @@ namespace NoraGrace.EvalTune2
                 }
                 else
                 {
-                    parameters.WriteToFile(string.Format("{0}.rejectlog.txt", testName), testValues, e, iteration);
+                    //parameters.WriteToFile(string.Format("{0}.rejectlog.txt", testName), testValues, e, iteration);
                 }
                 Console.WriteLine("");
                 return e;
@@ -133,11 +120,12 @@ namespace NoraGrace.EvalTune2
 
             if (fullOptimize)
             {
-                Optimize.OptimizeValues(initialValues, increments, fnScore, Optimize.LowerBetter);
+                Optimize.OptimizeNew(initialValues, increments, names, fnScore);
+                //Optimize.OptimizeValues(initialValues, increments, fnScore);
             }
             else
             {
-                Optimize.OptimizeEachIndividually(initialValues, increments, fnScore, Optimize.LowerBetter);
+                Optimize.OptimizeEachIndividually(initialValues, increments, fnScore);
             }
             
             
@@ -195,7 +183,7 @@ namespace NoraGrace.EvalTune2
                 return retval;
             };
 
-            var best = Optimize.OptimizeWithin(1, 1200, 2, fnScore, Optimize.LowerBetter);
+            var best = Optimize.OptimizeWithin(1, 1200, 2, fnScore);
 
             Console.WriteLine(string.Format("best rook={0}", best));
 
@@ -212,7 +200,7 @@ namespace NoraGrace.EvalTune2
                 return retval;
             };
 
-            var best = Optimize.OptimizeWithin(1, 10, .03, fnScore, Optimize.LowerBetter);
+            var best = Optimize.OptimizeWithin(1, 10, .03, fnScore);
 
             Console.WriteLine(string.Format("best pow={0}", best));
 
@@ -232,7 +220,7 @@ namespace NoraGrace.EvalTune2
                 return retval;
             };
 
-            var best = Optimize.OptimizeWithin(1, 1000, 5, fnScore, Optimize.LowerBetter);
+            var best = Optimize.OptimizeWithin(1, 1000, 5, fnScore);
 
             Console.WriteLine(string.Format("best tanDiv={0}", best));
 

@@ -16,9 +16,9 @@ namespace NoraGrace.EvalTune2
             return new Evaluator(Settings.Default());
         }
 
-        public static double FindFitness(Func<Engine.Evaluation.Evaluator> fnEvaluator, Action<int> progCallback = null)
+        public static double FindFitness(Func<Engine.Evaluation.Evaluator> fnEvaluator, Action<int> progCallback = null, int games = 100000)
         {
-            return PgnListEParallel(BinaryPGN.Read("noise.bin", progCallback), fnEvaluator);
+            return PgnListEParallel(BinaryPGN.Read("noiseRand.bin", progCallback).Take(games), fnEvaluator);
         }
 
         public static double PgnListEParallel(IEnumerable<BinaryPGN> pgnList, Func<Engine.Evaluation.Evaluator> fnCreateEval)

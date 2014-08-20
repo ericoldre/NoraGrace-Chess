@@ -154,6 +154,152 @@ namespace NoraGrace.EvalTune2
             Increment = 1
         };
 
+        public static IEnumerable<TunableParameter> MobilityParams()
+        {
+            foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(o=>o != PieceType.Pawn && o != PieceType.King))
+            {
+                foreach (var gs in GameStageUtil.AllGameStages)
+                {
+                    yield return new TunableParameter()
+                    {
+                        Name = string.Format("mob{0}{1}",pt,gs),
+                        fnGetValue = (s) => s.Mobility[pt][gs].AmountPerAttackDefault,
+                        fnSetValue = (s, v) => { s.Mobility[pt][gs].AmountPerAttackDefault = (int)v; },
+                        Increment = 1
+                    };
+                }
+            }
+
+        }
+
+        public static IEnumerable<TunableParameter> PawnParams()
+        {
+            yield return new TunableParameter()
+            {
+                Name = "PawnDoubledOpening",
+                fnGetValue = (s) => s.PawnDoubled.Opening,
+                fnSetValue = (s, v) => { s.PawnDoubled.Opening = (int)v; },
+                Increment = 2
+            };
+            yield return new TunableParameter()
+            {
+                Name = "PawnDoubledEndgame",
+                fnGetValue = (s) => s.PawnDoubled.Endgame,
+                fnSetValue = (s, v) => { s.PawnDoubled.Endgame = (int)v; },
+                Increment = 2
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnIsolatedOpening",
+                fnGetValue = (s) => s.PawnIsolated.Opening,
+                fnSetValue = (s, v) => { s.PawnIsolated.Opening = (int)v; },
+                Increment = 2
+            };
+            yield return new TunableParameter()
+            {
+                Name = "PawnIsolatedEndgame",
+                fnGetValue = (s) => s.PawnIsolated.Endgame,
+                fnSetValue = (s, v) => { s.PawnIsolated.Endgame = (int)v; },
+                Increment = 2
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnUnconnectedOpening",
+                fnGetValue = (s) => s.PawnUnconnected.Opening,
+                fnSetValue = (s, v) => { s.PawnUnconnected.Opening = (int)v; },
+                Increment = 2
+            };
+            yield return new TunableParameter()
+            {
+                Name = "PawnUnconnectedEndgame",
+                fnGetValue = (s) => s.PawnUnconnected.Endgame,
+                fnSetValue = (s, v) => { s.PawnUnconnected.Endgame = (int)v; },
+                Increment = 2
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnShelterFactor",
+                fnGetValue = (s) => s.PawnShelterFactor,
+                fnSetValue = (s, v) => { s.PawnShelterFactor = (int)v; },
+                Increment = 1
+            };
+
+
+        }
+
+        public static IEnumerable<TunableParameter> PassedPawnParams()
+        {
+            yield return new TunableParameter()
+            {
+                Name = "PawnPassed8thRankScore",
+                fnGetValue = (s) => s.PawnPassed8thRankScore,
+                fnSetValue = (s, v) => { s.PawnPassed8thRankScore = (int)v; },
+                Increment = 5
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnPassedClosePct",
+                fnGetValue = (s) => s.PawnPassedClosePct,
+                fnSetValue = (s, v) => { s.PawnPassedClosePct = v; },
+                Increment = .05
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnPassedFarPct",
+                fnGetValue = (s) => s.PawnPassedFarPct,
+                fnSetValue = (s, v) => { s.PawnPassedFarPct = v; },
+                Increment = .05
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnPassedDangerPct",
+                fnGetValue = (s) => s.PawnPassedDangerPct,
+                fnSetValue = (s, v) => { s.PawnPassedDangerPct = v; },
+                Increment = .01
+            };
+
+            
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnPassedMinScore",
+                fnGetValue = (s) => s.PawnPassedMinScore,
+                fnSetValue = (s, v) => { s.PawnPassedMinScore = (int)v; },
+                Increment = 2
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnPassedOpeningPct",
+                fnGetValue = (s) => s.PawnPassedOpeningPct,
+                fnSetValue = (s, v) => { s.PawnPassedOpeningPct = v; },
+                Increment = .03
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnPassedRankReduction",
+                fnGetValue = (s) => s.PawnPassedRankReduction,
+                fnSetValue = (s, v) => { s.PawnPassedRankReduction = v; },
+                Increment = .03
+            };
+
+            yield return new TunableParameter()
+            {
+                Name = "PawnCandidatePct",
+                fnGetValue = (s) => s.PawnCandidatePct,
+                fnSetValue = (s, v) => { s.PawnCandidatePct = v; },
+                Increment = .05
+            };
+
+        }
+
 
 
     }

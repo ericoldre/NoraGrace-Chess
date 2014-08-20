@@ -39,23 +39,24 @@ namespace NoraGrace.EvalTune2
 
             TunableParameterList parameters = new TunableParameterList();
 
-            //foreach (var gs in GameStageUtil.AllGameStages)
-            //{
-            //    foreach (var pt in PieceTypeUtil.AllPieceTypes)
-            //    {
-            //        parameters.Add(new TunableParameterMaterial(gs, pt));
-            //    }
-            //}
 
+            ////material
             foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(t => t != PieceType.King))
             {
                 parameters.Add(new TunableParameterMaterial(GameStage.Opening, pt));
                 parameters.Add(new TunableParameterMaterial(GameStage.Endgame, pt));
             }
 
+            //mobility
+            parameters.AddRange(TunableParameter.MobilityParams());
 
-            parameters.AddRange(TunableParameterPcSq.SelectAll());
+            ////pawns
+            parameters.AddRange(TunableParameter.PawnParams());
 
+            ////passed pawns
+            parameters.AddRange(TunableParameter.PassedPawnParams());
+
+            ////king attacks
             parameters.Add(TunableParameter.KingAttackCountValue);
             parameters.Add(TunableParameter.KingAttackWeightCutoff);
             parameters.Add(TunableParameter.KingRingAttackControlBonus);
@@ -63,6 +64,10 @@ namespace NoraGrace.EvalTune2
             parameters.Add(TunableParameter.KingAttackWeightValue);
             parameters.Add(TunableParameter.KingAttackFactor);
             parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
+
+            ////pcsq
+            //parameters.AddRange(TunableParameterPcSq.SelectAll());
+
 
             Tune(parameters, "Combo", progCB, true);
 
@@ -93,7 +98,7 @@ namespace NoraGrace.EvalTune2
                 System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
                 stopwatch.Start();
 
-                double e = Fitness.FindFitness(() => parameters.CreateEvaluator(testValues), progCallback, 20000);
+                double e = Fitness.FindFitness(() => parameters.CreateEvaluator(testValues), progCallback, 60000);
 
                 stopwatch.Stop();
 
@@ -120,6 +125,7 @@ namespace NoraGrace.EvalTune2
 
             if (fullOptimize)
             {
+                Optimize.OptimizeEachIndividually(initialValues, increments, fnScore);
                 Optimize.OptimizeNew(initialValues, increments, names, fnScore);
                 //Optimize.OptimizeValues(initialValues, increments, fnScore);
             }

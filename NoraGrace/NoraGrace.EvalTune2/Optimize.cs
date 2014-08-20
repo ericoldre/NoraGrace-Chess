@@ -342,7 +342,7 @@ namespace NoraGrace.EvalTune2
             private readonly Random rand = new Random();
             public List<ParameterHistory> SelectSubset()
             {
-                int totalcount = 1 + rand.Next((int)Math.Sqrt(this.Count) + 2);
+                int totalcount = 1 + rand.Next((int)Math.Sqrt(this.Count) / 2);
                 totalcount = Math.Min(this.Count, totalcount);
                 totalcount = Math.Max(1, totalcount);
 

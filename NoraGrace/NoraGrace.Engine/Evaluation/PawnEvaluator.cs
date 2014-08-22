@@ -151,15 +151,7 @@ namespace NoraGrace.Engine.Evaluation
                 Bitboard bbFile2W = bbFile.ShiftDirW();
                 Bitboard telestop = _telestop[(int)pos];
 
-                //substract doubled score
-                if (!(telestop & whitePawns).Empty())
-                {
-                    StartVal -= this.DoubledPawnValueStart;
-                    EndVal -= this.DoubledPawnValueEnd;
-                    doubled |= pos.ToBitboard();
-                }
-
-                
+                                
 
                 //substract isolated score
                 if ((bbFile2E & whitePawns).Empty() && (bbFile2W & whitePawns).Empty())
@@ -167,6 +159,13 @@ namespace NoraGrace.Engine.Evaluation
                     StartVal -= this.IsolatedPawnValueStart;
                     EndVal -= this.IsolatedPawnValueEnd;
                     isolated |= pos.ToBitboard();
+                }
+                else if(!(telestop & whitePawns).Empty())
+                {
+                    //substract doubled score cannot be doubled if isolated
+                    StartVal -= this.DoubledPawnValueStart;
+                    EndVal -= this.DoubledPawnValueEnd;
+                    doubled |= pos.ToBitboard();
                 }
                 else
                 {

@@ -10,7 +10,43 @@ namespace NoraGrace.EvalTune2
     {
 
 
+        public static void OptimizeWave(double[] values, double[] increments, string[] names, Func<double[], double> fnScore)
+        {
 
+            double[] testValues = new double[values.Length];
+            double bestScore = fnScore(values);
+            for (int round = 0; round < 2; round++)
+            {
+                foreach (int sign in new int[] { 1, -1 })
+                {
+                    bool[] failed = new bool[values.Length];
+                    while (!failed.All(b => b))
+                    {
+                        for (int i = 0; i < values.Length; i++)
+                        {
+                            if (failed[i]) { continue; }
+                            Array.Copy(values, testValues, values.Length);
+
+                            testValues[i] += increments[i] * sign;
+                            double testScore = fnScore(testValues);
+
+                            if (testScore < bestScore)
+                            {
+                                bestScore = testScore;
+                                Array.Copy(testValues, values, values.Length);
+                            }
+                            else
+                            {
+                                failed[i] = true;
+                            }
+
+                            Console.WriteLine("round:{2} sign:{0}, Remaining:{1}", sign, failed.Where(b => !b).Count(), round);
+                        }
+                    }
+                } 
+            }
+           
+        }
 
 
         public static void OptimizeValues(double[] values, double[] increments, Func<double[], double> fnScore)

@@ -97,62 +97,81 @@ namespace NoraGrace.EvalTune2
         public string Name { get; protected set; }
 
 
-
-        public static readonly TunableParameter KingAttackCountValue = new TunableParameter()
+        public static IEnumerable<TunableParameter> KingSafetyParams()
         {
-            Name = "KingAttackCountValue",
-            fnGetValue = (s) => s.KingAttackCountValue,
-            fnSetValue = (s, v) => { s.KingAttackCountValue = (int)v; },
-            Increment = 1
-        };
+            yield return new TunableParameter()
+            {
+                Name = "KingAttackCountValue",
+                fnGetValue = (s) => s.KingAttackCountValue,
+                fnSetValue = (s, v) => { s.KingAttackCountValue = (int)v; },
+                Increment = 1
+            };
+            yield return new TunableParameter()
+            {
+                Name = "KingAttackFactor",
+                fnGetValue = (s) => s.KingAttackFactor,
+                fnSetValue = (s, v) => { s.KingAttackFactor = v; },
+                Increment = .15
+            };
+            yield return new TunableParameter()
+            {
+                Name = "KingAttackFactorQueenTropismBonus",
+                fnGetValue = (s) => s.KingAttackFactorQueenTropismBonus,
+                fnSetValue = (s, v) => { s.KingAttackFactorQueenTropismBonus = v; },
+                Increment = .15
+            };
+            yield return new TunableParameter()
+            {
+                Name = "KingAttackWeightCutoff",
+                fnGetValue = (s) => s.KingAttackWeightCutoff,
+                fnSetValue = (s, v) => { s.KingAttackWeightCutoff = (int)v; },
+                Increment = 1
+            };
+            yield return new TunableParameter()
+            {
+                Name = "KingAttackWeightValue",
+                fnGetValue = (s) => s.KingAttackWeightValue,
+                fnSetValue = (s, v) => { s.KingAttackWeightValue = (int)v; },
+                Increment = 1
+            };
+            yield return new TunableParameter()
+            {
+                Name = "KingRingAttack",
+                fnGetValue = (s) => s.KingRingAttack,
+                fnSetValue = (s, v) => { s.KingRingAttack = (int)v; },
+                Increment = 1
+            };
+            yield return new TunableParameter()
+            {
+                Name = "KingRingAttackControlBonus",
+                fnGetValue = (s) => s.KingRingAttackControlBonus,
+                fnSetValue = (s, v) => { s.KingRingAttackControlBonus = (int)v; },
+                Increment = 1
+            };
+        }
 
-        public static readonly TunableParameter KingAttackFactor = new TunableParameter()
+        public static IEnumerable<TunableParameter> MaterialParams()
         {
-            Name = "KingAttackFactor",
-            fnGetValue = (s) => s.KingAttackFactor,
-            fnSetValue = (s, v) => { s.KingAttackFactor = v; },
-            Increment = .15
-        };
-
-        public static readonly TunableParameter KingAttackFactorQueenTropismBonus = new TunableParameter()
-        {
-            Name = "KingAttackFactorQueenTropismBonus",
-            fnGetValue = (s) => s.KingAttackFactorQueenTropismBonus,
-            fnSetValue = (s, v) => { s.KingAttackFactorQueenTropismBonus = v; },
-            Increment = .15
-        };
-
-        public static readonly TunableParameter KingAttackWeightCutoff = new TunableParameter()
-        {
-            Name = "KingAttackWeightCutoff",
-            fnGetValue = (s) => s.KingAttackWeightCutoff,
-            fnSetValue = (s, v) => { s.KingAttackWeightCutoff = (int)v; },
-            Increment = 1
-        };
-
-        public static readonly TunableParameter KingAttackWeightValue = new TunableParameter()
-        {
-            Name = "KingAttackWeightValue",
-            fnGetValue = (s) => s.KingAttackWeightValue,
-            fnSetValue = (s, v) => { s.KingAttackWeightValue = (int)v; },
-            Increment = 1
-        };
-
-        public static readonly TunableParameter KingRingAttack = new TunableParameter()
-        {
-            Name = "KingRingAttack",
-            fnGetValue = (s) => s.KingRingAttack,
-            fnSetValue = (s, v) => { s.KingRingAttack = (int)v; },
-            Increment = 1
-        };
-
-        public static readonly TunableParameter KingRingAttackControlBonus = new TunableParameter()
-        {
-            Name = "KingRingAttackControlBonus",
-            fnGetValue = (s) => s.KingRingAttackControlBonus,
-            fnSetValue = (s, v) => { s.KingRingAttackControlBonus = (int)v; },
-            Increment = 1
-        };
+            yield return new TunableParameter()
+            {
+                Name = "BishopPairOpening",
+                fnGetValue = (s) => s.MaterialBishopPair.Opening,
+                fnSetValue = (s, v) => { s.MaterialBishopPair.Opening = (int)v; },
+                Increment = 5
+            };
+            yield return new TunableParameter()
+            {
+                Name = "BishopPairEndgame",
+                fnGetValue = (s) => s.MaterialBishopPair.Endgame,
+                fnSetValue = (s, v) => { s.MaterialBishopPair.Endgame = (int)v; },
+                Increment = 5
+            };
+            foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(t => t != PieceType.King))
+            {
+                 yield return new TunableParameterMaterial(GameStage.Opening, pt);
+                 yield return new TunableParameterMaterial(GameStage.Endgame, pt);
+            }
+        }
 
         public static IEnumerable<TunableParameter> MobilityParams()
         {

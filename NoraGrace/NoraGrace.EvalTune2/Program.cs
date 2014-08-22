@@ -41,35 +41,26 @@ namespace NoraGrace.EvalTune2
 
 
             ////material
-            foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(t => t != PieceType.King))
-            {
-                parameters.Add(new TunableParameterMaterial(GameStage.Opening, pt));
-                parameters.Add(new TunableParameterMaterial(GameStage.Endgame, pt));
-            }
+            //parameters.AddRange(TunableParameter.MaterialParams());
 
             //mobility
-            parameters.AddRange(TunableParameter.MobilityParams());
+            //parameters.AddRange(TunableParameter.MobilityParams());
 
             ////pawns
-            parameters.AddRange(TunableParameter.PawnParams());
+            //parameters.AddRange(TunableParameter.PawnParams());
 
             ////passed pawns
-            parameters.AddRange(TunableParameter.PassedPawnParams());
+           // parameters.AddRange(TunableParameter.PassedPawnParams());
 
             ////king attacks
-            parameters.Add(TunableParameter.KingAttackCountValue);
-            parameters.Add(TunableParameter.KingAttackWeightCutoff);
-            parameters.Add(TunableParameter.KingRingAttackControlBonus);
-            parameters.Add(TunableParameter.KingRingAttack);
-            parameters.Add(TunableParameter.KingAttackWeightValue);
-            parameters.Add(TunableParameter.KingAttackFactor);
-            parameters.Add(TunableParameter.KingAttackFactorQueenTropismBonus);
+            //parameters.AddRange(TunableParameter.KingSafetyParams());
 
-            ////pcsq
-            //parameters.AddRange(TunableParameterPcSq.SelectAll());
+            //pcsq
+            parameters.AddRange(TunableParameterPcSq.SelectAll());
 
 
-            Tune(parameters, "Combo", progCB, true);
+            Tune(parameters, "PcSq", progCB, true);
+            //Tune(parameters, "AllButPcSq", progCB, true);
 
             //FindRook(progCB);
             //FindLowTanDiv(2, progCB);
@@ -125,7 +116,7 @@ namespace NoraGrace.EvalTune2
 
             if (fullOptimize)
             {
-                Optimize.OptimizeEachIndividually(initialValues, increments, fnScore);
+                Optimize.OptimizeWave(initialValues, increments, names, fnScore);
                 Optimize.OptimizeNew(initialValues, increments, names, fnScore);
                 //Optimize.OptimizeValues(initialValues, increments, fnScore);
             }

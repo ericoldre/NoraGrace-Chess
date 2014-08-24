@@ -121,17 +121,36 @@ namespace NoraGrace.Engine.Evaluation
         {
             Settings retval = new Settings()
             {
-                MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
-                {
-                    Pawn = new ChessGameStageDictionary<int>() { Opening = 60, Endgame = 130 },
-                    Knight = new ChessGameStageDictionary<int>() { Opening = 385, Endgame = 380 },
-                    Bishop = new ChessGameStageDictionary<int>() { Opening = 390, Endgame = 415 },
-                    Rook = new ChessGameStageDictionary<int>() { Opening = 550, Endgame = 745 },
-                    Queen = new ChessGameStageDictionary<int>() { Opening = 1255, Endgame = 1325 },
-                    King = new ChessGameStageDictionary<int>() { Opening = 0, Endgame = 0 },
-                },
+                //MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>()
+                //{
+                //    Pawn = new ChessGameStageDictionary<int>() { Opening = 60, Endgame = 130 },
+                //    Knight = new ChessGameStageDictionary<int>() { Opening = 385, Endgame = 380 },
+                //    Bishop = new ChessGameStageDictionary<int>() { Opening = 390, Endgame = 415 },
+                //    Rook = new ChessGameStageDictionary<int>() { Opening = 550, Endgame = 745 },
+                //    Queen = new ChessGameStageDictionary<int>() { Opening = 1255, Endgame = 1325 },
+                //    King = new ChessGameStageDictionary<int>() { Opening = 0, Endgame = 0 },
+                //},
+                //MaterialBishopPair = new ChessGameStageDictionary<int>() { Opening = 25, Endgame = 75 },
 
-                MaterialBishopPair = new ChessGameStageDictionary<int>() { Opening = 25, Endgame = 75 },
+                MaterialValues = new ChessGameStageDictionary<MaterialSettingsPhase>()
+                {
+                    Opening = new MaterialSettingsPhase()
+                    {
+                        Pawn = new MaterialSettingsPhase.PawnSettings(){ First = 60, Eighth = 60, Curve = new Helpers.Point(){ X = .5, Y = .5}},
+                        Knight = new MaterialSettingsPhase.PieceSettings() { BaseValue = 385, PairBonus = 0 },
+                        Bishop = new MaterialSettingsPhase.PieceSettings() { BaseValue = 390, PairBonus = 25 },
+                        Rook = new MaterialSettingsPhase.PieceSettings() { BaseValue = 550, PairBonus = 0 },
+                        Queen = new MaterialSettingsPhase.PieceSettings() { BaseValue = 1255, PairBonus = 0 }
+                    },
+                    Endgame = new MaterialSettingsPhase()
+                    {
+                        Pawn = new MaterialSettingsPhase.PawnSettings() { First = 130, Eighth = 130, Curve = new Helpers.Point() { X = .5, Y = .5 } },
+                        Knight = new MaterialSettingsPhase.PieceSettings() { BaseValue = 380, PairBonus = 0 },
+                        Bishop = new MaterialSettingsPhase.PieceSettings() { BaseValue = 415, PairBonus = 75 },
+                        Rook = new MaterialSettingsPhase.PieceSettings() { BaseValue = 745, PairBonus = 0 },
+                        Queen = new MaterialSettingsPhase.PieceSettings() { BaseValue = 1325, PairBonus = 0 }
+                    }
+                },
 
                 PcSqTables = new ChessPieceTypeDictionary<ChessGameStageDictionary<PcSqDictionary>>()
                 {
@@ -420,7 +439,7 @@ namespace NoraGrace.Engine.Evaluation
 
 
         public ChessPieceTypeDictionary<ChessGameStageDictionary<PcSqDictionary>> PcSqTables = new ChessPieceTypeDictionary<ChessGameStageDictionary<PcSqDictionary>>();
-        public ChessPieceTypeDictionary<ChessGameStageDictionary<int>> MaterialValues = new ChessPieceTypeDictionary<ChessGameStageDictionary<int>>();
+        public ChessGameStageDictionary<MaterialSettingsPhase> MaterialValues = new ChessGameStageDictionary<MaterialSettingsPhase>();
         public ChessGameStageDictionary<int> MaterialBishopPair = new ChessGameStageDictionary<int>();
 
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();

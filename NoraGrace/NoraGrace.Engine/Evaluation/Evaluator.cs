@@ -19,7 +19,7 @@ namespace NoraGrace.Engine.Evaluation
         public const int MinValue = -MaxValue;
 
         protected readonly PawnEvaluator _evalPawns;
-        public readonly IMaterialEvaluator _evalMaterial;
+        public readonly MaterialEvaluator _evalMaterial;
 
         public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceUtil.LookupArrayLength][];
         public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeUtil.LookupArrayLength][];
@@ -83,13 +83,13 @@ namespace NoraGrace.Engine.Evaluation
 
         }
 
-        public Evaluator(Settings settings, IMaterialEvaluator evalMaterial = null)
+        public Evaluator(Settings settings)
         {
             _settings = settings.CloneDeep();
 
             //setup pawn evaluation
             _evalPawns = new PawnEvaluator(_settings, 10000);
-            _evalMaterial = evalMaterial ?? new MaterialEvaluator(_settings);
+            _evalMaterial = new MaterialEvaluator(_settings.MaterialValues);
             
 
             //normalize pcsq

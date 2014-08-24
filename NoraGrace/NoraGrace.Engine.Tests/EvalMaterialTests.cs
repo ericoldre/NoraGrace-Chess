@@ -106,7 +106,7 @@ namespace NoraGrace.Engine.Tests
         [TestMethod]
         public void Within150OfBasic()
         {
-            MaterialEvaluator eval = new MaterialEvaluator(Settings.Default());
+            MaterialEvaluator eval = new MaterialEvaluator(Settings.Default().MaterialValues);
 
             foreach (var s in Samples())
             {

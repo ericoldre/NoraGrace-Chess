@@ -154,7 +154,7 @@ namespace NoraGrace.CommandLine
                         NoraGrace.Engine.Search.CountTotalAINodes,
                         NoraGrace.Engine.Evaluation.Evaluator.TotalEvalCount,
                         NoraGrace.Engine.Evaluation.PawnEvaluator.TotalEvalPawnCount,
-                        NoraGrace.Engine.Evaluation.MaterialEvaluatorBase.TotalEvalMaterialCount));
+                        NoraGrace.Engine.Evaluation.MaterialEvaluator.TotalEvalMaterialCount));
                     break;
                 case "annotateeval":
                     Perft.AnnotatePGNEval(split[1], split[2]);
@@ -164,7 +164,7 @@ namespace NoraGrace.CommandLine
                         NoraGrace.Engine.Search.CountTotalAINodes,
                         NoraGrace.Engine.Evaluation.Evaluator.TotalEvalCount,
                         NoraGrace.Engine.Evaluation.PawnEvaluator.TotalEvalPawnCount,
-                        NoraGrace.Engine.Evaluation.MaterialEvaluatorBase.TotalEvalMaterialCount));
+                        NoraGrace.Engine.Evaluation.MaterialEvaluator.TotalEvalMaterialCount));
                     break;
                 case "genmagic":
                     NoraGrace.Engine.Attacks.Generation.FindMagics();

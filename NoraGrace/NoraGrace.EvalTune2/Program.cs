@@ -160,31 +160,6 @@ namespace NoraGrace.EvalTune2
         //    Console.WriteLine("lowval={0}, lowE={1}", lowVal, lowE);
         //}
 
-        public static void FindRook(Action<int> progressCb)
-        {
-            Func<double, Evaluator> fnEval = (rook) =>
-            {
-                var settings = Settings.Default();
-                //settings.MaterialValues.Rook.Opening = (int)rook;
-                settings.MaterialValues.Rook.Endgame = (int)rook;
-                return new Evaluator(settings);
-            };
-
-            Func<double, double> fnScore = (rook) =>
-            {
-                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                sw.Start();
-                double retval = Fitness.FindFitness(() => fnEval(rook), progressCb);
-
-                Console.WriteLine(string.Format("time={2} rook={0} retval={1}", rook, retval, sw.Elapsed));
-                return retval;
-            };
-
-            var best = Optimize.OptimizeWithin(1, 1200, 2, fnScore);
-
-            Console.WriteLine(string.Format("best rook={0}", best));
-
-        }
 
         public static void FindLowPow(Action<int> progressCb)
         {

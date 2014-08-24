@@ -58,7 +58,7 @@ namespace NoraGrace.EvalTune
                 
                 
                 
-                Evaluator eval = new Evaluator(evalsettings, new MaterialEvaluator(evalsettings));
+                Evaluator eval = new Evaluator(evalsettings);
 
                 TimeManagerNodes manager = new TimeManagerNodes();
                 

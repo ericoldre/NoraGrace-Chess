@@ -71,5 +71,19 @@ namespace NoraGrace.Engine.Evaluation.Helpers
                 yield return new Point(x, y);
             }
         }
+
+        public static double[] GetIntegerValues(int maxX, double first, double last, double ctrlX, double ctrlY)
+        {
+            double increase = last - first;
+            
+            Point start = new Point(0, 0);
+            Point end = new Point(maxX, increase);
+            Point ctrl = new Point((double)maxX * ctrlX, increase * ctrlY);
+            QuadBezierCurve curve = new QuadBezierCurve(start, ctrl, end);
+            double[] xCoordsFloat = Enumerable.Range(0, maxX + 1).Select(i => (double)i).ToArray();
+            double[] yCoords = curve.Select(xCoordsFloat).Select(p => p.Y).ToArray();
+            double[] retval = yCoords.Select(y => y + first).ToArray();
+            return retval;
+        }
     }
 }

@@ -3,124 +3,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NoraGrace.Engine.Evaluation.Helpers;
 
 namespace NoraGrace.Engine.Evaluation
 {
-    public interface IMaterialEvaluator
+
+    public class MaterialSettingsPhase
     {
-        MaterialResults EvalMaterialHash(Board board);
-    }
 
-    public class MaterialEvaluatorBase: IMaterialEvaluator
-    {
-        protected readonly Settings _settings;
-        private readonly MaterialResults[] _hash = new MaterialResults[500];
-        public static int TotalEvalMaterialCount = 0;
-
-        public MaterialEvaluatorBase(Settings settings)
+        public class PieceSettings
         {
-            _settings = settings;
+            public int BaseValue { get; set; }
+            public int PairBonus { get; set; }
         }
 
-        public MaterialResults EvalMaterialHash(Board board)
+        public class PawnSettings
         {
-            long idx = board.ZobristMaterial % _hash.GetUpperBound(0);
-
-            if (idx < 0) { idx = -idx; }
-
-            MaterialResults retval = _hash[idx];
-            if (retval != null && retval.ZobristMaterial == board.ZobristMaterial)
+            public int First { get; set; }
+            public int Eighth { get; set; }
+            public Point Curve { get; set; }
+            public PawnSettings()
             {
-                return retval;
+                Curve = new Helpers.Point();
             }
 
-            retval = EvalMaterial(
-                zob: board.ZobristMaterial,
-                wp: board.PieceCount(Player.White, PieceType.Pawn),
-                wn: board.PieceCount(Player.White, PieceType.Knight),
-                wb: board.PieceCount(Player.White, PieceType.Bishop),
-                wr: board.PieceCount(Player.White, PieceType.Rook),
-                wq: board.PieceCount(Player.White, PieceType.Queen),
-                bp: board.PieceCount(Player.Black, PieceType.Pawn),
-                bn: board.PieceCount(Player.Black, PieceType.Knight),
-                bb: board.PieceCount(Player.Black, PieceType.Bishop),
-                br: board.PieceCount(Player.Black, PieceType.Rook),
-                bq: board.PieceCount(Player.Black, PieceType.Queen));
-
-            _hash[idx] = retval;
-            return retval;
+            public int[] GetValues()
+            {
+                var vals = QuadBezierCurve.GetIntegerValues(7, First, Eighth, Curve.X, Curve.Y);
+                return vals.Select(d => (int)d).ToArray();
+            }
         }
 
-        public virtual MaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        public PawnSettings Pawn { get; set; }
+        public PieceSettings Knight { get; set; }
+        public PieceSettings Bishop { get; set; }
+        public PieceSettings Rook { get; set; }
+        public PieceSettings Queen { get; set; }
+
+        public MaterialSettingsPhase()
         {
-            TotalEvalMaterialCount++;
-
-            int basicCount = 
-                (wn * 3) + (bn * 3)
-                + (wb * 3) + (bb * 3)
-                + (wr * 5) + (br * 5)
-                + (wq * 9) + (bq * 9);
-
-            
-
-            int startScore = (wp * 100)
-                + (wn * 300)
-                + (wb * 300)
-                + (wr * 500)
-                + (wq * 900)
-                - (bp * 100)
-                - (bn * 300)
-                - (bb * 300)
-                - (br * 500)
-                - (bq * 900);
-
-            int endScore = startScore;
-
-            if (wb > 1)
-            {
-                startScore += 50;
-                endScore += 50;
-            }
-            if (bb > 1)
-            {
-                startScore -= 50;
-                endScore -= 50;
-            }
-
-            int startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
-            //int score = (int)(((float)startScore * startWeight) + ((float)endScore * (1 - startWeight)));
-            int score = PhasedScoreUtil.Create(startScore, endScore).ApplyWeights(startWeight);
-            return new MaterialResults(zob, startWeight, score, 100, 100);
-            //return new Results(zob, startWeight, startScore, endScore, basicCount, wp,  wn,  wb,  wr,  wq,  bp,  bn,  bb,  br,  bq);
+            Pawn = new PawnSettings();
+            Knight = new PieceSettings();
+            Bishop = new PieceSettings();
+            Rook = new PieceSettings();
+            Queen = new PieceSettings();
         }
-
-        protected virtual int CalcStartWeight(int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
-        {
-            int basicMaterialCount =
-                (wn * 3) + (bn * 3)
-                + (wb * 3) + (bb * 3)
-                + (wr * 5) + (br * 5)
-                + (wq * 9) + (bq * 9);
-
-            //full material would be 62
-            if (basicMaterialCount >= 56)
-            {
-                return 100;
-            }
-            else if (basicMaterialCount <= 10)
-            {
-                return 0;
-            }
-            else
-            {
-                int rem = basicMaterialCount - 10;
-                float retval = (float)rem / 46f;
-                int retval2 = (int)Math.Round((retval * 100));
-                return retval2;
-            }
-        }
-        
-
 
     }
 
@@ -170,16 +97,54 @@ namespace NoraGrace.Engine.Evaluation
 
     }
 
-    public class MaterialEvaluator : MaterialEvaluatorBase
+    public class MaterialEvaluator
     {
-        
-        public MaterialEvaluator(Settings settings)
-            : base(settings)
+
+        protected readonly ChessGameStageDictionary<MaterialSettingsPhase>  _settings;
+        private readonly MaterialResults[] _hash = new MaterialResults[500];
+        public static int TotalEvalMaterialCount = 0;
+
+        private int[] _pawnValuesOpening;
+        private int[] _pawnValuesEndGame;
+        public MaterialEvaluator(ChessGameStageDictionary<MaterialSettingsPhase> settings)
         {
+            _settings = settings;
+
+            _pawnValuesOpening = settings.Opening.Pawn.GetValues();
+            _pawnValuesEndGame = settings.Endgame.Pawn.GetValues();
+        }
+
+        public MaterialResults EvalMaterialHash(Board board)
+        {
+            long idx = board.ZobristMaterial % _hash.GetUpperBound(0);
+
+            if (idx < 0) { idx = -idx; }
+
+            MaterialResults retval = _hash[idx];
+            if (retval != null && retval.ZobristMaterial == board.ZobristMaterial)
+            {
+                return retval;
+            }
+
+            retval = EvalMaterial(
+                zob: board.ZobristMaterial,
+                wp: board.PieceCount(Player.White, PieceType.Pawn),
+                wn: board.PieceCount(Player.White, PieceType.Knight),
+                wb: board.PieceCount(Player.White, PieceType.Bishop),
+                wr: board.PieceCount(Player.White, PieceType.Rook),
+                wq: board.PieceCount(Player.White, PieceType.Queen),
+                bp: board.PieceCount(Player.Black, PieceType.Pawn),
+                bn: board.PieceCount(Player.Black, PieceType.Knight),
+                bb: board.PieceCount(Player.Black, PieceType.Bishop),
+                br: board.PieceCount(Player.Black, PieceType.Rook),
+                bq: board.PieceCount(Player.Black, PieceType.Queen));
+
+            _hash[idx] = retval;
+            return retval;
         }
 
 
-        public override MaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        public MaterialResults EvalMaterial(Int64 zob, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
             TotalEvalMaterialCount++;
 
@@ -204,6 +169,34 @@ namespace NoraGrace.Engine.Evaluation
             double scaleBlack = ScaleFactor(bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
             return new MaterialResults(zob, startWeight, (int)score, (int)(scaleWhite * 100), (int)(scaleBlack * 100));
 
+        }
+
+
+
+        protected int CalcStartWeight(int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        {
+            int basicMaterialCount =
+                (wn * 3) + (bn * 3)
+                + (wb * 3) + (bb * 3)
+                + (wr * 5) + (br * 5)
+                + (wq * 9) + (bq * 9);
+
+            //full material would be 62
+            if (basicMaterialCount >= 56)
+            {
+                return 100;
+            }
+            else if (basicMaterialCount <= 10)
+            {
+                return 0;
+            }
+            else
+            {
+                int rem = basicMaterialCount - 10;
+                float retval = (float)rem / 46f;
+                int retval2 = (int)Math.Round((retval * 100));
+                return retval2;
+            }
         }
 
         /// <summary>
@@ -366,12 +359,16 @@ namespace NoraGrace.Engine.Evaluation
 
         private double MyMaterial(double totalPct, double pawnPct, double minorPct, int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
         {
-            double pawnVal = CalcWeight(totalPct, _settings.MaterialValues[PieceType.Pawn][GameStage.Opening], _settings.MaterialValues[PieceType.Pawn][GameStage.Endgame]);
-            double knightVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Knight][GameStage.Opening], _settings.MaterialValues[PieceType.Knight][GameStage.Endgame]);
-            double bishopVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Bishop][GameStage.Opening], _settings.MaterialValues[PieceType.Bishop][GameStage.Endgame]);
-            double rookVal = CalcWeight(pawnPct, _settings.MaterialValues[PieceType.Rook][GameStage.Opening], _settings.MaterialValues[PieceType.Rook][GameStage.Endgame]);
-            double queenVal = CalcWeight(minorPct, _settings.MaterialValues[PieceType.Queen][GameStage.Opening], _settings.MaterialValues[PieceType.Queen][GameStage.Endgame]);
-            double bishopPairValue = CalcWeight(pawnPct, _settings.MaterialBishopPair.Opening, _settings.MaterialBishopPair.Endgame);
+
+            double pawnsOpening = _pawnValuesOpening.Take(myP).Sum();
+            double pawnsEndgame = _pawnValuesEndGame.Take(myP).Sum();
+
+            double knightVal = CalcWeight(pawnPct, _settings.Opening.Knight.BaseValue, _settings.Endgame.Knight.BaseValue);
+            double bishopVal = CalcWeight(pawnPct, _settings.Opening.Bishop.BaseValue, _settings.Endgame.Bishop.BaseValue);
+            double rookVal = CalcWeight(pawnPct, _settings.Opening.Rook.BaseValue, _settings.Endgame.Rook.BaseValue);
+            double queenVal = CalcWeight(minorPct, _settings.Opening.Queen.BaseValue, _settings.Endgame.Queen.BaseValue);
+
+            double bishopPairValue = CalcWeight(pawnPct, _settings.Opening.Bishop.PairBonus, _settings.Endgame.Bishop.PairBonus);
 
             
 
@@ -380,16 +377,31 @@ namespace NoraGrace.Engine.Evaluation
             //    knightVal *= 1.08f;
             //}
 
-            double retval = 0;
-            retval += (myP * pawnVal);
+            double retval = CalcWeight(totalPct, pawnsOpening, pawnsEndgame);
+            //retval += (myP * pawnVal);
             retval += (myN * knightVal);
             retval += (myB * bishopVal);
             retval += (myR * rookVal);
             retval += (myQ * queenVal);
 
+            if (myN > 1)
+            {
+                retval += CalcWeight(pawnPct, _settings.Opening.Knight.PairBonus, _settings.Endgame.Knight.PairBonus); ;
+            }
+
             if (myB > 1)
             {
-                retval += bishopPairValue;
+                retval += CalcWeight(pawnPct, _settings.Opening.Bishop.PairBonus, _settings.Endgame.Bishop.PairBonus); ;
+            }
+
+            if (myR > 1)
+            {
+                retval += CalcWeight(pawnPct, _settings.Opening.Rook.PairBonus, _settings.Endgame.Rook.PairBonus); ;
+            }
+
+            if (myQ > 1)
+            {
+                retval += CalcWeight(minorPct, _settings.Opening.Queen.PairBonus, _settings.Endgame.Queen.PairBonus); ;
             }
             
             ////would like to have at least 1 of knight, bishop, rook

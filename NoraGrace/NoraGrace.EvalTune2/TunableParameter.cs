@@ -166,11 +166,11 @@ namespace NoraGrace.EvalTune2
                 fnSetValue = (s, v) => { s.MaterialBishopPair.Endgame = (int)v; },
                 Increment = 5
             };
-            foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(t => t != PieceType.King))
-            {
-                 yield return new TunableParameterMaterial(GameStage.Opening, pt);
-                 yield return new TunableParameterMaterial(GameStage.Endgame, pt);
-            }
+            //foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(t => t != PieceType.King))
+            //{
+            //     yield return new TunableParameterMaterial(GameStage.Opening, pt);
+            //     yield return new TunableParameterMaterial(GameStage.Endgame, pt);
+            //}
         }
 
         public static IEnumerable<TunableParameter> MobilityParams()
@@ -339,22 +339,7 @@ namespace NoraGrace.EvalTune2
 
     }
 
-    public class TunableParameterMaterial : TunableParameter
-    {
-        public GameStage GameStage { get; private set; }
-        public PieceType PieceType { get; private set; }
 
-        public TunableParameterMaterial(GameStage gameStage, PieceType pieceType)
-        {
-            GameStage = gameStage;
-            PieceType = pieceType;
-
-            this.Name = string.Format("Material[PieceType={0},Position={1}", GameStage, PieceType);
-            this.Increment = 5;
-            this.fnGetValue = (s) => s.MaterialValues[PieceType][GameStage];
-            this.fnSetValue = (s, v) => { s.MaterialValues[PieceType][GameStage] = (int)v; };
-        }
-    }
 
     public class TunableParameterPcSq: TunableParameter
     {

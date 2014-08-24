@@ -373,7 +373,7 @@ namespace NoraGrace.Engine.Evaluation
 
             }
 
-            System.Diagnostics.Debug.Assert(bestEndScore > 0);
+            System.Diagnostics.Debug.Assert(bestEndScore >= 0);
             System.Diagnostics.Debug.Assert(bestEndFile >= 0 && bestEndFile <= 7);
 
             int totalEndScore = 0;

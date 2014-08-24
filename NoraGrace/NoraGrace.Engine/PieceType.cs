@@ -39,6 +39,29 @@ namespace NoraGrace.Engine
             }
         }
 
+        public static int MaximumMoves(this PieceType type)
+        {
+            switch (type)
+            {
+                case PieceType.EMPTY:
+                    return 0;
+                case PieceType.Pawn:
+                    return 4;
+                case PieceType.Knight:
+                    return 8;
+                case PieceType.Bishop:
+                    return 13;
+                case PieceType.Rook:
+                    return 14;
+                case PieceType.Queen:
+                    return 27;
+                case PieceType.King:
+                    return 8;
+                default:
+                    return 0;
+            }
+        }
+
         public static Piece ForPlayer(this PieceType type, Player player)
         {
             System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);

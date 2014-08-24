@@ -387,27 +387,27 @@ namespace NoraGrace.Engine.Evaluation
                 KingAttackFactor = .68f,
                 KingAttackFactorQueenTropismBonus = 2.15f,
 
-                Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>()
+                Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>()
                 {
-                    Knight = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    Knight = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 3, AmountPerAttackDefault = 8 },
-                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 4, AmountPerAttackDefault = 13 },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 3, Amplitude = 54, BezControlPct = new Helpers.Point(.3, .6)},
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 120, BezControlPct = new Helpers.Point(.4, 1.3) },
                     },
-                    Bishop = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    Bishop = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 3, AmountPerAttackDefault = 4 },
-                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 5, AmountPerAttackDefault = 8 },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 54, BezControlPct = new Helpers.Point(-0.2, .4) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 7, Amplitude = 82, BezControlPct = new Helpers.Point(.3, 1.1) },
                     },
-                    Rook = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    Rook = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 3, AmountPerAttackDefault = 7 },
-                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 5, AmountPerAttackDefault = 5 },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 5, Amplitude = 50, BezControlPct = new Helpers.Point(.7, 1.3) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 98, BezControlPct = new Helpers.Point(.1, .9) },
                     },
-                    Queen = new ChessGameStageDictionary<ChessEvalSettingsMobility>()
+                    Queen = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 6, AmountPerAttackDefault = 1 },
-                        Endgame = new ChessEvalSettingsMobility() { ExpectedAttacksAvailable = 10, AmountPerAttackDefault = 10 },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 28, BezControlPct = new Helpers.Point(.7, .9) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 12, Amplitude = 120, BezControlPct = new Helpers.Point(.35, 1.4) },
                     },
                 }
             };
@@ -426,7 +426,7 @@ namespace NoraGrace.Engine.Evaluation
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnUnconnected = new ChessGameStageDictionary<int>();
-        public ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<ChessEvalSettingsMobility>>();
+        public ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>();
         
         public int PawnPassed8thRankScore = 0;
         public double PawnPassedRankReduction = 0;

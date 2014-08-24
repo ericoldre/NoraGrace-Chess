@@ -58,6 +58,8 @@
     <Compile Include="EPD.cs" />
     <Compile Include="Evaluation\Evaluator.cs" />
     <Compile Include="Evaluation\EvalResults.cs" />
+    <Compile Include="Evaluation\Helpers\Mobility.cs" />
+    <Compile Include="Evaluation\Helpers\QuadraticBezier.cs" />
     <Compile Include="Evaluation\MaterialEvaluator.cs" />
     <Compile Include="Evaluation\PawnEvaluator.cs" />
     <Compile Include="Evaluation\Settings.cs" />

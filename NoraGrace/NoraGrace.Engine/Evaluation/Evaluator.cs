@@ -133,19 +133,27 @@ namespace NoraGrace.Engine.Evaluation
 
             //setup mobility arrays
 
-            foreach (PieceType pieceType in PieceTypeUtil.AllPieceTypes)
+            foreach (PieceType pieceType in new PieceType[]{PieceType.Knight, PieceType.Bishop, PieceType.Rook, PieceType.Queen})
             {
-                _mobilityPieceTypeCount[(int)pieceType] = new PhasedScore[28];
-                for (int attacksCount = 0; attacksCount < 28; attacksCount++)
-                {
-                    var mob = settings.Mobility;
-                    var opiece = mob[pieceType];
+                var pieceSettings = settings.Mobility[pieceType];
 
-                    int startVal = (attacksCount - opiece[GameStage.Opening].ExpectedAttacksAvailable) * opiece[GameStage.Opening].AmountPerAttackDefault;
-                    int endVal = (attacksCount - opiece[GameStage.Endgame].ExpectedAttacksAvailable) * opiece[GameStage.Endgame].AmountPerAttackDefault;
+                int[] openingVals = pieceSettings.Opening.GetValues(pieceType.MaximumMoves());
+                int[] endgameVals = pieceSettings.Endgame.GetValues(pieceType.MaximumMoves());
 
-                    _mobilityPieceTypeCount[(int)pieceType][attacksCount] = PhasedScoreUtil.Create(startVal, endVal);
-                }
+                PhasedScore[] combined = PhasedScoreUtil.Combine(openingVals, endgameVals).ToArray();
+
+                _mobilityPieceTypeCount[(int)pieceType] = combined;
+                //for (int attacksCount = 0; attacksCount < 28; attacksCount++)
+                //{
+                //    var mobSettings = settings.Mobility;
+                    
+
+
+                //    int startVal = (attacksCount - opiece[GameStage.Opening].ExpectedAttacksAvailable) * opiece[GameStage.Opening].AmountPerAttackDefault;
+                //    int endVal = (attacksCount - opiece[GameStage.Endgame].ExpectedAttacksAvailable) * opiece[GameStage.Endgame].AmountPerAttackDefault;
+
+                //    _mobilityPieceTypeCount[(int)pieceType][attacksCount] = PhasedScoreUtil.Create(startVal, endVal);
+                //}
             }
 
             //initialize pcsq for trying to mate king in endgame, try to push it to edge of board.

@@ -181,10 +181,26 @@ namespace NoraGrace.EvalTune2
                 {
                     yield return new TunableParameter()
                     {
-                        Name = string.Format("mob{0}{1}",pt,gs),
-                        fnGetValue = (s) => s.Mobility[pt][gs].AmountPerAttackDefault,
-                        fnSetValue = (s, v) => { s.Mobility[pt][gs].AmountPerAttackDefault = (int)v; },
-                        Increment = 1
+                        Name = string.Format("mob{0}{1}Amp",pt,gs),
+                        fnGetValue = (s) => s.Mobility[pt][gs].Amplitude,
+                        fnSetValue = (s, v) => { s.Mobility[pt][gs].Amplitude = (int)v; },
+                        Increment = 4
+                    };
+
+                    yield return new TunableParameter()
+                    {
+                        Name = string.Format("mob{0}{1}X", pt, gs),
+                        fnGetValue = (s) => s.Mobility[pt][gs].BezControlPct.X,
+                        fnSetValue = (s, v) => { s.Mobility[pt][gs].BezControlPct.X = v; },
+                        Increment = .1
+                    };
+
+                    yield return new TunableParameter()
+                    {
+                        Name = string.Format("mob{0}{1}Y", pt, gs),
+                        fnGetValue = (s) => s.Mobility[pt][gs].BezControlPct.Y,
+                        fnSetValue = (s, v) => { s.Mobility[pt][gs].BezControlPct.Y = v; },
+                        Increment = .1
                     };
                 }
             }

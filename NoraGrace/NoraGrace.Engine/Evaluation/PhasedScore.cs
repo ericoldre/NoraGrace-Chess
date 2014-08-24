@@ -33,6 +33,11 @@ namespace NoraGrace.Engine.Evaluation
             return (int)((((long)phasedScore + 0x80000000L) & ~0xffffffffL) / 0x100000000L);
         }
 
+        public static IEnumerable<PhasedScore> Combine(IEnumerable<int> openingScores, IEnumerable<int> endgameScores)
+        {
+            return openingScores.Zip(endgameScores, (o, e) => PhasedScoreUtil.Create(o, e));
+        }
+
 
         public static int Endgame(this PhasedScore phasedScore)
         {

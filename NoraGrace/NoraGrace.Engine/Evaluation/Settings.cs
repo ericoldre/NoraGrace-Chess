@@ -136,19 +136,19 @@ namespace NoraGrace.Engine.Evaluation
                 {
                     Opening = new MaterialSettingsPhase()
                     {
-                        Pawn = new MaterialSettingsPhase.PawnSettings(){ First = 60, Eighth = 60, Curve = new Helpers.Point(){ X = .5, Y = .5}},
-                        Knight = new MaterialSettingsPhase.PieceSettings() { BaseValue = 385, PairBonus = 0 },
-                        Bishop = new MaterialSettingsPhase.PieceSettings() { BaseValue = 390, PairBonus = 25 },
-                        Rook = new MaterialSettingsPhase.PieceSettings() { BaseValue = 550, PairBonus = 0 },
-                        Queen = new MaterialSettingsPhase.PieceSettings() { BaseValue = 1255, PairBonus = 0 }
+                        Pawn = new MaterialSettingsPhase.PawnSettings(){ First = 100, Eighth = 100, Curve = new Helpers.Point(){ X = .5, Y = .5}},
+                        Knight = new MaterialSettingsPhase.PieceSettings() { BaseValue = 315, PairBonus = 0 },
+                        Bishop = new MaterialSettingsPhase.PieceSettings() { BaseValue = 310, PairBonus = 25 },
+                        Rook = new MaterialSettingsPhase.PieceSettings() { BaseValue = 500, PairBonus = 0 },
+                        Queen = new MaterialSettingsPhase.PieceSettings() { BaseValue = 1100, PairBonus = 0 }
                     },
                     Endgame = new MaterialSettingsPhase()
                     {
-                        Pawn = new MaterialSettingsPhase.PawnSettings() { First = 130, Eighth = 130, Curve = new Helpers.Point() { X = .5, Y = .5 } },
-                        Knight = new MaterialSettingsPhase.PieceSettings() { BaseValue = 380, PairBonus = 0 },
-                        Bishop = new MaterialSettingsPhase.PieceSettings() { BaseValue = 415, PairBonus = 75 },
-                        Rook = new MaterialSettingsPhase.PieceSettings() { BaseValue = 745, PairBonus = 0 },
-                        Queen = new MaterialSettingsPhase.PieceSettings() { BaseValue = 1325, PairBonus = 0 }
+                        Pawn = new MaterialSettingsPhase.PawnSettings() { First = 120, Eighth = 75, Curve = new Helpers.Point() { X = .3, Y = .7 } },
+                        Knight = new MaterialSettingsPhase.PieceSettings() { BaseValue = 305, PairBonus = 0 },
+                        Bishop = new MaterialSettingsPhase.PieceSettings() { BaseValue = 325, PairBonus = 75 },
+                        Rook = new MaterialSettingsPhase.PieceSettings() { BaseValue = 550, PairBonus = 0 },
+                        Queen = new MaterialSettingsPhase.PieceSettings() { BaseValue = 1100, PairBonus = 0 }
                     }
                 },
 
@@ -158,15 +158,15 @@ namespace NoraGrace.Engine.Evaluation
                     {
                         Opening = new PcSqDictionary()
                         {
-                            Rank1 = 0, Rank2 = -6, Rank3 = 0, Rank4 = 6, Rank5 = 15, Rank6 = 45, Rank7 = 15, Rank8 = 0,
-                            FileAH = -7, FileBG = 7, FileCF = 3, FileDE = 5,
-                            Center4 = 10, CenterBorder = 2, OutsideEdge = -6
+                            Rank1 = 0, Rank2 = -9, Rank3 = 0, Rank4 = 6, Rank5 = 18, Rank6 = 72, Rank7 = 100, Rank8 = 0,
+                            FileAH = -16, FileBG = 7, FileCF = 3, FileDE = 2,
+                            Center4 = 7, CenterBorder = 0, OutsideEdge = 0
                         },
                         Endgame = new PcSqDictionary()
                         {
-                            Rank1 = 0, Rank2 = 2, Rank3 = 3, Rank4 = 3, Rank5 = 6, Rank6 = 17, Rank7 = 40, Rank8 = 0,
-                            FileAH = 0, FileBG = 9, FileCF = 16, FileDE = 12,
-                            Center4 = -21, CenterBorder = -9, OutsideEdge = 18
+                            Rank1 = 0, Rank2 = 2, Rank3 = 3, Rank4 = 6, Rank5 = 9, Rank6 = 11, Rank7 = 4, Rank8 = 0,
+                            FileAH = -10, FileBG = 9, FileCF = 12, FileDE = 12,
+                            Center4 = -20, CenterBorder = -10, OutsideEdge = 0
                         }
                         //Opening = new ChessPositionDictionary<int>(new int[]
                         //{
@@ -195,15 +195,15 @@ namespace NoraGrace.Engine.Evaluation
                     {
                         Opening = new PcSqDictionary()
                         {
-                            Rank1 = -9, Rank2 = 0, Rank3 = 3, Rank4 = 15, Rank5 = 15, Rank6 = 27, Rank7 = 21, Rank8 = -57,
-                            FileAH = -6, FileBG = -3, FileCF = 6, FileDE = 18,
-                            Center4 = -3, CenterBorder = 6, OutsideEdge = -6
+                            Rank1 = -9, Rank2 = 0, Rank3 = 3, Rank4 = 15, Rank5 = 18, Rank6 = 36, Rank7 = 18, Rank8 = -60,
+                            FileAH = -12, FileBG = -9, FileCF = 0, FileDE = 12,
+                            Center4 = -5, CenterBorder = 6, OutsideEdge = -6
                         },
                         Endgame = new PcSqDictionary()
                         {
-                            Rank1 = 0, Rank2 = 0, Rank3 = 0, Rank4 = 13, Rank5 = 22, Rank6 = 14, Rank7 = 9, Rank8 = 7,
-                            FileAH = 1, FileBG = 6, FileCF = 2, FileDE = 7,
-                            Center4 = 3, CenterBorder = -3, OutsideEdge = 3
+                            Rank1 = -3, Rank2 = 0, Rank3 = 0, Rank4 = 16, Rank5 = 22, Rank6 = 14, Rank7 = 9, Rank8 = 7,
+                            FileAH = 1, FileBG = 6, FileCF = 6, FileDE = 10,
+                            Center4 = 6, CenterBorder = 4, OutsideEdge = 6
                         }
                         //Opening = new ChessPositionDictionary<int>(new int[]
                         //{
@@ -232,15 +232,15 @@ namespace NoraGrace.Engine.Evaluation
                     {
                         Opening = new PcSqDictionary()
                         {
-                            Rank1 = 0, Rank2 = 12, Rank3 = 12, Rank4 = -3, Rank5 = -12, Rank6 = 21, Rank7 = -21, Rank8 = -24,
-                            FileAH = 0, FileBG = 9, FileCF = -3, FileDE = -9,
-                            Center4 = 30, CenterBorder = 4, OutsideEdge = -6
+                            Rank1 = 9, Rank2 = 18, Rank3 = 18, Rank4 = 0, Rank5 = -6, Rank6 = 15, Rank7 = -27, Rank8 = -33,
+                            FileAH = 3, FileBG = 3, FileCF = -6, FileDE = -12,
+                            Center4 = 30, CenterBorder = 4, OutsideEdge = -9
                         },
                         Endgame = new PcSqDictionary()
                         {
-                            Rank1 = -3, Rank2 = 3, Rank3 = 3, Rank4 = 0, Rank5 = 3, Rank6 = 6, Rank7 = 6, Rank8 = 12,
-                            FileAH = 0, FileBG = 0, FileCF = -3, FileDE = 0,
-                            Center4 = 2, CenterBorder = 7, OutsideEdge = 1
+                            Rank1 = -3, Rank2 = 3, Rank3 = 6, Rank4 = 3, Rank5 = 6, Rank6 = 9, Rank7 = 9, Rank8 = -6,
+                            FileAH = -6, FileBG = 0, FileCF = 0, FileDE = 3,
+                            Center4 = 8, CenterBorder = 6, OutsideEdge = -8
                         }
                         //Opening = new ChessPositionDictionary<int>(new int[]
                         //{
@@ -269,15 +269,15 @@ namespace NoraGrace.Engine.Evaluation
                     {
                         Opening = new PcSqDictionary()
                         {
-                            Rank1 = 6, Rank2 = -12, Rank3 = -9, Rank4 = -3, Rank5 = 21, Rank6 = 48, Rank7 = 37, Rank8 = 36,
-                            FileAH = -6, FileBG = 6, FileCF = 22, FileDE = 25,
-                            Center4 = -6, CenterBorder = -6, OutsideEdge = 3
+                            Rank1 = 6, Rank2 = -9, Rank3 = -6, Rank4 = -3, Rank5 = 27, Rank6 = 45, Rank7 = 40, Rank8 = 45,
+                            FileAH = -6, FileBG = 9, FileCF = 22, FileDE = 28,
+                            Center4 = -9, CenterBorder = -6, OutsideEdge = 3
                         },
                         Endgame = new PcSqDictionary()
                         {
                             Rank1 = -9, Rank2 = -12, Rank3 = -6, Rank4 = 0, Rank5 = 6, Rank6 = 15, Rank7 = 21, Rank8 = 15,
                             FileAH = 0, FileBG = 0, FileCF = -3, FileDE = -6,
-                            Center4 = 3, CenterBorder = 0, OutsideEdge = 0
+                            Center4 = 6, CenterBorder = 0, OutsideEdge = 0
                         }
                         //Opening = new ChessPositionDictionary<int>(new int[]
                         //{
@@ -306,15 +306,15 @@ namespace NoraGrace.Engine.Evaluation
                     {
                         Opening = new PcSqDictionary()
                         {
-                            Rank1 = 9, Rank2 = 15, Rank3 = 6, Rank4 = 3, Rank5 = -18, Rank6 = 12, Rank7 = -24, Rank8 = -33,
-                            FileAH = -6, FileBG = 0, FileCF = 3, FileDE = 6,
-                            Center4 = -7, CenterBorder = 1, OutsideEdge = 5
+                            Rank1 = 6, Rank2 = 21, Rank3 = 12, Rank4 = 3, Rank5 = -15, Rank6 = 3, Rank7 = -24, Rank8 = -33,
+                            FileAH = -9, FileBG = 0, FileCF = 3, FileDE = 6,
+                            Center4 = -10, CenterBorder = 1, OutsideEdge = 11
                         },
                         Endgame = new PcSqDictionary()
                         {
-                            Rank1 = -39, Rank2 = -15, Rank3 = 12, Rank4 = 18, Rank5 = 42, Rank6 = 27, Rank7 = 57, Rank8 = 57,
-                            FileAH = 0, FileBG = 0, FileCF = 0, FileDE = 0,
-                            Center4 = -1, CenterBorder = 7, OutsideEdge = -13
+                            Rank1 = -36, Rank2 = -15, Rank3 = 12, Rank4 = 27, Rank5 = 51, Rank6 = 39, Rank7 = 54, Rank8 = 54,
+                            FileAH = -6, FileBG = 3, FileCF = 0, FileDE = 3,
+                            Center4 = 2, CenterBorder = 4, OutsideEdge = -15
                         }
                         //Opening = new ChessPositionDictionary<int>(new int[]
                         //{
@@ -343,15 +343,15 @@ namespace NoraGrace.Engine.Evaluation
                     {
                         Opening = new PcSqDictionary()
                         {
-                            Rank1 = 0, Rank2 = -5, Rank3 = -23, Rank4 = -64, Rank5 = -80, Rank6 = -80, Rank7 = -80, Rank8 = -80,
-                            FileAH = 9, FileBG = 26, FileCF = -1, FileDE = -3,
-                            Center4 = 0, CenterBorder = 0, OutsideEdge = 0
+                            Rank1 = 0, Rank2 = -5, Rank3 = -35, Rank4 = -64, Rank5 = -80, Rank6 = -80, Rank7 = -80, Rank8 = -80,
+                            FileAH = 15, FileBG = 26, FileCF = 5, FileDE = -3,
+                            Center4 = 0, CenterBorder = 0, OutsideEdge = 10
                         },
                         Endgame = new PcSqDictionary()
                         {
-                            Rank1 = -27, Rank2 = -9, Rank3 = 0, Rank4 = 15, Rank5 = 33, Rank6 = 69, Rank7 = 60, Rank8 = 6,
-                            FileAH = -9, FileBG = 0, FileCF = 6, FileDE = 6,
-                            Center4 = 7, CenterBorder = 7, OutsideEdge = -5
+                            Rank1 = -33, Rank2 = -9, Rank3 = 0, Rank4 = 18, Rank5 = 36, Rank6 = 60, Rank7 = 45, Rank8 = 9,
+                            FileAH = -12, FileBG = 3, FileCF = 3, FileDE = 6,
+                            Center4 = 1, CenterBorder = 7, OutsideEdge = 0
                         }
                         //Opening = new ChessPositionDictionary<int>(new int[]
                         //{
@@ -381,51 +381,51 @@ namespace NoraGrace.Engine.Evaluation
 
 
 
-                PawnDoubled = new ChessGameStageDictionary<int>() { Opening = 8, Endgame = 2 },
-                PawnIsolated = new ChessGameStageDictionary<int>() { Opening = 15, Endgame = 15 },
-                PawnUnconnected = new ChessGameStageDictionary<int>(){ Opening = 5, Endgame = 0},
+                PawnDoubled = new ChessGameStageDictionary<int>() { Opening = 22, Endgame = 10 },
+                PawnIsolated = new ChessGameStageDictionary<int>() { Opening = 9, Endgame = 13 },
+                PawnUnconnected = new ChessGameStageDictionary<int>(){ Opening = 11, Endgame = 2},
                 
-                PawnPassed8thRankScore = 417,
-                PawnPassedRankReduction = .57f,
-                PawnPassedDangerPct = .20f,
+                PawnPassed8thRankScore = 407,
+                PawnPassedRankReduction = .54f,
+                PawnPassedDangerPct = .21f,
                 
-                PawnPassedOpeningPct = .31f,
+                PawnPassedOpeningPct = .20f,
                 PawnPassedMinScore = 0,
-                PawnCandidatePct = .30f,
-                PawnPassedClosePct = .99f,
-                PawnPassedFarPct = 1.1f,
-                PawnShelterFactor = 7,
+                PawnCandidatePct = .35f,
+                PawnPassedClosePct = .90f,
+                PawnPassedFarPct = 0.7f,
+                PawnShelterFactor = 6,
 
                 RookFileOpen = 20,
 
-                KingAttackCountValue = 6,
-                KingAttackWeightValue = 8,
-                KingAttackWeightCutoff = 6,
+                KingAttackCountValue = 7,
+                KingAttackWeightValue = 7,
+                KingAttackWeightCutoff = 5,
                 KingRingAttack = 5,
-                KingRingAttackControlBonus = 35,
-                KingAttackFactor = .68f,
+                KingRingAttackControlBonus = 25,
+                KingAttackFactor = .53,
                 KingAttackFactorQueenTropismBonus = 2.15f,
 
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>()
                 {
                     Knight = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 3, Amplitude = 54, BezControlPct = new Helpers.Point(.3, .6)},
-                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 120, BezControlPct = new Helpers.Point(.4, 1.3) },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 3, Amplitude = 60, BezControlPct = new Helpers.Point(.3, .6)},
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 100, BezControlPct = new Helpers.Point(.4, 1.3) },
                     },
                     Bishop = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 54, BezControlPct = new Helpers.Point(-0.2, .4) },
-                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 7, Amplitude = 82, BezControlPct = new Helpers.Point(.3, 1.1) },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 60, BezControlPct = new Helpers.Point(-0.2, .4) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 7, Amplitude = 80, BezControlPct = new Helpers.Point(.3, 1.1) },
                     },
                     Rook = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
                         Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 5, Amplitude = 50, BezControlPct = new Helpers.Point(.7, 1.3) },
-                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 98, BezControlPct = new Helpers.Point(.1, .9) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 90, BezControlPct = new Helpers.Point(.1, .9) },
                     },
                     Queen = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 28, BezControlPct = new Helpers.Point(.7, .9) },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 30, BezControlPct = new Helpers.Point(.7, .9) },
                         Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 12, Amplitude = 120, BezControlPct = new Helpers.Point(.35, 1.4) },
                     },
                 }

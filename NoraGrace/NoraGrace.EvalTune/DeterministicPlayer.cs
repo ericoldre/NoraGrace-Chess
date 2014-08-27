@@ -36,7 +36,7 @@ namespace NoraGrace.EvalTune
             args.GameStartPosition = gameStartPosition;
             args.GameMoves = new List<Move>(movesAlreadyPlayed);
             args.TransTable = TransTable;
-            args.Eval = Eval;
+            args.Eval = Eval as Evaluator;
             args.TimeManager = this.NodeManager;
             args.ContemptForDraw = 50;
             if (AlterSearchArgs != null) { AlterSearchArgs(args); }

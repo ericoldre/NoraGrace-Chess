@@ -70,7 +70,7 @@ namespace NoraGrace.EvalTune2
 
         public static double PgnE(BinaryPGN pgn, Evaluator evaluator, MovePicker.Stack moveStack)
         {
-            Board board = new Board(evaluator);
+            Board board = new Board(evaluator.PcSq);
             GameResult result = pgn.Result;
 
             int c = 0;

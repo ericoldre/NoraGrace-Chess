@@ -20,8 +20,8 @@ namespace NoraGrace.Engine.Evaluation
 
         protected readonly PawnEvaluator _evalPawns;
         public readonly MaterialEvaluator _evalMaterial;
+        private readonly PcSqEvaluator _evalPcSq;
 
-        public readonly PhasedScore[][] _pcsqPiecePos = new PhasedScore[PieceUtil.LookupArrayLength][];
         public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeUtil.LookupArrayLength][];
 
         public readonly int[] _endgameMateKingPcSq;
@@ -90,46 +90,7 @@ namespace NoraGrace.Engine.Evaluation
             //setup pawn evaluation
             _evalPawns = new PawnEvaluator(_settings, 10000);
             _evalMaterial = new MaterialEvaluator(_settings.MaterialValues);
-            
-
-            //normalize pcsq
-            Action<Settings.PcSqDictionary> actionNormalizePcSq = (data) =>
-            {
-                int sum = PositionUtil.AllPositions.Sum(p => data[p]);
-                int per = sum / 64;
-                data.Offset -= per;
-            };
-            foreach (PieceType pieceType in PieceTypeUtil.AllPieceTypes)
-            {
-                actionNormalizePcSq(settings.PcSqTables[pieceType][GameStage.Opening]);
-                actionNormalizePcSq(settings.PcSqTables[pieceType][GameStage.Endgame]);
-            }
-
-            //setup piecesq tables
-            foreach (Piece piece in PieceUtil.AllPieces)
-            {
-                _pcsqPiecePos[(int)piece] = new PhasedScore[64];
-                foreach (Position pos in PositionUtil.AllPositions)
-                {
-                
-                    if (piece.PieceToPlayer() == Player.White)
-                    {
-                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreUtil.Create(
-                            settings.PcSqTables[piece.ToPieceType()][GameStage.Opening][pos],
-                            settings.PcSqTables[piece.ToPieceType()][GameStage.Endgame][pos]);
-                    }
-                    else
-                    {
-                        _pcsqPiecePos[(int)piece][(int)pos] = PhasedScoreUtil.Create(
-                            -settings.PcSqTables[piece.ToPieceType()][GameStage.Opening][pos.Reverse()],
-                            -settings.PcSqTables[piece.ToPieceType()][GameStage.Endgame][pos.Reverse()]);
-                    }
-                    
-                
-                }
-            }
-
-
+            _evalPcSq = new PcSqEvaluator(settings);
 
             //setup mobility arrays
 
@@ -201,13 +162,9 @@ namespace NoraGrace.Engine.Evaluation
 
         }
 
-        public void PcSqValuesAdd(Piece piece, Position pos, ref PhasedScore value)
+        public PcSqEvaluator PcSq
         {
-            value = value.Add(_pcsqPiecePos[(int)piece][(int)pos]);
-        }
-        public void PcSqValuesRemove(Piece piece, Position pos, ref PhasedScore value)
-        {
-            value = value.Subtract(_pcsqPiecePos[(int)piece][(int)pos]);
+            get { return _evalPcSq; }
         }
 
         public int EvalFor(Board board, Player who)

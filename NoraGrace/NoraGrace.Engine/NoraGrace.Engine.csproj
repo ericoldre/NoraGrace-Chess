@@ -62,6 +62,7 @@
     <Compile Include="Evaluation\Helpers\QuadraticBezier.cs" />
     <Compile Include="Evaluation\MaterialEvaluator.cs" />
     <Compile Include="Evaluation\PawnEvaluator.cs" />
+    <Compile Include="Evaluation\PcSqEvaluator.cs" />
     <Compile Include="Evaluation\Settings.cs" />
     <Compile Include="FEN.cs" />
     <Compile Include="File.cs" />

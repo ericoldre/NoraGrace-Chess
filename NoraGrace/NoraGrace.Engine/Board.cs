@@ -79,20 +79,20 @@ namespace NoraGrace.Engine
 
 		private int _movesSinceNull = 100;
 
-        private readonly Evaluation.Evaluator _pcSqEvaluator;
+        private readonly Evaluation.PcSqEvaluator _pcSqEvaluator;
         private Evaluation.PhasedScore _pcSq;
 
-        public Board(Evaluation.Evaluator pcSqEvaluator = null)
+        public Board(Evaluation.PcSqEvaluator pcSqEvaluator = null)
             : this(new FEN(FEN.FENStart), pcSqEvaluator)
 		{
             
 		}
-        public Board(string fen, Evaluation.Evaluator pcSqEvaluator = null)
+        public Board(string fen, Evaluation.PcSqEvaluator pcSqEvaluator = null)
             : this(new FEN(fen), pcSqEvaluator)
 		{
 
 		}
-        public Board(FEN fen, Evaluation.Evaluator pcSqEvaluator = null)
+        public Board(FEN fen, Evaluation.PcSqEvaluator pcSqEvaluator = null)
 		{
 
             _histUB = _hist.GetUpperBound(0);
@@ -101,13 +101,13 @@ namespace NoraGrace.Engine
                 _hist[i] = new MoveHistory();
             }
 
-            _pcSqEvaluator = pcSqEvaluator ?? Evaluation.Evaluator.Default;
+            _pcSqEvaluator = pcSqEvaluator ?? Evaluation.Evaluator.Default.PcSq;
             initPieceAtArray();
 
 			this.FENCurrent = fen;
 		}
 
-        public Board(FEN fen, IEnumerable<Move> prevMoves, Evaluation.Evaluator pcSqEvaluator = null)
+        public Board(FEN fen, IEnumerable<Move> prevMoves, Evaluation.PcSqEvaluator pcSqEvaluator = null)
             : this(fen, pcSqEvaluator)
         {
             foreach (Move move in prevMoves)
@@ -315,7 +315,7 @@ namespace NoraGrace.Engine
             get { return _pcSq; }
         }
 
-        public Evaluation.Evaluator PcSqEvaluator
+        public Evaluation.PcSqEvaluator PcSqEvaluator
         {
             get { return _pcSqEvaluator; }
         }

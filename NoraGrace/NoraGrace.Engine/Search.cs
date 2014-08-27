@@ -189,7 +189,7 @@ namespace NoraGrace.Engine
 			public TranspositionTable TransTable { get; set; }
 			public BlunderChance Blunder { get; set; }
 			public TimeSpan Delay { get; set; }
-            public Evaluation.IChessEval Eval { get; set; }
+            public Evaluation.Evaluator Eval { get; set; }
             public int MaxNodes { get; set; }
             public int ContemptForDraw { get; set; }
             public ITimeManager TimeManager { get; set; }
@@ -247,9 +247,9 @@ namespace NoraGrace.Engine
 
             SearchArgs = args;
             eval = args.Eval;
-            _evalInfoStack = new Evaluation.ChessEvalInfoStack(args.Eval as Evaluation.Evaluator, MAX_PLY + 1);
+            _evalInfoStack = new Evaluation.ChessEvalInfoStack(args.Eval, MAX_PLY + 1);
 
-            board = new Board(SearchArgs.GameStartPosition);
+            board = new Board(SearchArgs.GameStartPosition, args.Eval.PcSq);
             
 
 			foreach (Move histmove in SearchArgs.GameMoves)

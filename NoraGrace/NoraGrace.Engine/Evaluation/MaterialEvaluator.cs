@@ -8,6 +8,11 @@ using NoraGrace.Engine.Evaluation.Helpers;
 namespace NoraGrace.Engine.Evaluation
 {
 
+    public class MaterialSettings : ChessGameStageDictionary<MaterialSettingsPhase>
+    {
+        
+
+    }
     public class MaterialSettingsPhase
     {
 
@@ -100,13 +105,13 @@ namespace NoraGrace.Engine.Evaluation
     public class MaterialEvaluator
     {
 
-        protected readonly ChessGameStageDictionary<MaterialSettingsPhase>  _settings;
+        protected readonly MaterialSettings _settings;
         private readonly MaterialResults[] _hash = new MaterialResults[500];
         public static int TotalEvalMaterialCount = 0;
 
         private int[] _pawnValuesOpening;
         private int[] _pawnValuesEndGame;
-        public MaterialEvaluator(ChessGameStageDictionary<MaterialSettingsPhase> settings)
+        public MaterialEvaluator(MaterialSettings settings)
         {
             _settings = settings;
 
@@ -167,6 +172,8 @@ namespace NoraGrace.Engine.Evaluation
 
             double scaleWhite = ScaleFactor(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
             double scaleBlack = ScaleFactor(bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
+
+
             return new MaterialResults(zob, startWeight, (int)score, (int)(scaleWhite * 100), (int)(scaleBlack * 100));
 
         }

@@ -132,7 +132,7 @@ namespace NoraGrace.Engine.Evaluation
                 //},
                 //MaterialBishopPair = new ChessGameStageDictionary<int>() { Opening = 25, Endgame = 75 },
 
-                MaterialValues = new ChessGameStageDictionary<MaterialSettingsPhase>()
+                MaterialValues = new MaterialSettings()
                 {
                     Opening = new MaterialSettingsPhase()
                     {
@@ -150,6 +150,7 @@ namespace NoraGrace.Engine.Evaluation
                         Rook = new MaterialSettingsPhase.PieceSettings() { BaseValue = 550, PairBonus = 0 },
                         Queen = new MaterialSettingsPhase.PieceSettings() { BaseValue = 1100, PairBonus = 0 }
                     }
+                    
                 },
 
                 PcSqTables = new ChessPieceTypeDictionary<ChessGameStageDictionary<PcSqDictionary>>()
@@ -405,6 +406,7 @@ namespace NoraGrace.Engine.Evaluation
                 KingRingAttackControlBonus = 25,
                 KingAttackFactor = .53,
                 KingAttackFactorQueenTropismBonus = 2.15f,
+                
 
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>()
                 {
@@ -439,7 +441,7 @@ namespace NoraGrace.Engine.Evaluation
 
 
         public ChessPieceTypeDictionary<ChessGameStageDictionary<PcSqDictionary>> PcSqTables = new ChessPieceTypeDictionary<ChessGameStageDictionary<PcSqDictionary>>();
-        public ChessGameStageDictionary<MaterialSettingsPhase> MaterialValues = new ChessGameStageDictionary<MaterialSettingsPhase>();
+        public MaterialSettings MaterialValues = new MaterialSettings();
         public ChessGameStageDictionary<int> MaterialBishopPair = new ChessGameStageDictionary<int>();
 
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();

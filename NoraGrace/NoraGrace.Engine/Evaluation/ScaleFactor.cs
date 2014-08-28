@@ -10,7 +10,7 @@ namespace NoraGrace.Engine.Evaluation
     public enum ScaleFactor
     {
         NONE = 0,
-        FULL = 255
+        FULL = 256
     }
 
     public static class ScaleFactorUtil
@@ -28,7 +28,7 @@ namespace NoraGrace.Engine.Evaluation
 
         public static string Description(this ScaleFactor sf)
         {
-            return "Scale:" + sf.ToDouble().ToString("D3");
+            return "Scale:" + sf.ToDouble().ToString("F3");
         }
 
         public static int ScaleValue(this ScaleFactor sf, int value)

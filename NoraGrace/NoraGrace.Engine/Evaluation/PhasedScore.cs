@@ -72,12 +72,12 @@ namespace NoraGrace.Engine.Evaluation
             return (PhasedScore)((long)phasedScore * multiplier);
         }
 
-        public static int ApplyWeights(this PhasedScore phasedScore, int StageStartWeight)
+        public static int ApplyScaleFactor(this PhasedScore phasedScore, ScaleFactor startWeight)
         {
-            return (
-                    (phasedScore.Opening() * StageStartWeight) 
-                    + (phasedScore.Endgame() * (100 - StageStartWeight)
-                    )) / 100;
+            ScaleFactor endWeight = (ScaleFactor)((int)ScaleFactor.FULL - (int)startWeight);
+
+            return startWeight.ScaleValue(phasedScore.Opening()) + endWeight.ScaleValue(phasedScore.Endgame());
+
         }
 
 

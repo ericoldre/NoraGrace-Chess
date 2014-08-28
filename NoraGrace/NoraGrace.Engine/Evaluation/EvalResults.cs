@@ -18,9 +18,9 @@ namespace NoraGrace.Engine.Evaluation
         public int Material { get; private set; }
         public PhasedScore PcSq { get; set; }
         public PhasedScore Pawns { get; private set; }
-        public int StageStartWeight { get; private set; }
-        public int ScaleWhite { get; private set; }
-        public int ScaleBlack { get; private set; }
+        public ScaleFactor StageStartWeight { get; private set; }
+        public ScaleFactor ScaleWhite { get; private set; }
+        public ScaleFactor ScaleBlack { get; private set; }
         public Bitboard PassedPawns { get; private set; }   //not a score but information
         public Bitboard CandidatePawns { get; private set; }  //not a score but information
 
@@ -39,9 +39,9 @@ namespace NoraGrace.Engine.Evaluation
             Pawns = 0;
             PawnsPassed = 0;
             ShelterStorm = 0;
-            StageStartWeight = 0;
-            ScaleWhite = 100;
-            ScaleBlack = 100;
+            StageStartWeight = ScaleFactor.FULL;
+            ScaleWhite = ScaleFactor.FULL;
+            ScaleBlack = ScaleFactor.FULL;
             DrawScore = 0;
             PassedPawns = Bitboard.Empty;
             CandidatePawns = Bitboard.Empty;
@@ -95,10 +95,6 @@ namespace NoraGrace.Engine.Evaluation
                 return Score - margin;
             }
         }
-        public int StageEndWeight
-        {
-            get { return 100 - StageStartWeight; }
-        }
 
         public int Score
         {
@@ -108,20 +104,18 @@ namespace NoraGrace.Engine.Evaluation
                     .Add(Pawns)
                     .Add(PawnsPassed)
                     .Add(ShelterStorm)
-                    .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility)).ApplyWeights(StageStartWeight) + Material;
+                    .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility)).ApplyScaleFactor(StageStartWeight) + Material;
 
                 nonScaled += this.Attacks[0].KingAttackerScore;
                 nonScaled -= this.Attacks[1].KingAttackerScore;
 
-                if (nonScaled > DrawScore && ScaleWhite < 100)
+                if (nonScaled > DrawScore && ScaleWhite < ScaleFactor.FULL)
                 {
-                    int scaled = (((nonScaled - DrawScore) * ScaleWhite) / 100) + DrawScore;
-                    return scaled;
+                    return ScaleWhite.ScaleValue(nonScaled - DrawScore) + DrawScore;
                 }
-                else if (nonScaled < DrawScore && ScaleBlack < 100)
+                else if (nonScaled < DrawScore && ScaleBlack < ScaleFactor.FULL)
                 {
-                    int scaled = (((nonScaled - DrawScore) * ScaleBlack) / 100) + DrawScore;
-                    return scaled;
+                    return ScaleBlack.ScaleValue(nonScaled - DrawScore) + DrawScore;
                 }
                 return nonScaled;
             }
@@ -139,7 +133,7 @@ namespace NoraGrace.Engine.Evaluation
         {
             get
             {
-                return PcSq.ApplyWeights(StageStartWeight);
+                return PcSq.ApplyScaleFactor(StageStartWeight);
             }
         }
 
@@ -147,14 +141,14 @@ namespace NoraGrace.Engine.Evaluation
         {
             get
             {
-                return Attacks[0].Mobility.Subtract(Attacks[1].Mobility).ApplyWeights(StageStartWeight);
+                return Attacks[0].Mobility.Subtract(Attacks[1].Mobility).ApplyScaleFactor(StageStartWeight);
             }
         }
         public int PawnsPhased
         {
             get
             {
-                return Pawns.ApplyWeights(StageStartWeight);
+                return Pawns.ApplyScaleFactor(StageStartWeight);
             }
         }
 
@@ -162,7 +156,7 @@ namespace NoraGrace.Engine.Evaluation
         {
             get
             {
-                return PawnsPassed.ApplyWeights(StageStartWeight);
+                return PawnsPassed.ApplyScaleFactor(StageStartWeight);
             }
         }
 

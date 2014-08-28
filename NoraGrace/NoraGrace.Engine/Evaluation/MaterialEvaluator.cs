@@ -59,11 +59,12 @@ namespace NoraGrace.Engine.Evaluation
     public class MaterialResults
     {
         public readonly Int64 ZobristMaterial;
-        public readonly int StartWeight;
+        
         public readonly int Score;
+        public readonly ScaleFactor StartWeight;
+        public readonly ScaleFactor ScaleWhite;
+        public readonly ScaleFactor ScaleBlack;
 
-        public readonly int ScaleWhite;
-        public readonly int ScaleBlack;
         //public readonly int Wp;
         //public readonly int Wn;
         //public readonly int Wb;
@@ -75,7 +76,7 @@ namespace NoraGrace.Engine.Evaluation
         //public readonly int Br;
         //public readonly int Bq;
 
-        public MaterialResults(Int64 zobristMaterial, int startWeight, int score, int scaleWhite, int scaleBlack /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
+        public MaterialResults(Int64 zobristMaterial, ScaleFactor startWeight, int score, ScaleFactor scaleWhite, ScaleFactor scaleBlack /*, int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq*/)
         {
             ZobristMaterial = zobristMaterial;
             StartWeight = startWeight;
@@ -97,7 +98,7 @@ namespace NoraGrace.Engine.Evaluation
 
         public bool DoShelter
         {
-            get { return this.StartWeight > 40; }
+            get { return this.StartWeight.ToDouble() > .4; }
         }
 
     }
@@ -157,30 +158,29 @@ namespace NoraGrace.Engine.Evaluation
 
 
 
-            int startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
-            double startWeightPct = (double)startWeight / 100f;
+            ScaleFactor startWeight = CalcStartWeight(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
 
-            
+           
             double pctPawns = (double)(wp + bp) / 16f;
             double pctMinors = (double)(wn + bn + wb + bb) / 8;
-            double totalPct = (startWeightPct + pctPawns) / 2f;
+            double totalPct = (startWeight.ToDouble() + pctPawns) / 2f;
 
             double white = MyMaterial(totalPct, pctPawns, pctMinors, wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
             double black = MyMaterial(totalPct, pctPawns, pctMinors, bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
 
             double score = white - black;
 
-            double scaleWhite = ScaleFactor(wp, wn, wb, wr, wq, bp, bn, bb, br, bq);
-            double scaleBlack = ScaleFactor(bp, bn, bb, br, bq, wp, wn, wb, wr, wq);
+            ScaleFactor scaleWhite = ScaleFactorUtil.FromDouble(ScaleFactorPlayer(wp, wn, wb, wr, wq, bp, bn, bb, br, bq));
+            ScaleFactor scaleBlack = ScaleFactorUtil.FromDouble(ScaleFactorPlayer(bp, bn, bb, br, bq, wp, wn, wb, wr, wq));
 
 
-            return new MaterialResults(zob, startWeight, (int)score, (int)(scaleWhite * 100), (int)(scaleBlack * 100));
+            return new MaterialResults(zob, startWeight, (int)score, scaleWhite, scaleBlack);
 
         }
 
 
 
-        protected int CalcStartWeight(int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
+        protected ScaleFactor CalcStartWeight(int wp, int wn, int wb, int wr, int wq, int bp, int bn, int bb, int br, int bq)
         {
             int basicMaterialCount =
                 (wn * 3) + (bn * 3)
@@ -191,18 +191,17 @@ namespace NoraGrace.Engine.Evaluation
             //full material would be 62
             if (basicMaterialCount >= 56)
             {
-                return 100;
+                return Evaluation.ScaleFactor.FULL;
             }
             else if (basicMaterialCount <= 10)
             {
-                return 0;
+                return Evaluation.ScaleFactor.NONE;
             }
             else
             {
                 int rem = basicMaterialCount - 10;
                 float retval = (float)rem / 46f;
-                int retval2 = (int)Math.Round((retval * 100));
-                return retval2;
+                return Evaluation.ScaleFactorUtil.FromDouble(retval);
             }
         }
 
@@ -210,7 +209,7 @@ namespace NoraGrace.Engine.Evaluation
         /// Functionally equivilent to Fruit2.1, although surprised adding it did not improve much.
         /// </summary>
         /// <returns></returns>
-        private double ScaleFactor(int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
+        private double ScaleFactorPlayer(int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
         {
             if (myP == 0)
             { // white has no pawns

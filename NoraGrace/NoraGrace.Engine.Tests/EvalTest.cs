@@ -143,8 +143,8 @@ namespace NoraGrace.Engine.Tests
                     
                     EvalResults e1 = new EvalResults();
                     EvalResults e2 = new EvalResults();
-                    eval.EvalLazy(board, e1, null, int.MinValue, int.MaxValue);
-                    eval.EvalLazy(boardRev, e2, null, int.MinValue, int.MaxValue);
+                    eval.Eval(board, e1);
+                    eval.Eval(boardRev, e2);
 
                     if (e1.Score != -e2.Score)
                     {

@@ -232,9 +232,6 @@ namespace NoraGrace.Engine
         private List<Move> _bestvariation = new List<Move>();
 		private int _bestvariationscore = 0;
 
-        private readonly MovePicker.Stack _moveBuffer = new MovePicker.Stack();
-        private readonly Evaluation.ChessEvalInfoStack _evalInfoStack; 
-
         private readonly Dictionary<Move, int> _rootMoveNodeCounts = new Dictionary<Move, int>();
 		private readonly Int64 BlunderKey = Rand64();
 		
@@ -247,7 +244,6 @@ namespace NoraGrace.Engine
 
             SearchArgs = args;
             eval = args.Eval;
-            _evalInfoStack = new Evaluation.ChessEvalInfoStack(args.Eval, MAX_PLY + 1);
 
             board = new Board(SearchArgs.GameStartPosition, args.Eval.PcSq);
             
@@ -306,11 +302,12 @@ namespace NoraGrace.Engine
 			int MateScoreCount = 0;
 
             var maxDepth = SearchDepthUtil.FromPly(Math.Min(MAX_PLY, this.SearchArgs.MaxDepth));
+            SearchData searchData = new SearchData(SearchArgs.Eval, MAX_PLY);
 
             while (depth.Value() <= maxDepth.Value())
             {
 
-                ValSearchRoot(depth);
+                ValSearchRoot(searchData, depth);
 
                 //if we get three consecutive depths with same mate score.. just move.
                 if (_bestvariationscore > Search.MateIn(10) || _bestvariationscore < -Search.MateIn(10))
@@ -364,7 +361,7 @@ namespace NoraGrace.Engine
             _aborting = true;
         }
 
-		private void ValSearchRoot(SearchDepth depth)
+		private void ValSearchRoot(SearchData sdata, SearchDepth depth)
 		{
 
             SearchArgs.TimeManager.StartDepth(depth.ToPly());
@@ -414,18 +411,18 @@ namespace NoraGrace.Engine
 				if (depth.ToPly() <= 1)
 				{
 					//first couple nodes search full width
-					score = -ValSearchPVS(depth - 1, 1, move_num, -beta, -alpha);
+					score = -ValSearchPVS(sdata, depth - 1, 1, move_num, -beta, -alpha);
 				}
 				else if (_bestvariation != null && _bestvariation.Count > 0 && move == this._bestvariation[0])
 				{
 					//doing first move of deeper search
 
-					score = ValSearchAspiration(depth, alpha, _bestvariationscore, 30, move_num);
+					score = ValSearchAspiration(sdata, depth, alpha, _bestvariationscore, 30, move_num);
 				}
 				else
 				{
 					//doing search of a move we believe is going to fail low
-					score = ValSearchAspiration(depth, alpha, alpha, 0, move_num);
+					score = ValSearchAspiration(sdata, depth, alpha, alpha, 0, move_num);
 				}
 
                 _rootMoveNodeCounts.Remove(move);
@@ -524,7 +521,7 @@ namespace NoraGrace.Engine
             }
         }
 
-		private int ValSearchAspiration(SearchDepth depth, int alpha, int estscore, int initWindow, int prev_move_num)
+		private int ValSearchAspiration(SearchData sdata, SearchDepth depth, int alpha, int estscore, int initWindow, int prev_move_num)
 		{
 			int windowAlpha = estscore - initWindow;
 			int windowBeta = estscore + 1 + initWindow;
@@ -535,7 +532,7 @@ namespace NoraGrace.Engine
 				//lower window can never be lower than alpha
 				if (windowAlpha > alpha) { windowAlpha = alpha; }
 
-                int score = -ValSearchPVS(depth - 1, 1, prev_move_num, -windowBeta, -windowAlpha);
+                int score = -ValSearchPVS(sdata, depth - 1, 1, prev_move_num, -windowBeta, -windowAlpha);
 
 				if (score <= alpha)
 				{
@@ -596,25 +593,25 @@ namespace NoraGrace.Engine
             return 170 + (depth.ToPly() * 70);
         }
 
-        private int ValSearchPVS(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta, Move skip_move = Move.EMPTY)
+        private int ValSearchPVS(SearchData sdata, SearchDepth depth, int ply, int prev_move_num, int alpha, int beta, Move skip_move = Move.EMPTY)
         {
             if (alpha == beta - 1)
             {
-                return ValSearchMain(depth, ply, prev_move_num, alpha, beta);
+                return ValSearchMain(sdata, depth, ply, prev_move_num, alpha, beta);
             }
             else if (prev_move_num <= 1)
             {
-                return ValSearchMain(depth, ply, prev_move_num, alpha, beta);
+                return ValSearchMain(sdata, depth, ply, prev_move_num, alpha, beta);
             }
             else
             {
-                int scout = ValSearchMain(depth, ply, prev_move_num, beta - 1, beta);
+                int scout = ValSearchMain(sdata, depth, ply, prev_move_num, beta - 1, beta);
                 if (scout >= beta) { return beta; }
-                return ValSearchMain(depth, ply, prev_move_num, alpha, beta);
+                return ValSearchMain(sdata, depth, ply, prev_move_num, alpha, beta);
             }
         }
 
-        private int ValSearchMain(SearchDepth depth, int ply, int prev_move_num, int alpha, int beta, Move skip_move = Move.EMPTY)
+        private int ValSearchMain(SearchData sdata, SearchDepth depth, int ply, int prev_move_num, int alpha, int beta, Move skip_move = Move.EMPTY)
 		{
 			//for logging
 			CountTotalAINodes++;
@@ -652,7 +649,7 @@ namespace NoraGrace.Engine
 			if (depth.ToPly() <= 0 || ply >= MAX_PLY) 
 			{
 				//MAY TRY: if last move was a null move, want to allow me to do any legal move, because one may be a quiet move that puts me above beta
-				return ValSearchQ(ply, alpha, beta);
+				return ValSearchQ(sdata, ply, alpha, beta);
 			}
 
             //trying to remember why this had to fit in HERE?
@@ -667,7 +664,7 @@ namespace NoraGrace.Engine
 
             //run static evaluation of current position.
             Evaluation.EvalResults init_info;
-            int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, Evaluation.Evaluator.MinValue, Evaluation.Evaluator.MaxValue);
+            int init_score = Evaluation.Lazy.EvalFor(sdata, ply, board, board.WhosTurn, out init_info, Evaluation.Evaluator.MinValue, Evaluation.Evaluator.MaxValue);
 
             bool in_check_before_move = board.IsCheck();
 
@@ -677,8 +674,9 @@ namespace NoraGrace.Engine
                 if (board.MovesSinceNull > 0)
                 {
                     var previousMove = board.HistMove(1);
-                    int previousMovePositionalGain = (init_info.PositionalScore - _evalInfoStack[ply - 1].PositionalScore) * (board.WhosTurn == Player.Black ? 1 : -1);
-                    _moveBuffer.History.RegisterPositionalGain(previousMove, previousMovePositionalGain);
+                    int previousPositionalScore = sdata[ply - 1].EvalResults.PositionalScore;
+                    int previousMovePositionalGain = (init_info.PositionalScore - previousPositionalScore) * (board.WhosTurn == Player.Black ? 1 : -1);
+                    sdata.MoveHistory.RegisterPositionalGain(previousMove, previousMovePositionalGain);
                 }
 
                 //post futility placeholder
@@ -701,7 +699,7 @@ namespace NoraGrace.Engine
                     && init_score + MarginRazor(depth) < alpha)
                 {
                     int razorAlpha = alpha - MarginRazor(depth);
-                    int razorScore = ValSearchQ(ply, razorAlpha, razorAlpha + 1);
+                    int razorScore = ValSearchQ(sdata, ply, razorAlpha, razorAlpha + 1);
                     if (razorScore <= razorAlpha)
                     {
                         return alpha;
@@ -720,7 +718,7 @@ namespace NoraGrace.Engine
 
                     int nullr = depth.ToPly() >= 5 ? 3 : 2;
                     board.MoveNullApply();
-                    int nullscore = -ValSearchPVS(depth.SubstractPly(nullr + 1), ply, 0, -beta, -beta + 1);
+                    int nullscore = -ValSearchPVS(sdata, depth.SubstractPly(nullr + 1), ply, 0, -beta, -beta + 1);
 
                     if (nullscore >= beta && this.NullSearchVerify() && depth.ToPly() >= 5)
                     {
@@ -729,7 +727,7 @@ namespace NoraGrace.Engine
 
                         board.MoveNullApply();
 
-                        nullscore = ValSearchPVS(depth.SubstractPly(nullr + 2), ply, 0, beta - 1, beta);
+                        nullscore = ValSearchPVS(sdata, depth.SubstractPly(nullr + 2), ply, 0, beta - 1, beta);
                         board.MoveNullUndo();
                     }
                     board.MoveNullUndo();
@@ -744,10 +742,10 @@ namespace NoraGrace.Engine
                 }
 
             } //end early cutoffs
-            
 
 
-            var plyMoves = _moveBuffer[ply];
+
+            var plyMoves = sdata[ply].MoveGenerator;
             plyMoves.Initialize(board, tt_move, false);
 
 			TranspositionTable.EntryType tt_entryType = TranspositionTable.EntryType.AtMost;
@@ -769,7 +767,7 @@ namespace NoraGrace.Engine
 
                 CurrentVariation[ply] = move;
                 
-                var moveGain = _moveBuffer.History.ReadMaxPositionalGain(move);
+                var moveGain = sdata.MoveHistory.ReadMaxPositionalGain(move);
 
                 //futility check
                 if (!isPvNode
@@ -837,7 +835,7 @@ namespace NoraGrace.Engine
                     board.MoveUndo();
                     int rbeta = alpha - 20;
                     var rdepth = (SearchDepth)((int)depth / 2);
-                    int rvalue = ValSearchMain(rdepth, ply + 1, 0, rbeta - 1, rbeta, move);
+                    int rvalue = ValSearchMain(sdata, rdepth, ply + 1, 0, rbeta - 1, rbeta, move);
                     if (rvalue < rbeta) { ext = SearchDepth.PLY; }
                     board.MoveApply(move);
                 }
@@ -863,14 +861,14 @@ namespace NoraGrace.Engine
                 if (reduce > 0)
                 {
                     doFullSearch = false;
-                    score = -ValSearchPVS(depth.SubstractPly(1 + reduce), ply + 1, legalMovesTried + 1, -beta, -alpha);
+                    score = -ValSearchPVS(sdata, depth.SubstractPly(1 + reduce), ply + 1, legalMovesTried + 1, -beta, -alpha);
                     if (score > alpha) { doFullSearch = true; }
                 }
 
                 if (doFullSearch)
                 {
                     //do subsearch
-                    score = -ValSearchPVS(depth.AddDepth(ext).SubstractPly(1), ply + 1, legalMovesTried + 1, -beta, -alpha);
+                    score = -ValSearchPVS(sdata, depth.AddDepth(ext).SubstractPly(1), ply + 1, legalMovesTried + 1, -beta, -alpha);
                 }
 
 
@@ -945,7 +943,7 @@ namespace NoraGrace.Engine
 			return alpha;
 		}
 
-		private int ValSearchQ(int ply, int alpha, int beta)
+		private int ValSearchQ(SearchData sdata, int ply, int alpha, int beta)
 		{
 			CountTotalAINodes++;
 			CountAIQSearch++;
@@ -955,7 +953,7 @@ namespace NoraGrace.Engine
 			//int oldScore = eval.EvalFor(board, board.WhosTurn);
 
             Evaluation.EvalResults init_info;
-            int init_score = _evalInfoStack.EvalFor(ply, board, board.WhosTurn, out init_info, alpha, beta);
+            int init_score = Evaluation.Lazy.EvalFor(sdata, ply, board, board.WhosTurn, out init_info, alpha, beta);
 
             if (ply >= MAX_PLY) { return init_score; }
 
@@ -971,7 +969,7 @@ namespace NoraGrace.Engine
 				alpha = init_score;
 			}
 
-            var plyMoves = _moveBuffer[ply];
+            var plyMoves = sdata[ply].MoveGenerator;
             plyMoves.Initialize(board, Move.EMPTY, !playerincheck);
 
 			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,ChessMoveInfo.Create(),false);
@@ -1006,7 +1004,7 @@ namespace NoraGrace.Engine
 
 				tried_move_count++;
 
-				int move_score = -ValSearchQ(ply + 1, -beta, -alpha);
+                int move_score = -ValSearchQ(sdata, ply + 1, -beta, -alpha); //TODO: should we increase ply here?
 
 				//check for blunder
                 bool isRecapture = (move.To() == board.HistMove(2).To());

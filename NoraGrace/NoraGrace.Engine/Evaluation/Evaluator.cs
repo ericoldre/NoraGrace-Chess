@@ -18,7 +18,7 @@ namespace NoraGrace.Engine.Evaluation
         public const int MaxValue = int.MaxValue - 100;
         public const int MinValue = -MaxValue;
 
-        protected readonly PawnEvaluator _evalPawns;
+        public readonly PawnEvaluator _evalPawns;
         public readonly MaterialEvaluator _evalMaterial;
         private readonly PcSqEvaluator _evalPcSq;
 
@@ -176,50 +176,16 @@ namespace NoraGrace.Engine.Evaluation
         }
 
         public EvalResults _evalInfo = new EvalResults();
-        public virtual int Eval(Board board)
+        public virtual int Eval(Board board, EvalResults results = null)
         {
-            return EvalLazy(board, _evalInfo, null, Evaluator.MinValue, Evaluator.MaxValue);
+            var material = _evalMaterial.EvalMaterialHash(board);
+            var pawns = _evalPawns.PawnEval(board);
+            if (results == null) { results = _evalInfo; }
+
+            EvalAdvanced(board, _evalInfo, material, pawns);
+            return _evalInfo.Score;
         }
 
-        public int EvalLazy(Board board, EvalResults evalInfo, EvalResults prevEvalInfo, int alpha, int beta)
-        {
-            System.Diagnostics.Debug.Assert(alpha >= MinValue);
-            System.Diagnostics.Debug.Assert(beta <= MaxValue);
-
-            evalInfo.Reset();
-
-
-            //material
-            MaterialResults material = _evalMaterial.EvalMaterialHash(board);
-
-            //pawns
-            PawnResults pawns = this._evalPawns.PawnEval(board);
-            System.Diagnostics.Debug.Assert(pawns.WhitePawns == (board[PieceType.Pawn] & board[Player.White]));
-            System.Diagnostics.Debug.Assert(pawns.BlackPawns == (board[PieceType.Pawn] & board[Player.Black]));
-
-            evalInfo.MaterialPawnsApply(board, material, pawns, this.DrawScore);
-
-            if (prevEvalInfo != null && evalInfo.PassedPawns == prevEvalInfo.PassedPawns)
-            {
-                evalInfo.ApplyPreviousEval(board, prevEvalInfo);
-                System.Diagnostics.Debug.Assert(evalInfo.LazyAge > 0);
-
-                int fuzzyLazyScore = evalInfo.Score;
-                int margin = evalInfo.LazyAge * 50;
-                if (fuzzyLazyScore + margin < alpha)
-                {
-                    return alpha;
-                }
-                if (fuzzyLazyScore - margin > beta)
-                {
-                    return beta;
-                }
-            }
-
-            EvalAdvanced(board, evalInfo, material, pawns);
-
-            return evalInfo.Score;
-        }
 
         public void EvalAdvanced(Board board, EvalResults evalInfo, MaterialResults material, PawnResults pawns)
         {

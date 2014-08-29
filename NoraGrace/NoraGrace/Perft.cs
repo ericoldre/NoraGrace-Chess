@@ -229,7 +229,7 @@ namespace NoraGrace.CommandLine
                 {
                     board.MoveApply(move);
                     EvalResults eval = new EvalResults();
-                    var evalScore = _annotateEval.EvalLazy(board, eval, null, int.MinValue, int.MaxValue);
+                    var evalScore = _annotateEval.Eval(board, eval);
 
                     //string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 
                     string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 

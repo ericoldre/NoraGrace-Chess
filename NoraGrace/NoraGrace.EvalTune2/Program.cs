@@ -44,7 +44,7 @@ namespace NoraGrace.EvalTune2
             parameters.AddRange(TunableParameter.MaterialParams());
 
             //mobility
-            parameters.AddRange(TunableParameter.MobilityParams());
+            //parameters.AddRange(TunableParameter.MobilityParams());
 
             ////pawns
             //parameters.AddRange(TunableParameter.PawnParams());
@@ -59,7 +59,7 @@ namespace NoraGrace.EvalTune2
             //parameters.AddRange(TunableParameterPcSq.SelectAll());
 
 
-            Tune(parameters, "material", progCB, true);
+            Tune(parameters, "exchanges", progCB, true);
             //Tune(parameters, "AllButPcSq", progCB, true);
 
             //FindRook(progCB);

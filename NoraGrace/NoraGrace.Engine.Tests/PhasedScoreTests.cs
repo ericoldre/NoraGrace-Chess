@@ -101,8 +101,8 @@ namespace NoraGrace.Engine.Tests
         {
             foreach (var s1 in Samples())
             {
-                Assert.AreEqual<int>(s1.Opening, s1.Score.ApplyWeights(100));
-                Assert.AreEqual<int>(s1.Endgame, s1.Score.ApplyWeights(0));
+                Assert.AreEqual<int>(s1.Opening, s1.Score.ApplyScaleFactor(ScaleFactor.FULL));
+                Assert.AreEqual<int>(s1.Endgame, s1.Score.ApplyScaleFactor(ScaleFactor.NONE));
 
 
             }

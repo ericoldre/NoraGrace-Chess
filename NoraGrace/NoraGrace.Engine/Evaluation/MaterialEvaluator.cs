@@ -45,6 +45,10 @@ namespace NoraGrace.Engine.Evaluation
         public PieceSettings Rook { get; set; }
         public PieceSettings Queen { get; set; }
 
+        public int RookMinorExchange { get; set; }
+        public int PawnMinorExchange { get; set; }
+        public int QueenRookExchange { get; set; }
+
         public MaterialSettingsPhase()
         {
             Pawn = new PawnSettings();
@@ -365,6 +369,14 @@ namespace NoraGrace.Engine.Evaluation
 
         private double MyMaterial(double totalPct, double pawnPct, double minorPct, int myP, int myN, int myB, int myR, int myQ, int hisP, int hisN, int hisB, int hisR, int hisQ)
         {
+            int myMinor = myN + myB;
+            int hisMinor = hisN + hisB;
+
+            int minorDiff = myMinor - hisMinor;
+            int pawnDiff = myP - hisP;
+            int rookDiff = myR - hisR;
+            int queenDiff = myQ - hisQ;
+
 
             double pawnsOpening = _pawnValuesOpening.Take(myP).Sum();
             double pawnsEndgame = _pawnValuesEndGame.Take(myP).Sum();
@@ -390,6 +402,29 @@ namespace NoraGrace.Engine.Evaluation
             retval += (myR * rookVal);
             retval += (myQ * queenVal);
 
+            
+            if (minorDiff >= 1 && rookDiff < 0 && pawnDiff < 0)
+            {
+                //would rather have 2 minors rather than rook + pawns
+                double rookMinorExchange = CalcWeight(pawnPct, _settings.Opening.RookMinorExchange, _settings.Endgame.RookMinorExchange);
+                retval += rookMinorExchange;
+            }
+            else if (minorDiff > 0 && pawnDiff <= -2)
+            {
+                //would rather have minor than 2-3 pawns.
+                double pawnMinorExchange = CalcWeight(pawnPct, _settings.Opening.PawnMinorExchange, _settings.Endgame.PawnMinorExchange);
+                retval += pawnMinorExchange;
+            }
+
+            if (rookDiff >= 2 && queenDiff < 0)
+            {
+                //would rather have two rooks vs queen + pawns.
+                double queenRookExchange = CalcWeight(pawnPct, _settings.Opening.QueenRookExchange, _settings.Endgame.QueenRookExchange);
+                retval += queenRookExchange;
+            }
+
+
+            //calc bonus/penalty for pairs of pieces
             if (myN > 1)
             {
                 retval += CalcWeight(pawnPct, _settings.Opening.Knight.PairBonus, _settings.Endgame.Knight.PairBonus); ;

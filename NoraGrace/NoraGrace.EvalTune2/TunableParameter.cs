@@ -152,20 +152,48 @@ namespace NoraGrace.EvalTune2
 
         public static IEnumerable<TunableParameter> MaterialParams()
         {
-            yield return new TunableParameter()
+
+            foreach (var gs in GameStageUtil.AllGameStages)
             {
-                Name = "BishopPairOpening",
-                fnGetValue = (s) => s.MaterialBishopPair.Opening,
-                fnSetValue = (s, v) => { s.MaterialBishopPair.Opening = (int)v; },
-                Increment = 5
-            };
-            yield return new TunableParameter()
-            {
-                Name = "BishopPairEndgame",
-                fnGetValue = (s) => s.MaterialBishopPair.Endgame,
-                fnSetValue = (s, v) => { s.MaterialBishopPair.Endgame = (int)v; },
-                Increment = 5
-            };
+                yield return new TunableParameter()
+                {
+                    Name = "PawnMinorExchange" + gs,
+                    fnGetValue = (s) => s.MaterialValues[gs].PawnMinorExchange,
+                    fnSetValue = (s, v) => { s.MaterialValues[gs].PawnMinorExchange = (int)v; },
+                    Increment = 5
+                };
+
+                yield return new TunableParameter()
+                {
+                    Name = "RookMinorExchange" + gs,
+                    fnGetValue = (s) => s.MaterialValues[gs].RookMinorExchange,
+                    fnSetValue = (s, v) => { s.MaterialValues[gs].RookMinorExchange = (int)v; },
+                    Increment = 5
+                };
+
+                yield return new TunableParameter()
+                {
+                    Name = "QueenRookExchange" + gs,
+                    fnGetValue = (s) => s.MaterialValues[gs].QueenRookExchange,
+                    fnSetValue = (s, v) => { s.MaterialValues[gs].QueenRookExchange = (int)v; },
+                    Increment = 5
+                };
+            }
+
+            //yield return new TunableParameter()
+            //{
+            //    Name = "BishopPairOpening",
+            //    fnGetValue = (s) => s.MaterialBishopPair.Opening,
+            //    fnSetValue = (s, v) => { s.MaterialBishopPair.Opening = (int)v; },
+            //    Increment = 5
+            //};
+            //yield return new TunableParameter()
+            //{
+            //    Name = "BishopPairEndgame",
+            //    fnGetValue = (s) => s.MaterialBishopPair.Endgame,
+            //    fnSetValue = (s, v) => { s.MaterialBishopPair.Endgame = (int)v; },
+            //    Increment = 5
+            //};
             //foreach (var pt in PieceTypeUtil.AllPieceTypes.Where(t => t != PieceType.King))
             //{
             //     yield return new TunableParameterMaterial(GameStage.Opening, pt);

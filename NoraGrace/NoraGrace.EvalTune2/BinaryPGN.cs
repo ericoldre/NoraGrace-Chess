@@ -250,15 +250,15 @@ namespace NoraGrace.EvalTune2
 
 
 
-        private static NoraGrace.Engine.MovePicker.Stack _mpsQuiet;
+        private static IList<MovePicker> _mpsQuiet;
         public static bool PositionQuiet(Board board)
         {
-            if (_mpsQuiet == null) { _mpsQuiet = new MovePicker.Stack(); }
+            if (_mpsQuiet == null) { _mpsQuiet = MovePicker.CreateStack(); }
             var x = QSearchQuiet(board, _mpsQuiet);
             return x <= 0;
         }
 
-        private static int QSearchQuiet(Board board, MovePicker.Stack moveStack, int ply = 0)
+        private static int QSearchQuiet(Board board, IList<MovePicker> moveStack, int ply = 0)
         {
             if (ply >= 10) { return 0; }
             var plyMoves = moveStack[ply];

@@ -117,7 +117,7 @@ namespace NoraGrace.Engine.Tests
 
             int nodecount = -1;//start at -1 to skip root node
             int leafnodecount = 0;
-            MovePicker.Stack moveBuffer = new MovePicker.Stack();
+            MovePicker[] moveBuffer = MovePicker.CreateStack();
 
             PerftSearch(board, 0, moveBuffer, depth, ref nodecount, ref leafnodecount);
 
@@ -129,7 +129,7 @@ namespace NoraGrace.Engine.Tests
 
         }
 
-        public void PerftSearch(Board board, int ply, MovePicker.Stack moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
+        public void PerftSearch(Board board, int ply, IList<MovePicker> moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
         {
             nodecount++;
 

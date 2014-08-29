@@ -12,7 +12,7 @@ namespace NoraGrace.EvalTune2
     class Stuff
     {
         public NoraGrace.Engine.Evaluation.Evaluator Evaluator { get; set; }
-        public NoraGrace.Engine.MovePicker.Stack MovePickerStack { get; set; }
+        public IList<MovePicker> MovePickerStack { get; set; }
     }
     class Program
     {

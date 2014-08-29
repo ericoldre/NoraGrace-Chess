@@ -26,7 +26,7 @@ namespace NoraGrace.EvalTune2
             double sum = 0;
             int count = 0;
             object _resultLock = new object();
-            Dictionary<System.Threading.Thread, Tuple<Evaluator, MovePicker.Stack>> dic = new Dictionary<System.Threading.Thread, Tuple<Evaluator, MovePicker.Stack>>();
+            Dictionary<System.Threading.Thread, Tuple<Evaluator, IList<MovePicker>>> dic = new Dictionary<System.Threading.Thread, Tuple<Evaluator, IList<MovePicker>>>();
 
             ParallelOptions parallelOptions = new ParallelOptions();
             parallelOptions.MaxDegreeOfParallelism = 5;
@@ -37,13 +37,13 @@ namespace NoraGrace.EvalTune2
             Parallel.ForEach(pgnList, parallelOptions, pgn =>
             {
                 Evaluator myThreadEvaluator = null;
-                MovePicker.Stack myThreadStack = null;
+                IList<MovePicker> myThreadStack = null;
                 lock (_resultLock)
                 {
                     System.Threading.Thread currentThread = System.Threading.Thread.CurrentThread;
                     if (!dic.ContainsKey(currentThread))
                     {
-                        dic.Add(currentThread, new Tuple<Evaluator, MovePicker.Stack>(fnCreateEval(), new MovePicker.Stack()));
+                        dic.Add(currentThread, new Tuple<Evaluator, IList<MovePicker>>(fnCreateEval(), MovePicker.CreateStack()));
                     }
                     myThreadEvaluator = dic[currentThread].Item1;
                     myThreadStack = dic[currentThread].Item2;
@@ -68,7 +68,7 @@ namespace NoraGrace.EvalTune2
 
 
 
-        public static double PgnE(BinaryPGN pgn, Evaluator evaluator, MovePicker.Stack moveStack)
+        public static double PgnE(BinaryPGN pgn, Evaluator evaluator, IList<MovePicker> moveStack)
         {
             Board board = new Board(evaluator.PcSq);
             GameResult result = pgn.Result;
@@ -94,7 +94,7 @@ namespace NoraGrace.EvalTune2
             return retval;
         }
 
-        public static double PosE(Board board, GameResult gameResult, Evaluator evaluator, MovePicker.Stack moveStack)
+        public static double PosE(Board board, GameResult gameResult, Evaluator evaluator, IList<MovePicker> moveStack)
         {
             double qscore = qScore(board, evaluator, moveStack);
             double retval = TanDiff(qscore, gameResult);
@@ -122,14 +122,14 @@ namespace NoraGrace.EvalTune2
             return tan;
         }
 
-        public static int qScore(Board board, Evaluator evaluator, MovePicker.Stack moveStack)
+        public static int qScore(Board board, Evaluator evaluator, IList<MovePicker> moveStack)
         {
             //var playerScore = qSearch(board, evaluator, moveStack);
             var playerScore = evaluator.EvalFor(board, board.WhosTurn);
             return board.WhosTurn == Player.White ? playerScore : -playerScore;
         }
 
-        public static int qSearch(Board board, Evaluator evaluator, MovePicker.Stack moveStack, out int resultDepth, int ply = 0, int alpha = Evaluator.MinValue, int beta = Evaluator.MaxValue)
+        public static int qSearch(Board board, Evaluator evaluator, IList<MovePicker> moveStack, out int resultDepth, int ply = 0, int alpha = Evaluator.MinValue, int beta = Evaluator.MaxValue)
         {
             resultDepth = 0;
             var me = board.WhosTurn;

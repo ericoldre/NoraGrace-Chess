@@ -120,7 +120,7 @@ namespace NoraGrace.CommandLine
             //Console.WriteLine("fen: " + fen);
             int depth;
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            MovePicker.Stack buffer = new MovePicker.Stack();
+            var buffer = MovePicker.CreateStack();
             for (depth = 2; nodesDone < nodeCount; depth++)
             {
                 PerftSearch(board,0,buffer, depth, nodeCount, ref nodesDone, doEval, doMoveSort);
@@ -132,7 +132,7 @@ namespace NoraGrace.CommandLine
             return sw.Elapsed;
         }
 
-        public static void PerftSearch(Board board, int ply, MovePicker.Stack buffer, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
+        public static void PerftSearch(Board board, int ply, IList<MovePicker> buffer, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
         {
             nodesDone++;
             if (doEval)

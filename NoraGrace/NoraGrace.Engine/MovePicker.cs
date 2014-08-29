@@ -12,35 +12,16 @@ namespace NoraGrace.Engine
     public class MovePicker
     {
 
-        public class Stack
+        public static MovePicker[] CreateStack(int max_ply = 50)
         {
-            List<MovePicker> _plyBuffers = new List<MovePicker>();
-            public readonly MoveHistory History = new MoveHistory();
-            StaticExchange _see = new StaticExchange();
-            public Stack(int plyCapacity = 50)
+            MovePicker[] retval = new MovePicker[max_ply + 1];
+            MoveHistory history = new MoveHistory();
+            StaticExchange see = new StaticExchange();
+            for (int i = 0; i < max_ply + 1; i++)
             {
-                while (_plyBuffers.Count < plyCapacity)
-                {
-                    _plyBuffers.Add(new MovePicker(History, _see));
-                }
+                retval[i] = new MovePicker(history, see);
             }
-
-            public MovePicker this[int ply]
-            {
-                get
-                {
-                    System.Diagnostics.Debug.Assert(ply >= 0);
-                    if (ply > _plyBuffers.Count)
-                    {
-                        for (int i = 0; i < 10; i++)
-                        {
-                            _plyBuffers.Add(new MovePicker(History, _see));
-                        }
-                    }
-                    return _plyBuffers[ply];
-                }
-            }
-
+            return retval;
         }
 
         public class MoveHistory

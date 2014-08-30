@@ -218,7 +218,7 @@ namespace NoraGrace.Engine
 
 		public event EventHandler<SearchProgressEventArgs> ProgressReported;
 
-        const int MAX_PLY = 50;
+        public const int MAX_PLY = 50;
         private Move[][] _pv = new Move[MAX_PLY + 1][];
         private int[] _pvLen = new int[MAX_PLY + 1];
 
@@ -302,11 +302,11 @@ namespace NoraGrace.Engine
 			int MateScoreCount = 0;
 
             var maxDepth = SearchDepthUtil.FromPly(Math.Min(MAX_PLY, this.SearchArgs.MaxDepth));
-            SearchData searchData = new SearchData(SearchArgs.Eval, MAX_PLY);
+            SearchData searchData = new SearchData(SearchArgs.Eval);
 
             while (depth.Value() <= maxDepth.Value())
             {
-
+                
                 ValSearchRoot(searchData, depth);
 
                 //if we get three consecutive depths with same mate score.. just move.

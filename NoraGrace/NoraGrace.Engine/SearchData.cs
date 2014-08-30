@@ -15,14 +15,14 @@ namespace NoraGrace.Engine
 
         private readonly List<PlyData> _plyData = new List<PlyData>();
 
-        public SearchData(Evaluation.Evaluator evaluator, int maxPly)
+        public SearchData(Evaluation.Evaluator evaluator)
         {
             Evaluator = evaluator;
             SEE = new StaticExchange();
             MoveHistory = new MovePicker.MoveHistory();
 
             _plyData = new List<PlyData>();
-            while (_plyData.Count <= maxPly - 1)
+            while (_plyData.Count <= Search.MAX_PLY + 1)
             {
                 _plyData.Add(new PlyData(this));
             }
@@ -31,7 +31,10 @@ namespace NoraGrace.Engine
 
         public PlyData this[int ply]
         {
-            get { return _plyData[ply]; }
+            get 
+            {
+                return _plyData[ply]; 
+            }
         }
 
     }

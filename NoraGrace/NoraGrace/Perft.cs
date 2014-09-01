@@ -224,12 +224,14 @@ namespace NoraGrace.CommandLine
             {
                 if (_annotateEval == null) { _annotateEval = new Evaluator(); }
                 Board board = new Board(pgn.StartingPosition);
+                PlyData plyData = new PlyData();
+                EvalResults eval = plyData.EvalResults;
 
                 foreach (var move in pgn.Moves)
                 {
                     board.MoveApply(move);
-                    EvalResults eval = new EvalResults();
-                    var evalScore = _annotateEval.Eval(board, eval);
+                    
+                    var evalScore = _annotateEval.Eval(board, plyData);
 
                     //string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 
                     string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 

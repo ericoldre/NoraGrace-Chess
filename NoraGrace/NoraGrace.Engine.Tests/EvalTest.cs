@@ -126,6 +126,9 @@ namespace NoraGrace.Engine.Tests
             StreamReader reader = new StreamReader(stream);
             Evaluator eval = new Evaluator();
 
+            PlyData p1 = new PlyData();
+            PlyData p2 = new PlyData();
+
             while (!reader.EndOfStream)
             {
                 iCount++;
@@ -141,10 +144,12 @@ namespace NoraGrace.Engine.Tests
                     var fen = board.FENCurrent;
                     Board boardRev = new Board(fen.Reverse());
                     
-                    EvalResults e1 = new EvalResults();
-                    EvalResults e2 = new EvalResults();
-                    eval.Eval(board, e1);
-                    eval.Eval(boardRev, e2);
+                    
+                    eval.Eval(board, p1);
+                    eval.Eval(boardRev, p2);
+
+                    EvalResults e1 = p1.EvalResults;
+                    EvalResults e2 = p2.EvalResults;
 
                     if (e1.Score != -e2.Score)
                     {

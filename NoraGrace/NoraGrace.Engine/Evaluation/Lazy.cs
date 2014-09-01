@@ -56,14 +56,17 @@ namespace NoraGrace.Engine.Evaluation
                 }
             }
 
-            return EvalLazy(sdata.Evaluator, board, info, prev, alpha, beta);
+            return EvalLazy(sdata.Evaluator, board, sdata[ply], prev, alpha, beta);
 
         }
 
-        private static int EvalLazy(Evaluator evaluator, Board board, EvalResults evalInfo, EvalResults prevEvalInfo, int alpha, int beta)
+        private static int EvalLazy(Evaluator evaluator, Board board, PlyData plyData, EvalResults prevEvalInfo, int alpha, int beta)
         {
+            
             System.Diagnostics.Debug.Assert(alpha >= Evaluator.MinValue);
             System.Diagnostics.Debug.Assert(beta <= Evaluator.MaxValue);
+
+            EvalResults evalInfo = plyData.EvalResults;
 
             evalInfo.Reset();
 
@@ -96,7 +99,7 @@ namespace NoraGrace.Engine.Evaluation
                 }
             }
 
-            evaluator.EvalAdvanced(board, evalInfo, material, pawns);
+            evaluator.EvalAdvanced(board, plyData, material, pawns);
 
             return evalInfo.Score;
         }

@@ -175,21 +175,24 @@ namespace NoraGrace.Engine.Evaluation
 
         }
 
-        public EvalResults _evalInfo = new EvalResults();
-        public virtual int Eval(Board board, EvalResults results = null)
+        public PlyData _plyData = new PlyData();
+
+        public virtual int Eval(Board board, PlyData plyData = null)
         {
             var material = _evalMaterial.EvalMaterialHash(board);
             var pawns = _evalPawns.PawnEval(board);
-            if (results == null) { results = _evalInfo; }
+            if (plyData == null) { plyData = _plyData; }
 
-            EvalAdvanced(board, _evalInfo, material, pawns);
-            return _evalInfo.Score;
+            EvalAdvanced(board, plyData, material, pawns);
+            return plyData.EvalResults.Score;
         }
 
 
-        public void EvalAdvanced(Board board, EvalResults evalInfo, MaterialResults material, PawnResults pawns)
+        public void EvalAdvanced(Board board, PlyData plyData, MaterialResults material, PawnResults pawns)
         {
-            
+
+            EvalResults evalInfo = plyData.EvalResults;
+
             TotalEvalCount++;
 
             //mark that advanced eval terms are from this ply

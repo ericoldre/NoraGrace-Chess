@@ -756,7 +756,8 @@ namespace NoraGrace.Engine
             int quietMovesTried = 0;
             Move bestmove = Move.EMPTY;
 
-            CheckInfo checkInfo = CheckInfo.Generate(board, board.WhosTurn.PlayerOther());
+            CheckInfo checkInfo = sdata[ply].ChecksFor(board.WhosTurn.PlayerOther());
+            checkInfo.Initialize(board);
 
             ChessMoveData moveData;
             while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
@@ -778,7 +779,7 @@ namespace NoraGrace.Engine
                     && legalMovesTried > 0
                     && (init_score + moveGain + MarginFutilityPre(depth.SubstractPly(1)) < alpha)
                     && !init_info.PassedPawns.Contains(move.From())
-                    && !move.CausesCheck(board, ref checkInfo)
+                    && !move.CausesCheck(board, checkInfo)
                     )
                 {
                     continue;
@@ -791,7 +792,7 @@ namespace NoraGrace.Engine
                     && !IsMateScore(beta)
                     && legalMovesTried >= depth.ToPly() * 4 
                     && quietMovesTried >= depth.ToPly() * 2 
-                    && !move.CausesCheck(board, ref checkInfo)) 
+                    && !move.CausesCheck(board, checkInfo)) 
                 { // late-move pruning
                     continue;
                 }
@@ -803,7 +804,7 @@ namespace NoraGrace.Engine
                     && !in_check_before_move
                     && !IsMateScore(beta)
                     && moveData.SEE < 0
-                    && !move.CausesCheck(board, ref checkInfo))
+                    && !move.CausesCheck(board, checkInfo))
                 { // see pruning
                     continue;
                 }

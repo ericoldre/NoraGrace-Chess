@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace NoraGrace.Engine
 {
-    public struct CheckInfo
+    public class CheckInfo
     {
+        public long Zobrist { get; private set; }
+        public Player Player { get; private set; }
+
         public Position KingPosition { get; private set; }
 
         public Bitboard PawnDirect { get; private set; }
@@ -16,18 +19,24 @@ namespace NoraGrace.Engine
         public Bitboard RookDirect { get; private set; }
         public Bitboard DirectAll { get; private set; }
         public Bitboard PinnedOrDiscovered { get; private set; }
-        
 
-        public static CheckInfo Generate(Board board, Player player)
+        public CheckInfo(Player player)
         {
-            CheckInfo retval = new CheckInfo();
-            Position kingPos = board.KingPosition(player);
+            this.Player = player;
+        }
+
+        public void Initialize(Board board)
+        {
+            if (board.ZobristBoard == Zobrist) { return; }
+
+            CheckInfo retval = this;
+            Position kingPos = board.KingPosition(Player);
             Bitboard all = board.PieceLocationsAll;
-            Bitboard them = board[ player.PlayerOther()];
+            Bitboard them = board[Player.PlayerOther()];
 
             retval.KingPosition = kingPos;
 
-            retval.PawnDirect = Attacks.PawnAttacks(kingPos, player);
+            retval.PawnDirect = Attacks.PawnAttacks(kingPos, Player);
             retval.KnightDirect = Attacks.KnightAttacks(kingPos);
             retval.BishopDirect = Attacks.BishopAttacks(kingPos, all);
             retval.RookDirect = Attacks.RookAttacks(kingPos, all);
@@ -56,7 +65,6 @@ namespace NoraGrace.Engine
                 }
 
             }
-            return retval;
         }
     }
 }

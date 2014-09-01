@@ -46,6 +46,8 @@ namespace NoraGrace.Engine
         public SearchData SearchData { get; private set; }
         public AttackInfo AttacksWhite { get; private set; }
         public AttackInfo AttacksBlack { get; private set; }
+        public CheckInfo ChecksWhite { get; private set; }
+        public CheckInfo ChecksBlack { get; private set; }
 
         public PlyData(SearchData searchData)
         {
@@ -54,6 +56,17 @@ namespace NoraGrace.Engine
             EvalResults = new Evaluation.EvalResults();
             AttacksWhite = new AttackInfo(Player.White);
             AttacksBlack = new AttackInfo(Player.Black);
+            ChecksWhite = new CheckInfo(Player.White);
+            ChecksBlack = new CheckInfo(Player.Black);
+        }
+
+        public CheckInfo ChecksFor(Player player)
+        {
+            return player == Player.White ? ChecksWhite : ChecksBlack;
+        }
+        public AttackInfo AttacksFor(Player player)
+        {
+            return player == Player.White ? AttacksWhite : AttacksBlack;
         }
 
     }

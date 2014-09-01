@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttackInfo.cs" />
     <Compile Include="Attacks.cs" />
     <Compile Include="Bitboard.cs" />
     <Compile Include="Board.cs" />

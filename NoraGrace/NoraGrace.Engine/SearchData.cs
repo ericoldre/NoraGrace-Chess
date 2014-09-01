@@ -44,12 +44,17 @@ namespace NoraGrace.Engine
         public MovePicker MoveGenerator { get; private set; }
         public Evaluation.EvalResults EvalResults { get; private set; }
         public SearchData SearchData { get; private set; }
+        public AttackInfo AttacksWhite { get; private set; }
+        public AttackInfo AttacksBlack { get; private set; }
 
         public PlyData(SearchData searchData)
         {
             SearchData = searchData;
             MoveGenerator = new MovePicker(searchData.MoveHistory, searchData.SEE);
             EvalResults = new Evaluation.EvalResults();
+            AttacksWhite = new AttackInfo(Player.White);
+            AttacksBlack = new AttackInfo(Player.Black);
         }
+
     }
 }

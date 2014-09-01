@@ -62,6 +62,16 @@ namespace NoraGrace.Engine
             }
         }
 
+        public static bool IsSliderHorizontal(this PieceType pt)
+        {
+            return pt == PieceType.Rook || pt == PieceType.Queen;
+        }
+
+        public static bool IsSliderDiag(this PieceType pt)
+        {
+            return pt == PieceType.Bishop || pt == PieceType.Queen;
+        }
+
         public static Piece ForPlayer(this PieceType type, Player player)
         {
             System.Diagnostics.Debug.Assert(player == Player.White || player == Player.Black);

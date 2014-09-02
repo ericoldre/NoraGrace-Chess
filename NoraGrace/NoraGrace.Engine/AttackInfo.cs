@@ -15,12 +15,6 @@ namespace NoraGrace.Engine
 
         private long _zobrist;
         private readonly Player _player;
-        private readonly Bitboard[] _byPiece_Attacks = new Bitboard[MAX_PIECE_COUNT];
-        private readonly Position[] _byPiece_Position = new Position[MAX_PIECE_COUNT];
-        private readonly PieceType[] _byPiece_Type = new PieceType[MAX_PIECE_COUNT];
-
-        private readonly int[] _byPiece_TypeIndex = new int[PieceTypeUtil.LookupArrayLength];
-        private int _byPiece_Count;
 
         private readonly Bitboard[] _byPieceType = new Bitboard[PieceTypeUtil.LookupArrayLength];
         private readonly Bitboard[] _lessThan = new Bitboard[PieceTypeUtil.LookupArrayLength];
@@ -44,85 +38,114 @@ namespace NoraGrace.Engine
             //early exit if already set up for this position.
             if (_zobrist == board.ZobristBoard) { return; }
 
-            //zero out the arrays.
-            Array.Clear(_byPiece_Type, 0, MAX_PIECE_COUNT);
-            Array.Clear(_byPiece_Position, 0, MAX_PIECE_COUNT);
-            Array.Clear(_byPiece_Attacks, 0, MAX_PIECE_COUNT);
-            Array.Clear(_byPiece_TypeIndex, 0, PieceTypeUtil.LookupArrayLength);
+            //Array.Clear(_counts, 0, MAX_ATTACK_COUNT + 1);
+            //Array.Clear(_lessThan, 0, PieceTypeUtil.LookupArrayLength);
+            //Array.Clear(_byPieceType, 0, PieceTypeUtil.LookupArrayLength);
 
-            Array.Clear(_counts, 0, MAX_ATTACK_COUNT + 1);
-            Array.Clear(_lessThan, 0, PieceTypeUtil.LookupArrayLength);
-            Array.Clear(_byPieceType, 0, PieceTypeUtil.LookupArrayLength);
-            
-            
+            Bitboard count1 = Bitboard.Empty;
+            Bitboard count2 = Bitboard.Empty;
+            Bitboard count3 = Bitboard.Empty;
+            Bitboard bbPieceAttacks;
 
             _zobrist = board.ZobristBoard;
 
-
+            Bitboard myPieces = board[_player];
             Bitboard bbPiece;
             Bitboard pattacks;
-
-            int idx = 0;
+            Position pos;
+            
 
             //knights
-            bbPiece = board[_player] & board[PieceType.Knight];
-            _byPiece_TypeIndex[(int)PieceType.Knight] = idx;
+            bbPieceAttacks = Bitboard.Empty;
+            bbPiece = myPieces & board[PieceType.Knight];
             while (bbPiece != Bitboard.Empty)
             {
-                Position pos = BitboardUtil.PopFirst(ref bbPiece);
+                pos = BitboardUtil.PopFirst(ref bbPiece);
                 pattacks = Attacks.KnightAttacks(pos);
-                AddPieceTypeAttacks(PieceType.Knight, pattacks);
-                AddPieceAttacks(idx, PieceType.Knight, pos, pattacks);
-                idx++;
+                bbPieceAttacks |= pattacks;
+                count3 |= count2 & pattacks;
+                count2 |= count1 & pattacks;
+                count1 |= pattacks;
             }
+            _byPieceType[(int)PieceType.Knight] = bbPieceAttacks;
+
 
             //bishops
-            bbPiece = board[_player] & board[PieceType.Bishop];
-            _byPiece_TypeIndex[(int)PieceType.Bishop] = idx;
+            bbPieceAttacks = Bitboard.Empty;
+            bbPiece = myPieces & board[PieceType.Bishop];
             while (bbPiece != Bitboard.Empty)
             {
-                Position pos = BitboardUtil.PopFirst(ref bbPiece);
+                pos = BitboardUtil.PopFirst(ref bbPiece);
                 pattacks = Attacks.BishopAttacks(pos, board.PieceLocationsAll);
-                AddPieceTypeAttacks(PieceType.Bishop, pattacks);
-                AddPieceAttacks(idx, PieceType.Bishop, pos, pattacks);
-                idx++;
+                bbPieceAttacks |= pattacks;
+                count3 |= count2 & pattacks;
+                count2 |= count1 & pattacks;
+                count1 |= pattacks;
             }
+            _byPieceType[(int)PieceType.Bishop] = bbPieceAttacks;
 
             //rooks
-            bbPiece = board[_player] & board[PieceType.Rook];
-            _byPiece_TypeIndex[(int)PieceType.Rook] = idx;
+            bbPieceAttacks = Bitboard.Empty;
+            bbPiece = myPieces & board[PieceType.Rook];
             while (bbPiece != Bitboard.Empty)
             {
-                Position pos = BitboardUtil.PopFirst(ref bbPiece);
+                pos = BitboardUtil.PopFirst(ref bbPiece);
                 pattacks = Attacks.RookAttacks(pos, board.PieceLocationsAll);
-                AddPieceTypeAttacks(PieceType.Rook, pattacks);
-                AddPieceAttacks(idx, PieceType.Rook, pos, pattacks);
-                idx++;
+                bbPieceAttacks |= pattacks;
+                count3 |= count2 & pattacks;
+                count2 |= count1 & pattacks;
+                count1 |= pattacks;
             }
+            _byPieceType[(int)PieceType.Rook] = bbPieceAttacks;
 
             //queen
-            bbPiece = board[_player] & board[PieceType.Queen];
-            _byPiece_TypeIndex[(int)PieceType.Queen] = idx;
+            bbPieceAttacks = Bitboard.Empty;
+            bbPiece = myPieces & board[PieceType.Queen];
             while (bbPiece != Bitboard.Empty)
             {
-                Position pos = BitboardUtil.PopFirst(ref bbPiece);
+                pos = BitboardUtil.PopFirst(ref bbPiece);
                 pattacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll);
-                AddPieceTypeAttacks(PieceType.Queen, pattacks);
-                AddPieceAttacks(idx, PieceType.Queen, pos, pattacks);
-                idx++;
+                bbPieceAttacks |= pattacks;
+                count3 |= count2 & pattacks;
+                count2 |= count1 & pattacks;
+                count1 |= pattacks;
             }
-            //set last bypiece_index so works with queen
-            _byPiece_TypeIndex[(int)PieceType.King] = idx;
-            _byPiece_Count = idx;
+            _byPieceType[(int)PieceType.Queen] = bbPieceAttacks;
+
 
             //add king attacks
-            AddPieceTypeAttacks(PieceType.King, Attacks.KingAttacks(board.KingPosition(_player)));
-            
+            pattacks = Attacks.KingAttacks(board.KingPosition(_player));
+            _byPieceType[(int)PieceType.King] = pattacks;
+            count3 |= count2 & pattacks;
+            count2 |= count1 & pattacks;
+            count1 |= pattacks;
+
             //add pawn attacks
-            bbPiece = board[_player] & board[PieceType.Pawn];
+            bbPieceAttacks = Bitboard.Empty;
+            bbPiece = myPieces & board[PieceType.Pawn];
             bbPiece = _player == Engine.Player.White ? bbPiece.ShiftDirN() : bbPiece.ShiftDirS();
-            AddPieceTypeAttacks(PieceType.Pawn, bbPiece.ShiftDirE());
-            AddPieceTypeAttacks(PieceType.Pawn, bbPiece.ShiftDirW());
+
+            //pawn attacks west;
+            pattacks = bbPiece.ShiftDirW();
+            bbPieceAttacks |= pattacks;
+            count3 |= count2 & pattacks;
+            count2 |= count1 & pattacks;
+            count1 |= pattacks;
+
+            //pawn attacks east;
+            pattacks = bbPiece.ShiftDirE();
+            bbPieceAttacks |= pattacks;
+            count3 |= count2 & pattacks;
+            count2 |= count1 & pattacks;
+            count1 |= pattacks;
+
+            _byPieceType[(int)PieceType.Pawn] = bbPieceAttacks;
+
+            //copy to counts array
+            _counts[0] = ~count1;
+            _counts[1] = count1;
+            _counts[2] = count2;
+            _counts[3] = count3;
 
             //setup less than attack arrays
             _lessThan[(int)PieceType.Pawn] = Bitboard.Empty;
@@ -134,46 +157,7 @@ namespace NoraGrace.Engine
 
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddPieceAttacks(int currIndex, PieceType pieceType, Position position, Bitboard attacks)
-        {
-            //setup bypiece arrays
-            _byPiece_Type[currIndex] = pieceType;
-            _byPiece_Position[currIndex] = position;
-            _byPiece_Attacks[currIndex] = attacks;
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddPieceTypeAttacks(PieceType pieceType, Bitboard attacks)
-        {
-            System.Diagnostics.Debug.Assert(MAX_ATTACK_COUNT == 3);
-            _byPieceType[(int)pieceType] |= attacks;
-            _counts[3] |= _counts[2] & attacks;
-            _counts[2] |= _counts[1] & attacks;
-            _counts[1] |= attacks;
-        }
-
-        
-        public void Verify(Board board)
-        {
-
-            for (int i = 0; i < _byPiece_Count; i++)
-            {
-                PieceType pt = _byPiece_Type[i];
-                Position pos = _byPiece_Position[i];
-                Bitboard attacks = _byPiece_Attacks[i];
-                System.Diagnostics.Debug.Assert(board.PieceAt(pos).ToPieceType() == pt);
-            }
-        }
-
-        public void PieceInfo(PieceType pieceType, int index, out Position position, out Bitboard attacks)
-        {
-            System.Diagnostics.Debug.Assert(pieceType >= PieceType.Knight && pieceType <= PieceType.Queen);
-            index += _byPiece_TypeIndex[(int)pieceType];
-            System.Diagnostics.Debug.Assert(_byPiece_Type[index] == pieceType);
-            position = _byPiece_Position[index];
-            attacks = _byPiece_Attacks[index];
-        }
 
         public Bitboard SafeMovesFor(PieceType pieceType, AttackInfo hisAttacks)
         {

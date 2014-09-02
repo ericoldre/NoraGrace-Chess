@@ -165,5 +165,30 @@ namespace NoraGrace.Engine
             System.Diagnostics.Debug.Assert(hisAttacks.Zobrist == Zobrist);
             return ~hisAttacks._byPieceType[(int)PieceType.Pawn];
         }
+
+        public int AttackCountTo(Position pos)
+        {
+            int retval = 0;
+            Bitboard bb = pos.ToBitboard();
+            retval += (int)((ulong)(_counts[1] & bb) >> (int)pos);
+            retval += (int)((ulong)(_counts[2] & bb) >> (int)pos);
+            retval += (int)((ulong)(_counts[3] & bb) >> (int)pos);
+            return retval;
+        }
+
+        public Bitboard ByCount(int count)
+        {
+            return _counts[count];
+        }
+        public Bitboard ByPieceType(PieceType pt)
+        {
+            return _byPieceType[(int)pt];
+        }
+        public Bitboard LessThan(PieceType pt)
+        {
+            return _lessThan[(int)pt];
+        }
+
+    
     }
 }

@@ -25,7 +25,7 @@ namespace NoraGrace.Engine.Evaluation
         private readonly MobilityEvaluator _evalMobility;
 
 
-        public readonly int[] _endgameMateKingPcSq;
+
 
 
         protected readonly Settings _settings;
@@ -64,18 +64,7 @@ namespace NoraGrace.Engine.Evaluation
 
 
 
-            //initialize pcsq for trying to mate king in endgame, try to push it to edge of board.
-            _endgameMateKingPcSq = new int[64];
-            foreach (var pos in PositionUtil.AllPositions)
-            {
-                List<int> distToMid = new List<int>();
-                distToMid.Add(pos.DistanceToNoDiag(Position.D4));
-                distToMid.Add(pos.DistanceToNoDiag(Position.D5));
-                distToMid.Add(pos.DistanceToNoDiag(Position.E4));
-                distToMid.Add(pos.DistanceToNoDiag(Position.E5));
-                var minDist = distToMid.Min();
-                _endgameMateKingPcSq[(int)pos] = minDist * 50;
-            }
+
 
 
             
@@ -163,13 +152,13 @@ namespace NoraGrace.Engine.Evaluation
             
             //test to see if we are just trying to force the king to the corner for mate.
             PhasedScore endGamePcSq = 0;
-            if (UseEndGamePcSq(board, Player.White, out endGamePcSq))
+            if (PcSqEvaluator.UseEndGamePcSq(board, Player.White, out endGamePcSq))
             {
                 evalInfo.PcSq = endGamePcSq;
                 evalInfo.Attacks[0].Mobility = 0;
                 evalInfo.Attacks[1].Mobility = 0;
             }
-            else if (UseEndGamePcSq(board, Player.Black, out endGamePcSq))
+            else if (PcSqEvaluator.UseEndGamePcSq(board, Player.Black, out endGamePcSq))
             {
                 evalInfo.PcSq = endGamePcSq.Negate();
                 evalInfo.Attacks[0].Mobility = 0;
@@ -226,28 +215,7 @@ namespace NoraGrace.Engine.Evaluation
             }
         }
 
-        protected bool UseEndGamePcSq(Board board, Player winPlayer, out PhasedScore newPcSq)
-        {
-            Player losePlayer = winPlayer.PlayerOther();
-            if (
-                board.PieceCount(losePlayer, PieceType.Pawn) == 0
-                && board.PieceCount(losePlayer, PieceType.Queen) == 0
-                && board.PieceCount(losePlayer, PieceType.Rook) == 0
-                && (board.PieceCount(losePlayer, PieceType.Bishop) + board.PieceCount(losePlayer, PieceType.Knight) <= 1))
-            {
-                if(board.PieceCount(winPlayer, PieceType.Queen) > 0
-                    || board.PieceCount(winPlayer, PieceType.Rook) > 0
-                    || board.PieceCount(winPlayer, PieceType.Bishop) + board.PieceCount(winPlayer, PieceType.Bishop) >= 2)
-                {
-                    Position loseKing = board.KingPosition(losePlayer);
-                    Position winKing = board.KingPosition(winPlayer);
-                    newPcSq = PhasedScoreUtil.Create(0, _endgameMateKingPcSq[(int)loseKing] - (winKing.DistanceTo(loseKing) * 25));
-                    return true;
-                }
-            }
-            newPcSq = 0;
-            return false;
-        }
+
 
         
     }

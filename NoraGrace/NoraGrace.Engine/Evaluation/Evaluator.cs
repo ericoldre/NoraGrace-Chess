@@ -22,16 +22,15 @@ namespace NoraGrace.Engine.Evaluation
         public readonly MaterialEvaluator _evalMaterial;
         private readonly PcSqEvaluator _evalPcSq;
         private readonly KingAttackEvaluator _evalKing;
+        private readonly MobilityEvaluator _evalMobility;
 
-        public readonly PhasedScore[][] _mobilityPieceTypeCount = new PhasedScore[PieceTypeUtil.LookupArrayLength][];
 
         public readonly int[] _endgameMateKingPcSq;
 
 
         protected readonly Settings _settings;
 
-        protected readonly PhasedScore RookFileOpen;
-        protected readonly PhasedScore RookFileHalfOpen;
+
 
 
 
@@ -60,31 +59,10 @@ namespace NoraGrace.Engine.Evaluation
             _evalMaterial = new MaterialEvaluator(_settings.MaterialValues);
             _evalPcSq = new PcSqEvaluator(settings);
             _evalKing = new KingAttackEvaluator(settings.KingAttack);
-
+            _evalMobility = new MobilityEvaluator(settings.Mobility);
             //setup mobility arrays
 
-            foreach (PieceType pieceType in new PieceType[]{PieceType.Knight, PieceType.Bishop, PieceType.Rook, PieceType.Queen})
-            {
-                var pieceSettings = settings.Mobility[pieceType];
 
-                int[] openingVals = pieceSettings.Opening.GetValues(pieceType.MaximumMoves());
-                int[] endgameVals = pieceSettings.Endgame.GetValues(pieceType.MaximumMoves());
-
-                PhasedScore[] combined = PhasedScoreUtil.Combine(openingVals, endgameVals).ToArray();
-
-                _mobilityPieceTypeCount[(int)pieceType] = combined;
-                //for (int attacksCount = 0; attacksCount < 28; attacksCount++)
-                //{
-                //    var mobSettings = settings.Mobility;
-                    
-
-
-                //    int startVal = (attacksCount - opiece[GameStage.Opening].ExpectedAttacksAvailable) * opiece[GameStage.Opening].AmountPerAttackDefault;
-                //    int endVal = (attacksCount - opiece[GameStage.Endgame].ExpectedAttacksAvailable) * opiece[GameStage.Endgame].AmountPerAttackDefault;
-
-                //    _mobilityPieceTypeCount[(int)pieceType][attacksCount] = PhasedScoreUtil.Create(startVal, endVal);
-                //}
-            }
 
             //initialize pcsq for trying to mate king in endgame, try to push it to edge of board.
             _endgameMateKingPcSq = new int[64];
@@ -99,8 +77,6 @@ namespace NoraGrace.Engine.Evaluation
                 _endgameMateKingPcSq[(int)pos] = minDist * 50;
             }
 
-            RookFileOpen = PhasedScoreUtil.Create(settings.RookFileOpen, settings.RookFileOpen / 2);
-            RookFileHalfOpen = PhasedScoreUtil.Create(settings.RookFileOpen / 2, settings.RookFileOpen / 4);
 
             
 
@@ -154,8 +130,8 @@ namespace NoraGrace.Engine.Evaluation
             attacksWhite.King = Attacks.KingAttacks(board.KingPosition(Player.White));
             attacksBlack.King = Attacks.KingAttacks(board.KingPosition(Player.Black));
 
-            EvaluateMyPieces(board, Player.White, evalInfo);
-            EvaluateMyPieces(board, Player.Black, evalInfo);
+            _evalMobility.EvaluateMyPieces(board, Player.White, evalInfo);
+            _evalMobility.EvaluateMyPieces(board, Player.Black, evalInfo);
 
             _evalKing.EvaluateMyKingAttack(board, Player.White, evalInfo);
             _evalKing.EvaluateMyKingAttack(board, Player.Black, evalInfo);
@@ -230,116 +206,6 @@ namespace NoraGrace.Engine.Evaluation
 
         }
 
-        protected int EvaluateMyPieces(Board board, Player me, EvalResults info)
-        {
-            int retval = 0;
-            PhasedScore mobility = 0;
-            var him = me.PlayerOther();
-            var myAttacks = info.Attacks[(int)me];
-            var hisAttacks = info.Attacks[(int)him];
-
-            var hisKing = board.KingPosition(him);
-            var hisKingZone = KingAttackEvaluator.KingRegion(hisKing);
-
-
-            Bitboard myPieces = board[me];
-            Bitboard pieceLocationsAll = board.PieceLocationsAll;
-            Bitboard pawns = board[PieceType.Pawn];
-
-            Bitboard slidersAndKnights = myPieces &
-               (board[PieceType.Knight]
-               | board[PieceType.Bishop]
-               | board[PieceType.Rook]
-               | board[PieceType.Queen]);
-
-            Bitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
-
-            Bitboard myDiagSliders = myPieces & board.BishopSliders;
-            Bitboard myHorizSliders = myPieces & board.RookSliders;
-            Bitboard potentialOutputs = OUTPOST_AREA & (myAttacks.PawnEast | myAttacks.PawnWest);
-
-            while (slidersAndKnights != Bitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
-            {
-                Position pos = BitboardUtil.PopFirst(ref slidersAndKnights);
-
-                PieceType pieceType = board.PieceAt(pos).ToPieceType();
-
-                //generate attacks
-                Bitboard slidingAttacks = Bitboard.Empty;
-
-                switch (pieceType)
-                {
-                    case PieceType.Knight:
-                        slidingAttacks = Attacks.KnightAttacks(pos);
-                        if (myAttacks.Knight != Bitboard.Empty)
-                        {
-                            myAttacks.Knight2 |= slidingAttacks;
-                        }
-                        else
-                        {
-                            myAttacks.Knight |= slidingAttacks;
-                        }
-                        //if (potentialOutputs.Contains(pos))
-                        //{
-                        //    mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Knight, pos));
-                        //}
-                        break;
-                    case PieceType.Bishop:
-                        slidingAttacks = Attacks.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
-                        myAttacks.Bishop |= slidingAttacks;
-                        //if (potentialOutputs.Contains(pos))
-                        //{
-                        //    mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Bishop, pos));
-                        //}
-                        break;
-                    case PieceType.Rook:
-                        slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
-                        if (myAttacks.Rook != Bitboard.Empty)
-                        {
-                            myAttacks.Rook2 |= slidingAttacks;
-                        }
-                        else
-                        {
-                            myAttacks.Rook |= slidingAttacks;
-                        }
-                        if ((pos.ToFile().ToBitboard() & pawns & myPieces) == Bitboard.Empty)
-                        {
-                            if ((pos.ToFile().ToBitboard() & pawns) == Bitboard.Empty)
-                            {
-                                mobility = mobility.Add(RookFileOpen);
-                            }
-                            else
-                            {
-                                mobility = mobility.Add(RookFileHalfOpen);
-                            }
-                        }
-                        break;
-                    case PieceType.Queen:
-                        slidingAttacks = Attacks.QueenAttacks(pos, pieceLocationsAll & ~(myDiagSliders | myHorizSliders));
-                        myAttacks.Queen |= slidingAttacks;
-
-                        myAttacks.KingQueenTropism = hisKing.DistanceTo(pos) + hisKing.DistanceToNoDiag(pos);
-                        break;
-                }
-
-                // calc mobility score
-                int mobilityCount = (slidingAttacks & MobilityTargets).BitCount();
-                mobility = mobility.Add(_mobilityPieceTypeCount[(int)pieceType][mobilityCount]);
-
-                //see if involved in a king attack
-                if((hisKingZone & slidingAttacks) != Bitboard.Empty)
-                {
-                    myAttacks.KingAttackerCount++;
-                    myAttacks.KingAttackerWeight += KingAttackEvaluator.KingAttackerWeight(pieceType);
-                }
-                
-            }
-            
-
-
-            myAttacks.Mobility = mobility;
-            return retval;
-        }
 
         protected virtual float CalcStartWeight(int basicMaterialCount)
         {

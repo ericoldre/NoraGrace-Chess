@@ -64,6 +64,7 @@
     <Compile Include="Evaluation\KingAttackEvaluator.cs" />
     <Compile Include="Evaluation\Lazy.cs" />
     <Compile Include="Evaluation\MaterialEvaluator.cs" />
+    <Compile Include="Evaluation\MobilityEvaluator.cs" />
     <Compile Include="Evaluation\PawnEvaluator.cs" />
     <Compile Include="Evaluation\PcSqEvaluator.cs" />
     <Compile Include="Evaluation\ScaleFactor.cs" />

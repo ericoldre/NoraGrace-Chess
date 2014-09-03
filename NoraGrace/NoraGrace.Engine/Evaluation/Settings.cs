@@ -403,7 +403,7 @@ namespace NoraGrace.Engine.Evaluation
                 PawnPassedFarPct = 0.7f,
                 PawnShelterFactor = 6,
 
-                RookFileOpen = 20,
+                
 
                 KingAttack = new KingAttackSettings()
                 {
@@ -418,8 +418,10 @@ namespace NoraGrace.Engine.Evaluation
 
                 
 
-                Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>()
+                Mobility = new MobilitySettings()
                 {
+                    RookFileOpen = 20,
+
                     Knight = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
                         Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 3, Amplitude = 60, BezControlPct = new Helpers.Point(.3, .6)},
@@ -456,7 +458,7 @@ namespace NoraGrace.Engine.Evaluation
         public ChessGameStageDictionary<int> PawnDoubled = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnUnconnected = new ChessGameStageDictionary<int>();
-        public ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>();
+        public MobilitySettings Mobility = new MobilitySettings();
         public KingAttackSettings KingAttack = new KingAttackSettings();
 
         public int PawnPassed8thRankScore = 0;
@@ -469,7 +471,7 @@ namespace NoraGrace.Engine.Evaluation
         public double PawnPassedFarPct = 0;
         public int PawnShelterFactor = 0;
 
-        public int RookFileOpen = 0;
+        
 
 
 

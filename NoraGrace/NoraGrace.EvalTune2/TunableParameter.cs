@@ -102,50 +102,50 @@ namespace NoraGrace.EvalTune2
             yield return new TunableParameter()
             {
                 Name = "KingAttackCountValue",
-                fnGetValue = (s) => s.KingAttackCountValue,
-                fnSetValue = (s, v) => { s.KingAttackCountValue = (int)v; },
+                fnGetValue = (s) => s.KingAttack.KingAttackCountValue,
+                fnSetValue = (s, v) => { s.KingAttack.KingAttackCountValue = (int)v; },
                 Increment = 1
             };
             yield return new TunableParameter()
             {
                 Name = "KingAttackFactor",
-                fnGetValue = (s) => s.KingAttackFactor,
-                fnSetValue = (s, v) => { s.KingAttackFactor = v; },
+                fnGetValue = (s) => s.KingAttack.KingAttackFactor,
+                fnSetValue = (s, v) => { s.KingAttack.KingAttackFactor = v; },
                 Increment = .15
             };
             yield return new TunableParameter()
             {
                 Name = "KingAttackFactorQueenTropismBonus",
-                fnGetValue = (s) => s.KingAttackFactorQueenTropismBonus,
-                fnSetValue = (s, v) => { s.KingAttackFactorQueenTropismBonus = v; },
+                fnGetValue = (s) => s.KingAttack.KingAttackFactorQueenTropismBonus,
+                fnSetValue = (s, v) => { s.KingAttack.KingAttackFactorQueenTropismBonus = v; },
                 Increment = .15
             };
             yield return new TunableParameter()
             {
                 Name = "KingAttackWeightCutoff",
-                fnGetValue = (s) => s.KingAttackWeightCutoff,
-                fnSetValue = (s, v) => { s.KingAttackWeightCutoff = (int)v; },
+                fnGetValue = (s) => s.KingAttack.KingAttackWeightCutoff,
+                fnSetValue = (s, v) => { s.KingAttack.KingAttackWeightCutoff = (int)v; },
                 Increment = 1
             };
             yield return new TunableParameter()
             {
                 Name = "KingAttackWeightValue",
-                fnGetValue = (s) => s.KingAttackWeightValue,
-                fnSetValue = (s, v) => { s.KingAttackWeightValue = (int)v; },
+                fnGetValue = (s) => s.KingAttack.KingAttackWeightValue,
+                fnSetValue = (s, v) => { s.KingAttack.KingAttackWeightValue = (int)v; },
                 Increment = 1
             };
             yield return new TunableParameter()
             {
                 Name = "KingRingAttack",
-                fnGetValue = (s) => s.KingRingAttack,
-                fnSetValue = (s, v) => { s.KingRingAttack = (int)v; },
+                fnGetValue = (s) => s.KingAttack.KingRingAttack,
+                fnSetValue = (s, v) => { s.KingAttack.KingRingAttack = (int)v; },
                 Increment = 1
             };
             yield return new TunableParameter()
             {
                 Name = "KingRingAttackControlBonus",
-                fnGetValue = (s) => s.KingRingAttackControlBonus,
-                fnSetValue = (s, v) => { s.KingRingAttackControlBonus = (int)v; },
+                fnGetValue = (s) => s.KingAttack.KingRingAttackControlBonus,
+                fnSetValue = (s, v) => { s.KingAttack.KingRingAttackControlBonus = (int)v; },
                 Increment = 1
             };
         }

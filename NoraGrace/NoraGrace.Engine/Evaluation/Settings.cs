@@ -405,13 +405,17 @@ namespace NoraGrace.Engine.Evaluation
 
                 RookFileOpen = 20,
 
-                KingAttackCountValue = 7,
-                KingAttackWeightValue = 7,
-                KingAttackWeightCutoff = 5,
-                KingRingAttack = 5,
-                KingRingAttackControlBonus = 25,
-                KingAttackFactor = .53,
-                KingAttackFactorQueenTropismBonus = 2.15f,
+                KingAttack = new KingAttackSettings()
+                {
+                    KingAttackCountValue = 7,
+                    KingAttackWeightValue = 7,
+                    KingAttackWeightCutoff = 5,
+                    KingRingAttack = 5,
+                    KingRingAttackControlBonus = 25,
+                    KingAttackFactor = .53,
+                    KingAttackFactorQueenTropismBonus = 2.15f,
+                },
+
                 
 
                 Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>()
@@ -453,7 +457,8 @@ namespace NoraGrace.Engine.Evaluation
         public ChessGameStageDictionary<int> PawnIsolated = new ChessGameStageDictionary<int>();
         public ChessGameStageDictionary<int> PawnUnconnected = new ChessGameStageDictionary<int>();
         public ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>> Mobility = new ChessPieceTypeDictionary<ChessGameStageDictionary<Helpers.Mobility>>();
-        
+        public KingAttackSettings KingAttack = new KingAttackSettings();
+
         public int PawnPassed8thRankScore = 0;
         public double PawnPassedRankReduction = 0;
         public int PawnPassedMinScore = 0;
@@ -466,14 +471,7 @@ namespace NoraGrace.Engine.Evaluation
 
         public int RookFileOpen = 0;
 
-        public int KingAttackCountValue = 0;
-        public int KingAttackWeightValue = 0;
-        public int KingAttackWeightCutoff = 0;
-        public int KingRingAttack = 0;
-        public int KingRingAttackControlBonus = 0;
 
-        public double KingAttackFactor = 0;
-        public double KingAttackFactorQueenTropismBonus = 0;
 
 
         public Settings CloneDeep()

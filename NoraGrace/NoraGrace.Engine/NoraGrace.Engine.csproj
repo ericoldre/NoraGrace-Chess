@@ -61,6 +61,7 @@
     <Compile Include="Evaluation\EvalResults.cs" />
     <Compile Include="Evaluation\Helpers\Mobility.cs" />
     <Compile Include="Evaluation\Helpers\QuadraticBezier.cs" />
+    <Compile Include="Evaluation\KingAttackEvaluator.cs" />
     <Compile Include="Evaluation\Lazy.cs" />
     <Compile Include="Evaluation\MaterialEvaluator.cs" />
     <Compile Include="Evaluation\PawnEvaluator.cs" />

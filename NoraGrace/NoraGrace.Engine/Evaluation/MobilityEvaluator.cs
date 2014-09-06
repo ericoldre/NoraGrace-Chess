@@ -37,12 +37,15 @@ namespace NoraGrace.Engine.Evaluation
 
         }
 
-        public void EvaluateMyPieces(Board board, Player me, EvalResults info)
+        public PhasedScore EvaluateMyPieces(Board board, Player me, EvalResults info, PlyData plyData, out Bitboard kingInvolved)
         {
+            kingInvolved = Bitboard.Empty;
+
             PhasedScore mobility = 0;
             var him = me.PlayerOther();
-            var myAttacks = info.Attacks[(int)me];
-            var hisAttacks = info.Attacks[(int)him];
+
+            var myAttackInfo = plyData.AttacksFor(me);
+            var hisAttackInfo = plyData.AttacksFor(him);
 
             var hisKing = board.KingPosition(him);
             var hisKingZone = KingAttackEvaluator.KingRegion(hisKing);
@@ -58,11 +61,11 @@ namespace NoraGrace.Engine.Evaluation
                | board[PieceType.Rook]
                | board[PieceType.Queen]);
 
-            Bitboard MobilityTargets = ~myPieces & ~(hisAttacks.PawnEast | hisAttacks.PawnWest);
+            Bitboard MobilityTargets = ~myPieces & ~(hisAttackInfo.ByPieceType(PieceType.Pawn));
 
             Bitboard myDiagSliders = myPieces & board.BishopSliders;
             Bitboard myHorizSliders = myPieces & board.RookSliders;
-            Bitboard potentialOutputs = Evaluator.OUTPOST_AREA & (myAttacks.PawnEast | myAttacks.PawnWest);
+            //Bitboard potentialOutputs = Evaluator.OUTPOST_AREA & (myAttacks.PawnEast | myAttacks.PawnWest);
 
             while (slidersAndKnights != Bitboard.Empty) //foreach(ChessPosition pos in slidersAndKnights.ToPositions())
             {
@@ -77,37 +80,13 @@ namespace NoraGrace.Engine.Evaluation
                 {
                     case PieceType.Knight:
                         slidingAttacks = Attacks.KnightAttacks(pos);
-                        if (myAttacks.Knight != Bitboard.Empty)
-                        {
-                            myAttacks.Knight2 |= slidingAttacks;
-                        }
-                        else
-                        {
-                            myAttacks.Knight |= slidingAttacks;
-                        }
-                        //if (potentialOutputs.Contains(pos))
-                        //{
-                        //    mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Knight, pos));
-                        //}
                         break;
                     case PieceType.Bishop:
-                        slidingAttacks = Attacks.BishopAttacks(pos, pieceLocationsAll & ~myHorizSliders);
-                        myAttacks.Bishop |= slidingAttacks;
-                        //if (potentialOutputs.Contains(pos))
-                        //{
-                        //    mobility = mobility.Add(EvaluateOutpost(board, me, PieceType.Bishop, pos));
-                        //}
+                        slidingAttacks = Attacks.BishopAttacks(pos, pieceLocationsAll ^ myDiagSliders);
                         break;
                     case PieceType.Rook:
-                        slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll & ~myDiagSliders);
-                        if (myAttacks.Rook != Bitboard.Empty)
-                        {
-                            myAttacks.Rook2 |= slidingAttacks;
-                        }
-                        else
-                        {
-                            myAttacks.Rook |= slidingAttacks;
-                        }
+                        slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll ^ myHorizSliders);
+
                         if ((pos.ToFile().ToBitboard() & pawns & myPieces) == Bitboard.Empty)
                         {
                             if ((pos.ToFile().ToBitboard() & pawns) == Bitboard.Empty)
@@ -121,10 +100,8 @@ namespace NoraGrace.Engine.Evaluation
                         }
                         break;
                     case PieceType.Queen:
-                        slidingAttacks = Attacks.QueenAttacks(pos, pieceLocationsAll & ~(myDiagSliders | myHorizSliders));
-                        myAttacks.Queen |= slidingAttacks;
-
-                        myAttacks.KingQueenTropism = hisKing.DistanceTo(pos) + hisKing.DistanceToNoDiag(pos);
+                        slidingAttacks = Attacks.RookAttacks(pos, pieceLocationsAll ^ myHorizSliders);
+                        slidingAttacks |= Attacks.BishopAttacks(pos, pieceLocationsAll ^ myDiagSliders);
                         break;
                 }
 
@@ -135,13 +112,14 @@ namespace NoraGrace.Engine.Evaluation
                 //see if involved in a king attack
                 if ((hisKingZone & slidingAttacks) != Bitboard.Empty)
                 {
-                    myAttacks.KingAttackerCount++;
-                    myAttacks.KingAttackerWeight += KingAttackEvaluator.KingAttackerWeight(pieceType);
+                    //myAttacks.KingAttackerCount++;
+                    //myAttacks.KingAttackerWeight += KingAttackEvaluator.KingAttackerWeight(pieceType);
+                    kingInvolved |= pos.ToBitboard();
                 }
 
             }
 
-            myAttacks.Mobility = mobility;
+            return mobility;
         }
 
     }

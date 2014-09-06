@@ -272,7 +272,7 @@ namespace NoraGrace.Engine.Evaluation
 
 
 
-        public PhasedScore EvalPassedPawns(Board board, ChessEvalAttackInfo[] attackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
+        public PhasedScore EvalPassedPawns(Board board, PlyData plyData, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
         {
             
             PhasedScore retval = PhasedScoreUtil.Create(0, 0);
@@ -280,7 +280,7 @@ namespace NoraGrace.Engine.Evaluation
             var positions = (passedPawns | candidatePawns) & board[Player.White];
             if (positions != Bitboard.Empty)
             {
-                var white = EvalPassedPawnsSide(Player.White, board, attackInfo[0], attackInfo[1], passedPawns & board[Player.White], candidatePawns & board[Player.White], workspace);
+                var white = EvalPassedPawnsSide(Player.White, board, plyData, passedPawns & board[Player.White], candidatePawns & board[Player.White], workspace);
                 retval = retval.Add(white);
 
             }
@@ -288,7 +288,7 @@ namespace NoraGrace.Engine.Evaluation
             positions = (passedPawns | candidatePawns) & board[Player.Black];
             if (positions != Bitboard.Empty)
             {
-                var black = EvalPassedPawnsSide(Player.Black, board, attackInfo[1], attackInfo[0], passedPawns & board[Player.Black], candidatePawns & board[Player.Black], workspace);
+                var black = EvalPassedPawnsSide(Player.Black, board, plyData, passedPawns & board[Player.Black], candidatePawns & board[Player.Black], workspace);
                 retval = retval.Subtract(black);
             }
 
@@ -297,7 +297,7 @@ namespace NoraGrace.Engine.Evaluation
 
         }
 
-        public PhasedScore EvalPassedPawnsSide(Player me, Board board, ChessEvalAttackInfo myAttackInfo, ChessEvalAttackInfo hisAttackInfo, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
+        public PhasedScore EvalPassedPawnsSide(Player me, Board board, PlyData plyData, Bitboard passedPawns, Bitboard candidatePawns, int[] workspace)
         {
             
             int bestEndScore = -1;
@@ -305,12 +305,15 @@ namespace NoraGrace.Engine.Evaluation
             int totalStartScore = 0;
             Player him = me.PlayerOther();
 
+            var myAttackInfo = plyData.AttacksFor(me);
+            var hisAttackInfo = plyData.AttacksFor(him);
+
             Position myKing = board.KingPosition(me);
             Position hisKing = board.KingPosition(him);
             Bitboard allPieces = board.PieceLocationsAll;
-            Bitboard myPawnAttacks = myAttackInfo.PawnEast | myAttackInfo.PawnWest;
-            Bitboard myAttacks = myAttackInfo.All();
-            Bitboard hisAttacks = hisAttackInfo.All();
+            Bitboard myPawnAttacks = myAttackInfo.ByPieceType(PieceType.Pawn);
+            Bitboard myAttacks = myAttackInfo.ByCount(1);
+            Bitboard hisAttacks = hisAttackInfo.ByCount(1);
             Bitboard positions = passedPawns | candidatePawns;
 
             Direction mySouth = me == Player.White ? Direction.DirS : Direction.DirN;
@@ -459,125 +462,6 @@ namespace NoraGrace.Engine.Evaluation
         }
 
 
-        public void EvalPassedPawnsOld(Board board, EvalResults evalInfo, Bitboard passedPawns)
-        {
-
-            Position myKing, hisKing;
-            Bitboard allPieces, myPawnAttacks, myAttacks, hisAttacks;
-            bool attackingTrailer, supportingTrailer;
-
-            int startScore, endScore, bestEndScore;
-
-            var positions = passedPawns & board[Player.White];
-            if (positions != Bitboard.Empty)
-            {
-                bestEndScore = 0;
-
-                myKing = board.KingPosition(Player.White);
-                hisKing = board.KingPosition(Player.Black);
-                allPieces = board.PieceLocationsAll;
-                myPawnAttacks = evalInfo.Attacks[(int)Player.White].PawnEast | evalInfo.Attacks[(int)Player.White].PawnWest;
-                myAttacks = evalInfo.Attacks[(int)Player.White].All();
-                hisAttacks = evalInfo.Attacks[(int)Player.Black].All();
-
-                while (positions != Bitboard.Empty)// (ChessPosition passedPos in white.ToPositions())
-                {
-                    Position passedPos = BitboardUtil.PopFirst(ref positions);
-                    Position trailerPos = Position.OUTOFBOUNDS;
-                    Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirS, ref trailerPos);
-
-                    attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.Black;
-                    supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.White;
-
-                    EvalPassedPawnBoth(
-                        p: passedPos,
-                        allPieces: allPieces,
-                        myAttacks: myAttacks,
-                        hisAttacks: hisAttacks,
-                        myKing: myKing,
-                        hisKing: hisKing,
-                        myPawnAttacks: myPawnAttacks,
-                        attackingTrailer: attackingTrailer,
-                        supportingTrailer: supportingTrailer,
-                        mbonus: out startScore,
-                        ebonus: out endScore);
-
-
-                    //scores other than best are halved
-                    endScore = endScore & ~1; //make even number for div /2
-                    if (endScore >= bestEndScore)
-                    {
-                        int reduce = bestEndScore / 2;
-                        bestEndScore = endScore;
-                        endScore -= reduce;
-                    }
-                    else
-                    {
-                        endScore = endScore / 2;
-                    }
-
-                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Add(PhasedScoreUtil.Create(startScore, endScore));
-
-                    ///evalInfo.PawnsPassedStart += mbonus;
-                    //evalInfo.PawnsPassedEnd += ebonus;
-                }
-            }
-
-            positions = passedPawns & board[Player.Black];
-            if (positions != Bitboard.Empty)
-            {
-                bestEndScore = 0;
-                myKing = board.KingPosition(Player.Black).Reverse();
-                hisKing = board.KingPosition(Player.White).Reverse();
-                allPieces = board.PieceLocationsAll.Reverse();
-                myPawnAttacks = (evalInfo.Attacks[(int)Player.Black].PawnEast | evalInfo.Attacks[(int)Player.Black].PawnWest).Reverse();
-                myAttacks = evalInfo.Attacks[(int)Player.Black].All().Reverse();
-                hisAttacks = evalInfo.Attacks[(int)Player.White].All().Reverse();
-
-                while (positions != Bitboard.Empty) // (ChessPosition passedPos in black.ToPositions())
-                {
-                    Position passedPos = BitboardUtil.PopFirst(ref positions);
-                    Position passesPos2 = passedPos.Reverse();
-                    Position trailerPos = Position.OUTOFBOUNDS;
-                    Piece trailerPiece = board.PieceInDirection(passedPos, Direction.DirN, ref trailerPos);
-
-                    attackingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.White;
-                    supportingTrailer = trailerPiece.PieceIsSliderRook() && trailerPiece.PieceToPlayer() == Player.Black;
-
-                    EvalPassedPawnBoth(
-                        p: passesPos2,
-                        allPieces: allPieces,
-                        myAttacks: myAttacks,
-                        hisAttacks: hisAttacks,
-                        myKing: myKing,
-                        hisKing: hisKing,
-                        myPawnAttacks: myPawnAttacks,
-                        attackingTrailer: attackingTrailer,
-                        supportingTrailer: supportingTrailer,
-                        mbonus: out startScore,
-                        ebonus: out endScore);
-
-                    //scores other than best are halved
-                    endScore = endScore & ~1; //make even number for div /2
-                    if (endScore >= bestEndScore)
-                    {
-                        int reduce = bestEndScore / 2;
-                        bestEndScore = endScore;
-                        endScore -= reduce;
-                    }
-                    else
-                    {
-                        endScore = endScore / 2;
-                    }
-
-                    evalInfo.PawnsPassed = evalInfo.PawnsPassed.Subtract(PhasedScoreUtil.Create(startScore, endScore));
-                }
-            }
-
-
-
-
-        }
 
 
         private void EvalPassedPawnBoth(Position p, Position myKing, Position hisKing,

@@ -394,13 +394,13 @@ namespace NoraGrace.Engine.Evaluation
                 
                 PawnPassed8thRankScore = 407,
                 PawnPassedRankReduction = .54f,
-                PawnPassedDangerPct = .21f,
+                PawnPassedDangerPct = .18f,
                 
                 PawnPassedOpeningPct = .20f,
                 PawnPassedMinScore = 0,
                 PawnCandidatePct = .35f,
                 PawnPassedClosePct = .90f,
-                PawnPassedFarPct = 0.7f,
+                PawnPassedFarPct = 1.15f,
                 PawnShelterFactor = 6,
 
                 
@@ -408,9 +408,9 @@ namespace NoraGrace.Engine.Evaluation
                 KingAttack = new KingAttackSettings()
                 {
                     KingAttackCountValue = 7,
-                    KingAttackWeightValue = 7,
+                    KingAttackWeightValue = 6,
                     KingAttackWeightCutoff = 5,
-                    KingRingAttack = 5,
+                    KingRingAttack = 4,
                     KingRingAttackControlBonus = 25,
                     KingAttackFactor = .53,
                     KingAttackFactorQueenTropismBonus = 2.15f,
@@ -424,23 +424,23 @@ namespace NoraGrace.Engine.Evaluation
 
                     Knight = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 3, Amplitude = 60, BezControlPct = new Helpers.Point(.3, .6)},
-                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 100, BezControlPct = new Helpers.Point(.4, 1.3) },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 3, Amplitude = 50, BezControlPct = new Helpers.Point(.2, .8)},
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 80, BezControlPct = new Helpers.Point(.2, .8) },
                     },
                     Bishop = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 60, BezControlPct = new Helpers.Point(-0.2, .4) },
-                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 7, Amplitude = 80, BezControlPct = new Helpers.Point(.3, 1.1) },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 4, Amplitude = 44, BezControlPct = new Helpers.Point(.2, .8) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 7, Amplitude = 52, BezControlPct = new Helpers.Point(.2, .8) },
                     },
                     Rook = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 5, Amplitude = 50, BezControlPct = new Helpers.Point(.7, 1.3) },
-                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 90, BezControlPct = new Helpers.Point(.1, .9) },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 5, Amplitude = 50, BezControlPct = new Helpers.Point(.2, .8) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 90, BezControlPct = new Helpers.Point(.2, .7) },
                     },
                     Queen = new ChessGameStageDictionary<Helpers.Mobility>()
                     {
-                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 30, BezControlPct = new Helpers.Point(.7, .9) },
-                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 12, Amplitude = 120, BezControlPct = new Helpers.Point(.35, 1.4) },
+                        Opening = new Helpers.Mobility() { ExpectedAttacksAvailable = 8, Amplitude = 30, BezControlPct = new Helpers.Point(.2, .8) },
+                        Endgame = new Helpers.Mobility() { ExpectedAttacksAvailable = 12, Amplitude = 120, BezControlPct = new Helpers.Point(.2, .8) },
                     },
                 }
             };

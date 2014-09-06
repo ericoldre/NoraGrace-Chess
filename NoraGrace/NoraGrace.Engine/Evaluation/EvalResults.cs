@@ -18,6 +18,8 @@ namespace NoraGrace.Engine.Evaluation
         public int Material { get; private set; }
         public PhasedScore PcSq { get; set; }
         public PhasedScore Pawns { get; private set; }
+        public PhasedScore Mobility { get; set; }
+        public int KingAttack { get; set; }
         public ScaleFactor StageStartWeight { get; private set; }
         public ScaleFactor ScaleWhite { get; private set; }
         public ScaleFactor ScaleBlack { get; private set; }
@@ -26,18 +28,18 @@ namespace NoraGrace.Engine.Evaluation
 
         //advanced eval terms.
         public int LazyAge { get; set; }
-        public ChessEvalAttackInfo[] Attacks = new ChessEvalAttackInfo[] { new ChessEvalAttackInfo(), new ChessEvalAttackInfo() };
+
         public PhasedScore PawnsPassed = 0;
         public PhasedScore ShelterStorm = 0;
 
         public void Reset()
         {
-            Attacks[0].Reset();
-            Attacks[1].Reset();
             Material = 0;
             PcSq = 0;
             Pawns = 0;
             PawnsPassed = 0;
+            Mobility = 0;
+            KingAttack = 0;
             ShelterStorm = 0;
             StageStartWeight = ScaleFactor.FULL;
             ScaleWhite = ScaleFactor.FULL;
@@ -70,10 +72,12 @@ namespace NoraGrace.Engine.Evaluation
             this.LazyAge = prev.LazyAge + 1;
             
             //copy advanced evaluation items.
-            this.Attacks[0].KingAttackerScore = prev.Attacks[0].KingAttackerScore;
-            this.Attacks[1].KingAttackerScore = prev.Attacks[1].KingAttackerScore;
-            this.Attacks[0].Mobility = prev.Attacks[0].Mobility;
-            this.Attacks[1].Mobility = prev.Attacks[1].Mobility;
+            //this.Attacks[0].KingAttackerScore = prev.Attacks[0].KingAttackerScore;
+            //this.Attacks[1].KingAttackerScore = prev.Attacks[1].KingAttackerScore;
+            this.Mobility = prev.Mobility;
+            this.KingAttack = prev.KingAttack;
+            //this.Attacks[0].Mobility = prev.Attacks[0].Mobility;
+            //this.Attacks[1].Mobility = prev.Attacks[1].Mobility;
             this.PawnsPassed = prev.PawnsPassed;
             this.ShelterStorm = prev.ShelterStorm;
 
@@ -104,10 +108,10 @@ namespace NoraGrace.Engine.Evaluation
                     .Add(Pawns)
                     .Add(PawnsPassed)
                     .Add(ShelterStorm)
-                    .Add(this.Attacks[0].Mobility.Subtract(this.Attacks[1].Mobility)).ApplyScaleFactor(StageStartWeight) + Material;
-
-                nonScaled += this.Attacks[0].KingAttackerScore;
-                nonScaled -= this.Attacks[1].KingAttackerScore;
+                    .Add(Mobility)
+                    .ApplyScaleFactor(StageStartWeight) 
+                    + Material 
+                    + KingAttack;
 
                 if (nonScaled > DrawScore && ScaleWhite < ScaleFactor.FULL)
                 {
@@ -141,7 +145,7 @@ namespace NoraGrace.Engine.Evaluation
         {
             get
             {
-                return Attacks[0].Mobility.Subtract(Attacks[1].Mobility).ApplyScaleFactor(StageStartWeight);
+                return Mobility.ApplyScaleFactor(StageStartWeight);
             }
         }
         public int PawnsPhased
@@ -164,7 +168,7 @@ namespace NoraGrace.Engine.Evaluation
         {
             get
             {
-                return Attacks[0].KingAttackerScore - Attacks[1].KingAttackerScore;
+                return KingAttack;
             }
         }
 

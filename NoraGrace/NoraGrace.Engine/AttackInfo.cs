@@ -10,7 +10,7 @@ namespace NoraGrace.Engine
 
     public class AttackInfo
     {
-        public const int MAX_ATTACK_COUNT = 3;
+        public const int MAX_ATTACK_COUNT = 4;
         public const int MAX_PIECE_COUNT = 8;
 
         private long _zobrist;
@@ -45,11 +45,18 @@ namespace NoraGrace.Engine
             Bitboard count1 = Bitboard.Empty;
             Bitboard count2 = Bitboard.Empty;
             Bitboard count3 = Bitboard.Empty;
+            Bitboard count4 = Bitboard.Empty;
+
             Bitboard bbPieceAttacks;
 
             _zobrist = board.ZobristBoard;
 
+            
+            Bitboard allPieces = board.PieceLocationsAll;
             Bitboard myPieces = board[_player];
+            Bitboard myBishopSliders = myPieces & board.BishopSliders;
+            Bitboard myRookSliders = myPieces & board.RookSliders;
+
             Bitboard bbPiece;
             Bitboard pattacks;
             Position pos;
@@ -63,12 +70,14 @@ namespace NoraGrace.Engine
                 pos = BitboardUtil.PopFirst(ref bbPiece);
                 pattacks = Attacks.KnightAttacks(pos);
                 bbPieceAttacks |= pattacks;
+                count4 |= count3 & pattacks;
                 count3 |= count2 & pattacks;
                 count2 |= count1 & pattacks;
                 count1 |= pattacks;
             }
             _byPieceType[(int)PieceType.Knight] = bbPieceAttacks;
 
+            
 
             //bishops
             bbPieceAttacks = Bitboard.Empty;
@@ -76,8 +85,10 @@ namespace NoraGrace.Engine
             while (bbPiece != Bitboard.Empty)
             {
                 pos = BitboardUtil.PopFirst(ref bbPiece);
-                pattacks = Attacks.BishopAttacks(pos, board.PieceLocationsAll);
+                pattacks = Attacks.BishopAttacks(pos, allPieces);
                 bbPieceAttacks |= pattacks;
+                pattacks = Attacks.BishopAttacks(pos, allPieces ^ myBishopSliders);
+                count4 |= count3 & pattacks;
                 count3 |= count2 & pattacks;
                 count2 |= count1 & pattacks;
                 count1 |= pattacks;
@@ -90,8 +101,10 @@ namespace NoraGrace.Engine
             while (bbPiece != Bitboard.Empty)
             {
                 pos = BitboardUtil.PopFirst(ref bbPiece);
-                pattacks = Attacks.RookAttacks(pos, board.PieceLocationsAll);
+                pattacks = Attacks.RookAttacks(pos, allPieces);
                 bbPieceAttacks |= pattacks;
+                pattacks = Attacks.RookAttacks(pos, allPieces ^ myRookSliders);
+                count4 |= count3 & pattacks;
                 count3 |= count2 & pattacks;
                 count2 |= count1 & pattacks;
                 count1 |= pattacks;
@@ -104,8 +117,11 @@ namespace NoraGrace.Engine
             while (bbPiece != Bitboard.Empty)
             {
                 pos = BitboardUtil.PopFirst(ref bbPiece);
-                pattacks = Attacks.QueenAttacks(pos, board.PieceLocationsAll);
+                pattacks = Attacks.QueenAttacks(pos, allPieces);
                 bbPieceAttacks |= pattacks;
+                pattacks = Attacks.BishopAttacks(pos, allPieces ^ myBishopSliders);
+                pattacks |= Attacks.RookAttacks(pos, allPieces ^ myRookSliders);
+                count4 |= count3 & pattacks;
                 count3 |= count2 & pattacks;
                 count2 |= count1 & pattacks;
                 count1 |= pattacks;
@@ -116,6 +132,7 @@ namespace NoraGrace.Engine
             //add king attacks
             pattacks = Attacks.KingAttacks(board.KingPosition(_player));
             _byPieceType[(int)PieceType.King] = pattacks;
+            count4 |= count3 & pattacks;
             count3 |= count2 & pattacks;
             count2 |= count1 & pattacks;
             count1 |= pattacks;
@@ -128,6 +145,7 @@ namespace NoraGrace.Engine
             //pawn attacks west;
             pattacks = bbPiece.ShiftDirW();
             bbPieceAttacks |= pattacks;
+            count4 |= count3 & pattacks;
             count3 |= count2 & pattacks;
             count2 |= count1 & pattacks;
             count1 |= pattacks;
@@ -135,6 +153,7 @@ namespace NoraGrace.Engine
             //pawn attacks east;
             pattacks = bbPiece.ShiftDirE();
             bbPieceAttacks |= pattacks;
+            count4 |= count3 & pattacks;
             count3 |= count2 & pattacks;
             count2 |= count1 & pattacks;
             count1 |= pattacks;
@@ -146,6 +165,7 @@ namespace NoraGrace.Engine
             _counts[1] = count1;
             _counts[2] = count2;
             _counts[3] = count3;
+            _counts[4] = count4;
 
             //setup less than attack arrays
             _lessThan[(int)PieceType.Pawn] = Bitboard.Empty;
@@ -173,6 +193,7 @@ namespace NoraGrace.Engine
             retval += (int)((ulong)(_counts[1] & bb) >> (int)pos);
             retval += (int)((ulong)(_counts[2] & bb) >> (int)pos);
             retval += (int)((ulong)(_counts[3] & bb) >> (int)pos);
+            retval += (int)((ulong)(_counts[4] & bb) >> (int)pos);
             return retval;
         }
 

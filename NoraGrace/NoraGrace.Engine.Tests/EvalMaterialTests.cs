@@ -23,7 +23,7 @@ namespace NoraGrace.Engine.Tests
             {
                 get
                 {
-                    return (p * 100) + (n * 300) + (b * 300) + (r * 500) + (q * 900) + (b > 1 ? 50 : 0);
+                    return (p * 100) + (n * 330) + (b * 330) + (r * 500) + (q * 1000) + (b > 1 ? 50 : 0);
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace NoraGrace.Engine.Tests
             foreach (var s in Samples())
             {
                 var r = eval.EvalMaterial(0, s.white.p, s.white.n, s.white.b, s.white.r, s.white.q, s.black.p, s.black.n, s.black.b, s.black.r, s.black.q);
-                Assert.IsTrue(Math.Abs(r.Score - s.BasicScore) < 150);
+                Assert.IsTrue(Math.Abs(r.Score - s.BasicScore) < 160);
             }
             //var r = evalBasic.EvalMaterial(0, ss.white.p, ss.white.n, ss.white.b, ss.white.r, ss.white.q, ss.black.p, ss.black.n, ss.black.b, ss.black.r, ss.black.q);
         }

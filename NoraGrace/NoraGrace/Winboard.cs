@@ -220,7 +220,7 @@ namespace NoraGrace.CommandLine
                     break;
                 //custom stuff for debugging
                 case "setpos1":
-                    _board.FENCurrent = new FEN("8/4r3/R4n2/2pPk3/p1P1B1p1/3K2P1/5P2/8 w - - 4 54 ");
+                    _board.FENCurrent = new FEN("rr3bk1/pppq1p2/1nn1pB1p/3bP3/P2P1Q2/1P1B1P2/4N1PP/R4RK1 b - - 4 18 ");
                     break;
                 case "eval":
                     Evaluator eval = new Evaluator();

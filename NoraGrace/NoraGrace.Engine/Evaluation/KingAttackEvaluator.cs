@@ -100,19 +100,39 @@ namespace NoraGrace.Engine.Evaluation
             return _kingSafetyRegion[(int)pos];
         }
 
-        public int EvaluateMyKingAttack(Board board, Player me, EvalResults info)
+        public int EvaluateMyKingAttack(Board board, Player me, EvalResults info, PlyData plyData, Bitboard myInvolvedPieces)
         {
             //king attack info should have counts and weight of everything but pawns and kings.
 
-            var him = me.PlayerOther();
-            var myAttacks = info.Attacks[(int)me];
-            var hisAttacks = info.Attacks[(int)him];
 
-            var hisKingZone = _kingSafetyRegion[(int)board.KingPosition(him)];
+            var him = me.PlayerOther();
+            
+            var myAttackInfo = plyData.AttacksFor(me);
+            var hisAttackInfo = plyData.AttacksFor(him);
+            var hisKingPosition = board.KingPosition(him);
+            var hisKingZone = _kingSafetyRegion[(int)hisKingPosition];
+
+            int kingAttackerCount = 0;
+            int kingAttackerWeight = 0;
+            while (myInvolvedPieces != Bitboard.Empty)
+            {
+                Position pos = BitboardUtil.PopFirst(ref myInvolvedPieces);
+                Piece piece = board.PieceAt(pos);
+                kingAttackerCount++;
+                kingAttackerWeight += _kingAttackerWeight[(int)piece.ToPieceType()];
+            }
+
+            int kingQueenTropism = 24;
+            myInvolvedPieces = board[me, PieceType.Queen];
+            while (myInvolvedPieces != Bitboard.Empty)
+            {
+                Position pos = BitboardUtil.PopFirst(ref myInvolvedPieces);
+                kingQueenTropism = Math.Min(kingQueenTropism, hisKingPosition.DistanceTo(pos) + hisKingPosition.DistanceToNoDiag(pos));
+            }
 
             int retval = 0;
             int c;
-            if (myAttacks.KingAttackerCount >= 2 && myAttacks.KingAttackerWeight >= KingAttackWeightCutoff)
+            if (kingAttackerCount >= 2 && kingAttackerWeight >= KingAttackWeightCutoff)
             {
                 //if we don't at least have a decent attack, just give credit for building count of attackers and move on.
 
@@ -134,19 +154,20 @@ namespace NoraGrace.Engine.Evaluation
                 if (myInvolvedPawns != Bitboard.Empty)
                 {
                     c = myInvolvedPawns.BitCount();
-                    myAttacks.KingAttackerCount += c;
-                    myAttacks.KingAttackerWeight += c * _kingAttackerWeight[(int)PieceType.Pawn];
+                    kingAttackerCount += c;
+                    kingAttackerWeight += c * _kingAttackerWeight[(int)PieceType.Pawn];
                 }
 
                 //add in my king to the attack.
                 if ((Attacks.KingAttacks(board.KingPosition(me)) & hisKingZone) != Bitboard.Empty)
                 {
-                    myAttacks.KingAttackerCount++;
-                    myAttacks.KingAttackerWeight += _kingAttackerWeight[(int)PieceType.King];
+                    
+                    kingAttackerCount++;
+                    kingAttackerWeight += _kingAttackerWeight[(int)PieceType.King];
                 }
 
                 //add bonus for piece involvement over threshold;
-                retval += (myAttacks.KingAttackerWeight - KingAttackWeightCutoff) * KingAttackWeightValue;
+                retval += (kingAttackerWeight - KingAttackWeightCutoff) * KingAttackWeightValue;
 
                 //now calculate bonus for attacking squares directly surrounding king;
                 Bitboard kingAdjecent = Attacks.KingAttacks(board.KingPosition(him));
@@ -154,12 +175,13 @@ namespace NoraGrace.Engine.Evaluation
                 {
                     Position pos = BitboardUtil.PopFirst(ref kingAdjecent);
                     Bitboard posBB = pos.ToBitboard();
-                    if ((posBB & myAttacks.All()) != Bitboard.Empty)
+                    if ((posBB & myAttackInfo.ByCount(1)) != Bitboard.Empty)
                     {
                         retval += KingRingAttack; //attacking surrounding square in some aspect.
 
-                        int myCount = myAttacks.AttackCountTo(pos);
-                        int hisCount = hisAttacks.AttackCountTo(pos);
+                        int myCount = myAttackInfo.AttackCountTo(pos);
+                        int hisCount = hisAttackInfo.AttackCountTo(pos);
+
                         if (myCount > hisCount)
                         {
                             retval += KingRingAttackControlBonus * (myCount - hisCount);
@@ -168,10 +190,9 @@ namespace NoraGrace.Engine.Evaluation
                 }
             }
 
-            retval += KingAttackCountValue * myAttacks.KingAttackerCount;
+            retval += KingAttackCountValue * kingAttackerCount;
 
-            retval = (retval * KingQueenTropismFactor[myAttacks.KingQueenTropism]) / 100;
-            myAttacks.KingAttackerScore = retval;
+            retval = (retval * KingQueenTropismFactor[kingQueenTropism]) / 100;
 
             return retval;
 

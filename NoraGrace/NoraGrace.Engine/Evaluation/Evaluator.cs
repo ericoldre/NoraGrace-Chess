@@ -92,6 +92,7 @@ namespace NoraGrace.Engine.Evaluation
             var pawns = _evalPawns.PawnEval(board);
             if (plyData == null) { plyData = _plyData; }
 
+            plyData.EvalResults.MaterialPawnsApply(board, material, pawns, DrawScore);
             EvalAdvanced(board, plyData, material, pawns);
             return plyData.EvalResults.Score;
         }
@@ -107,35 +108,30 @@ namespace NoraGrace.Engine.Evaluation
             //mark that advanced eval terms are from this ply
             evalInfo.LazyAge = 0;
 
-            //set up 
-            var attacksWhite = evalInfo.Attacks[(int)Player.White];
-            var attacksBlack = evalInfo.Attacks[(int)Player.Black];
+            plyData.AttacksWhite.Initialize(board);
+            plyData.AttacksBlack.Initialize(board);
+            var whiteAttackInfo = plyData.AttacksWhite;
+            var blackAttackInfo = plyData.AttacksBlack;
 
-            attacksWhite.PawnEast = board[Player.White, PieceType.Pawn].ShiftDirNE();
-            attacksWhite.PawnWest = board[Player.White, PieceType.Pawn].ShiftDirNW();
-            attacksBlack.PawnEast = board[Player.Black, PieceType.Pawn].ShiftDirSE();
-            attacksBlack.PawnWest = board[Player.Black, PieceType.Pawn].ShiftDirSW();
+            
 
-            attacksWhite.King = Attacks.KingAttacks(board.KingPosition(Player.White));
-            attacksBlack.King = Attacks.KingAttacks(board.KingPosition(Player.Black));
+            Bitboard whiteAttackers;
+            Bitboard blackAttackers;
 
-            _evalMobility.EvaluateMyPieces(board, Player.White, evalInfo);
-            _evalMobility.EvaluateMyPieces(board, Player.Black, evalInfo);
+            var whiteMobility = _evalMobility.EvaluateMyPieces(board, Player.White, evalInfo, plyData, out whiteAttackers);
+            var blackMobility = _evalMobility.EvaluateMyPieces(board, Player.Black, evalInfo, plyData, out blackAttackers);
+            evalInfo.Mobility = whiteMobility.Subtract(blackMobility);
 
-            _evalKing.EvaluateMyKingAttack(board, Player.White, evalInfo);
-            _evalKing.EvaluateMyKingAttack(board, Player.Black, evalInfo);
-
+            var whiteKingAttack = _evalKing.EvaluateMyKingAttack(board, Player.White, evalInfo, plyData, whiteAttackers);
+            var blackKingAttack = _evalKing.EvaluateMyKingAttack(board, Player.Black, evalInfo, plyData, blackAttackers);
+            evalInfo.KingAttack = whiteKingAttack - blackKingAttack;
 
             //first check for unstoppable pawns, if none, then eval normal passed pawns.
             evalInfo.PawnsPassed = PawnEvaluator.EvalUnstoppablePawns(board, pawns.PassedPawns, pawns.Candidates);
             if (evalInfo.PawnsPassed == 0)
             {
-                evalInfo.PawnsPassed = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
+                evalInfo.PawnsPassed = this._evalPawns.EvalPassedPawns(board, plyData, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
             }
-
-            //evalInfo.PawnsPassed = this._evalPawns.EvalPassedPawns(board, evalInfo.Attacks, pawns.PassedPawns, pawns.Candidates, evalInfo.Workspace); ;
-            
-
 
             //shelter storm;
             if (material.DoShelter)
@@ -155,14 +151,12 @@ namespace NoraGrace.Engine.Evaluation
             if (PcSqEvaluator.UseEndGamePcSq(board, Player.White, out endGamePcSq))
             {
                 evalInfo.PcSq = endGamePcSq;
-                evalInfo.Attacks[0].Mobility = 0;
-                evalInfo.Attacks[1].Mobility = 0;
+                evalInfo.Mobility = 0;
             }
             else if (PcSqEvaluator.UseEndGamePcSq(board, Player.Black, out endGamePcSq))
             {
                 evalInfo.PcSq = endGamePcSq.Negate();
-                evalInfo.Attacks[0].Mobility = 0;
-                evalInfo.Attacks[1].Mobility = 0;
+                evalInfo.Mobility = 0;
             }
 
 
@@ -220,81 +214,6 @@ namespace NoraGrace.Engine.Evaluation
         
     }
 
-    
-    public class ChessEvalAttackInfo
-    {
-        public Bitboard PawnEast;
-        public Bitboard PawnWest;
-
-        public Bitboard Knight;
-        public Bitboard Knight2;
-        public Bitboard Bishop;
-
-        public Bitboard Rook;
-        public Bitboard Rook2;
-        public Bitboard Queen;
-        public Bitboard King;
-
-        public PhasedScore Mobility;
-
-        public int KingQueenTropism;
-        public int KingAttackerWeight;
-        public int KingAttackerCount;
-        public int KingAttackerScore;
-
-        public void Reset()
-        {
-            PawnEast = Bitboard.Empty;
-            PawnWest = Bitboard.Empty;
-            Knight = Bitboard.Empty;
-            Knight2 = Bitboard.Empty;
-            Bishop = Bitboard.Empty;
-            Rook = Bitboard.Empty;
-            Rook2 = Bitboard.Empty;
-            Queen = Bitboard.Empty;
-            King = Bitboard.Empty;
-            Mobility = 0;
-            KingQueenTropism = 24; //init to far away.
-            KingAttackerWeight = 0;
-            KingAttackerCount = 0;
-            KingAttackerScore = 0;
-        }
-
-        public Bitboard All()
-        {
-            return PawnEast | PawnWest | Knight | Knight2 | Bishop | Rook | Rook2 | Queen | King;
-        }
-
-        public int AttackCountTo(Position pos)
-        {
-            return 0
-                + (int)(((ulong)PawnEast >> (int)pos) & 1)
-                + (int)(((ulong)PawnWest >> (int)pos) & 1)
-                + (int)(((ulong)Knight >> (int)pos) & 1)
-                + (int)(((ulong)Knight2 >> (int)pos) & 1)
-                + (int)(((ulong)Bishop >> (int)pos) & 1)
-                + (int)(((ulong)Rook >> (int)pos) & 1)
-                + (int)(((ulong)Rook2 >> (int)pos) & 1)
-                + (int)(((ulong)Queen >> (int)pos) & 1)
-                + (int)(((ulong)King >> (int)pos) & 1);
-        }
-
-        public ChessEvalAttackInfo Reverse()
-        {
-            return new ChessEvalAttackInfo()
-            {
-                PawnEast = PawnEast.Reverse(),
-                PawnWest = PawnWest.Reverse(),
-                Knight = Knight.Reverse(),
-                Knight2 = Knight2.Reverse(),
-                Bishop = Bishop.Reverse(),
-                Rook = Rook.Reverse(),
-                Rook2 = Rook2.Reverse(),
-                Queen = Queen.Reverse(),
-                King = King.Reverse()
-            };
-        }
-    }
-
+   
 
 }

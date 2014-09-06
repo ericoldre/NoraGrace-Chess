@@ -234,16 +234,16 @@ namespace NoraGrace.CommandLine
                     var evalScore = _annotateEval.Eval(board, plyData);
 
                     //string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 
-                    string evalComment = string.Format("white:{0} mat:{2} watt:{7} batt:{8} pcsq:{3} mob:{4} pawns:{5} pass:{6} start:{1:F2}", 
+                    string evalComment = string.Format("white:{0} mat:{2} king:{7} pcsq:{3} mob:{4} pawns:{5} pass:{6} shelter:{8} start:{1:F2}", 
                         eval.Score, 
-                        eval.StageStartWeight, 
+                        eval.StageStartWeight.ToDouble(), 
                         eval.Material, 
                         eval.PcSqPhased, 
                         eval.MobilityPhased, 
                         eval.PawnsPhased, 
                         eval.PawnsPassedPhased, 
-                        eval.Attacks[0].KingAttackerScore,
-                        eval.Attacks[1].KingAttackerScore,
+                        eval.KingAttack,
+                        eval.ShelterStorm.ApplyScaleFactor(eval.StageStartWeight),
                         eval.PassedPawns,
                         eval.CandidatePawns);
 

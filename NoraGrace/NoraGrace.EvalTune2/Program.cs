@@ -41,7 +41,7 @@ namespace NoraGrace.EvalTune2
 
 
             ////material
-            parameters.AddRange(TunableParameter.MaterialParams());
+            //parameters.AddRange(TunableParameter.MaterialParams());
 
             //mobility
             //parameters.AddRange(TunableParameter.MobilityParams());
@@ -50,16 +50,16 @@ namespace NoraGrace.EvalTune2
             //parameters.AddRange(TunableParameter.PawnParams());
 
             ////passed pawns
-           // parameters.AddRange(TunableParameter.PassedPawnParams());
+            parameters.AddRange(TunableParameter.PassedPawnParams());
 
             ////king attacks
-            //parameters.AddRange(TunableParameter.KingSafetyParams());
+            parameters.AddRange(TunableParameter.KingSafetyParams());
 
             //pcsq
             //parameters.AddRange(TunableParameterPcSq.SelectAll());
 
 
-            Tune(parameters, "exchanges", progCB, true);
+            Tune(parameters, "passed_king", progCB, true);
             //Tune(parameters, "AllButPcSq", progCB, true);
 
             //FindRook(progCB);

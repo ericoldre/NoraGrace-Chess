@@ -60,10 +60,27 @@ namespace NoraGrace.Engine
         {
             return player == Player.White ? ChecksWhite : ChecksBlack;
         }
+
+        public CheckInfo ChecksFor(Player player, Board board)
+        {
+            var retval = player == Player.White ? ChecksWhite : ChecksBlack;
+            retval.Initialize(board);
+            return retval;
+        }
+
         public AttackInfo AttacksFor(Player player)
         {
             return player == Player.White ? AttacksWhite : AttacksBlack;
         }
+
+        public AttackInfo AttacksFor(Player player, Board board)
+        {
+            var retval = AttacksFor(player);
+            retval.Initialize(board);
+            return retval;
+        }
+        
+
     }
 
     public class SearchPlyData: PlyData

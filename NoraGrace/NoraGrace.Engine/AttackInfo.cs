@@ -33,6 +33,11 @@ namespace NoraGrace.Engine
             _player = player;
         }
 
+        public bool IsInitialized(Board board)
+        {
+            return _zobrist == board.ZobristBoard;
+        }
+
         public void Initialize(Board board)
         {
             //early exit if already set up for this position.
@@ -201,6 +206,15 @@ namespace NoraGrace.Engine
         {
             return _counts[count];
         }
+
+        public Bitboard All
+        {
+            get
+            {
+                return _counts[1];
+            }
+        }
+
         public Bitboard ByPieceType(PieceType pt)
         {
             return _byPieceType[(int)pt];

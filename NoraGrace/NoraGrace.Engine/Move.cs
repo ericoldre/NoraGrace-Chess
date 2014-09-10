@@ -147,13 +147,108 @@ namespace NoraGrace.Engine
             return false;
         }
 
+        public static bool IsLegalPsuedoMove(this Move move, Board board, AttackInfo opponentAttackInfo, CheckInfo myCheckInfo)
+        {
+            System.Diagnostics.Debug.Assert(opponentAttackInfo.IsInitialized(board));
+            System.Diagnostics.Debug.Assert(myCheckInfo.IsInitialized(board));
+            System.Diagnostics.Debug.Assert(move.MovingPlayer() == myCheckInfo.Player);
+            System.Diagnostics.Debug.Assert(move.MovingPlayer().PlayerOther() == opponentAttackInfo.Player);
+
+
+            if (myCheckInfo.IsCheck)
+            {
+                Bitboard checkers = myCheckInfo.Checkers;
+
+                if (move.MovingPieceType() == PieceType.King)
+                {
+                    //in check, king evasions
+                    if (opponentAttackInfo.All.Contains(move.To()))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        Bitboard adjustedAttacks = Bitboard.Empty;
+                        while (checkers != Bitboard.Empty)
+                        {
+                            //we could be moving to/from a sliding attack.
+                            var checkerPos = BitboardUtil.PopFirst(ref checkers);
+                            var checkerType = board.PieceAt(checkerPos).ToPieceType();
+                            switch (checkerType)
+                            {
+                                case PieceType.Bishop:
+                                    adjustedAttacks |= Attacks.BishopAttacks(checkerPos, board.PieceLocationsAll ^ move.From().ToBitboard());
+                                    break;
+                                case PieceType.Rook:
+                                    adjustedAttacks |= Attacks.RookAttacks(checkerPos, board.PieceLocationsAll ^ move.From().ToBitboard());
+                                    break;
+                                case PieceType.Queen:
+                                    adjustedAttacks |= Attacks.QueenAttacks(checkerPos, board.PieceLocationsAll ^ move.From().ToBitboard());
+                                    break;
+                            }
+                        }
+                        return !adjustedAttacks.Contains(move.To());
+                    }
+                }
+                else
+                {
+                    //in check, non king move.
+
+                    //find position of first checker
+                    var checkerPos = BitboardUtil.PopFirst(ref checkers);
+
+
+                    if (checkers != Bitboard.Empty) 
+                    { 
+                        //there are two attackers, no sense moving a non-king
+                        return false; 
+                    }
+                    if (myCheckInfo.PinnedOrDiscovered.Contains(move.From())) 
+                    {
+                        // this piece is pinned, no sense moving it
+                        return false; 
+                    } 
+
+                    //find squares between king and checker (or checker itself)
+                    Bitboard targets = checkerPos.Between(board.KingPosition(board.WhosTurn)) | checkerPos.ToBitboard();
+
+
+                    return targets.Contains(move.To()) || move.IsEnPassant();//if enpassant is available and we are in check, then must be enpassant check
+
+                    
+                }
+            }
+            else 
+            {
+                //not currently in check
+                if(move.MovingPieceType() == PieceType.King)
+                {
+                    return !opponentAttackInfo.All.Contains(move.To());    
+                }
+                else if(myCheckInfo.PinnedOrDiscovered.Contains(move.From()))
+                {
+                    //pinned piece
+                    var dirToKing = move.From().DirectionTo(board.KingPosition(move.MovingPlayer()));
+                    var dirMoving = move.From().DirectionTo(move.To());
+                    return dirMoving == dirToKing || dirMoving == dirToKing.Opposite();
+                }
+                else
+                {
+                    //normal piece, not pinned, not king
+                    return true;
+                }
+                
+            }
+
+        }
+
         public static bool IsPsuedoLegal(this Move move, Board board)
         {
             if (move == Move.EMPTY) { return false; }
 
             var from = move.From();
             var to = move.To();
-
+            
             if (move.MovingPiece() != board.PieceAt(from)) { return false; }
             if (move.CapturedPiece() != board.PieceAt(to)) { return false; }
 
@@ -186,57 +281,68 @@ namespace NoraGrace.Engine
                 case PieceType.Queen:
                     return (Attacks.QueenAttacks(from, board.PieceLocationsAll) & targets).Contains(to);
                 case PieceType.King:
-                    if ((Attacks.KingAttacks(from) & targets).Contains(to))
+                    if (move.IsCastle())
                     {
-                        return true;
+                        if (me == Player.White
+                            && from == Position.E1
+                            && to == Position.G1
+                            && board.PieceAt(Position.F1) == Piece.EMPTY
+                            && board.PieceAt(Position.G1) == Piece.EMPTY
+                            && board.PieceAt(Position.H1) == Piece.WRook
+                            && (board.CastleRights & CastleFlags.WhiteShort) == CastleFlags.WhiteShort
+                            && !board.IsCheck()
+                            && !board.AttacksTo(Position.F1).Contains(targets)
+                            && !board.AttacksTo(Position.G1).Contains(targets))
+                        {
+                            return true;
+                        }
+                        else if (me == Player.White
+                            && from == Position.E1
+                            && to == Position.C1
+                            && board.PieceAt(Position.B1) == Piece.EMPTY
+                            && board.PieceAt(Position.C1) == Piece.EMPTY
+                            && board.PieceAt(Position.D1) == Piece.EMPTY
+                            && board.PieceAt(Position.A1) == Piece.WRook
+                            && (board.CastleRights & CastleFlags.WhiteLong) == CastleFlags.WhiteLong
+                            && !board.IsCheck()
+                            && !board.AttacksTo(Position.D1).Contains(targets)
+                            && !board.AttacksTo(Position.C1).Contains(targets))
+                        {
+                            return true;
+                        }
+                        else if (me == Player.Black
+                            && from == Position.E8
+                            && to == Position.G8
+                            && board.PieceAt(Position.F8) == Piece.EMPTY
+                            && board.PieceAt(Position.G8) == Piece.EMPTY
+                            && board.PieceAt(Position.H8) == Piece.BRook
+                            && (board.CastleRights & CastleFlags.BlackShort) == CastleFlags.BlackShort
+                            && !board.IsCheck()
+                            && !board.AttacksTo(Position.F8).Contains(targets)
+                            && !board.AttacksTo(Position.G8).Contains(targets))
+                        {
+                            return true;
+                        }
+                        else if (me == Player.Black
+                            && from == Position.E8
+                            && to == Position.C8
+                            && board.PieceAt(Position.B8) == Piece.EMPTY
+                            && board.PieceAt(Position.C8) == Piece.EMPTY
+                            && board.PieceAt(Position.D8) == Piece.EMPTY
+                            && board.PieceAt(Position.A8) == Piece.BRook
+                            && (board.CastleRights & CastleFlags.BlackLong) == CastleFlags.BlackLong
+                            && !board.IsCheck()
+                            && !board.AttacksTo(Position.D8).Contains(targets)
+                            && !board.AttacksTo(Position.C8).Contains(targets))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
-                    else if (me == Player.White
-                        && from == Position.E1
-                        && to == Position.G1
-                        && board.PieceAt(Position.F1) == Piece.EMPTY
-                        && board.PieceAt(Position.G1) == Piece.EMPTY
-                        && (board.CastleRights & CastleFlags.WhiteShort) == CastleFlags.WhiteShort
-                        && !board.IsCheck()
-                        && !board.AttacksTo(Position.F1).Contains(targets)
-                        && !board.AttacksTo(Position.G1).Contains(targets))
-                    {
-                        return true;
-                    }
-                    else if (me == Player.White
-                        && from == Position.E1
-                        && to == Position.C1
-                        && board.PieceAt(Position.B1) == Piece.EMPTY
-                        && board.PieceAt(Position.C1) == Piece.EMPTY
-                        && board.PieceAt(Position.D1) == Piece.EMPTY
-                        && (board.CastleRights & CastleFlags.WhiteLong) == CastleFlags.WhiteLong
-                        && !board.IsCheck()
-                        && !board.AttacksTo(Position.D1).Contains(targets)
-                        && !board.AttacksTo(Position.C1).Contains(targets))
-                    {
-                        return true;
-                    }
-                    else if (me == Player.Black
-                        && from == Position.E8
-                        && to == Position.G8
-                        && board.PieceAt(Position.F8) == Piece.EMPTY
-                        && board.PieceAt(Position.G8) == Piece.EMPTY
-                        && (board.CastleRights & CastleFlags.BlackShort) == CastleFlags.BlackShort
-                        && !board.IsCheck()
-                        && !board.AttacksTo(Position.F8).Contains(targets)
-                        && !board.AttacksTo(Position.G8).Contains(targets))
-                    {
-                        return true;
-                    }
-                    else if (me == Player.Black
-                        && from == Position.E8
-                        && to == Position.C8
-                        && board.PieceAt(Position.B8) == Piece.EMPTY
-                        && board.PieceAt(Position.C8) == Piece.EMPTY
-                        && board.PieceAt(Position.D8) == Piece.EMPTY
-                        && (board.CastleRights & CastleFlags.BlackLong) == CastleFlags.BlackLong
-                        && !board.IsCheck()
-                        && !board.AttacksTo(Position.D8).Contains(targets)
-                        && !board.AttacksTo(Position.C8).Contains(targets))
+                    else if ((Attacks.KingAttacks(from) & targets).Contains(to))
                     {
                         return true;
                     }
@@ -306,15 +412,42 @@ namespace NoraGrace.Engine
 
         public static bool CausesCheck(this Move move, Board board, CheckInfo oppenentCheckInfo)
         {
+            System.Diagnostics.Debug.Assert(oppenentCheckInfo.IsInitialized(board));
+            System.Diagnostics.Debug.Assert(move.MovingPlayer().PlayerOther() == oppenentCheckInfo.Player);
+
             Position from = move.From();
             Position to = move.To();
             PieceType pieceType = move.MovingPieceType();
 
+            if (move.IsPromotion())
+            {
+                PieceType pieceTypeAfter = move.IsPromotion() ? move.PromoteType() : pieceType; //in case of promotion
+                Bitboard promoteAttacks = Bitboard.Empty;
+                Bitboard allPiecesAfter = board.PieceLocationsAll ^ move.From().ToBitboard() ^ move.To().ToBitboard();
+                switch (pieceTypeAfter)
+                {
+                    case PieceType.Knight:
+                        promoteAttacks = Attacks.KnightAttacks(to);
+                        break;
+                    case PieceType.Bishop:
+                        promoteAttacks = Attacks.BishopAttacks(to, allPiecesAfter);
+                        break;
+                    case PieceType.Rook:
+                        promoteAttacks = Attacks.RookAttacks(to, allPiecesAfter);
+                        break;
+                    case PieceType.Queen:
+                        promoteAttacks = Attacks.QueenAttacks(to, allPiecesAfter);
+                        break;
+                }
+                if (promoteAttacks.Contains(board.KingPosition(board.WhosTurn.PlayerOther())))
+                {
+                    return true;
+                }
+            }
             if (oppenentCheckInfo.DirectAll.Contains(to))
             {
                 bool direct = false;
-                PieceType pieceTypeAfter = move.IsPromotion() ? move.PromoteType(): pieceType; //in case of promotion
-                switch (pieceTypeAfter)
+                switch (pieceType)
                 {
                     case PieceType.Pawn:
                         direct = oppenentCheckInfo.PawnDirect.Contains(to);
@@ -333,6 +466,7 @@ namespace NoraGrace.Engine
                         break;
                 }
                 if (direct) { return true; }
+
             }
 
             if (oppenentCheckInfo.PinnedOrDiscovered.Contains(from) || move.IsEnPassant())

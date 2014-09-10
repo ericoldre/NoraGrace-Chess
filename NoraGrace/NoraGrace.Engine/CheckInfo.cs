@@ -19,15 +19,24 @@ namespace NoraGrace.Engine
         public Bitboard RookDirect { get; private set; }
         public Bitboard DirectAll { get; private set; }
         public Bitboard PinnedOrDiscovered { get; private set; }
+        public Bitboard Checkers { get; private set; }
+        public bool IsCheck { get { return Checkers != Bitboard.Empty; } }
 
         public CheckInfo(Player player)
         {
             this.Player = player;
         }
 
+        public bool IsInitialized(Board board)
+        {
+            return board.ZobristBoard == Zobrist;
+        }
+
         public void Initialize(Board board)
         {
             if (board.ZobristBoard == Zobrist) { return; }
+
+            this.Zobrist = board.ZobristBoard;
 
             CheckInfo retval = this;
             Position kingPos = board.KingPosition(Player);
@@ -40,8 +49,16 @@ namespace NoraGrace.Engine
             retval.KnightDirect = Attacks.KnightAttacks(kingPos);
             retval.BishopDirect = Attacks.BishopAttacks(kingPos, all);
             retval.RookDirect = Attacks.RookAttacks(kingPos, all);
-
             retval.DirectAll = retval.PawnDirect | retval.KnightDirect | retval.BishopDirect | retval.RookDirect;
+            
+            //find pieces currently checking king
+            Bitboard checkers = Bitboard.Empty;
+            checkers |= PawnDirect & them & board[PieceType.Pawn];
+            checkers |= KnightDirect & them & board[PieceType.Knight];
+            checkers |= BishopDirect & them & board.BishopSliders;
+            checkers |= RookDirect & them & board.RookSliders;
+            this.Checkers = checkers;
+
 
             retval.PinnedOrDiscovered = Bitboard.Empty;
 
@@ -55,14 +72,23 @@ namespace NoraGrace.Engine
             while (xray != Bitboard.Empty)
             {
                 Position xrayAttacker = BitboardUtil.PopFirst(ref xray);
-                Bitboard xrayBlockers = xrayAttacker.Between(kingPos) & all;
+                Bitboard between = xrayAttacker.Between(kingPos) & all;
 
-                Position xrayBlocker1 = BitboardUtil.PopFirst(ref xrayBlockers);
-                if (xrayBlockers == Bitboard.Empty)
+                if (between != Bitboard.Empty)
                 {
-                    //only one piece inbetween xrayAttacker and king
-                    retval.PinnedOrDiscovered |= xrayBlocker1.ToBitboard();
+                    //there are piece(s) between slider and king
+                    Position blocker = BitboardUtil.PopFirst(ref between);
+                    if (between == Bitboard.Empty)
+                    {
+                        //only one piece inbetween xrayAttacker and king, it is pinned, or a discovered attack
+                        retval.PinnedOrDiscovered |= blocker.ToBitboard();
+                    }
                 }
+                else
+                {
+                    System.Diagnostics.Debug.Assert(checkers.Contains(xrayAttacker));
+                }
+                
 
             }
         }

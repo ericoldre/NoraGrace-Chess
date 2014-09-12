@@ -510,6 +510,73 @@ namespace NoraGrace.Engine
             return false;
         }
 
+        public static int MVVLVA(this Move move)
+        {
+            System.Diagnostics.Debug.Assert(move.IsCapture() || move.IsEnPassant());
+
+            var pieceval = (int)move.MovingPieceType();
+            var capval = move.IsEnPassant() ? (int)PieceType.Pawn : (int)move.CapturedPieceType();
+
+            return (capval << 3) | (6 - pieceval);
+        }
+
+        public static bool IsSafeQuiet(this Move move, Board board, StaticExchange see, AttackInfo myAttacks, AttackInfo hisAttacks)
+        {
+            System.Diagnostics.Debug.Assert(myAttacks.IsInitialized(board));
+            System.Diagnostics.Debug.Assert(hisAttacks.IsInitialized(board));
+            System.Diagnostics.Debug.Assert(myAttacks.Player == move.MovingPlayer());
+            System.Diagnostics.Debug.Assert(hisAttacks.Player == move.MovingPlayer().PlayerOther());
+
+            System.Diagnostics.Debug.Assert(!move.IsCapture() && !move.IsEnPassant());
+
+            var piece = move.MovingPieceType();
+            var cap = move.IsEnPassant() ? PieceType.Pawn : move.CapturedPieceType();
+
+            var to = move.To().ToBitboard();
+
+            if (!hisAttacks.All.Contains(to)) { return true; }
+
+            if (hisAttacks.LessThan(piece).Contains(to)) { return false; }
+
+            if (myAttacks.ByCount(2).Contains(to) && !hisAttacks.ByCount(2).Contains(to)) { return true; }
+
+            //or maybe SEE here
+            return false;
+
+        }
+
+        public static bool IsGoodCapture(this Move move, Board board, StaticExchange see, AttackInfo myAttacks, AttackInfo hisAttacks)
+        {
+            System.Diagnostics.Debug.Assert(myAttacks.IsInitialized(board));
+            System.Diagnostics.Debug.Assert(hisAttacks.IsInitialized(board));
+            System.Diagnostics.Debug.Assert(myAttacks.Player == move.MovingPlayer());
+            System.Diagnostics.Debug.Assert(hisAttacks.Player == move.MovingPlayer().PlayerOther());
+
+            System.Diagnostics.Debug.Assert(move.IsCapture() || move.IsEnPassant());
+
+            var piece = move.MovingPieceType();
+            var cap = move.IsEnPassant() ? PieceType.Pawn : move.CapturedPieceType();
+
+            if (piece.BasicVal() >= cap.BasicVal()) { return true; }
+
+            var to = move.To().ToBitboard();
+
+            if (!hisAttacks.All.Contains(to)) { return true; }
+
+            if (hisAttacks.LessThan(piece).Contains(to)) { return false; }
+
+            if (myAttacks.ByCount(2).Contains(to))
+            {
+                return see.CalculateScore(board, move) >= 0;
+            }
+            else
+            {
+                return false;
+            }
+
+
+
+        }
     }
 
 

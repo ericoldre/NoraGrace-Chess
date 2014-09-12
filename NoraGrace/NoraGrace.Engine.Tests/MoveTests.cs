@@ -12,6 +12,26 @@ namespace Sinobyl.Engine.Tests
     [TestClass]
     public class MoveTests
     {
+
+        [TestMethod]
+        public void Move_MVVLVATest()
+        {
+            var pn = MoveUtil.Create(Position.A3, Position.A4, Piece.WPawn, Piece.BKnight);
+            var nn = MoveUtil.Create(Position.A3, Position.A4, Piece.WKnight, Piece.BKnight);
+            var qn = MoveUtil.Create(Position.A3, Position.A4, Piece.WQueen, Piece.BKnight);
+            var qp = MoveUtil.Create(Position.A3, Position.A4, Piece.WQueen, Piece.BPawn);
+
+            var pnval = pn.MVVLVA();
+            var nnval = nn.MVVLVA();
+            var qnval = qn.MVVLVA();
+            var qpval = qp.MVVLVA();
+
+            Assert.IsTrue(pn.MVVLVA() > nn.MVVLVA());
+            Assert.IsTrue(nn.MVVLVA() > qn.MVVLVA());
+            Assert.IsTrue(qn.MVVLVA() > qp.MVVLVA());
+
+        }
+
         [TestMethod]
         public void Move_IsLegalPsuedoMoveTest()
         {
@@ -100,6 +120,8 @@ namespace Sinobyl.Engine.Tests
                 yield return pgn;
             }
         }
+
+
 
     }
 }

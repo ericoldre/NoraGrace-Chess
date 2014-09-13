@@ -14,6 +14,56 @@ namespace Sinobyl.Engine.Tests
     {
 
         [TestMethod]
+        public void Move_IsGoodCap_IsSafeQuiet_Tests()
+        {
+            StaticExchange staticExchange = new StaticExchange();
+            MovePicker movePicker = new MovePicker(new MovePicker.MoveHistory(), staticExchange);
+            PlyData plyData = new PlyData();
+
+            foreach (var pgn in GetPgns().Take(500))
+            {
+                Board board = new Board(pgn.StartingPosition);
+
+                foreach (var gameMove in pgn.Moves)
+                {
+                    board.MoveApply(gameMove);
+                    movePicker.Initialize(board, plyData);
+
+                    var myAttacks = plyData.AttacksFor(board.WhosTurn);
+                    var hisAttacks = plyData.AttacksFor(board.WhosTurn.PlayerOther());
+
+                    ChessMoveData moveData;
+                    while((moveData = movePicker.NextMoveData()).Move != Move.EMPTY)
+                    {
+                        Move move = moveData.Move;
+
+                        if (move.IsCapture() || move.IsEnPassant())
+                        {
+                            bool isGood = move.IsGoodCapture(board, staticExchange, myAttacks, hisAttacks);
+                            int seeScore = staticExchange.CalculateScore(board, move);
+                            if (isGood != (seeScore >= 0))
+                            {
+                                bool isGood2 = move.IsGoodCapture(board, staticExchange, myAttacks, hisAttacks);
+                            }
+                            Assert.IsTrue(isGood == (seeScore >= 0));
+                        }
+                        else
+                        {
+                            bool isSafe = move.IsSafeQuiet(board, staticExchange, myAttacks, hisAttacks);
+                            int seeScore = staticExchange.CalculateScore(board, move);
+                            if (isSafe != (seeScore >= 0))
+                            {
+                                bool isSafe2 = move.IsSafeQuiet(board, staticExchange, myAttacks, hisAttacks);
+                            }
+                            Assert.IsTrue(isSafe == (seeScore >= 0));
+                        }
+
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void Move_MVVLVATest()
         {
             var pn = MoveUtil.Create(Position.A3, Position.A4, Piece.WPawn, Piece.BKnight);
@@ -38,7 +88,7 @@ namespace Sinobyl.Engine.Tests
             MovePicker mp = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
             PlyData pd = new PlyData();
             
-            foreach(var pgn in GetPgns())
+            foreach(var pgn in GetPgns().Take(500))
             {
                 Board board = new Board(pgn.StartingPosition);
                 List<Move> prevWhite = null;

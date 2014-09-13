@@ -529,10 +529,34 @@ namespace NoraGrace.Engine
 
             System.Diagnostics.Debug.Assert(!move.IsCapture() && !move.IsEnPassant());
 
-            var piece = move.MovingPieceType();
-            var cap = move.IsEnPassant() ? PieceType.Pawn : move.CapturedPieceType();
+            //return see.CalculateScore(board, move) >= 0;
 
+            var piece = move.MovingPieceType();
+           
+
+            var from = move.From().ToBitboard();
             var to = move.To().ToBitboard();
+
+            
+
+            //Bitboard hisPieces = board[board.WhosTurn.PlayerOther()];
+
+            //if(piece.IsSliderDiag() //i am a bishop/queen
+            //    && hisAttacks.BySliderBishop.Contains(from) //currently attacked by bishop
+            //    && !myAttacks.ByCount(2).Contains(to) // no extra backup where moving to
+            //    && Attacks.BishopAttacks(move.To(), board.PieceLocationsAll ^ from).Contains(board.BishopSliders & hisPieces))
+            //{
+            //    return false;
+            //}
+
+            //if (piece.IsSliderHorizontal() //i am a rook/queen
+            //    && hisAttacks.BySliderRook.Contains(from) //currently attacked by rook
+            //    && !myAttacks.ByCount(2).Contains(to) // no extra backup where moving to
+            //    && Attacks.RookAttacks(move.To(), board.PieceLocationsAll ^ from).Contains(board.RookSliders & hisPieces))
+            //{
+            //    return false;
+            //}
+
 
             if (!hisAttacks.All.Contains(to)) { return true; }
 
@@ -541,7 +565,7 @@ namespace NoraGrace.Engine
             if (myAttacks.ByCount(2).Contains(to) && !hisAttacks.ByCount(2).Contains(to)) { return true; }
 
             //or maybe SEE here
-            return false;
+            return see.CalculateScore(board, move) >= 0;
 
         }
 
@@ -554,10 +578,12 @@ namespace NoraGrace.Engine
 
             System.Diagnostics.Debug.Assert(move.IsCapture() || move.IsEnPassant());
 
+            return see.CalculateScore(board, move) >= 0;
+
             var piece = move.MovingPieceType();
             var cap = move.IsEnPassant() ? PieceType.Pawn : move.CapturedPieceType();
 
-            if (piece.BasicVal() >= cap.BasicVal()) { return true; }
+            if (cap.BasicVal() >= piece.BasicVal()) { return true; }
 
             var to = move.To().ToBitboard();
 

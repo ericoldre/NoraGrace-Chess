@@ -19,12 +19,14 @@ namespace NoraGrace.Engine
         private readonly Bitboard[] _byPieceType = new Bitboard[PieceTypeUtil.LookupArrayLength];
         private readonly Bitboard[] _lessThan = new Bitboard[PieceTypeUtil.LookupArrayLength];
         private readonly Bitboard[] _counts = new Bitboard[MAX_ATTACK_COUNT + 1];
-        
+
+        public Bitboard BySliderBishop { get; private set; }
+        public Bitboard BySliderRook { get; private set; }
 
 
         public long Zobrist { get { return _zobrist; } }
         public Player Player { get { return _player; } }
-              
+
         
         
 
@@ -180,6 +182,8 @@ namespace NoraGrace.Engine
             _lessThan[(int)PieceType.Queen] = _lessThan[(int)PieceType.Rook] | _byPieceType[(int)PieceType.Rook];
             _lessThan[(int)PieceType.King] = _counts[1];
 
+            BySliderBishop = _byPieceType[(int)PieceType.Bishop] | _byPieceType[(int)PieceType.Queen];
+            BySliderRook = _byPieceType[(int)PieceType.Rook] | _byPieceType[(int)PieceType.Queen];
         }
 
 

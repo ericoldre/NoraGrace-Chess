@@ -250,19 +250,19 @@ namespace NoraGrace.EvalTune2
 
 
 
-        private static IList<MovePicker> _mpsQuiet;
+        private static SearchData _mpsQuiet;
         public static bool PositionQuiet(Board board)
         {
-            if (_mpsQuiet == null) { _mpsQuiet = MovePicker.CreateStack(); }
+            if (_mpsQuiet == null) { _mpsQuiet = new SearchData(Engine.Evaluation.Evaluator.Default); }
             var x = QSearchQuiet(board, _mpsQuiet);
             return x <= 0;
         }
 
-        private static int QSearchQuiet(Board board, IList<MovePicker> moveStack, int ply = 0)
+        private static int QSearchQuiet(Board board, SearchData moveStack, int ply = 0)
         {
             if (ply >= 10) { return 0; }
-            var plyMoves = moveStack[ply];
-            plyMoves.Initialize(board, Move.EMPTY, !board.IsCheck());
+            var plyMoves = moveStack[ply].MoveGenerator;
+            plyMoves.Initialize(board, moveStack[ply], Move.EMPTY, !board.IsCheck());
             ChessMoveData moveData;
             //Bitboard taken = Bitboard.Empty;
 

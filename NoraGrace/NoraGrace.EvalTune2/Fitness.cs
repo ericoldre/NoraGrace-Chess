@@ -129,57 +129,57 @@ namespace NoraGrace.EvalTune2
             return board.WhosTurn == Player.White ? playerScore : -playerScore;
         }
 
-        public static int qSearch(Board board, Evaluator evaluator, IList<MovePicker> moveStack, out int resultDepth, int ply = 0, int alpha = Evaluator.MinValue, int beta = Evaluator.MaxValue)
-        {
-            resultDepth = 0;
-            var me = board.WhosTurn;
-            var ischeck = board.IsCheck();
-            if (!ischeck)
-            {
-                int staticEval = evaluator.EvalFor(board, me);
-                if (staticEval >= beta) { return beta; }
-                alpha = Math.Max(alpha, staticEval);
-            }
+        //public static int qSearch(Board board, Evaluator evaluator, IList<MovePicker> moveStack, out int resultDepth, int ply = 0, int alpha = Evaluator.MinValue, int beta = Evaluator.MaxValue)
+        //{
+        //    resultDepth = 0;
+        //    var me = board.WhosTurn;
+        //    var ischeck = board.IsCheck();
+        //    if (!ischeck)
+        //    {
+        //        int staticEval = evaluator.EvalFor(board, me);
+        //        if (staticEval >= beta) { return beta; }
+        //        alpha = Math.Max(alpha, staticEval);
+        //    }
 
-            var plyMoves = moveStack[ply];
-            plyMoves.Initialize(board, Move.EMPTY, !ischeck);
-            ChessMoveData moveData;
-            //Bitboard taken = Bitboard.Empty;
+        //    var plyMoves = moveStack[ply];
+        //    plyMoves.Initialize(board, Move.EMPTY, !ischeck);
+        //    ChessMoveData moveData;
+        //    //Bitboard taken = Bitboard.Empty;
 
-            while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
-            {
-                Move move = moveData.Move;
+        //    while ((moveData = plyMoves.NextMoveData()).Move != Move.EMPTY)
+        //    {
+        //        Move move = moveData.Move;
 
-                if (!ischeck)
-                {
-                    if (moveData.SEE < 0) { continue; }
-                    //if ((move.To().ToBitboard() & taken) != Bitboard.Empty) { continue; }
-                }
-                //taken |= move.To().ToBitboard();
+        //        if (!ischeck)
+        //        {
+        //            if (moveData.SEE < 0) { continue; }
+        //            //if ((move.To().ToBitboard() & taken) != Bitboard.Empty) { continue; }
+        //        }
+        //        //taken |= move.To().ToBitboard();
 
-                board.MoveApply(move);
+        //        board.MoveApply(move);
 
-                if (board.IsCheck(board.WhosTurn.PlayerOther()))
-                {
-                    board.MoveUndo();
-                    continue;
-                }
-                int childResultDepth;
-                var score = -qSearch(board, evaluator, moveStack, out childResultDepth, ply + 1, -beta, -alpha);
+        //        if (board.IsCheck(board.WhosTurn.PlayerOther()))
+        //        {
+        //            board.MoveUndo();
+        //            continue;
+        //        }
+        //        int childResultDepth;
+        //        var score = -qSearch(board, evaluator, moveStack, out childResultDepth, ply + 1, -beta, -alpha);
 
 
-                board.MoveUndo();
+        //        board.MoveUndo();
 
-                if (score > alpha)
-                {
-                    resultDepth = childResultDepth + 1;
-                }
-                if (score >= beta) { return beta; }
-                alpha = Math.Max(alpha, score);
+        //        if (score > alpha)
+        //        {
+        //            resultDepth = childResultDepth + 1;
+        //        }
+        //        if (score >= beta) { return beta; }
+        //        alpha = Math.Max(alpha, score);
 
-            }
-            return alpha;
+        //    }
+        //    return alpha;
 
-        }
+        //}
     }
 }

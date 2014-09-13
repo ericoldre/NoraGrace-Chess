@@ -51,7 +51,7 @@ namespace Sinobyl.Engine.Tests
                     var me = board.WhosTurn;
                     var him = me.PlayerOther();
 
-                    mp.Initialize(board, Move.EMPTY, false);
+                    mp.Initialize(board, pd, Move.EMPTY, false);
                     var myAttacks = pd.AttacksFor(me, board);
                     var hisAttacks = pd.AttacksFor(him, board);
                     var myChecks = pd.ChecksFor(me, board);

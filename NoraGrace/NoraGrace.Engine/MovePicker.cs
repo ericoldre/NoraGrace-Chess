@@ -139,6 +139,8 @@ namespace NoraGrace.Engine
 
         private Move _ttMove;
         private Board _board;
+        private AttackInfo _myAttacks;
+        private AttackInfo _hisAttacks;
         private long _boardZob;
         private bool _capsOnly;
         private GeneratorStep _currStep;
@@ -157,10 +159,12 @@ namespace NoraGrace.Engine
             _see = see;
         }
 
-        public void Initialize(Board board, Move ttMove = Move.EMPTY, bool capsOnly = false)
+        public void Initialize(Board board, PlyData plyData, Move ttMove = Move.EMPTY, bool capsOnly = false)
         {
             _board = board;
             _boardZob = board.ZobristBoard;
+            _myAttacks = plyData.AttacksFor(board.WhosTurn, board);
+            _hisAttacks = plyData.AttacksFor(board.WhosTurn.PlayerOther(), board);
             _ttMove = ttMove;
             _capsOnly = capsOnly;
             _currStep = 0;

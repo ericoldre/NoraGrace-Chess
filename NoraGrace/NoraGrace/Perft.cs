@@ -120,10 +120,10 @@ namespace NoraGrace.CommandLine
             //Console.WriteLine("fen: " + fen);
             int depth;
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var buffer = MovePicker.CreateStack();
+            var sdata = new SearchData(Evaluator.Default);
             for (depth = 2; nodesDone < nodeCount; depth++)
             {
-                PerftSearch(board,0,buffer, depth, nodeCount, ref nodesDone, doEval, doMoveSort);
+                PerftSearch(board, 0, sdata, depth, nodeCount, ref nodesDone, doEval, doMoveSort);
                 //Console.WriteLine(string.Format("depth:{0} nodes:{1} milliseconds:{2}", depth, nodesDone, sw.ElapsedMilliseconds));
             }
             sw.Stop();
@@ -132,7 +132,7 @@ namespace NoraGrace.CommandLine
             return sw.Elapsed;
         }
 
-        public static void PerftSearch(Board board, int ply, IList<MovePicker> buffer, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
+        public static void PerftSearch(Board board, int ply, SearchData sdata, int depth_remaining, int nodeCount, ref int nodesDone, bool doEval, bool doMoveSort)
         {
             nodesDone++;
             if (doEval)
@@ -148,9 +148,9 @@ namespace NoraGrace.CommandLine
                 return;
             }
 
-            
-            var moveBuffer = buffer[ply];
-            moveBuffer.Initialize(board);
+
+            var moveBuffer = sdata[ply].MoveGenerator;
+            moveBuffer.Initialize(board, sdata[ply]);
 
             //System.Diagnostics.Debug.Assert(moves.Count == moveBuffer.MoveCount);
             
@@ -176,7 +176,7 @@ namespace NoraGrace.CommandLine
 
                 if (!board.IsCheck(board.WhosTurn.PlayerOther()))
                 {
-                    PerftSearch(board, ply + 1, buffer, depth_remaining - 1, nodeCount, ref nodesDone, doEval, doMoveSort);
+                    PerftSearch(board, ply + 1, sdata, depth_remaining - 1, nodeCount, ref nodesDone, doEval, doMoveSort);
                 }
 
                 board.MoveUndo();

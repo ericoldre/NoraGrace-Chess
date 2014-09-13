@@ -118,8 +118,9 @@ namespace NoraGrace.Engine.Tests
             int nodecount = -1;//start at -1 to skip root node
             int leafnodecount = 0;
             MovePicker[] moveBuffer = MovePicker.CreateStack();
+            SearchData sdata = new SearchData(Evaluation.Evaluator.Default);
 
-            PerftSearch(board, 0, moveBuffer, depth, ref nodecount, ref leafnodecount);
+            PerftSearch(board, 0, sdata, depth, ref nodecount, ref leafnodecount);
 
             string fenEnd = board.FENCurrent.ToString();
 
@@ -129,7 +130,7 @@ namespace NoraGrace.Engine.Tests
 
         }
 
-        public void PerftSearch(Board board, int ply, IList<MovePicker> moveBuffer, int depth_remaining, ref int nodecount, ref int leafnodecount)
+        public void PerftSearch(Board board, int ply, SearchData sdata, int depth_remaining, ref int nodecount, ref int leafnodecount)
         {
             nodecount++;
 
@@ -139,8 +140,8 @@ namespace NoraGrace.Engine.Tests
                 return;
             }
 
-            var plyBuffer = moveBuffer[ply];
-            plyBuffer.Initialize(board);
+            var plyBuffer = sdata[ply].MoveGenerator;
+            plyBuffer.Initialize(board, sdata[ply]);
 
 
             foreach (Move move in plyBuffer.SortedMoves())
@@ -151,7 +152,7 @@ namespace NoraGrace.Engine.Tests
                 if (!board.IsCheck(board.WhosTurn.PlayerOther()))
                 {
                     //legalMoves.Add(move);
-                    PerftSearch(board, ply + 1, moveBuffer, depth_remaining - 1, ref nodecount, ref leafnodecount);
+                    PerftSearch(board, ply + 1, sdata, depth_remaining - 1, ref nodecount, ref leafnodecount);
                 }
 
                 board.MoveUndo();
@@ -194,7 +195,7 @@ namespace NoraGrace.Engine.Tests
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
 
-            picker.Initialize(board, Move.EMPTY, false);
+            picker.Initialize(board, new PlyData(), Move.EMPTY, false);
 
             AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves());
 
@@ -207,7 +208,7 @@ namespace NoraGrace.Engine.Tests
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
             picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveUtil.Parse(board, "a3a4") }, SearchDepth.PLY);
-            picker.Initialize(board, MoveUtil.Parse(board, "f3g4"), false);
+            picker.Initialize(board, new PlyData(), MoveUtil.Parse(board, "f3g4"), false);
 
             AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves());
 
@@ -220,7 +221,7 @@ namespace NoraGrace.Engine.Tests
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
             picker.RegisterCutoff(board, new ChessMoveData() { Move = MoveUtil.Parse(board, "d3e4") }, SearchDepth.PLY);
-            picker.Initialize(board, MoveUtil.Parse(board, "f3g4"), false);
+            picker.Initialize(board, new PlyData(), MoveUtil.Parse(board, "f3g4"), false);
 
             AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves());
 
@@ -233,7 +234,7 @@ namespace NoraGrace.Engine.Tests
             Board board = new Board(fen);
             MovePicker picker = new MovePicker(new MovePicker.MoveHistory(), new StaticExchange());
             picker.RegisterCutoff(new Board("5rk1/pbr1q1pp/3pp3/2p5/1PP3n1/P2BPP2/1B2Q1PP/1R1R2K1 w - - 0 22"), new ChessMoveData() { Move = MoveUtil.Parse(board, "d3f5") }, SearchDepth.PLY);
-            picker.Initialize(board, MoveUtil.Parse(board, "f3g4"), false);
+            picker.Initialize(board, new PlyData(), MoveUtil.Parse(board, "f3g4"), false);
 
             AssertSameMove(MoveUtil.GenMoves(board), picker.SortedMoves().ToList());
 

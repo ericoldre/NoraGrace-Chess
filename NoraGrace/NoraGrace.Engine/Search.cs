@@ -746,7 +746,7 @@ namespace NoraGrace.Engine
 
 
             var plyMoves = sdata[ply].MoveGenerator;
-            plyMoves.Initialize(board, tt_move, false);
+            plyMoves.Initialize(board, sdata[ply], tt_move, false);
 
 			TranspositionTable.EntryType tt_entryType = TranspositionTable.EntryType.AtMost;
 
@@ -971,7 +971,7 @@ namespace NoraGrace.Engine
 			}
 
             var plyMoves = sdata[ply].MoveGenerator;
-            plyMoves.Initialize(board, Move.EMPTY, !playerincheck);
+            plyMoves.Initialize(board, sdata[ply], Move.EMPTY, !playerincheck);
 
 			//ChessMove.Comp moveOrderer = new ChessMove.Comp(board,ChessMoveInfo.Create(),false);
 			//moves.Sort(moveOrderer);

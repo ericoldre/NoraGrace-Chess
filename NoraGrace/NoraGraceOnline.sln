@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoraGrace.Engine", "NoraGrace.Engine\NoraGrace.Engine.csproj", "{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoraGrace.Engine.Tests", "NoraGrace.Engine.Tests\NoraGrace.Engine.Tests.csproj", "{700B6C8C-87BD-497F-952B-7BB09DC15111}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05EEFB23-3452-471F-8122-4EA334DBEC07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{677C3724-192D-47EC-A3EB-F907AE6CD782}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Release|Win32.ActiveCfg = Release|Any CPU
+		{E86F13A0-CC65-4E3C-AA5F-030CE93D36B7}.Release|x86.ActiveCfg = Release|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Release|Any CPU.Build.0 = Release|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Release|Win32.ActiveCfg = Release|Any CPU
+		{700B6C8C-87BD-497F-952B-7BB09DC15111}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{700B6C8C-87BD-497F-952B-7BB09DC15111} = {677C3724-192D-47EC-A3EB-F907AE6CD782}
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Sinobyl.vsmdi
+	EndGlobalSection
+EndGlobal

@@ -25,12 +25,20 @@ namespace NoraGrace.Web.Model
             return result;
         }
 
-        public GameInfo Create()
+        public GameInfo Create(GameCreateOptions options)
         {
-            return null;
+            Sql.Game game = new Sql.Game()
+            {
+                White = options.White,
+                Black = options.Black
+            };
+            _context.Games.Add(game);
+            _context.SaveChanges();
+            var result = GameInfo.CreateFromDb(game);
+            return result;
         }
 
-        public GameInfo CreateMove(int GameId, int Ply, int Move)
+        public GameInfo ApplyMove(int GameId, int Ply, int Move)
         {
             return null;
         }

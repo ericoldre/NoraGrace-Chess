@@ -11,7 +11,7 @@ namespace NoraGrace.Sql
     {
         public ChessDb() : base()
         {
-            Database.SetInitializer<ChessDb>(new DropCreateDatabaseIfModelChanges<ChessDb>());
+            //Database.SetInitializer<ChessDb>(new DropCreateDatabaseAlways<ChessDb>());
         }
 
         public virtual DbSet<Game> Games { get; set; }

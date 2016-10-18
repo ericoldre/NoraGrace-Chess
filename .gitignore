@@ -72,3 +72,4 @@ packages/
 #Performance profiler files.
 *.psess
 *.vspx
+/NoraGrace/WindowsAzure1

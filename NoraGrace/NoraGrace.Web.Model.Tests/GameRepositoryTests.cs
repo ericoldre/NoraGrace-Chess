@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Collections.Generic;
 using NoraGrace.Sql;
+using NoraGrace.Engine;
 
 namespace NoraGrace.Web.Model.Tests
 {
@@ -58,6 +59,28 @@ namespace NoraGrace.Web.Model.Tests
             Assert.IsInstanceOfType(result, typeof(GameInfo));
             //Assert.AreEqual(0, result.);
         }
+
+        [TestMethod]
+        public void ApplyMoveAddsMove()
+        {
+
+            var db = new MoqChessDb();
+            var game = new Sql.Game() { GameId = 64, White = "white", Black = "black" };
+            db.GamesInMemory.Add(game);
+
+            var repo = new GameRepository(db.Object);
+
+            Engine.Move move = MoveUtil.Create(Position.A2, Position.A2, Piece.WPawn, Piece.EMPTY);
+
+            var result = repo.ApplyMove(64, 1, move);
+
+            Assert.AreEqual<int>(1, game.Moves.Count);
+
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(GameInfo));
+            //Assert.AreEqual(0, result.);
+        }
+
 
         //[TestMethod]
         //public void CanUseIncludeWithMocks()

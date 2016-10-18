@@ -38,9 +38,27 @@ namespace NoraGrace.Web.Model
             return result;
         }
 
-        public GameInfo ApplyMove(int GameId, int Ply, int Move)
+        public GameInfo ApplyMove(int gameId, int Ply, Engine.Move Move)
         {
+            var dbgame = _context.Games.Include(g => g.Moves).FirstOrDefault(g => g.GameId == gameId);
+
             return null;
         }
+
+        public static class Utils
+        {
+            public static Engine.Board DbGame2Board(Sql.Game dbGame)
+            {
+                Engine.Board board = new Engine.Board();
+
+                foreach (var dbMove in dbGame.Moves)
+                {
+                   //Engine.MoveUtil.IsLegal(dbMove.m)
+                }
+
+                return board;
+            }
+        }
+
     }
 }

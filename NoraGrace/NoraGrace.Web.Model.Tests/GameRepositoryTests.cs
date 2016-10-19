@@ -70,15 +70,11 @@ namespace NoraGrace.Web.Model.Tests
 
             var repo = new GameRepository(db.Object);
 
-            Engine.Move move = MoveUtil.Create(Position.A2, Position.A2, Piece.WPawn, Piece.EMPTY);
-
-            var result = repo.ApplyMove(64, 1, move);
+            var result = repo.ApplyMove(64, 1, Player.White, "a4");
 
             Assert.AreEqual<int>(1, game.Moves.Count);
-
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(GameInfo));
-            //Assert.AreEqual(0, result.);
+            db.Verify(m => m.SaveChanges(), Times.Once());
+            
         }
 
 

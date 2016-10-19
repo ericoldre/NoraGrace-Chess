@@ -15,11 +15,15 @@ namespace NoraGrace.Sql
         [Key]
         [Column(Order = 1)]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Ply { get; set; }
+        public int MoveNumber { get; set; }
 
-        public NoraGrace.Engine.Position From { get; set; }
-        public NoraGrace.Engine.Position To { get; set; }
-        public NoraGrace.Engine.Piece? Promote { get; set; }
+        [Key]
+        [Column(Order = 2)]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public NoraGrace.Engine.Player Player{ get; set; }
+
+
+        public NoraGrace.Engine.Move Value { get; set; }
 
     }
 }

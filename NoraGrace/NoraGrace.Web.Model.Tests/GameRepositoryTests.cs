@@ -26,6 +26,7 @@ namespace NoraGrace.Web.Model.Tests
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(GameInfo));
             Assert.AreEqual(game.GameId, result.GameId);
+            GameInfoTests.AssertValidGameInfo(result);
         }
 
         [TestMethod]
@@ -46,6 +47,7 @@ namespace NoraGrace.Web.Model.Tests
             Assert.AreEqual<int>(1, db.GamesInMemory.Count);
             db.GamesMock.Verify(g => g.Add(It.IsAny<Game>()), Times.Once());
             db.Verify(m => m.SaveChanges(), Times.Once());
+            GameInfoTests.AssertValidGameInfo(result);
         }
 
         [TestMethod]
@@ -57,6 +59,7 @@ namespace NoraGrace.Web.Model.Tests
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(GameInfo));
+            GameInfoTests.AssertValidGameInfo(result);
             //Assert.AreEqual(0, result.);
         }
 
@@ -74,7 +77,8 @@ namespace NoraGrace.Web.Model.Tests
 
             Assert.AreEqual<int>(1, game.Moves.Count);
             db.Verify(m => m.SaveChanges(), Times.Once());
-            
+            GameInfoTests.AssertValidGameInfo(result);
+
         }
 
 

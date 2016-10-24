@@ -12,14 +12,16 @@ namespace NoraGrace.Web.Model.Tests
     public class MoqChessDb: Moq.Mock<NoraGrace.Sql.ChessDb>
     {
 
-        public readonly List<Sql.Game> GamesInMemory = new List<Game>();
-        public readonly List<Sql.Move> MovesInMemory = new List<Move>();
+        public readonly System.Collections.ObjectModel.ObservableCollection<Sql.Game> GamesInMemory = new System.Collections.ObjectModel.ObservableCollection<Game>();
+        public readonly System.Collections.ObjectModel.ObservableCollection<Sql.Move> MovesInMemory = new System.Collections.ObjectModel.ObservableCollection<Move>();
 
         public readonly Mock<DbSet<Sql.Game>> GamesMock;
         public readonly Mock<DbSet<Sql.Move>> MovesMock;
         
         public MoqChessDb()
         {
+            GamesInMemory.CollectionChanged += GamesInMemory_CollectionChanged;
+
             this.GamesMock = CreateMockDbSet(GamesInMemory);
             this.MovesMock = CreateMockDbSet(MovesInMemory);
 
@@ -29,7 +31,21 @@ namespace NoraGrace.Web.Model.Tests
             
         }
 
-        private static Mock<System.Data.Entity.DbSet<T>> CreateMockDbSet<T>(List<T> list) where T : class
+        private void GamesInMemory_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if(e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                var needGameIds = e.NewItems.OfType<Sql.Game>().Where(g => g.GameId == default(int)).ToArray();
+                var nextId = 1;
+                if (GamesInMemory.Count > 0) { nextId = GamesInMemory.Max(g => g.GameId) + 1; }
+                foreach(var g in needGameIds)
+                {
+                    g.GameId = nextId++;
+                }
+            }
+        }
+
+        private static Mock<System.Data.Entity.DbSet<T>> CreateMockDbSet<T>(IList<T> list) where T : class
         {
             IQueryable<T> queryable = list.AsQueryable<T>();
             var mockSet = new Mock<DbSet<T>>();

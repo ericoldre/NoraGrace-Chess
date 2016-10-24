@@ -38,7 +38,8 @@ namespace NoraGrace.Web.Controllers
         // GET: DbGames/Create
         public ActionResult Create()
         {
-            return View();
+            ViewModels.Games.CreateViewModel vm = new ViewModels.Games.CreateViewModel();
+            return View(vm);
         }
 
         // POST: DbGames/Create
@@ -46,16 +47,17 @@ namespace NoraGrace.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "GameId,White,Black,Result,ResultReason")] DbGame dbGame)
+        public ActionResult Create(ViewModels.Games.CreateViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                db.Games.Add(dbGame);
-                db.SaveChanges();
+                NoraGrace.Web.Model.GameService gameService = new Model.GameService(db);
+                var created = gameService.Create(new Model.GameCreateOptions() { White = viewModel.White, Black = viewModel.Black });
+
                 return RedirectToAction("Index");
             }
 
-            return View(dbGame);
+            return View(viewModel);
         }
 
         // GET: DbGames/Edit/5

@@ -12,10 +12,13 @@ namespace NoraGrace.Web.Model.Tests
     [TestClass]
     public class GameServiceTests
     {
+
+        private static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(GameService));
+
         [TestMethod]
         public void FindReturnsGameInfo()
         {
-
+            _log.Debug("");
             var game = new Sql.Game() { GameId = 64, White = "white", Black = "black", Result = Engine.GameResult.Draw, ResultReason = Engine.GameResultReason.Unknown };
             var db = new MoqChessDb();
 

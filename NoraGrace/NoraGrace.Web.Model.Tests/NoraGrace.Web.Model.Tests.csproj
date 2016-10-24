@@ -72,7 +72,7 @@
     <Compile Include="GameInfoTests.cs" />
     <Compile Include="MoqChessDb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GameRepositoryTests.cs" />
+    <Compile Include="GameServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

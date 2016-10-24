@@ -10,7 +10,7 @@ using NoraGrace.Engine;
 namespace NoraGrace.Web.Model.Tests
 {
     [TestClass]
-    public class GameRepositoryTests
+    public class GameServiceTests
     {
         [TestMethod]
         public void FindReturnsGameInfo()
@@ -21,7 +21,7 @@ namespace NoraGrace.Web.Model.Tests
 
             db.GamesInMemory.Add(game);
 
-            var repo = new GameRepository(db.Object);
+            var repo = new GameService(db.Object);
             var result = repo.Find(64);
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(GameInfo));
@@ -34,7 +34,7 @@ namespace NoraGrace.Web.Model.Tests
         public void FindThrowsOutOfRangeException()
         {
             var db = new MoqChessDb();
-            var repo = new GameRepository(db.Object);
+            var repo = new GameService(db.Object);
             var result = repo.Find(64);
         }
 
@@ -42,7 +42,7 @@ namespace NoraGrace.Web.Model.Tests
         public void CreateInsertsToDB()
         {
             var db = new MoqChessDb();
-            var repo = new GameRepository(db.Object);
+            var repo = new GameService(db.Object);
             var result = repo.Create(new GameCreateOptions());
             Assert.AreEqual<int>(1, db.GamesInMemory.Count);
             db.GamesMock.Verify(g => g.Add(It.IsAny<Game>()), Times.Once());
@@ -54,7 +54,7 @@ namespace NoraGrace.Web.Model.Tests
         public void CreateReturnsGameInfo()
         {
             var db = new MoqChessDb();
-            var repo = new GameRepository(db.Object);
+            var repo = new GameService(db.Object);
             var result = repo.Create(new GameCreateOptions());
 
             Assert.IsNotNull(result);
@@ -71,7 +71,7 @@ namespace NoraGrace.Web.Model.Tests
             var game = new Sql.Game() { GameId = 64, White = "white", Black = "black" };
             db.GamesInMemory.Add(game);
 
-            var repo = new GameRepository(db.Object);
+            var repo = new GameService(db.Object);
 
             var result = repo.ApplyMove(64, 1, Player.White, "a4");
 

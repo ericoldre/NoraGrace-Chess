@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="GameCreateOptions.cs" />
     <Compile Include="GameInfo.cs" />
-    <Compile Include="GameRepository.cs" />
+    <Compile Include="GameService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

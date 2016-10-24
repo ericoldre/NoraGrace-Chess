@@ -8,12 +8,12 @@ using NoraGrace.Engine;
 
 namespace NoraGrace.Web.Model
 {
-    public class GameRepository
+    public class GameService
     {
 
         private readonly NoraGrace.Sql.ChessDb _context;
 
-        public GameRepository(NoraGrace.Sql.ChessDb context)
+        public GameService(NoraGrace.Sql.ChessDb context)
         {
             _context = context;
         }

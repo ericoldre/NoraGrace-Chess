@@ -12,6 +12,7 @@ namespace NoraGrace.Web.Model
     {
 
         private readonly NoraGrace.Sql.ChessDb _context;
+        private static log4net.ILog _log = log4net.LogManager.GetLogger(typeof(GameService));
 
         public GameService(NoraGrace.Sql.ChessDb context)
         {
@@ -36,6 +37,7 @@ namespace NoraGrace.Web.Model
             _context.Games.Add(game);
             _context.SaveChanges();
             var result = GameInfo.CreateFromDb(game);
+            _log.DebugFormat("Created {0}", result.GameId);
             return result;
         }
 
@@ -57,6 +59,7 @@ namespace NoraGrace.Web.Model
             _context.SaveChanges();
 
             var result = GameInfo.CreateFromDb(dbgame);
+            _log.DebugFormat("ApplyMove {0} {1}", result.GameId, moveDescription); ;
             return result;
         }
 

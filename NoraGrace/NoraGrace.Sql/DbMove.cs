@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NoraGrace.Sql
 {
-    public class Move
+    public class DbMove
     {
         [Key]
         [Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int GameId { get; set; }
-        public Game Game { get; set; }
+        public DbGame Game { get; set; }
 
         [Key]
         [Column(Order = 1)]

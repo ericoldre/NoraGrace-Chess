@@ -14,15 +14,15 @@ namespace NoraGrace.Sql
             //Database.SetInitializer<ChessDb>(new DropCreateDatabaseAlways<ChessDb>());
         }
 
-        public virtual DbSet<Game> Games { get; set; }
-        public virtual DbSet<Move> Moves { get; set; }
+        public virtual DbSet<DbGame> Games { get; set; }
+        public virtual DbSet<DbMove> Moves { get; set; }
         //public virtual DbSet<Player> Players { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Game>()
+            modelBuilder.Entity<DbGame>()
                 .HasMany(e => e.Moves)
                 .WithRequired(e => e.Game)
                 .HasForeignKey(e => e.GameId)

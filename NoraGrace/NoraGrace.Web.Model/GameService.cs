@@ -29,7 +29,7 @@ namespace NoraGrace.Web.Model
 
         public GameInfo Create(GameCreateOptions options)
         {
-            Sql.Game game = new Sql.Game()
+            Sql.DbGame game = new Sql.DbGame()
             {
                 White = options.White,
                 Black = options.Black
@@ -54,7 +54,7 @@ namespace NoraGrace.Web.Model
             if (!Engine.MoveUtil.IsLegal(move, board)) { throw new ArgumentOutOfRangeException("move", string.Format("{0} is not a legal move from position {1}", move.Description(), board.FENCurrent)); }
 
             board.MoveApply(move);
-            dbgame.Moves.Add(new Sql.Move() { GameId = gameId, MoveNumber = moveNumber, Player = player, Value = move });
+            dbgame.Moves.Add(new Sql.DbMove() { GameId = gameId, MoveNumber = moveNumber, Player = player, Value = move });
 
             _context.SaveChanges();
 
@@ -65,7 +65,7 @@ namespace NoraGrace.Web.Model
 
         public static class Utils
         {
-            public static Engine.Board DbGame2Board(Sql.Game dbGame)
+            public static Engine.Board DbGame2Board(Sql.DbGame dbGame)
             {
                 Engine.Board board = new Engine.Board();
 

@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NoraGrace.Sql
 {
-    public class Game
+    public class DbGame
     {
-        public Game()
+        public DbGame()
         {
-            Moves = new List<Move>();
+            Moves = new List<DbMove>();
         }
 
         [Key]
@@ -17,7 +17,7 @@ namespace NoraGrace.Sql
         public string White { get; set; }
         public string Black { get; set; }
         
-        public List<Move> Moves { get; set; }
+        public List<DbMove> Moves { get; set; }
 
         public NoraGrace.Engine.GameResult? Result { get; set; }
 

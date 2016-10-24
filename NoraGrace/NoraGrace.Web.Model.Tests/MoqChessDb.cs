@@ -12,11 +12,11 @@ namespace NoraGrace.Web.Model.Tests
     public class MoqChessDb: Moq.Mock<NoraGrace.Sql.ChessDb>
     {
 
-        public readonly System.Collections.ObjectModel.ObservableCollection<Sql.Game> GamesInMemory = new System.Collections.ObjectModel.ObservableCollection<Game>();
-        public readonly System.Collections.ObjectModel.ObservableCollection<Sql.Move> MovesInMemory = new System.Collections.ObjectModel.ObservableCollection<Move>();
+        public readonly System.Collections.ObjectModel.ObservableCollection<Sql.DbGame> GamesInMemory = new System.Collections.ObjectModel.ObservableCollection<DbGame>();
+        public readonly System.Collections.ObjectModel.ObservableCollection<Sql.DbMove> MovesInMemory = new System.Collections.ObjectModel.ObservableCollection<DbMove>();
 
-        public readonly Mock<DbSet<Sql.Game>> GamesMock;
-        public readonly Mock<DbSet<Sql.Move>> MovesMock;
+        public readonly Mock<DbSet<Sql.DbGame>> GamesMock;
+        public readonly Mock<DbSet<Sql.DbMove>> MovesMock;
         
         public MoqChessDb()
         {
@@ -35,7 +35,7 @@ namespace NoraGrace.Web.Model.Tests
         {
             if(e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
-                var needGameIds = e.NewItems.OfType<Sql.Game>().Where(g => g.GameId == default(int)).ToArray();
+                var needGameIds = e.NewItems.OfType<Sql.DbGame>().Where(g => g.GameId == default(int)).ToArray();
                 var nextId = 1;
                 if (GamesInMemory.Count > 0) { nextId = GamesInMemory.Max(g => g.GameId) + 1; }
                 foreach(var g in needGameIds)

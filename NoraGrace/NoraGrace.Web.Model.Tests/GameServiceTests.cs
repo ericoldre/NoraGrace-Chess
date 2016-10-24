@@ -19,7 +19,7 @@ namespace NoraGrace.Web.Model.Tests
         public void FindReturnsGameInfo()
         {
             _log.Debug("");
-            var game = new Sql.Game() { GameId = 64, White = "white", Black = "black", Result = Engine.GameResult.Draw, ResultReason = Engine.GameResultReason.Unknown };
+            var game = new Sql.DbGame() { GameId = 64, White = "white", Black = "black", Result = Engine.GameResult.Draw, ResultReason = Engine.GameResultReason.Unknown };
             var db = new MoqChessDb();
 
             db.GamesInMemory.Add(game);
@@ -48,7 +48,7 @@ namespace NoraGrace.Web.Model.Tests
             var repo = new GameService(db.Object);
             var result = repo.Create(new GameCreateOptions());
             Assert.AreEqual<int>(1, db.GamesInMemory.Count);
-            db.GamesMock.Verify(g => g.Add(It.IsAny<Game>()), Times.Once());
+            db.GamesMock.Verify(g => g.Add(It.IsAny<DbGame>()), Times.Once());
             db.Verify(m => m.SaveChanges(), Times.Once());
             GameInfoTests.AssertValidGameInfo(result);
         }
@@ -71,7 +71,7 @@ namespace NoraGrace.Web.Model.Tests
         {
 
             var db = new MoqChessDb();
-            var game = new Sql.Game() { GameId = 64, White = "white", Black = "black" };
+            var game = new Sql.DbGame() { GameId = 64, White = "white", Black = "black" };
             db.GamesInMemory.Add(game);
 
             var repo = new GameService(db.Object);

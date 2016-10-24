@@ -1,0 +1,50 @@
+﻿@model NoraGrace.Sql.DbGame
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DbGame</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.White)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.White)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Black)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Black)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Result)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Result)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ResultReason)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ResultReason)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.GameId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

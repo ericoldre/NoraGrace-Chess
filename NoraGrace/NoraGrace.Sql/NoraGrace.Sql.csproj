@@ -54,8 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChessDb.cs" />
-    <Compile Include="Game.cs" />
-    <Compile Include="Move.cs" />
+    <Compile Include="DbGame.cs" />
+    <Compile Include="DbMove.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

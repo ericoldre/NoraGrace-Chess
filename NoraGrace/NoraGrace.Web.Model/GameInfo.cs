@@ -23,7 +23,7 @@ namespace NoraGrace.Web.Model
 
         #endregion
 
-        public static GameInfo CreateFromDb(Sql.Game game)
+        public static GameInfo CreateFromDb(Sql.DbGame game)
         {
             GameInfo retval = CreateFromData(game.GameId, game.Moves.Select(m => m.Value));
             return retval;

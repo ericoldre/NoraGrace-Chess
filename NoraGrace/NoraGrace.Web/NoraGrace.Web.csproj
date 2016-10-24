@@ -44,6 +44,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
       <Private>True</Private>
@@ -178,6 +182,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\DbGamesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Global.asax.cs">
@@ -244,6 +249,11 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\DbGames\Create.cshtml" />
+    <Content Include="Views\DbGames\Delete.cshtml" />
+    <Content Include="Views\DbGames\Details.cshtml" />
+    <Content Include="Views\DbGames\Edit.cshtml" />
+    <Content Include="Views\DbGames\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -255,6 +265,20 @@
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NoraGrace.Engine\NoraGrace.Engine.csproj">
+      <Project>{e86f13a0-cc65-4e3c-aa5f-030ce93d36b7}</Project>
+      <Name>NoraGrace.Engine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NoraGrace.Sql\NoraGrace.Sql.csproj">
+      <Project>{d5bb61bc-e7ec-486e-87e9-fe1fc17f3859}</Project>
+      <Name>NoraGrace.Sql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NoraGrace.Web.Model\NoraGrace.Web.Model.csproj">
+      <Project>{f8e9b951-4d1f-45bd-8558-b50397cace2a}</Project>
+      <Name>NoraGrace.Web.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

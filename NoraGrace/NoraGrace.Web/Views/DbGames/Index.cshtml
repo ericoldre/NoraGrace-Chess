@@ -1,0 +1,51 @@
+﻿@model IEnumerable<NoraGrace.Sql.DbGame>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.White)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Black)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Result)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ResultReason)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.White)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Black)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Result)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ResultReason)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.GameId }) |
+            @Html.ActionLink("Details", "Details", new { id=item.GameId }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.GameId })
+        </td>
+    </tr>
+}
+
+</table>

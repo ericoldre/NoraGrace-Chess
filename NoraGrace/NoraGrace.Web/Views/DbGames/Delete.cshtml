@@ -1,0 +1,56 @@
+﻿@model NoraGrace.Sql.DbGame
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>DbGame</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.White)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.White)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Black)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Black)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Result)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Result)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ResultReason)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ResultReason)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

@@ -41,14 +41,17 @@ namespace NoraGrace.Web.Model
             return result;
         }
 
-        public GameInfo ApplyMove(int gameId, int moveNumber, Player player, string moveDescription)
+        public GameInfo ApplyMove(int gameId, string moveDescription)
         {
             var dbgame = _context.Games.Include(g => g.Moves).FirstOrDefault(g => g.GameId == gameId);
             if (dbgame.Result.HasValue) { throw new InvalidOperationException("game has already been completed"); }
 
             var board = Utils.DbGame2Board(dbgame);
 
-            if(board.WhosTurn != player) { throw new ArgumentOutOfRangeException("player", string.Format("it is not that players turn")); }
+            Player player = board.WhosTurn;
+            int moveNumber = board.FullMoveCount;
+
+            if (board.WhosTurn != player) { throw new ArgumentOutOfRangeException("player", string.Format("it is not that players turn")); }
             if(dbgame.Moves.Where(m=>m.Player==player).Count() != moveNumber - 1) { throw new ArgumentOutOfRangeException("moveNumber"); }
             Engine.Move move = Engine.MoveUtil.Parse(board, moveDescription);
             if (!Engine.MoveUtil.IsLegal(move, board)) { throw new ArgumentOutOfRangeException("move", string.Format("{0} is not a legal move from position {1}", move.Description(), board.FENCurrent)); }

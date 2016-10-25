@@ -1,50 +1,34 @@
-﻿@model NoraGrace.Sql.DbGame
+﻿@model NoraGrace.Web.ViewModels.Games.DetailsViewModel
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Create";
 }
 
-<h2>Details</h2>
+<h2>Create</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    foreach (var legalMove in Model.GameInfo.LegalMoves)
+    {
+        <div>
+            @Html.ActionLink(legalMove.Description, "ApplyMove", new { id = Model.GameInfo.GameId, move = legalMove.Description });
+        </div>
+    }
+
+    <div>
+        @Html.DisplayFor(model => model.GameInfo.FEN)
+    </div>
+
+    @Html.Raw(Json.Encode(Model.GameInfo))
+}
 
 <div>
-    <h4>DbGame</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.White)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.White)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Black)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Black)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Result)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Result)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ResultReason)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ResultReason)
-        </dd>
-
-    </dl>
-</div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.GameId }) |
     @Html.ActionLink("Back to List", "Index")
-</p>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

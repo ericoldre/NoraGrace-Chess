@@ -20,6 +20,7 @@ namespace NoraGrace.Web.Controllers
             return View(db.Games.ToList());
         }
 
+
         // GET: DbGames/Details/5
         public ActionResult Details(int? id)
         {
@@ -27,12 +28,21 @@ namespace NoraGrace.Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            DbGame dbGame = db.Games.Find(id);
-            if (dbGame == null)
+            NoraGrace.Web.Model.GameService gameService = new Model.GameService(db);
+
+            Web.Model.GameInfo gameInfo;
+            try
+            {
+                gameInfo = gameService.Find(id.Value);
+            }
+            catch (ArgumentOutOfRangeException)
             {
                 return HttpNotFound();
             }
-            return View(dbGame);
+
+            ViewModels.Games.DetailsViewModel viewModel = new ViewModels.Games.DetailsViewModel();
+            viewModel.GameInfo = gameInfo;
+            return View(viewModel);
         }
 
         // GET: DbGames/Create
@@ -60,36 +70,17 @@ namespace NoraGrace.Web.Controllers
             return View(viewModel);
         }
 
-        // GET: DbGames/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult ApplyMove(int id, string move)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DbGame dbGame = db.Games.Find(id);
-            if (dbGame == null)
-            {
-                return HttpNotFound();
-            }
-            return View(dbGame);
+            NoraGrace.Web.Model.GameService gameService = new Model.GameService(db);
+            var info = gameService.ApplyMove(id, move);
+
+
+            return RedirectToAction("Details", new { id = id });
+
+
         }
 
-        // POST: DbGames/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "GameId,White,Black,Result,ResultReason")] DbGame dbGame)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(dbGame).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(dbGame);
-        }
 
         // GET: DbGames/Delete/5
         public ActionResult Delete(int? id)

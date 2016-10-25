@@ -76,7 +76,7 @@ namespace NoraGrace.Web.Model.Tests
 
             var repo = new GameService(db.Object);
 
-            var result = repo.ApplyMove(64, 1, Player.White, "a4");
+            var result = repo.ApplyMove(64, "a4");
 
             Assert.AreEqual<int>(1, game.Moves.Count);
             db.Verify(m => m.SaveChanges(), Times.Once());
